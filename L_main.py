@@ -7,6 +7,8 @@ from Library.db_pokimon import  create_pokemon,delete_pokemon,update_pokemon
 from Vistas.listas import *
 import random
 
+#hola xd
+
 # Rutas relativas de las imágenes
 ASSETS_PATH = Path(r"C:\El_Proyecto\assets_2")
 
@@ -307,12 +309,12 @@ class Registrar(tk.Frame):
         canvas.create_text(263.0, 152.0, anchor="nw", text="Formato", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(520.0, 152.0, anchor="nw", text="Sala", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(779.0, 152.0, anchor="nw", text="Genero", fill="#000000", font=("Montserrat Regular", 15))
-        canvas.create_text(1036.0, 152.0, anchor="nw", text="Color", fill="#000000", font=("Montserrat Regular", 15))
+        
         #fila 2
         canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(520.0, 252.0, anchor="nw", text="Numero de registro", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#000000", font=("Montserrat Regular", 15))
-        canvas.create_text(1036.0, 252.0, anchor="nw", text="Codigo", fill="#000000", font=("Montserrat Regular", 15))
+        canvas.create_text(1036.0, 252.0, anchor="nw", text=" N° volumen", fill="#000000", font=("Montserrat Regular", 15))
         
         #fila 3
         canvas.create_text(263.0, 352.0, anchor="nw", text="Titulo", fill="#000000", font=("Montserrat Regular", 15))
@@ -325,25 +327,32 @@ class Registrar(tk.Frame):
         #-------------------------------------------------------------------------------------
         # Crear y colocar los widgets
         #primera fila
+        
+        
+        """
+        validate="key": Configura el widget para que valide la entrada cada vez que se presiona una tecla.
+        validatecommand=(validate_number, "%P"): Define el comando de validación. validate_number es una función que se llamará para validar la entrada, y "%P" es un marcador de posición que representa el contenido del widget después de la edición.
+        """
+        
+        self.cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        
         self.altura = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.altura.place(x=520.0, y=282.0, width=237.0, height=38.0)
  
-        self.peso = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.peso.place(x=263.0, y=282.0, width=237.0, height=37.5)
-        
         self.entry1 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.entry1.place(x=779.0, y=282.0, width=237.0, height=37.5)
         
         self.entry2 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.entry2.place(x=1036.0, y=282.0, width=237.0, height=37.5)
         #segunda fila
-        self.entry3 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.entry3 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
         self.entry3.place(x=263.0, y=382.0, width=237.0, height=37.5)
         
-        self.entry4 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.entry4 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
         self.entry4.place(x=520.0, y=382.0, width=237.0, height=37.5)
         
-        self.entry5 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.entry5 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
         self.entry5.place(x=779.0, y=382.0, width=237.0, height=37.5)
         #tercera fila
         
@@ -374,8 +383,7 @@ class Registrar(tk.Frame):
         
         self.tipos_de_pokemones = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.tipos_de_pokemones.place(x=520.0, y=181.5)
-        self.combobox4 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.combobox4.place(x=1036.0, y=181.5)
+
         self.combobox3 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.combobox3.place(x=779.0, y=181.5)
         
@@ -771,12 +779,12 @@ class Modificar(tk.Frame):
         canvas.create_text(263.0, 152.0, anchor="nw", text="Formato", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(520.0, 152.0, anchor="nw", text="Sala", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(779.0, 152.0, anchor="nw", text="Genero", fill="#000000", font=("Montserrat Regular", 15))
-        canvas.create_text(1036.0, 152.0, anchor="nw", text="Color", fill="#000000", font=("Montserrat Regular", 15))
+        
         #fila 2
         canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(520.0, 252.0, anchor="nw", text="Numero de registro", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#000000", font=("Montserrat Regular", 15))
-        canvas.create_text(1036.0, 252.0, anchor="nw", text="Codigo", fill="#000000", font=("Montserrat Regular", 15))
+        canvas.create_text(1036.0, 252.0, anchor="nw", text=" N° volumen", fill="#000000", font=("Montserrat Regular", 15))
         
         #fila 3
         canvas.create_text(263.0, 352.0, anchor="nw", text="Titulo", fill="#000000", font=("Montserrat Regular", 15))
@@ -845,8 +853,7 @@ class Modificar(tk.Frame):
         
         self.tipos_de_pokemones = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.tipos_de_pokemones.place(x=520.0, y=181.5)
-        self.combobox4 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.combobox4.place(x=1036.0, y=181.5)
+
         self.combobox3 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.combobox3.place(x=779.0, y=181.5)
         
