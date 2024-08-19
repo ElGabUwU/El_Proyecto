@@ -26,7 +26,7 @@ class selection():
             type_rol = search_users(self.usuario)
             rol_usuario = type_rol[0][1]
         else:
-            rol_usuario = "administrador"
+            rol_usuario = "Administrador"
         
         def relative_to_assets(path: str) -> Path:
             return ASSETS_PATH / Path(path)
@@ -41,7 +41,7 @@ class selection():
         self.window.geometry("1366x768")
         self.window.configure(bg = "#FFFFFF")
         #Configuramos el icono de la aplicación
-        self.window.iconbitmap(relative_to_assets('PokeBall.ico'))
+        self.window.iconbitmap(relative_to_assets('Arcanum.ico'))
 
         #Main_PW=Main_PW()
 
@@ -67,7 +67,7 @@ class selection():
         
           #Funcion para evaluar el rol del usuario
         def isAdministrator(rol_usuario):
-            return rol_usuario == "administrador"
+            return rol_usuario == "Administrador"
         
         # Función para manejar el clic del botón
         def handle_button_click():
