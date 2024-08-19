@@ -7,8 +7,6 @@ from Library.db_pokimon import  create_pokemon,delete_pokemon,update_pokemon
 from Vistas.listas import *
 import random
 
-#hola xd
-
 # Rutas relativas de las imágenes
 ASSETS_PATH = Path(r"C:\El_Proyecto\assets_2")
 
@@ -23,15 +21,15 @@ def relative_to_assets(path: str) -> Path:
 # Clase principal de la aplicación
 class Balls(tk.Tk):
     def __init__(self, rol_usuario = None):
-        self.rol_usuario = "administrador"
+        self.rol_usuario = "Administrador"
         super().__init__()
-        self.title("Pokedex")
+        self.title("Libreria Arcanum")
         self.geometry("1366x768")
         self.container = tk.Frame(self)
         self.resizable(False, False)  # No permitir cambiar el tamaño de la ventana
         self.container.pack(fill="both", expand=True)
         self.current_frame = None
-        self.iconbitmap(relative_to_assets('PokeBall.ico'))
+        self.iconbitmap(relative_to_assets('Arcanum.ico'))
         self.show_frame(SecondaryPage)
         
         # Vincula la función on_closing al evento de cierre de la ventana
@@ -65,14 +63,14 @@ class Main_PW(tk.Frame):
         self.rol_usuario = rol_usuario
         usuario=recoger_sesion()
         self.usuario=usuario
-        self.config(bg="#FFFFFF")
+        self.config(bg="#cac4b0")
         self.create_widgets()
-
+#FFFFFF
     def create_widgets(self):
         self.images = {}
         canvas = tk.Canvas(
             self,
-            bg="#FFFFFF",
+            bg="#cac4b0",
             height=768,
             width=1366,
             bd=0,
@@ -80,7 +78,7 @@ class Main_PW(tk.Frame):
             relief="ridge"
         )
         canvas.place(x=0, y=0)
-
+#FFFFFF
         # Cargar y almacenar las imágenes
         self.images["image_1"] = tk.PhotoImage(file=relative_to_assets("main_relleno_lateral.png"))
         canvas.create_image(107.0, 412.0, image=self.images["image_1"])
@@ -89,19 +87,19 @@ class Main_PW(tk.Frame):
         canvas.create_image(789.0, 413.0, image=self.images["image_2"])
 
         self.images["image_3"] = tk.PhotoImage(file=relative_to_assets("header.png"))
-        canvas.create_image(682.0, 29.0, image=self.images["image_3"])
+        canvas.create_image(680.0, 25.0, image=self.images["image_3"])
 
         self.images["button_volver"] = tk.PhotoImage(file=relative_to_assets("U_volver.png"))
         tk.Button(
             self,
             image=self.images["button_volver"],
-            borderwidth=0,
-            highlightthickness=0,
+            borderwidth=3,
+            highlightthickness=2,
             activebackground="#E83030",
             command=self.open_seleccion,
-            relief="flat"
-        ).place(x=1135.0, y=15.0, width=208.0, height=29.0)
-        
+            relief="raised"
+        ).place(x=1110.0, y=690.0, width=218.0, height=32.0)
+
         self.images["registrar"] = tk.PhotoImage(file=relative_to_assets("main_boton_registrar.png"))
         tk.Button(
             self,
@@ -109,7 +107,7 @@ class Main_PW(tk.Frame):
             borderwidth=0,
             highlightthickness=0,
             command=self.open_registrar,
-            relief="flat"
+            relief="raised"
         ).place(x=1.0, y=57.0, width=213.0, height=58.0)
 
         self.images["button_image_2"] = tk.PhotoImage(file=relative_to_assets("main_boton_modificar.png"))
@@ -152,8 +150,8 @@ class Main_PW(tk.Frame):
             font=("Inter", 64 * -1)
         )
         canvas.create_text(
-            226.0,
-            5.0,
+            150.0,
+            4.0,
             anchor="nw",
             text="Sistema de Inventario",
             fill="#000000",
@@ -182,19 +180,19 @@ class Main_PW(tk.Frame):
         selection().open() 
         
     def open_registrar(self):
-        if self.rol_usuario == "administrador":
+        if self.rol_usuario == "Administrador":
             self.controller.show_frame(Registrar)
         else:
             self.show_permission_error()
 
     def open_modificar(self):
-        if self.rol_usuario == "administrador":
+        if self.rol_usuario == "Administrador":
             self.controller.show_frame(Modificar)
         else:
             self.show_permission_error()
 
     def open_eliminar(self):
-        if self.rol_usuario == "administrador":
+        if self.rol_usuario == "Administrador":
             self.controller.show_frame(Eliminar)
         else:
             self.show_permission_error()
@@ -209,7 +207,7 @@ class Registrar(tk.Frame):
         usuario=recoger_sesion()
         self.usuario=usuario
         self.controller = controller
-        self.config(bg="#FFFFFF")
+        self.config(bg="#cac4b0")
         self.create_widgets()
          
     def validate_number_input(self,text):
@@ -230,7 +228,7 @@ class Registrar(tk.Frame):
 
         canvas = tk.Canvas(
             self,
-            bg="#FFFFFF",
+            bg="#cac4b0",
             height=768,
             width=1366,
             bd=0,
@@ -258,8 +256,8 @@ class Registrar(tk.Frame):
             highlightthickness=0,
             command=lambda:self.open_seleccion(),
             activebackground="#E83030",
-            relief="flat"
-        ).place(x=1135.0, y=15.0, width=208.0, height=29.0)
+            relief="raised"
+        ).place(x=1110.0, y=690.0, width=218.0, height=32.0)
         
         self.images["button_image_5"] = tk.PhotoImage(file=relative_to_assets("main_boton_registrar.png"))
         tk.Button(
@@ -306,15 +304,15 @@ class Registrar(tk.Frame):
         # Titulos de los inputs
         canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a agregar", fill="#4C4C4C", font=("Montserrat Medium", 15))
         #fila 1
-        canvas.create_text(263.0, 152.0, anchor="nw", text="Formato", fill="#000000", font=("Montserrat Regular", 15))
-        canvas.create_text(520.0, 152.0, anchor="nw", text="Sala", fill="#000000", font=("Montserrat Regular", 15))
-        canvas.create_text(779.0, 152.0, anchor="nw", text="Genero", fill="#000000", font=("Montserrat Regular", 15))
-        
+        #canvas.create_text(263.0, 152.0, anchor="nw", text="Formato", fill="#000000", font=("Montserrat Regular", 15))
+        canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#000000", font=("Montserrat Regular", 15))
+        canvas.create_text(520.0, 152.0, anchor="nw", text="Categoria", fill="#000000", font=("Montserrat Regular", 15))
+        canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#000000", font=("Montserrat Regular", 15))
         #fila 2
         canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(520.0, 252.0, anchor="nw", text="Numero de registro", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#000000", font=("Montserrat Regular", 15))
-        canvas.create_text(1036.0, 252.0, anchor="nw", text=" N° volumen", fill="#000000", font=("Montserrat Regular", 15))
+        canvas.create_text(1036.0, 252.0, anchor="nw", text="Codigo", fill="#000000", font=("Montserrat Regular", 15))
         
         #fila 3
         canvas.create_text(263.0, 352.0, anchor="nw", text="Titulo", fill="#000000", font=("Montserrat Regular", 15))
@@ -327,32 +325,25 @@ class Registrar(tk.Frame):
         #-------------------------------------------------------------------------------------
         # Crear y colocar los widgets
         #primera fila
-        
-        
-        """
-        validate="key": Configura el widget para que valide la entrada cada vez que se presiona una tecla.
-        validatecommand=(validate_number, "%P"): Define el comando de validación. validate_number es una función que se llamará para validar la entrada, y "%P" es un marcador de posición que representa el contenido del widget después de la edición.
-        """
-        
-        self.cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
-        self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
-        
         self.altura = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.altura.place(x=520.0, y=282.0, width=237.0, height=38.0)
  
+        self.peso = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.peso.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        
         self.entry1 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.entry1.place(x=779.0, y=282.0, width=237.0, height=37.5)
         
         self.entry2 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.entry2.place(x=1036.0, y=282.0, width=237.0, height=37.5)
         #segunda fila
-        self.entry3 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.entry3 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.entry3.place(x=263.0, y=382.0, width=237.0, height=37.5)
         
-        self.entry4 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.entry4 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.entry4.place(x=520.0, y=382.0, width=237.0, height=37.5)
         
-        self.entry5 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.entry5 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.entry5.place(x=779.0, y=382.0, width=237.0, height=37.5)
         #tercera fila
         
@@ -369,26 +360,51 @@ class Registrar(tk.Frame):
         style.theme_use('clam')
         style.configure("TCombobox",
                         fieldbackground="#FFFFFF",  # Fondo del campo de entrada
-                        background="#FF0000",  # Fondo del desplegable
+                        background="#f4ec00",  # Fondo del desplegable
                         bordercolor="#000716",  # Color del borde
                         arrowcolor="#FFFFFF",  # Color de la flecha
                         padding= "9",
                         ) # padding para agrandar la altura del select
-        
+        #FF0000#f4ec00
         pokemon_types = [
-        "Agua", "Bicho", "Dragón", "Electrico", "Fuego", "Hielo",
-        "Lucha", "Normal", "Planta", "Psiquico", "Roca", "Tierra",
-        "Veneno", "Volador"
+        "Sala General", "Sala Infantil", "Sala Estadal"
         ]
+
+        asignature_type_children= ["Matemáticas","Castellano y Literatura","Ciencias Naturales","Petróleo","Agricultura","Cuentos Venezolanos",
+                                   "Fábulas","Novelas Históricas","Sección de los más pequeños","Cuentos de Animales","Novelas de Aventuras",
+                                   "Cuentos de Hadas y Fantasía","Cuentos Realistas","Poesías y Canciones Venezolanas","Cuentos de Aventuras",
+                                   "Teatro","Teatro Venezolano","Fábulas Venezolanas","Mitos y Leyendas Venezolanas"]
+        
+        asignature_type_state= ["Bibliografia-Estadal","Historia Local-Rubio-Junin","Publicaciones Periódicas"]
+
+        asignature_type_general= ["Almanaques Mundiales","Computacion","Enciclopedia","Enciclopedia y Diccionarios","Filosofía","Filosofía-Diccionarios",
+                                  "Informática","Metodología de la Investigación","Periodismo","Psicología","Psicología-Diccioanrios","Religión",
+                                  "Educación Familiar y Ciudadana","Sociología","Medios de Comunicación","Mujer y Familia","Estadística Social",
+                                  "Ciencias Políticas", "Economía Venezolana","Geografía Económica","Microeconomía","Macroeconomía","Derecho",
+                                  "Derecho Constitucional","Derecho Laboral","Derecho Penal","Límites y Fronteras","Administración Pública","Premilitar",
+                                  "Servicios Sociales", "Filosofía de la Educación","Educación","Educación Rural","Pedagogía","Técnicas de Estudio",
+                                  "Orientación", "Educación Preescolar","Educación Superior","Medios de Transporte","Currículo","Educación Básica",
+                                  "Publicaciones Oficiales-Folklore","Lenguaje","Linguística-Diccionarios","Lengua y Comunicación","Castellano y Literatura",
+                                  "Inglés","Castellano","Química-Física-Diccionarios","Botánica-Zoología-Diccionarios","Matemática","Ciencia",
+                                  "Estudios de la Naturaleza", "Álgebra","Matemática Financiera","Cálculo","Geometría","Astronomía","Física","Electricidad",
+                                  "Electrónica", "Química","Fisioquímica","Química Orgánica","Ciencias de la Tierra","Biología","Medicina-Diccionarios",
+                                  "Agricultura-Diccionarios","Biología Celular","Zoología","Ecología","Bioquímica","Enfermería","Anatomía Humana",
+                                  "Contaminación Ambiental","Seguridad Industrial","Naturismo","Drogar","Enfermedades Varias","Pediatría","Ingeniería","Reciclaje",
+                                  "Agricultura","Fertilizantes","Cultivos","Fruticultura","Ganadería","Comercio","Contabilidad","Administración",
+                                  "Administración de Emperesa","Avicultura","Nutrición","Ganadería","Zootecnia","Administración de Personal","Mercadotecnia",
+                                  "Historial del Arte","Dibujo","Arte y Recreación-Diccionarios","Artística","Artes Plásticas y Escultura","Pintura","Música",
+                                  "Educación Física","Deportes","Literatura-Diccioanrios","Literatura","Novelas","Novelas Venezolanas","Poesías","Historia Universal",
+                                  "Geografía General","Geografía de Venezuela","Historia","Historia de América","Historia Europea","Historia-Diccionarios"]
         
         self.tipos_de_pokemones = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.tipos_de_pokemones.place(x=520.0, y=181.5)
-
+        self.tipos_de_pokemones.place(x=520.0, y=181.5)#Categoria
+        self.combobox4 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
+        self.combobox4.place(x=1036.0, y=181.5)
         self.combobox3 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.combobox3.place(x=779.0, y=181.5)
+        self.combobox3.place(x=779.0, y=181.5)#Asignatura
         
         self.combobox1 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.combobox1.place(x=263.0, y=181.5)
+        self.combobox1.place(x=263.0, y=181.5)#Sala
         
         
         #-------------------------------------------------------------------------------
@@ -560,9 +576,9 @@ class Eliminar(tk.Frame):
             command=lambda:self.open_seleccion(),
             activebackground="#E83030",
             highlightthickness=0,
-            relief="flat"
+            relief="raised"
         )
-        self.button_volver.place(x=1135.0, y=15.0, width=208.0, height=29.0)
+        self.button_volver.place(x=1110.0, y=690.0, width=218.0, height=32.0)
         
         self.images["button_image_5"] = tk.PhotoImage(file=relative_to_assets("main_boton_registrar.png"))
         self.button_registrar = tk.Button(
@@ -731,7 +747,7 @@ class Modificar(tk.Frame):
             command=lambda:self.open_seleccion(),
             highlightthickness=0,
             relief="flat"
-        ).place(x=1135.0, y=15.0, width=208.0, height=29.0)
+        ).place(x=1110.0, y=690.0, width=218.0, height=32.0)
         
         self.images["button_image_5"] = tk.PhotoImage(file=relative_to_assets("main_boton_registrar.png"))
         tk.Button(
@@ -761,7 +777,7 @@ class Modificar(tk.Frame):
             highlightthickness=0,
             command=lambda: { self.controller.destroy(), show_pokemons() },
             relief="flat"
-        ).place(x=1.0, y=115.0, width=213.0, height=58.0)
+        ).place(x=2.0, y=115.0, width=213.0, height=58.0)
 
         self.images["button_image_4"] = tk.PhotoImage(file=relative_to_assets("main_boton_eliminar.png"))
         tk.Button(
@@ -776,15 +792,15 @@ class Modificar(tk.Frame):
         # Titulos de los inputs
         canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a modificar", fill="#4C4C4C", font=("Montserrat Medium", 15))
         #fila 1
-        canvas.create_text(263.0, 152.0, anchor="nw", text="Formato", fill="#000000", font=("Montserrat Regular", 15))
-        canvas.create_text(520.0, 152.0, anchor="nw", text="Sala", fill="#000000", font=("Montserrat Regular", 15))
-        canvas.create_text(779.0, 152.0, anchor="nw", text="Genero", fill="#000000", font=("Montserrat Regular", 15))
-        
+        #canvas.create_text(263.0, 152.0, anchor="nw", text="Formato", fill="#000000", font=("Montserrat Regular", 15))
+        canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#000000", font=("Montserrat Regular", 15))
+        canvas.create_text(520.0, 152.0, anchor="nw", text="Categoria", fill="#000000", font=("Montserrat Regular", 15))
+        canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#000000", font=("Montserrat Regular", 15))
         #fila 2
         canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(520.0, 252.0, anchor="nw", text="Numero de registro", fill="#000000", font=("Montserrat Regular", 15))
         canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#000000", font=("Montserrat Regular", 15))
-        canvas.create_text(1036.0, 252.0, anchor="nw", text=" N° volumen", fill="#000000", font=("Montserrat Regular", 15))
+        canvas.create_text(1036.0, 252.0, anchor="nw", text="Codigo", fill="#000000", font=("Montserrat Regular", 15))
         
         #fila 3
         canvas.create_text(263.0, 352.0, anchor="nw", text="Titulo", fill="#000000", font=("Montserrat Regular", 15))
@@ -853,7 +869,8 @@ class Modificar(tk.Frame):
         
         self.tipos_de_pokemones = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.tipos_de_pokemones.place(x=520.0, y=181.5)
-
+        self.combobox4 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
+        self.combobox4.place(x=1036.0, y=181.5)
         self.combobox3 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.combobox3.place(x=779.0, y=181.5)
         
