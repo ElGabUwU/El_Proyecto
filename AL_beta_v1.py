@@ -63,7 +63,7 @@ class Menu(tk.Frame):
             borderwidth=0,
             highlightthickness=0,
             #command=lambda: self.header.update_header_text("Registrar")
-            command=lambda:{self.frame_header.update_header_text("Registrar"),mostrar_frame(frame_registrar)},
+            command=lambda:{self.frame_header.update_header_text("Registrar"),mostrar_frame(app.frame_registrar)},
             relief="flat"
         ).place(x=1.0, y=0, width=213.0, height=58.0)
         
@@ -73,7 +73,7 @@ class Menu(tk.Frame):
             image=self.images["button_image_2"],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: {self.frame_header.update_header_text("Modificar"),mostrar_frame(frame_modificar)},
+            command=lambda: {self.frame_header.update_header_text("Modificar"),mostrar_frame(app.frame_modificar)},
             relief="flat"
         ).place(x=1.0, y=116.0, width=213.0, height=58.0)
         
@@ -92,7 +92,7 @@ class Menu(tk.Frame):
             image=self.images["button_image_4"],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: {self.frame_header.update_header_text("Eliminar"),mostrar_frame(frame_eliminar)},
+            command=lambda: {self.frame_header.update_header_text("Eliminar"),mostrar_frame(app.frame_eliminar)},
             relief="flat"
         ).place(x=1.0, y=174.0, width=213.0, height=58.0)
     
@@ -436,32 +436,38 @@ class Eliminar(tk.Frame):
         self.button_e.place(x=265.0, y=264.0, width=130.0, height=40.0)
         
 #los place_forget se podrian optimizar        
+import tkinter as tk
+
 def mostrar_frame(frame):
-    frame_bienvenida.place_forget()
-    frame_modificar.place_forget()
-    frame_registrar.place_forget()
-    frame_eliminar.place_forget()
+    app.frame_bienvenida.place_forget()
+    app.frame_modificar.place_forget()
+    app.frame_registrar.place_forget()
+    app.frame_eliminar.place_forget()
     frame.place(x=0, y=0)
-    frame_menu.lift()
-    frame_header.lift() 
-    
+    app.frame_menu.lift()
+    app.frame_header.lift()
+
+class Starter(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.geometry("1366x768")
+        self.title("Arcanum Library")
+        #self.iconbitmap(relative_to_assets('PokeBall.ico')) aqui iria el icono de la app
+        self.frame_eliminar = Eliminar(self)
+        self.frame_modificar = Modificar(self)
+        self.frame_registrar = Registrar(self)
+
+        self.frame_bienvenida = Bienvenida(self)
+        self.frame_bienvenida.place(x=0, y=0)
+
+        self.frame_header = Header(self)
+        self.frame_header.place(x=0, y=0, width=1366, height=54)
+
+        self.frame_menu = Menu(self, mostrar_frame, self.frame_header)
+        self.frame_menu.place(x=0, y=54, width=215, height=714)
+
 if __name__ == "__main__":
-    root = tk.Tk()
-    root.geometry("1366x768")
-    root.title("Arcanum Library")
-    #root.iconbitmap(relative_to_assets('PokeBall.ico')) aqui iria el icono de la app
-    frame_eliminar=Eliminar(root)
-    frame_modificar=Modificar(root)
-    frame_registrar=Registrar(root)
+    app = Starter()
+    app.mainloop()
 
-    frame_bienvenida=Bienvenida(root)
-    frame_bienvenida.place(x=0, y=0)
-
-    frame_header = Header(root)
-    frame_header.place(x=0, y=0, width=1366, height=54)
-
-    frame_menu = Menu(root, mostrar_frame,frame_header)
-    frame_menu.place(x=0, y=54, width=215, height=714)
-
-    root.mainloop()
 
