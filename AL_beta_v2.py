@@ -250,7 +250,7 @@ class Registrar(tk.Frame):
             image=boton_R,
             borderwidth=0,
             highlightthickness=0,
-            #command=lambda: self.add_pokemon(),
+            command=lambda: self.add_pokemon(),
             relief="flat",
         ).place(x=265.0, y=635.0, width=130.0, height=40.0)
         
@@ -359,7 +359,7 @@ class Modificar(tk.Frame):
             image=boton_R,
             borderwidth=0,
             highlightthickness=0,
-           # command=lambda: self.mod_pokemon(),
+            command=lambda: self.mod_pokemon(),
             relief="flat",
         ).place(x=1163.0, y=635.0, width=130.0, height=40.0)
         
@@ -430,7 +430,7 @@ class Eliminar(tk.Frame):
             image=self.images['boton_Eliminar_f'],
             borderwidth=0,
             highlightthickness=0,
-            #command=lambda:self.Delete_Pokion(),
+            command=lambda:self.Delete_Pokion(),
             relief="flat"
         )
         self.button_e.place(x=265.0, y=264.0, width=130.0, height=40.0)
