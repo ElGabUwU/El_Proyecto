@@ -13,6 +13,7 @@ from Library.db_pokimon import  create_pokemon,delete_pokemon,update_pokemon
 from Vistas.listas import *
 import random
 
+
 def validate_number_input(text):
         if text == "":
             return True

@@ -47,27 +47,24 @@ class U_Registrar(tk.Frame):
         #-------------------------------------------------------------------------------------
         # Crear y colocar los widgets
         #primera fila
-        self.altura = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.altura.place(x=520.0, y=282.0, width=237.0, height=38.0)
+        self.input_nombre = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_nombre.place(x=520.0, y=282.0, width=237.0, height=38.0)
  
-        self.peso = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.peso.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        self.input_apellido = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_apellido.place(x=263.0, y=282.0, width=237.0, height=37.5)
         
-        self.entry1 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry1.place(x=779.0, y=282.0, width=237.0, height=37.5)
+        self.input_cedula = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_cedula.place(x=779.0, y=282.0, width=237.0, height=37.5)
         
         
         #segunda fila
-        self.entry3 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry3.place(x=263.0, y=382.0, width=237.0, height=37.5)
+        self.input_username = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_username.place(x=263.0, y=382.0, width=237.0, height=37.5)
         
-        self.entry4 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry4.place(x=520.0, y=382.0, width=237.0, height=37.5)
+        self.input_password = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_password.place(x=520.0, y=382.0, width=237.0, height=37.5)
         
-       
         #tercera fila
-        
-        
         
         #Select tipo de pokemon
         style = ttk.Style()
@@ -86,8 +83,8 @@ class U_Registrar(tk.Frame):
         "Veneno", "Volador"
         ]
          
-        self.combobox1 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.combobox1.place(x=263.0, y=181.5)
+        self.cargo_combobox = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
+        self.cargo_combobox.place(x=263.0, y=181.5)
         
         
         #-------------------------------------------------------------------------------
@@ -139,22 +136,25 @@ class U_Modificar(tk.Frame):
         #-------------------------------------------------------------------------------------
         # Crear y colocar los widgets
         #primera fila
-        self.altura = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.altura.place(x=520.0, y=282.0, width=237.0, height=38.0)
- 
-        self.peso = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.peso.place(x=263.0, y=282.0, width=237.0, height=37.5)
         
-        self.entry1 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry1.place(x=779.0, y=282.0, width=237.0, height=37.5)
+        #se deberia agregar un campo de id?
+        
+        self.input_nombre = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_nombre.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        
+        self.input_apellido = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_apellido.place(x=520.0, y=282.0, width=237.0, height=38.0)
+        
+        self.input_cedula = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_cedula.place(x=779.0, y=282.0, width=237.0, height=37.5)
         
         
         #segunda fila
-        self.entry3 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry3.place(x=263.0, y=382.0, width=237.0, height=37.5)
+        self.input_username = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_username.place(x=263.0, y=382.0, width=237.0, height=37.5)
         
-        self.entry4 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry4.place(x=520.0, y=382.0, width=237.0, height=37.5)
+        self.input_password = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_password.place(x=520.0, y=382.0, width=237.0, height=37.5)
         
         #Select tipo de pokemon
         style = ttk.Style()
@@ -205,7 +205,7 @@ class U_Eliminar(tk.Frame):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
-        #validate_number = self.register(validate_number_input)
+        validate_number = self.register(validate_number_input)
         self.images = {}
 
         # Formulario para el eliminar
@@ -214,15 +214,18 @@ class U_Eliminar(tk.Frame):
         # Texto para el nombre
         self.label_nombre = self.canvas.create_text(263.0, 152.0, anchor="nw", text="Cedula", fill="#000000", font=("Montserrat Regular", 15))
         
-        self.input_nombre = tk.Entry(
+        self.input_cedula = tk.Entry(
+            self,
             bd=0,
             bg="#FFFFFF",
             fg="#000716",
             highlightthickness=0, 
             borderwidth=0.5, 
-            relief="solid"
+            relief="solid",
+            validate="key", 
+            validatecommand=(validate_number, "%P")
         )
-        self.input_nombre.place(x=263.0, y=182.0, width=237.0, height=38.0)
+        self.input_cedula.place(x=263.0, y=182.0, width=237.0, height=38.0)
         
         # Cargar y almacenar las imágenes
         self.images['boton_Eliminar_f'] = tk.PhotoImage(file=relative_to_assets("Boton_eliminar.png"))
