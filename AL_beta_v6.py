@@ -61,6 +61,9 @@ class Menu(tk.Frame):
         
         self.P_menu_button=tk.Button(self, text="Prestamos ▼", bg="#75C99A", fg="#333333", font=("Inter", 24), relief="raised", command=lambda:self.show_menu(self.P_dropdown_menu,self.P_menu_button), anchor="w", padx=10)
         self.P_menu_button.place(x=1.0, y=116.0, width=213.0, height=58.0)
+        
+        self.perfil_button=tk.Button(self, text="Mi Perfil", bg="#75C99A", fg="#333333", font=("Inter", 24), relief="raised",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
+        self.perfil_button.place(x=1.0, y=174.0, width=213.0, height=58.0)
 
         # menú desplegable de Libros
         self.L_dropdown_menu = tk.Menu(self, tearoff=0, bg="#7CE98D", fg="#333333", font=("Inter", 24),
@@ -179,8 +182,38 @@ class Header(tk.Frame):
     def update_header_text(self, new_text):
         self.canvas.itemconfig(self.header_var_text, text=new_text)
         
+class Perfil(tk.Frame):        
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
+        self.canvas.pack(side="left", fill="both", expand=False)
+        #validate_number = self.register(validate_number_input)
+        self.images = {}
+        
+        # Titulos de los inputs #310 x
+        self.canvas.create_text(263.0, 95.0, anchor="nw", text="Tu información", fill="#000000", font=("Montserrat Medium", 24))
+        
+        #seccion de informacion de cuenta
+        self.canvas.create_text(263.0, 166.0, anchor="nw", text="Información de la cuenta", fill="black", font=("Montserrat Regular", 18))
+        
+        self.canvas.create_text(263.0, 215.0, anchor="nw", text="Nombre de usuario: El Gabo", fill="#4C4C4C", font=("Montserrat Regular", 15))
+        
+        self.canvas.create_text(263.0, 264.0, anchor="nw", text="Contraseña: 1234", fill="#4C4C4C", font=("Montserrat Regular", 15))
+
+        self.canvas.create_text(263.0, 313.0, anchor="nw", text="Rol: Admin", fill="#4C4C4C", font=("Montserrat Regular", 15))
+        
+        #seccion de informacion del usuario
+        self.canvas.create_text(263.0, 370.0, anchor="nw", text="Información del Usuario", fill="black", font=("Montserrat Regular", 18))
+        
+        self.canvas.create_text(263.0, 418.0, anchor="nw", text="Nombres: Pineda Benitez", fill="#4C4C4C", font=("Montserrat Regular", 15))
+        
+        self.canvas.create_text(263.0, 467.0, anchor="nw", text="Apellidos: Gabriel Ernesto", fill="#4C4C4C", font=("Montserrat Regular", 15))
+
+        self.canvas.create_text(263.0, 516.0, anchor="nw", text="Cargo: Administrador", fill="#4C4C4C", font=("Montserrat Regular", 15))
+        
+        self.canvas.create_text(263.0, 565.0, anchor="nw", text="Cedula: 31.242.538", fill="#4C4C4C", font=("Montserrat Regular", 15))
+        
 #los place_forget se podrian optimizar        
-import tkinter as tk
 
 def mostrar_frame(frame):
     app.frame_bienvenida.place_forget()
@@ -193,6 +226,7 @@ def mostrar_frame(frame):
     app.P_frame_eliminar.place_forget()
     app.P_frame_modificar.place_forget()
     app.P_frame_registrar.place_forget()
+    app.frame_perfil.place_forget()
     frame.place(x=0, y=0)
     app.frame_menu.lift()
     app.frame_header.lift()
@@ -212,6 +246,7 @@ class Starter(tk.Tk):
         self.P_frame_eliminar = P_Eliminar(self)
         self.P_frame_modificar = P_Modificar(self)
         self.P_frame_registrar = P_Registrar(self)
+        self.frame_perfil=Perfil(self)
 
         self.frame_bienvenida = Bienvenida(self)
         self.frame_bienvenida.place(x=0, y=0)
@@ -228,8 +263,12 @@ if __name__ == "__main__":
 
 
 
+# mi to do list:
+
 #cambiar nombres variables, faltan algunos combobox
 
-#menu mi perfil
 #adaptar el codigo de henry
+
 #agregar las opciones correctas al combobox de cargo en los frames de usuarios
+
+#crear funciones para modificar datos desde el menu de perfil para porder usarlo luego desde las listas?
