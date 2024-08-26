@@ -1,9 +1,3 @@
-#ADVERTENCIA!!!!!
-
-#este archivo no posee gran parte del codigo backend de la pokedex o de L_main o U_main2
-#debe ser agregado segun sea necesario
-#de momento solo una version optimizada del front avarcando el contenido de L_main
-
 import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
@@ -12,7 +6,6 @@ from Library.librerias import recoger_sesion, drop_sesion
 from Library.db_pokimon import  create_pokemon,delete_pokemon,update_pokemon
 from Vistas.listas import *
 import random
-
 
 def validate_number_input(text):
         if text == "":
@@ -26,119 +19,7 @@ def validate_number_input(text):
 def relative_to_assets(path: str) -> str:
     return f"./assets_2/{path}"
 
-class Bienvenida(tk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
-        self.canvas.pack(side="left", fill="both", expand=False)
-        self.images = {}
-        self.canvas.create_text(
-                600.0,
-                141.0,
-                anchor="nw",
-                text="Bienvenido",
-                fill="#191919",
-                font=("Inter", 64 * -1)
-            )
-class Menu(tk.Frame):
-    def __init__(self, parent, mostrar_frame,frame_header):
-        super().__init__(parent)
-        self.pack(side="left", fill="both", expand=True)
-        self.frame_header=frame_header
-        self.images = {}
-        self.canvas = tk.Canvas(
-            self,
-            bg="#FFFFFF",
-            height=768,
-            width=215,  
-            bd=0,
-            highlightthickness=0,
-            relief="ridge"
-        )
-        self.canvas.place(x=0, y=0)  
-       
-        self.images["registrar"] = tk.PhotoImage(file=relative_to_assets("main_boton_registrar.png"))
-        tk.Button(
-            self,
-            image=self.images["registrar"],
-            borderwidth=0,
-            highlightthickness=0,
-            #command=lambda: self.header.update_header_text("Registrar")
-            command=lambda:{self.frame_header.update_header_text("Registrar"),mostrar_frame(app.frame_registrar)},
-            relief="flat"
-        ).place(x=1.0, y=0, width=213.0, height=58.0)
-        
-        self.images["button_image_2"] = tk.PhotoImage(file=relative_to_assets("main_boton_modificar.png"))
-        tk.Button(
-            self,
-            image=self.images["button_image_2"],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: {self.frame_header.update_header_text("Modificar"),mostrar_frame(app.frame_modificar)},
-            relief="flat"
-        ).place(x=1.0, y=116.0, width=213.0, height=58.0)
-        
-        self.images["button_image_3"] = tk.PhotoImage(file=relative_to_assets("main_boton_listado.png"))
-        tk.Button(
-            self,
-            image=self.images["button_image_3"],
-            borderwidth=0,
-            highlightthickness=0,
-            #command=lambda: { self.controller.destroy(), show_pokemons() },
-            relief="flat"
-        ).place(x=1.0, y=58.0, width=213.0, height=58.0)
-        self.images["button_image_4"] = tk.PhotoImage(file=relative_to_assets("main_boton_eliminar.png"))
-        tk.Button(
-            self,
-            image=self.images["button_image_4"],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: {self.frame_header.update_header_text("Eliminar"),mostrar_frame(app.frame_eliminar)},
-            relief="flat"
-        ).place(x=1.0, y=174.0, width=213.0, height=58.0)
-    
-class Header(tk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.var_text="Sistema de Inventario"
-        self.images = {}
-        self.canvas = tk.Canvas(self, bg="white")
-        self.canvas.pack(side="left", fill="both", expand=False)
-        
-        self.canvas.place(x=1.0, y=0.0, width=1366.0, height=54.0)
-        self.images["image_3"] = tk.PhotoImage(file=relative_to_assets("header.png"))
-        self.canvas.create_image(682.0, 29.0, image=self.images["image_3"])
-        
-        self.header_var_text=self.canvas.create_text(
-            226.0,
-            5.0,
-            anchor="nw",
-            text="Sistema de Inventario",
-            fill="#000000",
-            font=("Inter", 40 * -1)
-        )
-        self.canvas.create_text(
-            26.0,
-            9.0,
-            anchor="nw",
-            text="pepe", #cuando el login este listo se nesita imprimir el nombre del usuario con algo asi como: self.usuario
-            fill="#000000",
-            font=("Inter", 18 * -1)
-        )
-        self.canvas.create_text(
-            26.0,
-            31.0,
-            anchor="nw",
-            text="admistrador", #cuando el login este listo se nesita imprimir el rol del usuario con algo asi como: self.rol_usuario
-            fill="#000000",
-            font=("Inter", 14 * -1)
-        )
-    def update_header_text(self, new_text):
-        self.canvas.itemconfig(self.header_var_text, text=new_text)
-    
-    
-        
-class Registrar(tk.Frame):
+class L_Registrar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
@@ -177,33 +58,33 @@ class Registrar(tk.Frame):
         validatecommand=(validate_number, "%P"): Define el comando de validación. validate_number es una función que se llamará para validar la entrada, y "%P" es un marcador de posición que representa el contenido del widget después de la edición.
         """
         
-        self.cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
-        self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        self.input_cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
         
-        self.altura = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.altura.place(x=520.0, y=282.0, width=237.0, height=38.0)
+        self.input_N_registro = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_N_registro.place(x=520.0, y=282.0, width=237.0, height=38.0)
  
-        self.entry1 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry1.place(x=779.0, y=282.0, width=237.0, height=37.5)
+        self.input_edicion = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_edicion.place(x=779.0, y=282.0, width=237.0, height=37.5)
         
-        self.entry2 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry2.place(x=1036.0, y=282.0, width=237.0, height=37.5)
+        self.input_N_volumen = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_N_volumen.place(x=1036.0, y=282.0, width=237.0, height=37.5)
         #segunda fila
-        self.entry3 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
-        self.entry3.place(x=263.0, y=382.0, width=237.0, height=37.5)
+        self.input_titulo = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_titulo.place(x=263.0, y=382.0, width=237.0, height=37.5)
         
-        self.entry4 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
-        self.entry4.place(x=520.0, y=382.0, width=237.0, height=37.5)
+        self.input_autor = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_autor.place(x=520.0, y=382.0, width=237.0, height=37.5)
         
-        self.entry5 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
-        self.entry5.place(x=779.0, y=382.0, width=237.0, height=37.5)
+        self.input_editorial = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_editorial.place(x=779.0, y=382.0, width=237.0, height=37.5)
         #tercera fila
         
-        self.entry6 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry6.place(x=263.0, y=482.0, width=237.0, height=37.5)
+        self.input_año = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_año.place(x=263.0, y=482.0, width=237.0, height=37.5)
         
-        self.entry7 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry7.place(x=520.0, y=482.0, width=237.0, height=37.5)
+        self.input_ejemplares = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_ejemplares.place(x=520.0, y=482.0, width=237.0, height=37.5)
         
         
         
@@ -223,6 +104,8 @@ class Registrar(tk.Frame):
         "Lucha", "Normal", "Planta", "Psiquico", "Roca", "Tierra",
         "Veneno", "Volador"
         ]
+        self.combobox1 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
+        self.combobox1.place(x=263.0, y=181.5)
         
         self.tipos_de_pokemones = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.tipos_de_pokemones.place(x=520.0, y=181.5)
@@ -230,8 +113,7 @@ class Registrar(tk.Frame):
         self.combobox3 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.combobox3.place(x=779.0, y=181.5)
         
-        self.combobox1 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.combobox1.place(x=263.0, y=181.5)
+        
         
         
         #-------------------------------------------------------------------------------
@@ -253,9 +135,9 @@ class Registrar(tk.Frame):
             highlightthickness=0,
             #command=lambda: self.add_pokemon(),
             relief="flat",
-        ).place(x=265.0, y=635.0, width=130.0, height=40.0)
+        ).place(x=265.0, y=555.0, width=130.0, height=40.0)
         
-class Modificar(tk.Frame):
+class L_Modificar(tk.Frame):
     
         
     def __init__(self, parent):
@@ -292,38 +174,38 @@ class Modificar(tk.Frame):
         #-------------------------------------------------------------------------------------
         # Crear y colocar los widgets
         #primera fila
-        self.altura = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.altura.place(x=520.0, y=282.0, width=237.0, height=38.0)
+        self.input_cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        
+        self.input_N_registro = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_N_registro.place(x=520.0, y=282.0, width=237.0, height=38.0)
  
-        self.peso = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.peso.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        self.input_edicion = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_edicion.place(x=779.0, y=282.0, width=237.0, height=37.5)
         
-        self.entry1 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry1.place(x=779.0, y=282.0, width=237.0, height=37.5)
-        
-        self.entry2 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry2.place(x=1036.0, y=282.0, width=237.0, height=37.5)
+        self.input_N_volumen = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_N_volumen.place(x=1036.0, y=282.0, width=237.0, height=37.5)
         #segunda fila
-        self.entry3 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry3.place(x=263.0, y=382.0, width=237.0, height=37.5)
+        self.input_titulo = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_titulo.place(x=263.0, y=382.0, width=237.0, height=37.5)
         
-        self.entry4 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry4.place(x=520.0, y=382.0, width=237.0, height=37.5)
+        self.input_autor = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_autor.place(x=520.0, y=382.0, width=237.0, height=37.5)
         
-        self.entry5 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry5.place(x=779.0, y=382.0, width=237.0, height=37.5)
+        self.input_editorial = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.input_editorial.place(x=779.0, y=382.0, width=237.0, height=37.5)
         #tercera fila
         
-        self.entry6 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry6.place(x=263.0, y=482.0, width=237.0, height=37.5)
+        self.input_año = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_año.place(x=263.0, y=482.0, width=237.0, height=37.5)
         
-        self.entry7 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry7.place(x=520.0, y=482.0, width=237.0, height=37.5)
+        self.input_ejemplares = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_ejemplares.place(x=520.0, y=482.0, width=237.0, height=37.5)
         
         #cuarta fila
         
-        self.entry8 = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.entry8.place(x=263.0, y=582.0, width=237.0, height=37.5)
+        self.input_id = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.input_id.place(x=263.0, y=582.0, width=237.0, height=37.5)
         
         #Select tipo de pokemon
         style = ttk.Style()
@@ -362,7 +244,7 @@ class Modificar(tk.Frame):
             highlightthickness=0,
            # command=lambda: self.mod_pokemon(),
             relief="flat",
-        ).place(x=1163.0, y=635.0, width=130.0, height=40.0)
+        ).place(x=263.0, y=635.0, width=130.0, height=40.0)
         
        
         
@@ -398,28 +280,32 @@ class Modificar(tk.Frame):
         """
         
         #se nesesitan implementar validaciones a las entrys de este codigo
-class Eliminar(tk.Frame):
+
+
+class L_Eliminar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
-        #validate_number = self.register(validate_number_input)
+        validate_number = self.register(validate_number_input)
         self.images = {}
 
         # Formulario para el eliminar
         self.label_info = self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a Eliminar", fill="#4C4C4C", font=("Montserrat Medium", 15))
         
         # Texto para el nombre
-        self.label_nombre = self.canvas.create_text(263.0, 152.0, anchor="nw", text="ID", fill="#000000", font=("Montserrat Regular", 15))
+        self.label_id = self.canvas.create_text(263.0, 152.0, anchor="nw", text="ID", fill="#000000", font=("Montserrat Regular", 15))
         
-        self.input_nombre = tk.Entry(
+        self.input_id = tk.Entry(
             self,
             bd=0,
             bg="#FFFFFF",
             fg="#000716",
             highlightthickness=0, 
             borderwidth=0.5, 
-            relief="solid"
+            relief="solid",
+            validate="key",
+            validatecommand=(validate_number, "%P")
         ).place(x=263.0, y=182.0, width=237.0, height=38.0)
         
         # Cargar y almacenar las imágenes
@@ -435,40 +321,3 @@ class Eliminar(tk.Frame):
             relief="flat"
         )
         self.button_e.place(x=265.0, y=264.0, width=130.0, height=40.0)
-        
-#los place_forget se podrian optimizar        
-import tkinter as tk
-
-def mostrar_frame(frame):
-    app.frame_bienvenida.place_forget()
-    app.frame_modificar.place_forget()
-    app.frame_registrar.place_forget()
-    app.frame_eliminar.place_forget()
-    frame.place(x=0, y=0)
-    app.frame_menu.lift()
-    app.frame_header.lift()
-
-class Starter(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.geometry("1366x768")
-        self.title("Arcanum Library")
-        #self.iconbitmap(relative_to_assets('PokeBall.ico')) aqui iria el icono de la app
-        self.frame_eliminar = Eliminar(self)
-        self.frame_modificar = Modificar(self)
-        self.frame_registrar = Registrar(self)
-
-        self.frame_bienvenida = Bienvenida(self)
-        self.frame_bienvenida.place(x=0, y=0)
-
-        self.frame_header = Header(self)
-        self.frame_header.place(x=0, y=0, width=1366, height=54)
-
-        self.frame_menu = Menu(self, mostrar_frame, self.frame_header)
-        self.frame_menu.place(x=0, y=54, width=215, height=714)
-
-if __name__ == "__main__":
-    app = Starter()
-    app.mainloop()
-
-
