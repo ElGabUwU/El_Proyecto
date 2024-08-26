@@ -13,15 +13,17 @@ def connect():
     return mariadb_conexion
 
 # Crear un nuevo Pokémon
-def create_pokemon(Cota, n_registro, autor, titulo, asignatura, n_volumenes, n_ejemplares, edicion, año, editorial):
+def create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares):
+    print("ID SALA", {ID_Sala}, "ID CATEGORIA", {ID_Categoria}, "ID ASIGNATURA", {ID_Asignatura}, "COTA", {Cota}, "REGISTRO", {n_registro})
+    print("Edicion", {edicion}, "VOLUMEN", {n_volumenes}, "TITULO", {titulo}, "AUTOR", {autor}, "EDITORIAL", {editorial}, "AÑO", {año}, "EJEMPLARES", {n_ejemplares})
     try:
         mariadb_conexion=connect()
         if mariadb_conexion.is_connected():
             cursor=mariadb_conexion.cursor()
             cursor.execute('''
-                INSERT INTO pokemons (Cota, n_registro, autor, titulo, asignatura, n_volumenes, n_ejemplares, edicion, año, editorial)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (Cota, n_registro, autor, titulo, asignatura, n_volumenes, n_ejemplares, edicion, año, editorial))
+                INSERT INTO libro (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares))
             mariadb_conexion.commit()
             mariadb_conexion.close()
             return True
@@ -29,7 +31,7 @@ def create_pokemon(Cota, n_registro, autor, titulo, asignatura, n_volumenes, n_e
         print("Error durante la conexión:", ex)
 
 # Leer todos los Pokémon
-def read_pokemons():
+def read_books():
     try:
         mariadb_conexion=connect()
         if mariadb_conexion.is_connected():
@@ -64,11 +66,11 @@ def read_pokemons():
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
 
-# Actualizar un Pokémon
-def update_pokemon(Cota, n_registro, autor, titulo, asignatura, n_volumenes, n_ejemplares, edicion, año, editorial):
+# Actualizar un libro
+def update_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares, ID_Libro,):
     mariadb_conexion=connect()
     cursor = mariadb_conexion.cursor()
-    cursor.execute("SELECT autor FROM libro WHERE autor = ?", (autor))
+    cursor.execute("SELECT ID_Libro FROM libro WHERE ID_Libro = %s", (ID_Libro,))
     busqueda=()
     busqueda=cursor.fetchone()
     print(busqueda)
@@ -78,19 +80,28 @@ def update_pokemon(Cota, n_registro, autor, titulo, asignatura, n_volumenes, n_e
     else:
         cursor.execute('''
             UPDATE libro
-            SET autor=?, Cota=?, n_registro=?, titulo=?, asignatura=?, n_volumenes=?, n_ejemplares=?,
-            edicion=?, año=?, editorial=?
-            WHERE autor=?
-        ''', (autor, Cota, n_registro, titulo, asignatura, n_volumenes, n_ejemplares, edicion, año, editorial))
+            SET ID_Sala=%s, ID_Categoria=%s, ID_Asignatura=%s, Cota=%s, n_registro=%s, edicion=%s, n_volumenes=%s, 
+            titulo=%s, autor=%s, editorial=%s, año=%s, n_ejemplares=%s WHERE ID_Libro=%s
+        ''', (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares, ID_Libro))
         mariadb_conexion.commit()
         mariadb_conexion.close()
         return True
 
-# Eliminar un Pokémon
-def delete_pokemon(ID_Libro):
-    mariadb_conexion=connect()
-    cursor = mariadb_conexion.cursor()
-    cursor.execute('DELETE FROM libro WHERE ID_Libro=?', (ID_Libro))
-    mariadb_conexion.commit()
-    mariadb_conexion.close()
-    return True
+# Eliminar un libro
+def delete_books(ID_Libro):
+    try:
+        # Establishing the connection using a context manager
+        with connect() as mariadb_conexion:
+            with mariadb_conexion.cursor() as cursor:
+                # Executing the delete statement
+                cursor.execute('DELETE FROM libro WHERE ID_Libro=%s', (ID_Libro,))
+                if cursor.rowcount == 0:
+                    print("No se encontró el libro con el ID proporcionado.")
+                    return False
+                # Committing the transaction
+                mariadb_conexion.commit()
+        return True
+    except mariadb.Error as err:
+        # Handling any database errors
+        print(f"Error: {err}")
+        return False
