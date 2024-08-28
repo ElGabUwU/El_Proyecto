@@ -8,7 +8,7 @@ from Vistas.listas import *
 import random
 
 from backend.Libros_Frames_2 import *
-from Usuarios_Frames import *
+from backend.Usuarios_Frames_2 import *
 from Prestamos_Frames import *
 
 #relleno_menu
@@ -255,7 +255,9 @@ class Starter(tk.Tk):
         self.frame_header.place(x=0, y=0, width=1366, height=54)
 
         self.frame_menu = Menu(self, mostrar_frame, self.frame_header)
-        self.frame_menu.place(x=0, y=54, width=215, height=714)
+        self.frame_menu.place(x=0, y=53, width=215, height=714)
+        
+        
 
 if __name__ == "__main__":
     app = Starter()
@@ -265,10 +267,19 @@ if __name__ == "__main__":
 
 # mi to do list:
 
-#cambiar nombres variables, faltan algunos combobox
+#hacer funcionar el crud de usuarios
 
-#adaptar el codigo de henry
+#agregar validaciones a los campos
 
-#agregar las opciones correctas al combobox de cargo en los frames de usuarios
+#agregar icono inferior a aplicacion?
+
+#agregar icono biblioteca al frame de bienvenida
+
+#descargar mariaDB
+
+#hacer que al precionar el boton de agregar o modificar o eliminar se vacien los campos del frame
+
+#talvez hacer lo mismo al cambiar de pestaña (opcional?)
+
 
 #crear funciones para modificar datos desde el menu de perfil para porder usarlo luego desde las listas?

@@ -77,13 +77,11 @@ class U_Registrar(tk.Frame):
                         padding= "9",
                         ) # padding para agrandar la altura del select
         
-        pokemon_types = [
-        "Agua", "Bicho", "Dragón", "Electrico", "Fuego", "Hielo",
-        "Lucha", "Normal", "Planta", "Psiquico", "Roca", "Tierra",
-        "Veneno", "Volador"
+        cargos = [
+        "Encargado de Servicio", "Asistente Bibliotecario"
         ]
          
-        self.cargo_combobox = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
+        self.cargo_combobox = ttk.Combobox(self, values=cargos, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.cargo_combobox.place(x=263.0, y=181.5)
         
         
@@ -167,14 +165,12 @@ class U_Modificar(tk.Frame):
                         padding= "9",
                         ) # padding para agrandar la altura del select
         
-        pokemon_types = [
-        "Agua", "Bicho", "Dragón", "Electrico", "Fuego", "Hada", "Hielo",
-        "Lucha", "Normal", "Planta", "Psíquico", "Roca", "Siniestro", "Tierra",
-        "Veneno", "Volador"
+        cargos = [
+        "Encargado de Servicio", "Asistente Bibliotecario"
         ]
         
-        self.combobox1 = ttk.Combobox(self, values=pokemon_types, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.combobox1.place(x=263.0, y=181.5)
+        self.cargo_combobox = ttk.Combobox(self, values=cargos, state="readonly", width=30, font=("Montserrat Medium", 10))
+        self.cargo_combobox.place(x=263.0, y=181.5)
         #-------------------------------------------------------------------------------
       
         

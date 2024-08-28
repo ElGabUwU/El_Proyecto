@@ -355,7 +355,7 @@ class L_Modificar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: modify_book(),
                 relief="flat",
-            ).place(x=1163.0, y=635.0, width=130.0, height=40.0)
+            ).place(x=263.0, y=635.0, width=130.0, height=40.0)
             
             def modify_book():
                 ID_Sala= self.combobox1.get() #self.cota.get()
