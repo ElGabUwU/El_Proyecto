@@ -3,11 +3,11 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from Library.librerias import recoger_sesion, drop_sesion
-
+from Library.db_pokimon import *
 from Vistas.listas import *
 import random
 
-from Libros_Frames import *
+from backend.Libros_Frames_2 import *
 from Usuarios_Frames import *
 from Prestamos_Frames import *
 
@@ -236,7 +236,7 @@ class Starter(tk.Tk):
         super().__init__()
         self.geometry("1366x768")
         self.title("Arcanum Library")
-        #self.iconbitmap(relative_to_assets('PokeBall.ico')) aqui iria el icono de la app
+        self.iconbitmap(relative_to_assets('logo_biblioteca.ico')) #aqui iria el icono de la app
         self.L_frame_eliminar = L_Eliminar(self)
         self.L_frame_modificar = L_Modificar(self)
         self.L_frame_registrar = L_Registrar(self)

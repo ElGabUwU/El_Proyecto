@@ -3,7 +3,7 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from Library.librerias import recoger_sesion, drop_sesion
-from Library.db_pokimon import  create_pokemon,delete_pokemon,update_pokemon
+
 from Vistas.listas import *
 import random
 
