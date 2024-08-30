@@ -4,6 +4,7 @@ from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from Library.librerias import recoger_sesion, drop_sesion
 from Library.db_pokimon import *
+from PIL import Image,ImageTk
 from Vistas.listas import *
 import random
 
@@ -201,9 +202,140 @@ class L_Registrar(tk.Frame):
                     else:
                         messagebox.showinfo("Registro fallido", "Libro mantiene sus valores.")
 
+class L_Listar(tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
+        self.canvas.pack(side="right", fill="both", expand=True)
+        validate_number = self.register(validate_number_input)
+        self.images = {}
 
-class L_Modificar(tk.Frame):   
+        # Crear el marco izquierdo para el menú de navegación
+        self.left_frame = tk.Frame(self.canvas, bg="white")
+        self.left_frame.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
+        self.left_frame.place(x=210,y=155, height=530)
+
+        self.right_frame = tk.Frame(self)
+        self.right_frame.pack(side="right", expand=True, fill="both")
+
+        # Texto para el nombre
+        self.label_nombre = self.canvas.create_text(635.0, 85.0, anchor="nw", text="Buscar", fill="#000000", font=("Montserrat Regular", 15))
         
+        self.buscar = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.buscar.place(x=635.0, y=110.0, width=237.0, height=38.0)
+
+        # Cargar y almacenar las imágenes
+        self.images['boton_Eliminar_f'] = tk.PhotoImage(file=relative_to_assets("Boton_eliminar.png"))
+        
+        # Cargar y almacenar la imagen del botón
+        self.button_e = tk.Button(
+            self,
+            image=self.images['boton_Eliminar_f'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.lists_books,
+            relief="flat"
+        )
+        self.button_e.place(x=1095.0, y=110.0, width=130.0, height=40.0)
+
+        self.load_button = ttk.Button(self.left_frame, text="Cargar Libros", command=self.lists_books)
+        self.load_button.place(x=700.0, y=0.0, width=130.0, height=40.0)
+        
+        # Botones del menú de navegación
+        #buttons = ["Libros", "Prestamos", "Usuarios", "Mi Perfil"]
+        #for button in buttons:
+        #    tk.Button(self.right_frame, text=button, bg="lightgray").pack(fill="y", padx=5, pady=5)
+        
+        ##Crear el marco derecho para el área principal de contenido
+        # self.right_frame = tk.Frame(self)
+        # self.right_frame.pack(side="right", expand=True, fill="both")
+        
+        # Barra de búsqueda en la parte superior
+        #search_frame = tk.Frame(self.left_frame)
+        #search_frame.pack(fill="x", padx=10, pady=10)
+        #tk.Label(search_frame, text="Buscar:").pack(side="left")
+        #tk.Entry(search_frame).pack(side="left", fill="x", expand=True)
+        #tk.Button(search_frame, text="Filtrar Sesión").pack(side="left", padx=5)
+        
+    # Tabla de libros usando Treeview
+        columns = ("ID", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición", "Categoria")
+        self.book_table = ttk.Treeview(self.left_frame, columns=columns, show='headings')
+        for col in columns:
+            self.book_table.heading(col, text=col)
+            self.book_table.column(col, width=125)
+        self.book_table.pack(expand=True, fill="both", padx=70, pady=45)
+        
+        #Controles de paginación en la parte inferior
+        pagination_frame = tk.Frame(self.left_frame)
+        pagination_frame.pack(fill="x")
+        pagination_frame.place(x=445,y=495)
+        tk.Button(pagination_frame, text="<").pack(side="left")
+        tk.Label(pagination_frame, text="Página 1 de 10").pack(side="left", padx=40)
+        tk.Button(pagination_frame, text=">").pack(side="left")
+  
+        
+    # def open_filter_window(self):
+    #     filter_window = tk.Toplevel(self)
+    #     filter_window.title("Filtrar Libros")
+
+    #     tk.Label(filter_window, text="Título:").grid(row=0, column=0, padx=10, pady=5)
+    #     self.title_entry = tk.Entry(filter_window)
+    #     self.title_entry.grid(row=0, column=1, padx=10, pady=5)
+
+    #     tk.Label(filter_window, text="Autor:").grid(row=1, column=0, padx=10, pady=5)
+    #     self.author_entry = tk.Entry(filter_window)
+    #     self.author_entry.grid(row=1, column=1, padx=10, pady=5)
+
+    #     tk.Label(filter_window, text="ISBN:").grid(row=2, column=0, padx=10, pady=5)
+    #     self.isbn_entry = tk.Entry(filter_window)
+    #     self.isbn_entry.grid(row=2, column=1, padx=10, pady=5)
+
+    #     search_button = ttk.Button(filter_window, text="Buscar", command=self.filter_books)
+    #     search_button.grid(row=3, column=0, columnspan=2, pady=10)
+
+    # def filter_books(self):
+    #     title = self.title_entry.get().lower()
+    #     author = self.author_entry.get().lower()
+    #     isbn = self.isbn_entry.get().lower()
+
+    #     for row in self.books_table.get_children():
+    #         values = self.books_table.item(row, "values")
+    #         if (title in values[1].lower() and
+    #             author in values[3].lower() and
+    #             isbn in values[4].lower()):
+    #             self.books_table.item(row, tags='match')
+    #         else:
+    #             self.books_table.item(row, tags='nomatch')
+
+    #     self.books_table.tag_configure('match', background='white')
+    #     self.books_table.tag_configure('nomatch', background='gray')
+
+    def lists_books(self):
+        try:
+            mariadb_conexion = mariadb.connect(
+                                        host='localhost',
+                                        port='3306',
+                                        password='2525',
+                                        database='basedatosbiblioteca'
+            )
+            if mariadb_conexion.is_connected():
+                cursor = mariadb_conexion.cursor()
+                cursor.execute('SELECT ID_Libro, n_registro, titulo, autor, editorial, año, edicion, ID_Categoria  FROM libro')
+                resultados = cursor.fetchall() 
+                for row in self.book_table.get_children():
+                    self.book_table.delete(row)
+                    
+                    # Insertar los datos en el Treeview
+                for fila in resultados:
+                    self.book_table.insert("", "end", values=tuple(fila))
+                mariadb_conexion.close()
+        except mariadb.Error as ex:
+                print("Error durante la conexión:", ex)
+
+
+
+
+class L_Modificar(tk.Frame):      
     def __init__(self, parent):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)

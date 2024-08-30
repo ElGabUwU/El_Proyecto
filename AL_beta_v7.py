@@ -5,6 +5,7 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from Library.librerias import recoger_sesion, drop_sesion
 from Library.db_pokimon import *
 from Vistas.listas import *
+from Vistas.listado_libros import LibraryApp
 import random
 
 from backend.Libros_Frames_2 import *
@@ -74,7 +75,7 @@ class Menu(tk.Frame):
         )
         self.L_dropdown_menu.add_command(
             label="Listado",
-            command=lambda: self.frame_header.update_header_text("Listado")
+            command=lambda: {self.frame_header.update_header_text("Listado"),mostrar_frame(app.L_frame_listar)}
         )
         self.L_dropdown_menu.add_command(
             label="Modificar",
@@ -218,13 +219,16 @@ class Perfil(tk.Frame):
 def mostrar_frame(frame):
     app.frame_bienvenida.place_forget()
     app.L_frame_modificar.place_forget()
+    app.L_frame_listar.place_forget()
     app.L_frame_registrar.place_forget()
     app.L_frame_eliminar.place_forget()
     app.U_frame_eliminar.place_forget()
     app.U_frame_modificar.place_forget()
+    #app.U_frame_listar.place_forget()
     app.U_frame_registrar.place_forget()
     app.P_frame_eliminar.place_forget()
     app.P_frame_modificar.place_forget()
+    #app.p_frame_listar.place_forget()
     app.P_frame_registrar.place_forget()
     app.frame_perfil.place_forget()
     frame.place(x=0, y=0)
@@ -239,12 +243,15 @@ class Starter(tk.Tk):
         self.iconbitmap(relative_to_assets('logo_biblioteca.ico')) #aqui iria el icono de la app
         self.L_frame_eliminar = L_Eliminar(self)
         self.L_frame_modificar = L_Modificar(self)
+        self.L_frame_listar = L_Listar(self)
         self.L_frame_registrar = L_Registrar(self)
         self.U_frame_eliminar = U_Eliminar(self)
         self.U_frame_modificar = U_Modificar(self)
+        #self.U_frame_modificar = L_Listar(self)
         self.U_frame_registrar = U_Registrar(self)
         self.P_frame_eliminar = P_Eliminar(self)
         self.P_frame_modificar = P_Modificar(self)
+        #self.P_frame_modificar = L_Listar(self)
         self.P_frame_registrar = P_Registrar(self)
         self.frame_perfil=Perfil(self)
 

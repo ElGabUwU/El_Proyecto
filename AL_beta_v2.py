@@ -11,6 +11,7 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from Library.librerias import recoger_sesion, drop_sesion
 from Library.db_pokimon import create_books,delete_books,update_books
 from Vistas.listas import *
+from Vistas.listado_libros import LibraryApp
 import random
 
 def validate_number_input(text):
@@ -83,7 +84,7 @@ class Menu(tk.Frame):
             image=self.images["button_image_3"],
             borderwidth=0,
             highlightthickness=0,
-            #command=lambda: { self.controller.destroy(), show_pokemons() },
+            command=lambda: {self.frame_header.update_header_text("Listado"), LibraryApp() },
             relief="flat"
         ).place(x=1.0, y=58.0, width=213.0, height=58.0)
         self.images["button_image_4"] = tk.PhotoImage(file=relative_to_assets("main_boton_eliminar.png"))
@@ -316,7 +317,13 @@ class Registrar(tk.Frame):
                         messagebox.showinfo("Éxito", "Registro del libro éxitoso.")
                     else:
                         messagebox.showinfo("Registro fallido", "Libro mantiene sus valores.")
-
+# class Listado(tk.Frame):
+    # def __init__(self, parent):
+    #     super().__init__(parent)
+    #     self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
+    #     self.canvas.pack(side="left", fill="both", expand=False)
+    #     validate_number = self.register(validate_number_input)
+    #     self.images = {}
 
 class Modificar(tk.Frame):   
         
@@ -581,6 +588,7 @@ def mostrar_frame(frame):
     app.frame_modificar.place_forget()
     app.frame_registrar.place_forget()
     app.frame_eliminar.place_forget()
+    # app.frame_listado.place_forget()
     frame.place(x=0, y=0)
     app.frame_menu.lift()
     app.frame_header.lift()
@@ -594,6 +602,7 @@ class Starter(tk.Tk):
         self.frame_eliminar = Eliminar(self)
         self.frame_modificar = Modificar(self)
         self.frame_registrar = Registrar(self)
+        # self.frame_listado = Listado(self)
 
         self.frame_bienvenida = Bienvenida(self)
         self.frame_bienvenida.place(x=0, y=0)

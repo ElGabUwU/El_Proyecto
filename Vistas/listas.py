@@ -2,12 +2,12 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from PIL import Image, ImageTk
-import sqlite3
+import mysql.connector as mariadb
 import random
 from pathlib import Path
 from Library.librerias import *
 
-def show_pokemons():  
+def show_books():  
     global tree
     OUTPUT_PATH = Path(__file__).parent
     ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Pokedex_by_Venezuelan\assets")
@@ -35,7 +35,7 @@ def show_pokemons():
         image = Image.open(path)
         aspect_ratio = base_height / float(image.size[1])  # Calcula la proporción del alto
         base_width = int(float(image.size[0]) * float(aspect_ratio))  # Calcula el nuevo ancho manteniendo la relación de aspecto
-        image = image.resize((base_width, base_height), Image.LANCZOS)  # Redimensiona la imagen
+        image = image.resize((base_width, base_height), Image.Resampling.LANCZOS)  # Redimensiona la imagen
         return ImageTk.PhotoImage(image)  # Convierte a un objeto PhotoImage para usar en Tkinter
 
 #funcion para recoger valores del item seleccionado
@@ -211,11 +211,15 @@ def show_pokemons():
             return favorite_list
 
         def save_pk(username,pks):
-            db = sqlite3.connect('..pokimons.db')
-            cursor = db.cursor()
+            mariadb_conexion=mariadb.connect(host='localhost',
+                                        port='3306',
+                                        password='2525',
+                                        database='basedatosbiblioteca')
+            return mariadb_conexion
+            cursor = mariadb_conexion.cursor()
             cursor.execute("UPDATE usuarios SET pkFavs == ? WHERE usuarioNombre == ?",(pks,username))
-            db.commit()
-            db.close()
+            mariadb_conexion.commit()
+            mariadb_conexion.close()
             
         fav = favorite_items()
         value = lista_a_cadena(fav)
@@ -224,7 +228,7 @@ def show_pokemons():
     #acomodar imagenes
     def resize_image(path, size):
         image = Image.open(path)
-        image = image.resize(size, Image.LANCZOS)
+        image = image.resize(size, Image.Resampling.LANCZOS)
         return ImageTk.PhotoImage(image)
 
     #funcion para cambiar el tag en cada click
@@ -248,7 +252,7 @@ def show_pokemons():
     frame.pack(padx=10, pady=10, fill='both', expand=True)
 
     # Add header
-    header = tk.Label(frame, text="Pokemons", font=("PressStart2P", 16))
+    header = tk.Label(frame, text="Listado de Libros", font=("PressStart2P", 16))
     header.pack(pady=10)
 
     # Load images into variables
