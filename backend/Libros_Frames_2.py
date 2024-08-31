@@ -213,7 +213,7 @@ class L_Listar(tk.Frame):
         # Crear el marco izquierdo para el menú de navegación
         self.left_frame = tk.Frame(self.canvas, bg="white")
         self.left_frame.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
-        self.left_frame.place(x=210,y=155, height=530)
+        self.left_frame.place(x=215,y=155, height=550)
 
         self.right_frame = tk.Frame(self)
         self.right_frame.pack(side="right", expand=True, fill="both")
@@ -224,22 +224,34 @@ class L_Listar(tk.Frame):
         self.buscar = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.buscar.place(x=635.0, y=110.0, width=237.0, height=38.0)
 
+        #Boton Cargar Libros
         # Cargar y almacenar las imágenes
-        self.images['boton_Eliminar_f'] = tk.PhotoImage(file=relative_to_assets("Boton_eliminar.png"))
+        self.images['boton_cargar'] = tk.PhotoImage(file=relative_to_assets("Cargar_rojo.png"))
         
         # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
             self,
-            image=self.images['boton_Eliminar_f'],
+            image=self.images['boton_cargar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.lists_books,
+            command=lambda: self.lists_books(),
+            relief="flat"
+        )
+        self.button_e.place(x=915.0, y=110.0, width=130.0, height=40.0)
+
+        # Cargar y almacenar las imágenes
+        self.images['boton_filtrar_f'] = tk.PhotoImage(file=relative_to_assets("boton_filtrar.png"))
+        
+        # Cargar y almacenar la imagen del botón
+        self.button_e = tk.Button(
+            self,
+            image=self.images['boton_filtrar_f'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.open_filter_window(parent),
             relief="flat"
         )
         self.button_e.place(x=1095.0, y=110.0, width=130.0, height=40.0)
-
-        self.load_button = ttk.Button(self.left_frame, text="Cargar Libros", command=self.lists_books)
-        self.load_button.place(x=700.0, y=0.0, width=130.0, height=40.0)
         
         # Botones del menú de navegación
         #buttons = ["Libros", "Prestamos", "Usuarios", "Mi Perfil"]
@@ -258,57 +270,119 @@ class L_Listar(tk.Frame):
         #tk.Button(search_frame, text="Filtrar Sesión").pack(side="left", padx=5)
         
     # Tabla de libros usando Treeview
-        columns = ("ID", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición", "Categoria")
+        columns = ("ID","Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición")
         self.book_table = ttk.Treeview(self.left_frame, columns=columns, show='headings')
         for col in columns:
             self.book_table.heading(col, text=col)
-            self.book_table.column(col, width=125)
+            self.book_table.column(col, width=90)
         self.book_table.pack(expand=True, fill="both", padx=70, pady=45)
-        
-        #Controles de paginación en la parte inferior
-        pagination_frame = tk.Frame(self.left_frame)
-        pagination_frame.pack(fill="x")
-        pagination_frame.place(x=445,y=495)
-        tk.Button(pagination_frame, text="<").pack(side="left")
-        tk.Label(pagination_frame, text="Página 1 de 10").pack(side="left", padx=40)
-        tk.Button(pagination_frame, text=">").pack(side="left")
   
+    def open_filter_window(self,parent):
+        filter_window = tk.Toplevel(self)
+        filter_window.title("Filtrar")
+        filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+
+        tk.Label(filter_window, text="Sala").grid(row=0, column=0, padx=10, pady=5)
+        self.sala_entry = tk.Entry(filter_window)
+        self.sala_entry.grid(row=0, column=1, padx=10, pady=5)
+
+        tk.Label(filter_window, text="Categoria").grid(row=0, column=2, padx=10, pady=5)
+        self.categoria_entry = tk.Entry(filter_window)
+        self.categoria_entry.grid(row=0, column=3, padx=10, pady=5)
+
+        tk.Label(filter_window, text="Asignatura").grid(row=0, column=4, padx=10, pady=5)
+        self.asignatura_entry = tk.Entry(filter_window)
+        self.asignatura_entry.grid(row=0, column=5, padx=10, pady=5)
+
+        tk.Label(filter_window, text="Cota").grid(row=0, column=6, padx=10, pady=5)
+        self.cota_entry = tk.Entry(filter_window)
+        self.cota_entry.grid(row=0, column=7, padx=10, pady=5)
+
+        tk.Label(filter_window, text="Autor").grid(row=1, column=0, padx=10, pady=5)
+        self.autor_entry = tk.Entry(filter_window)
+        self.autor_entry.grid(row=1, column=1, padx=10, pady=5)
+
+        tk.Label(filter_window, text="Titulo").grid(row=1, column=2, padx=10, pady=5)
+        self.titulo_entry = tk.Entry(filter_window)
+        self.titulo_entry.grid(row=1, column=3, padx=10, pady=5)
+
+        tk.Label(filter_window, text="N° Registro").grid(row=1, column=4, padx=10, pady=5)
+        self.n_registro_entry = tk.Entry(filter_window)
+        self.n_registro_entry.grid(row=1, column=5, padx=10, pady=5)
+
+        tk.Label(filter_window, text="Año").grid(row=2, column=0, padx=10, pady=5)
+        self.año_entry = tk.Entry(filter_window)
+        self.año_entry.grid(row=2, column=1, padx=10, pady=5)
+
+        tk.Label(filter_window, text="Edicion").grid(row=2, column=2, padx=10, pady=5)
+        self.edicion_entry = tk.Entry(filter_window)
+        self.edicion_entry.grid(row=2, column=3, padx=10, pady=5)
+
+        tk.Label(filter_window, text="Editorial").grid(row=2, column=4, padx=10, pady=5)
+        self.editorial_entry = tk.Entry(filter_window)
+        self.editorial_entry.grid(row=2, column=5, padx=10, pady=5)
+
+        search_button = ttk.Button(filter_window, text="Buscar", command=self.filter_books)
+        search_button.grid(row=3, column=7, columnspan=1, pady=10)
+
+        button_cancel = ttk.Button(filter_window, text="Cancelar", command=self.filter_books)
+        button_cancel.grid(row=3, column=6, columnspan=1, pady=10)
+
+        # Vincular el evento de escritura
+        self.n_registro_entry.bind("<KeyRelease>", lambda event: self.format_n_registro(event))
+
+    def format_n_registro(self, event):
+        # Obtener el texto actual del campo de entrada
+        text = self.n_registro_entry.get().replace(".", "")
         
-    # def open_filter_window(self):
-    #     filter_window = tk.Toplevel(self)
-    #     filter_window.title("Filtrar Libros")
+        # Formatear el texto para insertar un punto después de las tres primeras cifras
+        if len(text)> 2:
+            formatted_text = text[:2] + "." + text[2:]
+        else:
+            formatted_text = text
 
-    #     tk.Label(filter_window, text="Título:").grid(row=0, column=0, padx=10, pady=5)
-    #     self.title_entry = tk.Entry(filter_window)
-    #     self.title_entry.grid(row=0, column=1, padx=10, pady=5)
+        # Actualizar el campo de entrada con el texto formateado
+        self.n_registro_entry.delete(0, tk.END)
+        self.n_registro_entry.insert(0, formatted_text)
 
-    #     tk.Label(filter_window, text="Autor:").grid(row=1, column=0, padx=10, pady=5)
-    #     self.author_entry = tk.Entry(filter_window)
-    #     self.author_entry.grid(row=1, column=1, padx=10, pady=5)
+    def filter_books(self):
+        sala = self.sala_entry.get().lower() or self.sala_entry.get().upper()
+        categoria = self.categoria_entry.get().lower() or self.sala_entry.get().upper()
+        asignatura = self.asignatura_entry.get().lower() or self.sala_entry.get().upper()
+        cota = self.cota_entry.get().lower() or self.sala_entry.get().upper()
+        autor = self.autor_entry.get().lower() or self.sala_entry.get().upper()
+        titulo = self.titulo_entry.get().lower() or self.sala_entry.get().upper()
+        n_registro = self.n_registro_entry.get().lower() or self.sala_entry.get().upper()
+        año = self.año_entry.get().lower() or self.sala_entry.get().upper()
+        edicion = self.edicion_entry.get().lower() or self.sala_entry.get().upper()
+        editorial = self.editorial_entry.get().lower() or self.sala_entry.get().upper()
 
-    #     tk.Label(filter_window, text="ISBN:").grid(row=2, column=0, padx=10, pady=5)
-    #     self.isbn_entry = tk.Entry(filter_window)
-    #     self.isbn_entry.grid(row=2, column=1, padx=10, pady=5)
+        for row in self.book_table.get_children():
+            values = self.book_table.item(row, "values")
+              # Convertir los valores a enteros si es posible, de lo contrario mantenerlos como cadenas
+            converted_values = []
+            for value in values:
+                try:
+                    converted_values.append(int(value))
+                except ValueError:
+                    converted_values.append(value)
+            values = [str(value) for value in values]
+            if (sala in values[1].lower() and values[1].upper() and
+                categoria in values[2].lower() and values[2].upper() and
+                asignatura in values[3].lower() and values[3].upper() and
+                cota in values[4].lower() and values[4].upper() and
+                autor in values[7].lower() and values[7].upper() and
+                titulo in values[6].lower() and values[6].upper() and
+                n_registro in values[5].lower() and values[5].upper() and
+                año in values[9].lower() and values[9].upper() and
+                edicion in values[10].lower() and values[10].upper() and
+                editorial in values[8].lower() and values[8].upper()):
+                self.book_table.item(row, tags='match')
+            else:
+                self.book_table.item(row, tags='nomatch')
 
-    #     search_button = ttk.Button(filter_window, text="Buscar", command=self.filter_books)
-    #     search_button.grid(row=3, column=0, columnspan=2, pady=10)
-
-    # def filter_books(self):
-    #     title = self.title_entry.get().lower()
-    #     author = self.author_entry.get().lower()
-    #     isbn = self.isbn_entry.get().lower()
-
-    #     for row in self.books_table.get_children():
-    #         values = self.books_table.item(row, "values")
-    #         if (title in values[1].lower() and
-    #             author in values[3].lower() and
-    #             isbn in values[4].lower()):
-    #             self.books_table.item(row, tags='match')
-    #         else:
-    #             self.books_table.item(row, tags='nomatch')
-
-    #     self.books_table.tag_configure('match', background='white')
-    #     self.books_table.tag_configure('nomatch', background='gray')
+        self.book_table.tag_configure('match', background='green')
+        self.book_table.tag_configure('nomatch', background='gray')
 
     def lists_books(self):
         try:
@@ -320,7 +394,7 @@ class L_Listar(tk.Frame):
             )
             if mariadb_conexion.is_connected():
                 cursor = mariadb_conexion.cursor()
-                cursor.execute('SELECT ID_Libro, n_registro, titulo, autor, editorial, año, edicion, ID_Categoria  FROM libro')
+                cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion FROM libro')
                 resultados = cursor.fetchall() 
                 for row in self.book_table.get_children():
                     self.book_table.delete(row)
@@ -332,7 +406,8 @@ class L_Listar(tk.Frame):
         except mariadb.Error as ex:
                 print("Error durante la conexión:", ex)
 
-
+    def cancelar(self):
+        self.cancelar.destroy()  # Esto cerrará la ventana principal
 
 
 class L_Modificar(tk.Frame):      
