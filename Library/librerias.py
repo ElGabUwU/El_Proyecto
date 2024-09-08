@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox,ttk
 import sqlite3
+import mysql.connector as mariadb
 
 def login(user,password):
     bd = sqlite3.connect("Library/pokimons.db")

@@ -194,9 +194,9 @@ class L_Registrar(tk.Frame):
                     editorial=self.editorial.get()
                     año=self.año.get()
                     n_ejemplares=self.ejemplares.get()
-                    print("ID SALA", {ID_Sala}, "ID CATEGORIA", {ID_Categoria}, "ID ASIGNATURA", {ID_Asignatura}, "COTA", {Cota}, "REGISTRO", {n_registro})
-                    print("Edicion", {edicion}, "VOLUMEN", {n_volumenes}, "TITULO", {titulo}, "AUTOR", {autor}, "EDITORIAL", {editorial}, "AÑO", {año}, "EJEMPLARES", {n_ejemplares})
-                    print("\n")
+                    # print("ID SALA", {ID_Sala}, "ID CATEGORIA", {ID_Categoria}, "ID ASIGNATURA", {ID_Asignatura}, "COTA", {Cota}, "REGISTRO", {n_registro})
+                    # print("Edicion", {edicion}, "VOLUMEN", {n_volumenes}, "TITULO", {titulo}, "AUTOR", {autor}, "EDITORIAL", {editorial}, "AÑO", {año}, "EJEMPLARES", {n_ejemplares})
+                    # print("\n")
                     if create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares):
                         messagebox.showinfo("Éxito", "Registro del libro éxitoso.")
                     else:
@@ -211,19 +211,48 @@ class L_Listar(tk.Frame):
         self.images = {}
 
         # Crear el marco izquierdo para el menú de navegación
-        self.left_frame = tk.Frame(self.canvas, bg="white")
-        self.left_frame.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
-        self.left_frame.place(x=215,y=155, height=550)
+        self.left_frame_list = tk.Frame(self.canvas, bg="white")
+        self.left_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
+        self.left_frame_list.place(x=215,y=155, height=550, width=1150)
 
-        self.right_frame = tk.Frame(self)
-        self.right_frame.pack(side="right", expand=True, fill="both")
+        # self.right_frame = tk.Frame(self)
+        # self.right_frame.pack(side="right", expand=True, fill="both")
 
         # Texto para el nombre
         self.label_nombre = self.canvas.create_text(635.0, 85.0, anchor="nw", text="Buscar", fill="#000000", font=("Montserrat Regular", 15))
         
-        self.buscar = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.buscar = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key")
         self.buscar.place(x=635.0, y=110.0, width=237.0, height=38.0)
-
+        # Para llamar a read_books cuando se presiona Enter
+        self.buscar.bind("<Return>", lambda event: boton_buscar())
+        
+        def boton_buscar():
+            try:
+             mariadb_conexion = mariadb.connect(
+                                        host='localhost',
+                                        port='3306',
+                                        password='2525',
+                                        database='basedatosbiblioteca'
+            )
+             if mariadb_conexion.is_connected():
+                        cursor = mariadb_conexion.cursor()
+                        cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion FROM libro')
+                        btn_buscar= self.buscar.get()
+                        resultados = cursor.fetchall() 
+                        for fila in resultados:
+                            self.book_table_list.insert("", "end", values=tuple(fila))
+                            if btn_buscar in fila:
+                                self.book_table_list.item(self.book_table_list.get_children()[-1], tags='match')
+                            else:
+                                self.book_table_list.item(self.book_table_list.get_children()[-1], tags='nomatch')
+                            self.book_table_list.tag_configure('match', background='green')
+                            self.book_table_list.tag_configure('nomatch', background='gray')
+                        if read_books(btn_buscar):
+                            messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+                        else:
+                            messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+            except mariadb.Error as ex:
+                    print("Error durante la conexión:", ex)
         #Boton Cargar Libros
         # Cargar y almacenar las imágenes
         self.images['boton_cargar'] = tk.PhotoImage(file=relative_to_assets("Cargar_rojo.png"))
@@ -234,7 +263,7 @@ class L_Listar(tk.Frame):
             image=self.images['boton_cargar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.lists_books(),
+            command=lambda: self.reading_books(self.book_table_list),
             relief="flat"
         )
         self.button_e.place(x=915.0, y=110.0, width=130.0, height=40.0)
@@ -271,11 +300,15 @@ class L_Listar(tk.Frame):
         
     # Tabla de libros usando Treeview
         columns = ("ID","Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición")
-        self.book_table = ttk.Treeview(self.left_frame, columns=columns, show='headings')
+        self.book_table_list= ttk.Treeview(self.left_frame_list, columns=columns, show='headings')
         for col in columns:
-            self.book_table.heading(col, text=col)
-            self.book_table.column(col, width=90)
-        self.book_table.pack(expand=True, fill="both", padx=70, pady=45)
+            self.book_table_list.heading(col, text=col)
+            self.book_table_list.column(col, width=90)
+        self.book_table_list.pack(expand=True, fill="both", padx=70, pady=45)
+
+        scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
+        self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
+        scrollbar_pt.pack(side="right", fill="y")
   
     def open_filter_window(self,parent):
         filter_window = tk.Toplevel(self)
@@ -357,8 +390,8 @@ class L_Listar(tk.Frame):
         edicion = self.edicion_entry.get().lower() or self.sala_entry.get().upper()
         editorial = self.editorial_entry.get().lower() or self.sala_entry.get().upper()
 
-        for row in self.book_table.get_children():
-            values = self.book_table.item(row, "values")
+        for row in self.book_table_list.get_children():
+            values = self.book_table_list.item(row, "values")
               # Convertir los valores a enteros si es posible, de lo contrario mantenerlos como cadenas
             converted_values = []
             for value in values:
@@ -377,34 +410,37 @@ class L_Listar(tk.Frame):
                 año in values[9].lower() and values[9].upper() and
                 edicion in values[10].lower() and values[10].upper() and
                 editorial in values[8].lower() and values[8].upper()):
-                self.book_table.item(row, tags='match')
+                self.book_table_list.item(row, tags='match')
             else:
-                self.book_table.item(row, tags='nomatch')
+                self.book_table_list.item(row, tags='nomatch')
 
-        self.book_table.tag_configure('match', background='green')
-        self.book_table.tag_configure('nomatch', background='gray')
-
-    def lists_books(self):
-        try:
-            mariadb_conexion = mariadb.connect(
-                                        host='localhost',
-                                        port='3306',
-                                        password='2525',
-                                        database='basedatosbiblioteca'
-            )
-            if mariadb_conexion.is_connected():
-                cursor = mariadb_conexion.cursor()
-                cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion FROM libro')
-                resultados = cursor.fetchall() 
-                for row in self.book_table.get_children():
-                    self.book_table.delete(row)
-                    
-                    # Insertar los datos en el Treeview
-                for fila in resultados:
-                    self.book_table.insert("", "end", values=tuple(fila))
-                mariadb_conexion.close()
-        except mariadb.Error as ex:
-                print("Error durante la conexión:", ex)
+        self.book_table_list.tag_configure('match', background='green')
+        self.book_table_list.tag_configure('nomatch', background='gray')
+    
+    def reading_books(self,book_table):
+                            try:
+                                # subprocess.run(['mysql', '-u', 'root', '-p2525', 'basedatosbiblioteca', '<', 'backend/BD_BIBLIOTECA_V7.sql'], check=True)
+                                mariadb_conexion = mariadb.connect(
+                                                            host='localhost',
+                                                            port='3306',
+                                                            password='2525',
+                                                            database='basedatosbiblioteca'
+                                )
+                                if mariadb_conexion.is_connected():
+                                    cursor = mariadb_conexion.cursor()
+                                    cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion FROM libro')
+                                    resultados = cursor.fetchall() 
+                                    for row in book_table.get_children():
+                                        book_table.delete(row)
+                                        
+                                        # Insertar los datos en el Treeview
+                                    for fila in resultados:
+                                        book_table.insert("", "end", values=tuple(fila))
+                                    mariadb_conexion.close()
+                            except mariadb.Error as ex:
+                                    print("Error durante la conexión:", ex)
+                            except subprocess.CalledProcessError as e:
+                                print("Error al importar el archivo SQL:", e)
 
     def cancelar(self):
         self.cancelar.destroy()  # Esto cerrará la ventana principal

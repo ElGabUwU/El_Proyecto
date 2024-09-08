@@ -10,7 +10,7 @@ import random
 
 from backend.Libros_Frames_2 import *
 from backend.Usuarios_Frames_2 import *
-from Prestamos_Frames import *
+from backend.Prestamos_Frames_2 import *
 
 #relleno_menu
 
@@ -116,7 +116,7 @@ class Menu(tk.Frame):
         )
         self.P_dropdown_menu.add_command(
             label="Listado",
-            command=lambda: self.frame_header.update_header_text("Listado")
+            command=lambda: {self.frame_header.update_header_text("Listado"), mostrar_frame(app.P_frame_listar)}
         )
         self.P_dropdown_menu.add_command(
             label="Modificar",
@@ -214,7 +214,7 @@ class Perfil(tk.Frame):
         
         self.canvas.create_text(263.0, 565.0, anchor="nw", text="Cedula: 31.242.538", fill="#4C4C4C", font=("Montserrat Regular", 15))
         
-#los place_forget se podrian optimizar        
+#los place_forget se podrian optimizar
 
 def mostrar_frame(frame):
     app.frame_bienvenida.place_forget()
@@ -228,7 +228,8 @@ def mostrar_frame(frame):
     app.U_frame_registrar.place_forget()
     app.P_frame_eliminar.place_forget()
     app.P_frame_modificar.place_forget()
-    #app.p_frame_listar.place_forget()
+    app.P_frame_listar.place_forget()
+    #app.P_frame_registrar2.place_forget()
     app.P_frame_registrar.place_forget()
     app.frame_perfil.place_forget()
     frame.place(x=0, y=0)
@@ -249,9 +250,10 @@ class Starter(tk.Tk):
         self.U_frame_modificar = U_Modificar(self)
         #self.U_frame_modificar = L_Listar(self)
         self.U_frame_registrar = U_Registrar(self)
+        #self.P_frame_registrar2= P_Registrar2(self)
         self.P_frame_eliminar = P_Eliminar(self)
         self.P_frame_modificar = P_Modificar(self)
-        #self.P_frame_modificar = L_Listar(self)
+        self.P_frame_listar = P_Listar(self)
         self.P_frame_registrar = P_Registrar(self)
         self.frame_perfil=Perfil(self)
 
@@ -263,7 +265,11 @@ class Starter(tk.Tk):
 
         self.frame_menu = Menu(self, mostrar_frame, self.frame_header)
         self.frame_menu.place(x=0, y=53, width=215, height=714)
-        
+
+# def check_register_client(self):
+#     result = self.P_frame_registrar.register_client()
+#     if result==True:
+#         mostrar_frame(app.P_frame_registrar2)
         
 
 if __name__ == "__main__":

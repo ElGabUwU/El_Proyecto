@@ -1,12 +1,19 @@
 #import sqlite3
 import mysql.connector as mariadb
 from colorama import init, Fore, Back, Style
+import subprocess
 
 init(autoreset=True)
 # Conectar a la base de datos
+def import_sql_file():
+    try:
+        subprocess.run(['mysql', '-u', 'root', '-p2525', 'basedatosbiblioteca', '<', 'backend/BD_BIBLIOTECA_V7.sql'], check=True)
+    except subprocess.CalledProcessError as e:
+        print("Error al importar el archivo SQL:", e)
+
 def connect():
-    #conn = mariadb.connect('Library/pokimons.db')
-    mariadb_conexion=mariadb.connect(host='localhost',
+    #mariadb_conexion = mariadb.connect('backend/BD_BIBLIOTECA_V7.sql')
+    mariadb_conexion= mariadb.connect(host='localhost',
                                         port='3306',
                                         password='2525',
                                         database='basedatosbiblioteca')
@@ -30,8 +37,8 @@ def create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
 
-# Leer todos los Pokémon
-def read_books():
+# Leer todos los libros
+def read_books(book_name):
     try:
         mariadb_conexion=connect()
         if mariadb_conexion.is_connected():
@@ -58,7 +65,7 @@ def read_books():
     |||{Fore.GREEN}{fila[3]}--{fila[4]}--{fila[5]}{Fore.LIGHTWHITE_EX}
     |||{Fore.RED}{fila[6]}--{fila[7]}--{fila[8]}{Fore.LIGHTWHITE_EX}
     |||{Fore.YELLOW}{fila[9]}-{fila[10]}--{fila[11]}{Fore.LIGHTWHITE_EX}
-    |||{Fore.CYAN}{fila[12]}-{fila[13]}-{fila[14]}{Fore.LIGHTWHITE_EX}
+    |||{Fore.CYAN}{fila[12]}-{fila[13]}-
     ||===================================================================================||
                     """)
             mariadb_conexion.close()
