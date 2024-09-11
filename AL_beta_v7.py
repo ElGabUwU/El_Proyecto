@@ -2,14 +2,12 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-from Library.librerias import recoger_sesion, drop_sesion
+#from Library.librerias import
 from Library.db_pokimon import *
-from Vistas.listas import *
-from Vistas.listado_libros import LibraryApp
 import random
-
+import subprocess
 from backend.Libros_Frames_2 import *
-from backend.Usuarios_Frames_2 import *
+from backend.Usuarios_Frames_3 import *
 from backend.Prestamos_Frames_2 import *
 
 #relleno_menu
@@ -17,6 +15,7 @@ from backend.Prestamos_Frames_2 import *
 
 def relative_to_assets(path: str) -> str:
     return f"./assets_2/{path}"
+
 
 class Bienvenida(tk.Frame):
     def __init__(self, parent):
@@ -95,7 +94,7 @@ class Menu(tk.Frame):
         )
         self.U_dropdown_menu.add_command(
             label="Listado",
-            command=lambda: self.frame_header.update_header_text("Listado")
+            command=lambda: {self.frame_header.update_header_text("Listado"), mostrar_frame(app.U_frame_listar)}
         )
         self.U_dropdown_menu.add_command(
             label="Modificar",
@@ -137,12 +136,6 @@ class Menu(tk.Frame):
     def show_menu(self,dropdown_menu,button):
         
         dropdown_menu.post(button.winfo_rootx(), button.winfo_rooty() + button.winfo_height())
-        
-        
-    
-
-        
-        
     
 class Header(tk.Frame):
     def __init__(self, parent):
@@ -224,7 +217,7 @@ def mostrar_frame(frame):
     app.L_frame_eliminar.place_forget()
     app.U_frame_eliminar.place_forget()
     app.U_frame_modificar.place_forget()
-    #app.U_frame_listar.place_forget()
+    app.U_frame_listar.place_forget()
     app.U_frame_registrar.place_forget()
     app.P_frame_eliminar.place_forget()
     app.P_frame_modificar.place_forget()
@@ -248,7 +241,7 @@ class Starter(tk.Tk):
         self.L_frame_registrar = L_Registrar(self)
         self.U_frame_eliminar = U_Eliminar(self)
         self.U_frame_modificar = U_Modificar(self)
-        #self.U_frame_modificar = L_Listar(self)
+        self.U_frame_listar = U_Listar(self)
         self.U_frame_registrar = U_Registrar(self)
         #self.P_frame_registrar2= P_Registrar2(self)
         self.P_frame_eliminar = P_Eliminar(self)

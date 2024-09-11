@@ -13,8 +13,7 @@ def connect():
     return mariadb_conexion
 
 # Crear un nuevo Pokémon
-def create_user(ID_Cargo,Nombre,Apellido,Cedula,Nombre_Usuario,Clave):
-    ID_Rol=1
+def create_user(ID_Cargo, ID_Rol, Nombre,Apellido,Cedula,Nombre_Usuario,Clave):
     print("CARGO:", ID_Cargo,"ID_Rol:", ID_Rol, "Nombre:", Nombre, "APELLIDO:", Apellido, "CEDULA:", Cedula)
     print("NOMBRE DE USUARIO:", Nombre_Usuario, "CLAVE:", Clave)
     try:
@@ -23,7 +22,7 @@ def create_user(ID_Cargo,Nombre,Apellido,Cedula,Nombre_Usuario,Clave):
             cursor=mariadb_conexion.cursor()
             cursor.execute('''
                 INSERT INTO usuarios (ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clave)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         ''', (ID_Cargo, ID_Rol, Nombre,Apellido, Cedula, Nombre_Usuario, Clave))
             # Confirmar la transacción
             mariadb_conexion.commit()
@@ -57,7 +56,7 @@ def update_user(ID_Cargo, Nombre, Apellido, Cedula, Nombre_Usuario, Clave, ID_Us
         return True
 
 
-def delete_user(ID_Usuario):
+def delete_user_db(ID_Usuario):
     try:
         # Estableciendo la conexión usando un administrador de contexto
         with connect() as mariadb_conexion:
@@ -74,6 +73,55 @@ def delete_user(ID_Usuario):
         # Manejando cualquier error de la base de datos
         print(f"Error: {err}")
         return False
+
+def list_users_db(user_table_list):
+        try:
+            mariadb_conexion = mariadb.connect(
+            host='localhost',
+            port='3306',
+            password='2525',
+            database='basedatosbiblioteca'
+            )
+            if mariadb_conexion.is_connected():
+                cursor = mariadb_conexion.cursor()
+                cursor.execute("""SELECT ID_Usuario, ID_Cargo, ID_Rol, Nombre, Apellido, 
+                           Cedula, Nombre_Usuario FROM usuarios""")
+                resultados = cursor.fetchall() 
+            for row in user_table_list.get_children():
+                user_table_list.delete(row)
+            # Insertar los datos en el Treeview
+            for fila in resultados:
+                user_table_list.insert("", "end", values=tuple(fila))
+            mariadb_conexion.close()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+
+# Actualizar un prestamo
+def update_user_list(id_cedula, name_user, nombre, apellido, id):
+    mariadb_conexion=connect()
+    cursor = mariadb_conexion.cursor()
+    cursor.execute("SELECT ID_Usuario FROM usuarios WHERE ID_Usuario=%s", (id,))
+    busqueda=()
+    busqueda=cursor.fetchone()
+    print(busqueda)
+    if busqueda is None:
+        mariadb_conexion.close()
+        print("No se encontró al usuario.")
+        return False
+    else:
+        # Actualizar la fecha límite del préstamo
+        cursor.execute('''
+            UPDATE usuarios
+            SET Cedula = %s,
+            Nombre_Usuario = %s,
+            Nombre = %s,
+            Apellido = %s
+            WHERE ID_Usuario = %s
+        ''', (id_cedula, name_user, nombre, apellido, id))
+        print("Actualización éxitosa.")
+        mariadb_conexion.commit()
+        mariadb_conexion.close()
+        return True
 
 
 

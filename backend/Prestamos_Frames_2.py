@@ -2,7 +2,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-from Library.librerias import recoger_sesion, drop_sesion
+#from Library.librerias import recoger_sesion, drop_sesion
 from Library.db_prestamos import *
 from Library.bd_prestamo_listado_Frames2 import *
 from Vistas.listas import *
@@ -31,7 +31,8 @@ class P_Registrar(tk.Frame):
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
         self.images = {}
-        
+        self.parent=parent
+
         # Titulos de los inputs
         self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del nuevo cliente a agregar", fill="#4C4C4C", font=("Montserrat Medium", 15))
         #fila 1
@@ -75,28 +76,44 @@ class P_Registrar(tk.Frame):
         # Cargar y almacenar las imágenes
         self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
 
-        # Crear el botón
+        # # Crear el botón
+        # boton_R = self.images['boton_R']
+        # boton_R=tk.Button(
+        #     self,
+        #     image=boton_R,
+        #     borderwidth=0,
+        #     highlightthickness=0,
+        #     command=lambda: register_client(self, parent),
+        #     relief="flat",
+        # ).place(x=265.0, y=365.0, width=130.0, height=40.0)
+
         boton_R = self.images['boton_R']
-        boton_R=tk.Button(
+        boton_R = tk.Button(
             self,
             image=boton_R,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: register_client(self, parent),
+            command= self.mostrar_registrar2,
             relief="flat",
         ).place(x=265.0, y=365.0, width=130.0, height=40.0)
+
+    def mostrar_registrar2(self):
+        P_Registrar2(self.parent).place(x=0, y=0)
+        self.parent.P_frame_registrar.place_forget()
+        self.parent.frame_header.lift()
+        self.parent.frame_menu.lift()
         
-        def register_client(self, parent):
-                ID_Cedula= self.input_cedula.get() #self.cota.get()
-                nombre = self.input_nombre.get()#self.combobox1.get()
-                apellido = self.input_apellido.get()#self.menu_actual.get() if self.menu_actual else None
-                telefono= int(self.input_telefono.get()) #self.combobox3.get() if self.combobox3 else None
-                direccion=self.input_direccion.get()
-                if create_client_loans(ID_Cedula, nombre, apellido, telefono, direccion):
-                    messagebox.showinfo("Éxito", "Registro éxitoso del cliente.")
+    def register_client(self, parent):
+            ID_Cedula= self.input_cedula.get() #self.cota.get()
+            nombre = self.input_nombre.get()#self.combobox1.get()
+            apellido = self.input_apellido.get()#self.menu_actual.get() if self.menu_actual else None
+            telefono= int(self.input_telefono.get()) #self.combobox3.get() if self.combobox3 else None
+            direccion=self.input_direccion.get()
+            if create_client_loans(ID_Cedula, nombre, apellido, telefono, direccion):
+                messagebox.showinfo("Éxito", "Registro éxitoso del cliente.")
                     #return True
-                else:
-                    messagebox.showinfo("Registro fallido", "Cliente no pudo ser registrado.")
+            else:
+                messagebox.showinfo("Registro fallido", "Cliente no pudo ser registrado.")
                     #return False
 
 class P_Registrar2 (tk.Frame):
@@ -106,6 +123,7 @@ class P_Registrar2 (tk.Frame):
         self.canvas.pack(side="left", fill="both", expand=False)
         #validate_number = self.register(validate_number_input)
         self.images = {}
+        self.parent=parent
 
         messagebox.showinfo("Selección","Seleccione algún libro")
         self.left_frame = tk.Frame(self.canvas, bg="white")
@@ -119,38 +137,57 @@ class P_Registrar2 (tk.Frame):
             self.book_table.pack(expand=True, fill="both", padx=70, pady=45)
             # Vincular el evento de selección
             #self.book_table.bind("<<TreeviewSelect>>", self.on_row_selected)
-            respuesta = messagebox.askyesno("Confirmar elección")
+            respuesta = messagebox.askyesno("Confirmar elección","¿Elección final?")
             if respuesta:
             # Confirmación antes de eliminar
                 self.book_table.bind("<<TreeviewSelect>>", self.on_row_selected)
                 self.book_table.tag_configure('match', background='lightgreen')
                 respuesta2 = messagebox.askyesno("Confirmar elección")
+               #class p_registrar3
                 if respuesta2:
-                        canvas3 = tk.Canvas(self, bg="white", width=1366, height=768)
-                        canvas3.pack(side="left", fill="both", expand=False)
-                        canvas3.create_text(263.0, 106.0, anchor="nw", text="Selecciona el libro para otorgar el prestamo", fill="#4C4C4C", font=("Montserrat Medium", 15))
-                        canvas3.create_text(263.0, 152.0, anchor="nw", text="Fecha de Registro", fill="#000000", font=("Montserrat Regular", 15))
-                        canvas3.create_text(520.0, 152.0, anchor="nw", text="Fecha Límite", fill="#000000", font=("Montserrat Regular", 15))
-                        canvas3.create_text(779.0, 152.0, anchor="nw", text="Cantidad", fill="#000000", font=("Montserrat Regular", 15))
-                                                        
-                        fecha_registro = Calendar(canvas3, selectmode='day', year=2024, month=9, day=3)
-                        fecha_registro.pack(pady=20)
-                        fecha_registro.place(x=263.0, y=182.0, width=237.0, height=38.0)
-                                
-                        boton = tk.Button(canvas3, text="Obtener Fecha", command=self.obtener_fecha)
-                        boton.pack(pady=10)
-
-                        fecha_limite = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
-                        fecha_limite.place(x=520.0, y=182.0, width=237.0, height=38.0)
-                        
-                        cantidad = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
-                        cantidad.place(x=779.0, y=182.0, width=237.0, height=37.5)
-
+                    messagebox.showinfo("Éxito", "Registro éxitoso del cliente.")
+                    #return True
                 else:
-                    messagebox.showinfo("Cancelada", "Selección Cancelada.")
-            else:
-                messagebox.showinfo("Error", "Seleccione una opción válida")
-            self.lists_books(self.book_table)
+                    messagebox.showinfo("Registro fallido", "Cliente no pudo ser registrado.")
+
+    def on_row_selected(self, event):
+        selected_item = event.widget.selection()[0]
+        selected_values = event.widget.item(selected_item, "values")
+        print("Fila seleccionada:", selected_values)
+
+    def mostrar_registrar2(self):
+        P_Registrar3(self.parent).place(x=0, y=0)
+        self.parent.P_frame_registrar.place_forget()
+        self.parent.frame_header.lift()
+        self.parent.frame_menu.lift()
+        
+
+class P_Registrar3 (tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
+        self.canvas.pack(side="left", fill="both", expand=False)
+        #validate_number = self.register(validate_number_input)
+        self.images = {}  
+        canvas3 = tk.Canvas(self, bg="white", width=1366, height=768)
+        canvas3.pack(side="left", fill="both", expand=False)
+        canvas3.create_text(263.0, 106.0, anchor="nw", text="Selecciona el libro para otorgar el prestamo", fill="#4C4C4C", font=("Montserrat Medium", 15))
+        canvas3.create_text(263.0, 152.0, anchor="nw", text="Fecha de Registro", fill="#000000", font=("Montserrat Regular", 15))
+        canvas3.create_text(520.0, 152.0, anchor="nw", text="Fecha Límite", fill="#000000", font=("Montserrat Regular", 15))
+        canvas3.create_text(779.0, 152.0, anchor="nw", text="Cantidad", fill="#000000", font=("Montserrat Regular", 15))
+                                                        
+        fecha_registro = Calendar(canvas3, selectmode='day', year=2024, month=9, day=3)
+        fecha_registro.pack(pady=20)
+        fecha_registro.place(x=263.0, y=182.0, width=237.0, height=38.0)
+                                
+        boton = tk.Button(canvas3, text="Obtener Fecha", command=self.obtener_fecha)
+        boton.pack(pady=10)
+
+        fecha_limite = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        fecha_limite.place(x=520.0, y=182.0, width=237.0, height=38.0)
+                        
+        cantidad = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        cantidad.place(x=779.0, y=182.0, width=237.0, height=37.5)
 
     def obtener_fecha(self):
         print(self.fecha_registro.get_date())
@@ -176,12 +213,6 @@ class P_Registrar2 (tk.Frame):
                                 mariadb_conexion.close()
                         except mariadb.Error as ex:
                                 print("Error durante la conexión:", ex)
-
-    def on_row_selected(self, event):
-        selected_item = event.widget.selection()[0]
-        selected_values = event.widget.item(selected_item, "values")
-        print("Fila seleccionada:", selected_values)
-        # Aquí puedes almacenar los valores seleccionados en una variable o usarlos como necesites
 
 
 class P_Modificar(tk.Frame):
@@ -227,57 +258,7 @@ class P_Listar(tk.Frame):
         self.buscar = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key")
         self.buscar.place(x=635.0, y=110.0, width=237.0, height=38.0)
         # Para llamar a read_books cuando se presiona Enter
-        self.buscar.bind("<Return>", lambda event: boton_buscar())
-        
-        def boton_buscar():
-            try:
-             mariadb_conexion = mariadb.connect(
-                                        host='localhost',
-                                        port='3306',
-                                        password='2525',
-                                        database='basedatosbiblioteca'
-            )
-             if mariadb_conexion.is_connected():
-                        cursor = mariadb_conexion.cursor()
-                         # Ejecutar y procesar la primera consulta
-                        cursor.execute('SELECT ID_Cliente, Cedula_Cliente, Nombre, Apellido, Telefono, Direccion FROM cliente')
-                        resultados_cliente = cursor.fetchall() 
-                        for fila in resultados_cliente:
-                            self.book_table.insert("", "end", values=tuple(fila))
-                        # Ejecutar y procesar la segunda consulta
-                        cursor.execute('SELECT ID_Libro_Prestamo, ID_Libro, ID_Prestamo, Cantidad FROM libros_prestamo')
-                        resultados_libro_prestamo = cursor.fetchall()
-                        for fila in resultados_libro_prestamo:
-                            self.libro_prestamo_table.insert("", "end", values=tuple(fila))
-                        # Ejecutar y procesar la tercera consulta
-                        cursor.execute('SELECT ID_Prestamo, ID_Cliente, ID_Usuario, ID_Libro_Prestamo, Fecha_Registro, Fecha_Limite FROM prestamo')
-                        resultados_prestamo = cursor.fetchall()
-                        for fila in resultados_prestamo:
-                            self.prestamo_table.insert("", "end", values=tuple(fila))
-                        
-                        btn_buscar = self.buscar.get()
-                        for fila in resultados_cliente + resultados_libro_prestamo + resultados_prestamo:
-                            if btn_buscar in fila:
-                                self.book_table.item(self.book_table.get_children()[-1], tags='match')
-                                self.libro_prestamo_table.item(self.libro_prestamo_table.get_children()[-1], tags='match')
-                                self.prestamo_table.item(self.prestamo_table.get_children()[-1], tags='match')
-                            else:
-                                self.book_table.item(self.book_table.get_children()[-1], tags='nomatch')
-                                self.libro_prestamo_table.item(self.libro_prestamo_table.get_children()[-1], tags='match')
-                                self.prestamo_table.item(self.prestamo_table.get_children()[-1], tags='match')
-                                #
-                                self.book_table.tag_configure('match', background='green')
-                                self.book_table.tag_configure('nomatch', background='gray')
-                                self.libro_prestamo_table.tag_configure('match', background='green')
-                                self.libro_prestamo_table.tag_configure('nomatch', background='gray')
-                                self.prestamo_table.tag_configure('match', background='green')
-                                self.prestamo_table.tag_configure('nomatch', background='gray')
-                        if lists_clients_loans and lists_clients and lists_books_loans(btn_buscar):
-                            messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
-                        else:
-                            messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
-            except mariadb.Error as ex:
-                    print("Error durante la conexión:", ex)
+        self.buscar.bind("<Return>", self.boton_buscar)
 
         #Boton Cargar Libros
         # Cargar y almacenar las imágenes
@@ -375,6 +356,71 @@ class P_Listar(tk.Frame):
         style.configure("Treeview.Heading", font=("Helvetica", 10, "bold"), background="#75C99A")
         style.configure("Treeview", font=("Helvetica", 10), rowheight=25, background="white")
   
+    def boton_buscar(self,event):  
+        busqueda = self.buscar.get()
+        try:
+             mariadb_conexion = mariadb.connect(
+                                        host='localhost',
+                                        port='3306',
+                                        password='2525',
+                                        database='basedatosbiblioteca'
+            )
+             if mariadb_conexion.is_connected():
+                        cursor = mariadb_conexion.cursor()
+                        self.book_table.delete(*self.book_table.get_children())
+                        self.libro_prestamo_table.delete(*self.libro_prestamo_table.get_children())
+                        self.prestamo_table.delete(*self.prestamo_table.get_children())
+                         # Ejecutar y procesar la primera consulta
+                        cursor.execute("""SELECT ID_Cliente, ID_Prestamo, Cedula_Cliente, Nombre,
+                                        Apellido, Telefono, Direccion FROM cliente WHERE 
+                                        ID_Cliente=%s OR ID_Prestamo=%s OR Cedula_Cliente=%s OR 
+                                        Nombre=%s OR Apellido=%s OR Telefono=%s OR Direccion=%s""", 
+                                    (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+                        resultados_cliente = cursor.fetchall() 
+                        for fila in resultados_cliente:
+                            self.book_table.insert("", "end", values=tuple(fila))
+                        # Ejecutar y procesar la segunda consulta
+                        cursor.execute("""SELECT ID_Libro_Prestamo, ID_Prestamo, Cantidad FROM libros_prestamo WHERE 
+                                        ID_Libro_Prestamo=%s OR ID_Libro=%s OR ID_Prestamo=%s OR Cantidad=%s""", 
+                                    (busqueda, busqueda, busqueda, busqueda))
+                        resultados_libro_prestamo = cursor.fetchall()
+                        for fila in resultados_libro_prestamo:
+                            self.libro_prestamo_table.insert("", "end", values=tuple(fila))
+                        # Ejecutar y procesar la tercera consulta
+                        cursor.execute("""SELECT ID_Prestamo, ID_Cliente, ID_Libro_Prestamo FROM prestamo WHERE 
+                                        ID_Prestamo=%s OR ID_Cliente=%s OR ID_Libro_Prestamo=%s""", 
+                                    (busqueda, busqueda, busqueda))
+                        resultados_prestamo = cursor.fetchall()
+                        for fila in resultados_prestamo:
+                            self.prestamo_table.insert("", "end", values=tuple(fila))
+                        for fila in resultados_cliente + resultados_libro_prestamo + resultados_prestamo:
+                            if busqueda in fila:
+                                if self.book_table.get_children():
+                                    self.book_table.item(self.book_table.get_children()[-1], tags='match')
+                                if self.libro_prestamo_table.get_children():
+                                    self.libro_prestamo_table.item(self.libro_prestamo_table.get_children()[-1], tags='match')
+                                if self.prestamo_table.get_children():
+                                    self.prestamo_table.item(self.prestamo_table.get_children()[-1], tags='match')
+                            else:
+                                if self.book_table.get_children():
+                                    self.book_table.item(self.book_table.get_children()[-1], tags='nomatch')
+                                if self.libro_prestamo_table.get_children():
+                                    self.libro_prestamo_table.item(self.libro_prestamo_table.get_children()[-1], tags='nomatch')
+                                if self.prestamo_table.get_children():
+                                    self.prestamo_table.item(self.prestamo_table.get_children()[-1], tags='nomatch')
+                        self.book_table.tag_configure('match', background='green')
+                        self.book_table.tag_configure('nomatch', background='gray')
+                        self.libro_prestamo_table.tag_configure('match', background='green')
+                        self.libro_prestamo_table.tag_configure('nomatch', background='gray')
+                        self.prestamo_table.tag_configure('match', background='green')
+                        self.prestamo_table.tag_configure('nomatch', background='gray')
+                        if resultados_cliente or resultados_prestamo or resultados_libro_prestamo:
+                            messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+                        else:
+                            messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+        except mariadb.Error as ex:
+                    print("Error durante la conexión:", ex)
+    
     def open_filter_window(self,parent):
         filter_window = tk.Toplevel(self)
         filter_window.title("Filtrar")
@@ -464,7 +510,7 @@ class P_Listar(tk.Frame):
             if respuesta:
                 if update_client_loans(id_prestamo, cantidad, fecha_limite):
                     messagebox.showinfo("Éxito", "Modificación éxitosa del prestamo del cliente")
-                    self.clear_entries()
+                    self.clear_entries_list()
                         #return True
                 else:
                     messagebox.showinfo("Fallido", "La modificación del prestamo no pudo ejecutarse.")
@@ -480,7 +526,7 @@ class P_Listar(tk.Frame):
         filter_books_two(self)
         filter_books_three(self)
 
-    def clear_entries(self):
+    def clear_entries_list(self):
         self.id_prestamo_entry.delete(0, tk.END)
         self.cantidad_entry.delete(0, tk.END)
         self.fecha_limite_entry.delete(0, tk.END)

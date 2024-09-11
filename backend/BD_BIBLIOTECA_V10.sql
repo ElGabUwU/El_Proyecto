@@ -167,8 +167,11 @@ CREATE TABLE IF NOT EXISTS `cargo` (
   PRIMARY KEY (`ID_Cargo`),
   KEY `ID_CargoxUsuarios` (`ID_Usuario`),
   CONSTRAINT `ID_CargoxUsuarios` FOREIGN KEY (`ID_Usuario`) REFERENCES `usuarios` (`ID_Usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Cargo del Empleado';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Cargo del Empleado';
 
+INSERT INTO `cargo` (`ID_Cargo`, `ID_Usuario`, `Nombre_Cargo`) VALUES
+	(1, NULL, 'Encargado de Servicio'),
+	(2, NULL, 'Asistente Bibliotecario');
 
 CREATE TABLE IF NOT EXISTS `categoria` (
   `ID_Categoria` varchar(80) NOT NULL,
@@ -192,15 +195,23 @@ INSERT INTO `categoria` (`ID_Categoria`) VALUES
 CREATE TABLE IF NOT EXISTS `cliente` (
   `ID_Cliente` int(5) NOT NULL AUTO_INCREMENT,
   `ID_Prestamo` int(15) DEFAULT NULL,
-  `Cedual_Cliente` int(30) DEFAULT NULL,
-  `Nombre_Apellido` varchar(45) DEFAULT NULL,
-  `Telefono` int(25) DEFAULT NULL,
-  `Direccion` varchar(50) DEFAULT NULL,
+  `Cedula_Cliente` int(30) DEFAULT NULL,
+  `Nombre` varchar(45) DEFAULT NULL,
+  `Apellido` varchar(45) DEFAULT NULL,
+  `Telefono` varchar(30) DEFAULT NULL,
+  `Direccion` varchar(80) DEFAULT NULL,
   PRIMARY KEY (`ID_Cliente`),
   KEY `ID_ClientexPrestamo` (`ID_Prestamo`),
   CONSTRAINT `ID_ClientexPrestamo` FOREIGN KEY (`ID_Prestamo`) REFERENCES `prestamo` (`ID_Prestamo`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Clientes registrados en la Base de Datos de la Biblioteca';
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Clientes registrados en la Base de Datos de la Biblioteca';
 
+INSERT INTO `cliente` (`ID_Cliente`, `ID_Prestamo`, `Cedula_Cliente`, `Nombre`, `Apellido`, `Telefono`, `Direccion`) VALUES
+	(3, 1, 122, 'raul', 'ferr', '2341', 'CL 25'),
+	(4, NULL, 251, 'Pedro', 'Yury', '2511', 'Av 07'),
+	(23, NULL, 12921902, 'Marcus', 'Feliz', '102191289', 'mAROEQU'),
+	(24, NULL, 918127218, 'Henrry', 'Koila', '1912812', 'Genrdar'),
+	(25, NULL, 10199191, 'Juelqn', 'Narc', '111199', 'jUEPUTA'),
+	(26, NULL, 212121, 'Jose', 'Fernandez', '10219192', 'Moiras');
 
 CREATE TABLE IF NOT EXISTS `libro` (
   `ID_Libro` int(11) NOT NULL AUTO_INCREMENT,
@@ -226,7 +237,7 @@ CREATE TABLE IF NOT EXISTS `libro` (
   CONSTRAINT `ID_Libro_LibroxCategoria` FOREIGN KEY (`ID_Categoria`) REFERENCES `categoria` (`ID_Categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `ID_Libro_LibroxLibro_Prestamo` FOREIGN KEY (`ID_Libro_Prestamo`) REFERENCES `libros_prestamo` (`ID_Libro_Prestamo`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `ID_Libro_LibroxSala` FOREIGN KEY (`ID_Sala`) REFERENCES `sala` (`ID_Sala`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=445 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Descripcion del Libro (s)';
+) ENGINE=InnoDB AUTO_INCREMENT=449 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Descripcion del Libro (s)';
 
 INSERT INTO `libro` (`ID_Libro`, `ID_Sala`, `ID_Categoria`, `ID_Asignatura`, `ID_Libro_Prestamo`, `Cota`, `n_registro`, `edicion`, `n_volumenes`, `titulo`, `autor`, `editorial`, `año`, `n_ejemplares`) VALUES
 	(1, '1I', 'Infantil-X', 'Cuentos de Aventuras', NULL, 'DEL', '10.623', 1, 1, 'El calendario de Martita', 'Delahaye Gilbert', 'Editorial Juventud', 1963, 3),
@@ -256,7 +267,7 @@ INSERT INTO `libro` (`ID_Libro`, `ID_Sala`, `ID_Categoria`, `ID_Asignatura`, `ID
 	(25, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, '070.12H557', '8.075', 1, 1, 'Abajo el Telón', 'Luis A. Hernández', 'ULA', 1994, 1),
 	(26, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, '070.12P977', '8.076', 1, 1, 'La Fotografía: Testominio Noticioso en la prensa Tachirense', 'Francisco R. Puentes', 'ULA', 1995, 1),
 	(27, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, '070.442V856', '12.916', 1, 1, 'Crónicas de opinión y otros temas', 'Gonzalo V. Rámirez', 'Lito Formas', 2009, 2),
-	(28, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, '070.442V856-D', '12.917', 1, 1, 'Crónicas de opinión y otros temas', 'Gonzalo V. Rámirez', 'Lito Formas', 2009, 1),
+	(28, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, '070.442V856', '12.917', 1, 1, 'Crónicas de opinión y otros temas', 'Gonzalo V. Rámirez', 'Lito Formas', 2009, 1),
 	(29, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, '070.4492I72', '8.081', 1, 1, 'La Minoria Protestante en el Táchira', 'Domingo Irwin G.', 'Biblioteca de Autores y Temas Tachirenses', 1997, 1),
 	(30, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, '070.487125B715', '8.082', 1, 1, 'Periodismo Rubiense en el Estado Táchira desde 1876 hasta 1940', 'Bonilla M. Richard, Mantilla O. Oswal & et al', 'ULA', 1997, 1),
 	(31, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, '070.4A173', '8.080', 1, 1, 'Tratamiento de la Imagen Periodística en el Diario El Nacional durante los Sucesos del 27-28 de Febrero de 1989', 'Lisanka Acero', 'ULA', 1996, 1),
@@ -268,33 +279,33 @@ INSERT INTO `libro` (`ID_Libro`, `ID_Sala`, `ID_Categoria`, `ID_Asignatura`, `ID
 	(37, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, '110C311', '8090', 1, 1, 'Galactizaje Terrestre', 'Felipe C. Anula & at el', 'Ediciones Galaxia S.A', 0, 1),
 	(38, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, '128.2S231', '8.091', 1, 1, 'De las Incompletitudes Mentales a las Completitudes Mentales', 'Ernesto Santander', 'Lito Formas ', 1997, 1),
 	(39, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3D545', '0.363', 16, 2, 'Diccionario de Psicología', 'Fondo de Cultura Económica México', 'Lito Ediciones Olimpia S.A', 1984, 1),
-	(40, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3D545-D', '0.364', 16, 2, 'Diccionario de Psicología', 'Fondo de Cultura Económica México', 'Lito Ediciones Olimpia S.A', 1984, 1),
+	(40, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3D545', '0.364', 16, 2, 'Diccionario de Psicología', 'Fondo de Cultura Económica México', 'Lito Ediciones Olimpia S.A', 1984, 1),
 	(41, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3E56', '13.360-13.363', 1, 4, 'Enciclopedia de la Psicología', 'Grupo Oceano', 'Editorial OCEANO', 0, 1),
-	(42, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3E56-D', 'S.R', 1, 6, 'Enciclopedia de la Psicología Oceano', 'Grupo Oceano', 'Editorial OCEANO', 0, 1),
-	(43, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3E56-D2', '12.129-12.134', 1, 6, 'Enciclopedia de Psicología', 'R.S.S.F.R', 'Editorial Grijalbo S.A', 1969, 1),
-	(44, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3E56-D3', '0.511-0.512', 1, 2, 'Enciclopedia de Psicología', 'R.S.S.F.R', 'Editorial Grijalbo S.A', 1969, 1),
-	(45, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3E56-O', '12.131', 1, 1, 'Enciclopedia de Psicología: Tomo 3', 'R.S.S.F.R', 'Editorial Grijalbo S.A', 1969, 3),
+	(42, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3E56', 'S.R', 1, 6, 'Enciclopedia de la Psicología Oceano', 'Grupo Oceano', 'Editorial OCEANO', 0, 1),
+	(43, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3E56', '12.129-12.134', 1, 6, 'Enciclopedia de Psicología', 'R.S.S.F.R', 'Editorial Grijalbo S.A', 1969, 1),
+	(44, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3E56', '0.511-0.512', 1, 2, 'Enciclopedia de Psicología', 'R.S.S.F.R', 'Editorial Grijalbo S.A', 1969, 1),
+	(45, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3E56', '12.131', 1, 1, 'Enciclopedia de Psicología: Tomo 3', 'R.S.S.F.R', 'Editorial Grijalbo S.A', 1969, 3),
 	(46, '3G', 'Filosofía y Psicología', 'Psicología-Diccionarios', NULL, '150.3P974', '0.372-0.376', 1, 5, 'Psicología', 'Ediciones Algar S.A', 'Ediciones Algar S.A', 1987, 1),
 	(47, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.1952F889', '0.480', 1, 1, 'Los Origenes del Psicoanálisis', 'Sigmund Freud', 'Alianza Editorial S.A', 0, 1),
-	(48, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.1952F889-O', '0.479', 1, 1, 'Freud y el psicoanálisis', 'Salvat Editores S.A', 'Salvat Editores S.A', 1973, 1),
+	(48, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.1952F889', '0.479', 1, 1, 'Freud y el psicoanálisis', 'Salvat Editores S.A', 'Salvat Editores S.A', 1973, 1),
 	(49, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.1952M449', '0.481', 1, 1, 'Freud', 'Roger Mauge', 'Brugueras S.A', 1974, 1),
-	(50, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.1952M449-D', '0.482', 1, 1, 'Freud', 'Roger Mauge', 'Brugueras S.A', 1974, 1),
+	(50, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.1952M449', '0.482', 1, 1, 'Freud', 'Roger Mauge', 'Brugueras S.A', 1974, 1),
 	(51, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.195B566', '0.475', 1, 1, 'Cara y Cruz del Psicoanálisis', 'Max Beucher', 'Brugera S.A', 1974, 2),
-	(52, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.195B566-D', '0.476', 1, 1, 'Cara y Cruz del Psicoanálisis', 'Max Beucher', 'Brugera S.A', 1974, 0),
+	(52, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.195B566', '0.476', 1, 1, 'Cara y Cruz del Psicoanálisis', 'Max Beucher', 'Brugera S.A', 1974, 0),
 	(53, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.195V485', '0.477', 1, 1, 'La Peste: Fundamentos del Psicoanálisis', 'Armando Verdiglione', 'Monte Avila Editores S.A', 1984, 1),
 	(54, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.19O59', '0.472 ', 1, 1, 'Los origenes de la psicología moderna', 'W.M. O´Neil', 'Monte Avila Editores S.A', 1975, 1),
 	(55, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.202G943', '0.484', 1, 1, 'Guía de la Psicología y la Salud', 'Plata Oliveros & CIA. LTDA', 'Editora Velez Cabrera C.A', 1986, 2),
-	(56, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.202G943-D', '0.484', 1, 1, 'Guía de la Psicología y la Salud', 'Plata Oliveros & CIA. LTDA', 'Editora Velez Cabrera C.A', 1986, 0),
+	(56, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150.202G943', '0.484', 1, 1, 'Guía de la Psicología y la Salud', 'Plata Oliveros & CIA. LTDA', 'Editora Velez Cabrera C.A', 1986, 0),
 	(57, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150A659', '0.446', 1, 1, 'Psicología: 1 año. Texto 4°', 'Jesús Aragón D.', 'Ediciones Colegial Bolivariana C.A', 0, 1),
 	(58, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150A926', '0.447', 3, 1, 'Educación Fundamental', 'Samuel Aun Weor', 'Colección Iris', 1975, 1),
 	(59, '3G', 'Filosofía y Psicología', 'Psicología', NULL, '150W624', '0.472', 3, 1, 'Psicología', 'James O. Whittaker', 'Nueva Editorial Interamericana S.A', 1977, 1),
 	(60, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.01M356', '0.338', 1, 1, 'La Comunicación Impresa. Teoría y Práctica del Lenguaje Periodístico', 'Alexis Marquez Rodriguez', 'Sintesis Dosmil', 1976, 2),
-	(61, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.01M356-D', '0.339', 1, 1, 'La Comunicación Impresa. Teoría y Práctica del Lenguaje Periodístico', 'Alexis Marquez Rodriguez', 'Sintesis Dosmil', 1976, 0),
+	(61, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.01M356', '0.339', 1, 1, 'La Comunicación Impresa. Teoría y Práctica del Lenguaje Periodístico', 'Alexis Marquez Rodriguez', 'Sintesis Dosmil', 1976, 0),
 	(62, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.19C961', '0.342', 1, 1, '40 años de Comunicación Social en Venezuela 1946-1986', 'Eleazar Díaz Rangel', 'Congreso de la República', 1988, 1),
 	(63, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.19L864', '12.768', 1, 1, 'Ciudadana Radio. El poder del periodismo de intermediación', 'José Ignacio López Vigil', 'Ministerio de Comunicación e Información', 2008, 1),
 	(64, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.1R696', '0.341', 1, 1, 'Necesidad de un Nuevo Periodismo Económico', 'Jose Egidio Rodriguez', 'Ediciones Centauro', 1979, 1),
 	(65, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.435V782', '13.258', 1, 1, 'Ancla. Una experiencia de comunicación clandestina orientada por Rodolfo Walsh', 'Natalia Vinelli', 'Editorial El perro y la rana', 2007, 2),
-	(66, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.435V782-D', '13.259', 1, 1, 'Ancla. Una experiencia de comunicación clandestina orientada por Rodolfo Walsh', 'Natalia Vinelli', 'Editorial El perro y la rana', 2007, 1),
+	(66, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.435V782', '13.259', 1, 1, 'Ancla. Una experiencia de comunicación clandestina orientada por Rodolfo Walsh', 'Natalia Vinelli', 'Editorial El perro y la rana', 2007, 1),
 	(67, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.442M843', '0.345', 1, 1, 'Carlos Giménez. Tiempo y Espacio', 'Edgar Antonio Moreno Uribe', 'Vadell Hermanos Editores', 1993, 1),
 	(68, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.44933R696', '0.347', 1, 1, 'Periodismo  Económico para el desarrollo', 'José Egidio Rodríguez', 'G.S Dibujo y Reproducción', 1987, 1),
 	(69, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Periodismo', NULL, '070.449G216', '0.346', 1, 1, 'La Aventura de Miguel Littin Clandestino en Chile', 'Gabriel Garcia Marquez', 'Editorial Oveja Negra', 1986, 1),
@@ -308,13 +319,13 @@ INSERT INTO `libro` (`ID_Libro`, `ID_Sala`, `ID_Categoria`, `ID_Asignatura`, `ID
 	(77, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Metodología de la Investigación', NULL, '001.42B184', '13.999', 7, 1, 'Como se elabora el proyecto de investigación', 'Mirian Balestrini Acuña', 'BL Consultores Asociados Editoria', 2006, 1),
 	(78, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Metodología de la Investigación', NULL, '001.4C352', '12.479', 1, 1, 'Guía para la Formulación de Proyectos de Investigación', 'Mauricio Castillo Sanchez', 'Cooperativa Editorial Magisterio', 2004, 1),
 	(79, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Metodología de la Investigación', NULL, '001.4T153', '12.610', 4, 1, 'El Proceso de la Investigación Científica', 'Mario Tamayo y Tamayo', 'Limusa Noriega Editores', 2007, 2),
-	(80, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Metodología de la Investigación', NULL, '001.4T153-D', '13.726', 4, 1, 'El Proceso de la Investigación Científica', 'Mario Tamayo y Tamayo', 'Limusa Noriega Editores', 2007, 0),
+	(80, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Metodología de la Investigación', NULL, '001.4T153', '13.726', 4, 1, 'El Proceso de la Investigación Científica', 'Mario Tamayo y Tamayo', 'Limusa Noriega Editores', 2007, 0),
 	(81, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Metodología de la Investigación', NULL, '001.4U26', '13.746', 1, 1, 'La Articulación método, metodología y epistemología', 'Gabriel Ugas Fermín', 'Lito-Formas', 2011, 1),
 	(82, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Metodología de la Investigación', NULL, '001G166', '5.389', 1, 1, 'Discurso Constructivista sobre las Ciencias Experimentales. Una Concepción actual del conocimiento científico', 'Rómulo Gallego Badillo', 'Cooperativa Editorial Magisterio', 1996, 1),
 	(83, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Metodología de la Investigación', NULL, '001M183', '0.174', 1, 1, 'Mapas para la Fiesta', 'Otto Maduro', 'Guarura Ediciones', 1997, 1),
 	(84, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '00.151N962', 'S.R', 9, 1, 'Introducción a la Ciencia', 'J.R. Nuñez Tenorio', 'Vadel Hermanos Editores', 1979, 1),
 	(85, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '001.43I62', '0.190', 1, 2, 'La investigación, un desafio a nuestra juventud', 'Monte Avila S.A', 'Monte Avila Editores S.A', 1973, 1),
-	(86, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '001.43I62-D', '0.191', 1, 2, 'La investigación, un desafio a nuestra juventud', 'Monte Avila S.A', 'Monte Avila Editores S.A', 1973, 1),
+	(86, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '001.43I62', '0.191', 1, 2, 'La investigación, un desafio a nuestra juventud', 'Monte Avila S.A', 'Monte Avila Editores S.A', 1973, 1),
 	(87, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '001.5101B928', '12.117', 1, 1, 'Filosofía de la Comunicación', 'Fernando Buen Abad Domínguez', 'Publicaciones Monfort C.A', 2006, 1),
 	(88, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '001.5109H715', '0.194', 1, 1, 'El Maravilloso mundo de la comunicación', 'Lancelot Hogben', 'Novograph S.A', 1972, 1),
 	(89, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '001.51B515', '0.192', 10, 1, 'El proceso de la comunicación: Introducción a la teoría y a la práctica', 'David K. Berlo', 'Editorial El Ateneo', 1979, 1),
@@ -323,26 +334,26 @@ INSERT INTO `libro` (`ID_Libro`, `ID_Sala`, `ID_Categoria`, `ID_Asignatura`, `ID
 	(92, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '001.539F981', '0.199', 2, 1, 'Fundamentos de Información y Documentación', 'José López Yepez', 'Eudema S.A', 1990, 1),
 	(93, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '001.53B415', '0.195', 5, 1, 'Cibernética y Administración', 'Stafford Beer', 'Compañía Editorial Continental S.A', 1974, 1),
 	(94, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '001.53I61', '0.196', 1, 1, 'Introducción e Historia de la Cibernética', 'A. V Jramoi & et all', 'Editorial Nauka ', 1968, 2),
-	(95, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '001.53I61-D', '0.197', 1, 1, 'Introducción e Historia de la Cibernética (2° Ejemplar)', 'A. V Jramoi & et all', 'Editorial Nauka ', 1968, 1),
+	(95, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Informática', NULL, '001.53I61', '0.197', 1, 1, 'Introducción e Historia de la Cibernética (2° Ejemplar)', 'A. V Jramoi & et all', 'Editorial Nauka ', 1968, 1),
 	(96, '3G', 'Filosofía y Psicología', 'Filosofía-Diccionarios', NULL, '103F379', '0.356-0.361', 5, 6, 'Diccionario de Filosofía: Original', 'Jose Ferrater Mora', 'Alianza Editorial S.A', 1986, 1),
-	(97, '3G', 'Filosofía y Psicología', 'Filosofía-Diccionarios', NULL, '103F379-D', '0.378-0.379', 5, 2, 'Diccionario de Filosofía: Copia', 'Jose Ferrater Mora', 'Alianza Editorial S.A', 1986, 1),
-	(98, '3G', 'Filosofía y Psicología', 'Filosofía-Diccionarios', NULL, '103F379-D2', '13.061-13.064', 1, 4, 'Diccioanrio de Filosofía: Nueva Edición Actualizada', 'Jose Ferrater Mora', 'Editorial Ariel S.A', 2001, 1),
-	(99, '3G', 'Filosofía y Psicología', 'Filosofía-Diccionarios', NULL, '103F379-D3', '0.362', 3, 1, 'Diccionario de Filosofía: Abreviado', 'Jose Ferrater Mora', 'Editorial Sudamericana', 1973, 1),
+	(97, '3G', 'Filosofía y Psicología', 'Filosofía-Diccionarios', NULL, '103F379', '0.378-0.379', 5, 2, 'Diccionario de Filosofía: Copia', 'Jose Ferrater Mora', 'Alianza Editorial S.A', 1986, 1),
+	(98, '3G', 'Filosofía y Psicología', 'Filosofía-Diccionarios', NULL, '103F379', '13.061-13.064', 1, 4, 'Diccioanrio de Filosofía: Nueva Edición Actualizada', 'Jose Ferrater Mora', 'Editorial Ariel S.A', 2001, 1),
+	(99, '3G', 'Filosofía y Psicología', 'Filosofía-Diccionarios', NULL, '103F379', '0.362', 3, 1, 'Diccionario de Filosofía: Abreviado', 'Jose Ferrater Mora', 'Editorial Sudamericana', 1973, 1),
 	(100, '3G', 'Filosofía y Psicología', 'Filosofía-Diccionarios', NULL, '109H673', '11.858-11.864', 2, 7, 'Historia de la Filosofía', 'M.A. DYNNIK', 'Editorial Grijalbo S.A', 1965, 1),
 	(101, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '100.1K92', '2.474', 1, 1, 'La Llama de la atención', 'Krishnamurti', 'Erreoar S.A', 1996, 1),
 	(102, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '100A122', '0.377', 3, 1, 'Introducción al Existencialismo', 'Nicola Abbagnano', 'Fondo de Cultura Económica', 1975, 1),
 	(103, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '100F488', '0.381', 1, 1, 'La Filosofía, hoy', 'Salvat Editores S.A', 'Salvat Editores S.A', 1973, 1),
-	(104, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '100F488-D', '12.218', 1, 1, 'La Filosofía, hoy', 'Salvat Editores S.A', 'Salvat Editores S.A', 1973, 1),
+	(104, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '100F488', '12.218', 1, 1, 'La Filosofía, hoy', 'Salvat Editores S.A', 'Salvat Editores S.A', 1973, 1),
 	(105, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '100G756', '0.380', 1, 1, 'Ethologia y Existencia', 'Manuel Granell', 'Editorial Equinoccio', 1977, 1),
 	(106, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '100T645', '0.382', 1, 1, '7 vertientes para el discurrir filosófico', 'Alejandro F. Togores', 'Ministerio de Educación', 1971, 1),
 	(107, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '101B821', '0.384', 1, 1, 'Iniciación en el Filosofar', 'Juan C. Brandt ', 'Papelería Los Teques', 1976, 1),
 	(108, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '101B959', '0.386-0.388', 1, 3, 'Filosofía: Una Introducción', 'Ignacio Burk', 'Insula', 1975, 1),
 	(109, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '101C112', '12.546', 1, 1, 'Introducciones a la Filosofía', 'Samuel Cabanchik', 'Gedisa Editorial', 2005, 1),
 	(110, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '101G216', '0.410', 18, 1, 'Lecciones preliminares de Filosofía', 'Manuel Garcia Morente', 'Editorial Losada S.A', 1975, 1),
-	(111, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '101G216-O', '0.389', 1, 1, 'Curso Sistemático de Filosofía Actual ', 'Juan David Garcia', 'Imprenta Universitaria', 1969, 1),
-	(112, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Enciclopedias y Diccionarios', NULL, '036.1D454-O2', '0.097', 4, 2, 'Diccionario Enciclopédico Hispano-Americano: H-Z', 'W.M Jackson Inc.', 'Ferris Printing Company', 1939, 1),
-	(113, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Enciclopedias y Diccionarios', NULL, '036.1D545-O', '0.095', 4, 2, 'Diccionario Enciclopédico Hispano-Americano: A-G', 'W.M Jackson Inc.', 'Ferris Printing Company', 1939, 1),
-	(114, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Enciclopedias y Diccionarios', NULL, '036.1D545-O3', '0.096-0.118', 4, 23, 'Diccionario Enciclopédico Hispano-Americano: Tomo I-XXIII', 'W.M Jackson Inc.', 'Editorial Richards S.A', 1939, 1),
+	(111, '3G', 'Filosofía y Psicología', 'Filosofía', NULL, '101G216', '0.389', 1, 1, 'Curso Sistemático de Filosofía Actual ', 'Juan David Garcia', 'Imprenta Universitaria', 1969, 1),
+	(112, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Enciclopedias y Diccionarios', NULL, '036.1D454', '0.097', 4, 2, 'Diccionario Enciclopédico Hispano-Americano: H-Z', 'W.M Jackson Inc.', 'Ferris Printing Company', 1939, 1),
+	(113, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Enciclopedias y Diccionarios', NULL, '036.1D545', '0.095', 4, 2, 'Diccionario Enciclopédico Hispano-Americano: A-G', 'W.M Jackson Inc.', 'Ferris Printing Company', 1939, 1),
+	(114, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Enciclopedias y Diccionarios', NULL, '036.1D545', '0.096-0.118', 4, 23, 'Diccionario Enciclopédico Hispano-Americano: Tomo I-XXIII', 'W.M Jackson Inc.', 'Editorial Richards S.A', 1939, 1),
 	(115, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Enciclopedias y Diccionarios', NULL, '036.1U58', '0.165-0.170', 4, 6, 'El Universo de los Jovenes: ¿Por qué?', 'Ediciones Grijalbo S.A', 'Artes Gráficas Toledo S.A', 1986, 1),
 	(116, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Enciclopedias y Diccionarios', NULL, '069.861025L864', '0.171', 2, 1, 'Directorio de Museos de Colombia', 'Fernando López Barbosa', 'Lito Camargo', 1995, 1),
 	(117, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Enciclopedias y Diccionarios', NULL, '070.03L864', '0.172', 4, 1, 'Diccionario del Periodismo', 'Antonio López de Zuazo Algar', 'Ediciones Pirámide S.A', 1985, 1),
@@ -362,20 +373,20 @@ INSERT INTO `libro` (`ID_Libro`, `ID_Sala`, `ID_Categoria`, `ID_Asignatura`, `ID
 	(131, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.642A265', '0.257', 1, 1, 'Programación Basic Aplicada', 'Roy Ageloff y Richard Mojena', 'McGraw-Hill S.A', 0, 1),
 	(132, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64M827', '0.229', 3, 1, 'Introducción a la Informática', 'José Luis Mora y Enzo Molino', 'Editorial Trillas S.A', 1976, 1),
 	(133, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64M965', '0.231', 1, 2, 'El mundo de la computación', 'Ediciones Oceano', 'Credograf S.A', 1987, 1),
-	(134, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64M965-D', '0.229', 1, 2, 'El mundo de la computación', 'Ediciones Oceano', 'Credograf S.A', 1987, 1),
+	(134, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64M965', '0.229', 1, 2, 'El mundo de la computación', 'Ediciones Oceano', 'Credograf S.A', 1987, 1),
 	(135, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64M981', '0.234', 1, 1, 'Microsoft C/C++ 7: Manual de Referencia', 'William H. Murray y Chris H. Pappas', 'McGraw-Hill S.A', 1994, 1),
-	(136, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64M981-D', '0.235', 1, 1, 'Microsoft C/C++ 7: Funciones y Aplicaciones', 'Microsoft Corporation', 'McGraw-Hill S.A', 1994, 1),
+	(136, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64M981', '0.235', 1, 1, 'Microsoft C/C++ 7: Funciones y Aplicaciones', 'Microsoft Corporation', 'McGraw-Hill S.A', 1994, 1),
 	(137, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64N429', '0.236', 1, 1, 'Todo lo que quiso saber sobre 1-2-3 para Windows y no se atrevió a preguntar', 'Kay Yarborough Nelson', 'McGraw-Hill S.A', 1995, 1),
 	(138, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64N882', '0.238', 1, 1, 'Introducción a la Computación', 'Peter Norton', 'McGraw-Hill S.A', 1995, 2),
-	(139, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64N882-D', '0.239', 1, 1, 'Introducción a la Computación', 'Peter Norton', 'McGraw-Hill S.A', 1995, 2),
+	(139, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64N882', '0.239', 1, 1, 'Introducción a la Computación', 'Peter Norton', 'McGraw-Hill S.A', 1995, 2),
 	(140, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64O13', '0.240', 1, 1, 'Microsoft Access 97 Desarrollo de soluciones', 'Thimothy M. O´Brien, Steven J. Pogge & et al', 'McGraw-Hill S.A', 0, 1),
 	(141, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64O64', '0.241', 1, 1, 'Los Ordenadores', 'Salvat Editores S.A', 'Salvat Editores S.A', 1974, 2),
-	(142, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64O64-D', '0.242', 1, 1, 'Los Ordenadores', 'Salvat Editores S.A', 'Salvat Editores S.A', 1974, 2),
+	(142, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64O64', '0.242', 1, 1, 'Los Ordenadores', 'Salvat Editores S.A', 'Salvat Editores S.A', 1974, 2),
 	(143, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64P438', '0.243', 1, 1, 'Microsoft Office 97. Excel 97', 'Manuel Pérez Cota, Amparo y Maria Rodríguez Damián', 'McGraw-Hill S.A', 0, 2),
-	(144, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64P438-D', '0.244', 1, 1, 'Microsoft Office 97. Excel 97', 'Manuel Pérez Cota, Amparo y Maria Rodríguez Damián', 'McGraw-Hill S.A', 0, 2),
+	(144, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64P438', '0.244', 1, 1, 'Microsoft Office 97. Excel 97', 'Manuel Pérez Cota, Amparo y Maria Rodríguez Damián', 'McGraw-Hill S.A', 0, 2),
 	(145, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Computación', NULL, '001.64P887', '0.245', 1, 1, 'El camino fácil a PowerPoint 2000 Enter Plus', 'McGraw-Hill S.A', 'McGraw-Hill S.A', 0, 1),
 	(146, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Almanaques Mundiales', NULL, '036.1A445', '0.088', 1, 1, 'Almanaque Mundial: 1992', 'Editorial América S.A', 'América S.A', 1991, 1),
-	(147, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Almanaques Mundiales', NULL, '036.1A445-D', '0.089', 1, 1, 'Almanaque Mundial: 1994', 'Editorial América S.A', 'América S.A', 1993, 1),
+	(147, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Almanaques Mundiales', NULL, '036.1A445', '0.089', 1, 1, 'Almanaque Mundial: 1994', 'Editorial América S.A', 'América S.A', 1993, 1),
 	(148, '3G', 'Ciencias de la Computación, Información y Obras Generales', 'Almanaques Mundiales', NULL, '036.1A445-D2', '0.091-0.092', 1, 1, 'Almanaque Mundial: 1995', 'Editorial América S.A', 'América S.A', 1994, 2),
 	(149, '1I', 'Infantil-X', 'Poesías y Canciones Venezolanas', NULL, 'ALC', '13.906', 1, 1, 'Mundo Mágico', 'Carmen Alcalde', 'Editorial Lito Lila', 2001, 1),
 	(150, '3G', 'Tecnología y Ciencias Aplicadas', 'Mercadotecnia', NULL, '658.8G751', '4.687', 1, 1, 'Direccion de maketing Fundamentos y software de aplicaciones', 'Ildefonso Grande', 'McGraw-hill', 1992, 1),
@@ -666,7 +677,8 @@ INSERT INTO `libro` (`ID_Libro`, `ID_Sala`, `ID_Categoria`, `ID_Asignatura`, `ID
 	(435, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, 'BARI', '13.444', 1, 1, 'Una vida al servicio de Venezuela', 'Hector Bencomo Barrios', 'Fundacion popular', 2002, 1),
 	(436, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, 'BARE', '12.698', 1, 1, 'Isabel Aretz', 'Gladys Paez', 'Fundación El Perro y La Rana', 2007, 1),
 	(437, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, 'BARC', '1.689', 1, 1, 'Juana de arco', 'Manuel Penella', 'Editora Cinco', 1985, 1),
-	(438, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, 'BANG', '2.351', 1, 1, 'Miguel Angel', 'Isidoro Carvajal', 'Editora Cinco', 1985, 1);
+	(438, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, 'BANG', '2.351', 1, 1, 'Miguel Angel', 'Isidoro Carvajal', 'Editora Cinco', 1985, 1),
+	(445, '2E', 'Estadal-B', 'Historia Local-Rubio-Junin', NULL, '21212K', '19182', 1, 128, 'jULIZ', 'aUTOR', 'Editorial', 29181, 221);
 
 CREATE TABLE IF NOT EXISTS `libros_prestamo` (
   `ID_Libro_Prestamo` int(11) NOT NULL,
@@ -680,14 +692,16 @@ CREATE TABLE IF NOT EXISTS `libros_prestamo` (
   CONSTRAINT `ID_Libro_Prestamo_LPxLibro` FOREIGN KEY (`ID_Libro`) REFERENCES `libro` (`ID_Libro`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Libros Identificado (s) y prestado (s)';
 
+INSERT INTO `libros_prestamo` (`ID_Libro_Prestamo`, `ID_Libro`, `ID_Prestamo`, `Cantidad`) VALUES
+	(1, 14, 1, 23);
 
 CREATE TABLE IF NOT EXISTS `prestamo` (
   `ID_Prestamo` int(15) NOT NULL,
   `ID_Cliente` int(5) DEFAULT NULL,
   `ID_Usuario` int(11) DEFAULT NULL,
   `ID_Libro_Prestamo` int(11) DEFAULT NULL,
-  `Fecha_Registro` int(11) DEFAULT NULL,
-  `Fecha_Limite` int(11) DEFAULT NULL,
+  `Fecha_Registro` date DEFAULT NULL,
+  `Fecha_Limite` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`ID_Prestamo`),
   KEY `ID_Prestamo_Prestamo_Cliente` (`ID_Cliente`),
   KEY `ID_Prestamo_Prestamo_Usuario` (`ID_Usuario`),
@@ -697,6 +711,8 @@ CREATE TABLE IF NOT EXISTS `prestamo` (
   CONSTRAINT `ID_Prestamo_Prestamo_Usuario` FOREIGN KEY (`ID_Usuario`) REFERENCES `usuarios` (`ID_Usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Prestamos realizados y rgistrados por el personal de la biblioteca';
 
+INSERT INTO `prestamo` (`ID_Prestamo`, `ID_Cliente`, `ID_Usuario`, `ID_Libro_Prestamo`, `Fecha_Registro`, `Fecha_Limite`) VALUES
+	(1, 24, 1, 1, '2024-09-04', '2024-09-23 00:00:00');
 
 CREATE TABLE IF NOT EXISTS `rol` (
   `ID_Rol` int(11) NOT NULL AUTO_INCREMENT,
@@ -705,8 +721,11 @@ CREATE TABLE IF NOT EXISTS `rol` (
   PRIMARY KEY (`ID_Rol`),
   KEY `ID_RolxUsuarios` (`ID_Usuario`),
   CONSTRAINT `ID_RolxUsuarios` FOREIGN KEY (`ID_Usuario`) REFERENCES `usuarios` (`ID_Usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Rol del Empleado';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Rol del Empleado';
 
+INSERT INTO `rol` (`ID_Rol`, `ID_Usuario`, `Nombre_Rol`) VALUES
+	(1, NULL, 'admin'),
+	(2, NULL, 'superadmin');
 
 CREATE TABLE IF NOT EXISTS `sala` (
   `ID_Sala` varchar(50) NOT NULL DEFAULT '',
@@ -724,7 +743,8 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `ID_Usuario` int(11) NOT NULL AUTO_INCREMENT,
   `ID_Cargo` int(11) DEFAULT NULL,
   `ID_Rol` int(11) DEFAULT NULL,
-  `Nombre_Apellido` varchar(45) DEFAULT NULL,
+  `Nombre` varchar(45) DEFAULT NULL,
+  `Apellido` varchar(45) DEFAULT NULL,
   `Cedula` int(15) DEFAULT NULL,
   `Nombre_Usuario` varchar(20) DEFAULT NULL,
   `Clave` varchar(50) DEFAULT NULL,
@@ -733,8 +753,10 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   KEY `ID_UsuariosxRol` (`ID_Rol`),
   CONSTRAINT `ID_UsuariosxCargo` FOREIGN KEY (`ID_Cargo`) REFERENCES `cargo` (`ID_Cargo`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `ID_UsuariosxRol` FOREIGN KEY (`ID_Rol`) REFERENCES `rol` (`ID_Rol`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Usuarios registrado en la Base de Datos de la Biblioteca';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Usuarios registrado en la Base de Datos de la Biblioteca';
 
+INSERT INTO `usuarios` (`ID_Usuario`, `ID_Cargo`, `ID_Rol`, `Nombre`, `Apellido`, `Cedula`, `Nombre_Usuario`, `Clave`) VALUES
+	(1, 1, 1, 'Juez', 'Kilemez', 191716167, 'Juezea', '101838');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

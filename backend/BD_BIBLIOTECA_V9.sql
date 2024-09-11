@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS `asignatura` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Asignatura en la que pertenece el libro';
 
 INSERT INTO `asignatura` (`ID_Asignatura`) VALUES
-	('Administracion'),
-	('Administración de Empresas'),
+	('Administracionn'),
+	('Administraciónn de Empresas'),
 	('Administración de Personal'),
 	('Agricultura'),
 	('Agricultura-Diccionarios'),
@@ -167,8 +167,11 @@ CREATE TABLE IF NOT EXISTS `cargo` (
   PRIMARY KEY (`ID_Cargo`),
   KEY `ID_CargoxUsuarios` (`ID_Usuario`),
   CONSTRAINT `ID_CargoxUsuarios` FOREIGN KEY (`ID_Usuario`) REFERENCES `usuarios` (`ID_Usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Cargo del Empleado';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Cargo del Empleado';
 
+INSERT INTO `cargo` (`ID_Cargo`, `ID_Usuario`, `Nombre_Cargo`) VALUES
+	(1, NULL, 'Encargado de Servicio'),
+	(2, NULL, 'Asistente Bibliotecario');
 
 CREATE TABLE IF NOT EXISTS `categoria` (
   `ID_Categoria` varchar(80) NOT NULL,
@@ -192,15 +195,23 @@ INSERT INTO `categoria` (`ID_Categoria`) VALUES
 CREATE TABLE IF NOT EXISTS `cliente` (
   `ID_Cliente` int(5) NOT NULL AUTO_INCREMENT,
   `ID_Prestamo` int(15) DEFAULT NULL,
-  `Cedual_Cliente` int(30) DEFAULT NULL,
-  `Nombre_Apellido` varchar(45) DEFAULT NULL,
-  `Telefono` int(25) DEFAULT NULL,
-  `Direccion` varchar(50) DEFAULT NULL,
+  `Cedula_Cliente` int(30) DEFAULT NULL,
+  `Nombre` varchar(45) DEFAULT NULL,
+  `Apellido` varchar(45) DEFAULT NULL,
+  `Telefono` varchar(30) DEFAULT NULL,
+  `Direccion` varchar(80) DEFAULT NULL,
   PRIMARY KEY (`ID_Cliente`),
   KEY `ID_ClientexPrestamo` (`ID_Prestamo`),
   CONSTRAINT `ID_ClientexPrestamo` FOREIGN KEY (`ID_Prestamo`) REFERENCES `prestamo` (`ID_Prestamo`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Clientes registrados en la Base de Datos de la Biblioteca';
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Clientes registrados en la Base de Datos de la Biblioteca';
 
+INSERT INTO `cliente` (`ID_Cliente`, `ID_Prestamo`, `Cedula_Cliente`, `Nombre`, `Apellido`, `Telefono`, `Direccion`) VALUES
+	(3, NULL, 122, 'raul', 'ferr', '2341', 'CL 25'),
+	(4, NULL, 251, 'Pedro', 'Yury', '2511', 'Av 07'),
+	(23, NULL, 12921902, 'Marcus', 'Feliz', '102191289', 'mAROEQU'),
+	(24, NULL, 918127218, 'Henrry', 'Koila', '1912812', 'Genrdar'),
+	(25, NULL, 10199191, 'Juelqn', 'Narc', '111199', 'jUEPUTA'),
+	(26, NULL, 212121, 'Jose', 'Fernandez', '10219192', 'Moiras');
 
 CREATE TABLE IF NOT EXISTS `libro` (
   `ID_Libro` int(11) NOT NULL AUTO_INCREMENT,
@@ -226,7 +237,7 @@ CREATE TABLE IF NOT EXISTS `libro` (
   CONSTRAINT `ID_Libro_LibroxCategoria` FOREIGN KEY (`ID_Categoria`) REFERENCES `categoria` (`ID_Categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `ID_Libro_LibroxLibro_Prestamo` FOREIGN KEY (`ID_Libro_Prestamo`) REFERENCES `libros_prestamo` (`ID_Libro_Prestamo`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `ID_Libro_LibroxSala` FOREIGN KEY (`ID_Sala`) REFERENCES `sala` (`ID_Sala`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=445 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Descripcion del Libro (s)';
+) ENGINE=InnoDB AUTO_INCREMENT=447 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Descripcion del Libro (s)';
 
 INSERT INTO `libro` (`ID_Libro`, `ID_Sala`, `ID_Categoria`, `ID_Asignatura`, `ID_Libro_Prestamo`, `Cota`, `n_registro`, `edicion`, `n_volumenes`, `titulo`, `autor`, `editorial`, `año`, `n_ejemplares`) VALUES
 	(1, '1I', 'Infantil-X', 'Cuentos de Aventuras', NULL, 'DEL', '10.623', 1, 1, 'El calendario de Martita', 'Delahaye Gilbert', 'Editorial Juventud', 1963, 3),
@@ -666,7 +677,8 @@ INSERT INTO `libro` (`ID_Libro`, `ID_Sala`, `ID_Categoria`, `ID_Asignatura`, `ID
 	(435, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, 'BARI', '13.444', 1, 1, 'Una vida al servicio de Venezuela', 'Hector Bencomo Barrios', 'Fundacion popular', 2002, 1),
 	(436, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, 'BARE', '12.698', 1, 1, 'Isabel Aretz', 'Gladys Paez', 'Fundación El Perro y La Rana', 2007, 1),
 	(437, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, 'BARC', '1.689', 1, 1, 'Juana de arco', 'Manuel Penella', 'Editora Cinco', 1985, 1),
-	(438, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, 'BANG', '2.351', 1, 1, 'Miguel Angel', 'Isidoro Carvajal', 'Editora Cinco', 1985, 1);
+	(438, '2E', 'Estadal-B', 'Bibliografia-Estadal', NULL, 'BANG', '2.351', 1, 1, 'Miguel Angel', 'Isidoro Carvajal', 'Editora Cinco', 1985, 1),
+	(445, '2E', 'Estadal-B', 'Historia Local-Rubio-Junin', NULL, '21212K', '19182', 1, 128, 'jULIZ', 'aUTOR', 'Editorial', 29181, 221);
 
 CREATE TABLE IF NOT EXISTS `libros_prestamo` (
   `ID_Libro_Prestamo` int(11) NOT NULL,
@@ -680,14 +692,16 @@ CREATE TABLE IF NOT EXISTS `libros_prestamo` (
   CONSTRAINT `ID_Libro_Prestamo_LPxLibro` FOREIGN KEY (`ID_Libro`) REFERENCES `libro` (`ID_Libro`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Libros Identificado (s) y prestado (s)';
 
+INSERT INTO `libros_prestamo` (`ID_Libro_Prestamo`, `ID_Libro`, `ID_Prestamo`, `Cantidad`) VALUES
+	(1, 14, 1, 23);
 
 CREATE TABLE IF NOT EXISTS `prestamo` (
   `ID_Prestamo` int(15) NOT NULL,
   `ID_Cliente` int(5) DEFAULT NULL,
   `ID_Usuario` int(11) DEFAULT NULL,
   `ID_Libro_Prestamo` int(11) DEFAULT NULL,
-  `Fecha_Registro` int(11) DEFAULT NULL,
-  `Fecha_Limite` int(11) DEFAULT NULL,
+  `Fecha_Registro` date DEFAULT NULL,
+  `Fecha_Limite` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`ID_Prestamo`),
   KEY `ID_Prestamo_Prestamo_Cliente` (`ID_Cliente`),
   KEY `ID_Prestamo_Prestamo_Usuario` (`ID_Usuario`),
@@ -697,6 +711,8 @@ CREATE TABLE IF NOT EXISTS `prestamo` (
   CONSTRAINT `ID_Prestamo_Prestamo_Usuario` FOREIGN KEY (`ID_Usuario`) REFERENCES `usuarios` (`ID_Usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Prestamos realizados y rgistrados por el personal de la biblioteca';
 
+INSERT INTO `prestamo` (`ID_Prestamo`, `ID_Cliente`, `ID_Usuario`, `ID_Libro_Prestamo`, `Fecha_Registro`, `Fecha_Limite`) VALUES
+	(1, 24, NULL, 1, '2024-09-04', '2024-09-23 00:00:00');
 
 CREATE TABLE IF NOT EXISTS `rol` (
   `ID_Rol` int(11) NOT NULL AUTO_INCREMENT,
@@ -705,8 +721,11 @@ CREATE TABLE IF NOT EXISTS `rol` (
   PRIMARY KEY (`ID_Rol`),
   KEY `ID_RolxUsuarios` (`ID_Usuario`),
   CONSTRAINT `ID_RolxUsuarios` FOREIGN KEY (`ID_Usuario`) REFERENCES `usuarios` (`ID_Usuario`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Rol del Empleado';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Rol del Empleado';
 
+INSERT INTO `rol` (`ID_Rol`, `ID_Usuario`, `Nombre_Rol`) VALUES
+	(1, NULL, 'admin'),
+	(2, NULL, 'superadmin');
 
 CREATE TABLE IF NOT EXISTS `sala` (
   `ID_Sala` varchar(50) NOT NULL DEFAULT '',
@@ -734,8 +753,10 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   KEY `ID_UsuariosxRol` (`ID_Rol`),
   CONSTRAINT `ID_UsuariosxCargo` FOREIGN KEY (`ID_Cargo`) REFERENCES `cargo` (`ID_Cargo`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `ID_UsuariosxRol` FOREIGN KEY (`ID_Rol`) REFERENCES `rol` (`ID_Rol`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Usuarios registrado en la Base de Datos de la Biblioteca';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci COMMENT='Usuarios registrado en la Base de Datos de la Biblioteca';
 
+INSERT INTO `usuarios` (`ID_Usuario`, `ID_Cargo`, `ID_Rol`, `Nombre`, `Apellido`, `Cedula`, `Nombre_Usuario`, `Clave`) VALUES
+	(1, 1, 1, 'Juez', 'Kilemez', 191716167, 'Juezea', '101838');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -2,7 +2,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-from Library.librerias import recoger_sesion, drop_sesion
+#from Library.librerias import recoger_sesion, drop_sesion
 from Library.db_pokimon import *
 from PIL import Image,ImageTk
 from Vistas.listas import *
@@ -199,8 +199,23 @@ class L_Registrar(tk.Frame):
                     # print("\n")
                     if create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares):
                         messagebox.showinfo("Éxito", "Registro del libro éxitoso.")
+                        self.clear_entries_register()
                     else:
                         messagebox.showinfo("Registro fallido", "Libro mantiene sus valores.")
+
+    def clear_entries_register(self):
+        self.combobox1.delete(0, tk.END)
+        #self.menu_actual.delete(0, tk.END)
+        self.combobox3.delete(0, tk.END)
+        self.cota.delete(0, tk.END)
+        self.registro.delete(0, tk.END)
+        self.edicion.delete(0, tk.END)
+        self.volumen.delete(0, tk.END)
+        self.titulo.delete(0, tk.END)
+        self.autor.delete(0, tk.END)
+        self.editorial.delete(0, tk.END)
+        self.año.delete(0, tk.END)
+        self.ejemplares.delete(0, tk.END)
 
 class L_Listar(tk.Frame):
     def __init__(self, parent):
@@ -224,10 +239,52 @@ class L_Listar(tk.Frame):
         self.buscar = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key")
         self.buscar.place(x=635.0, y=110.0, width=237.0, height=38.0)
         # Para llamar a read_books cuando se presiona Enter
-        self.buscar.bind("<Return>", lambda event: boton_buscar())
+        self.buscar.bind("<Return>", self.boton_buscar)
         
-        def boton_buscar():
-            try:
+                    #Boton Cargar Libros
+            # Cargar y almacenar las imágenes
+        self.images['boton_cargar'] = tk.PhotoImage(file=relative_to_assets("Cargar_rojo.png"))
+            
+            # Cargar y almacenar la imagen del botón
+        self.button_e = tk.Button(
+                self,
+                image=self.images['boton_cargar'],
+                borderwidth=0,
+                highlightthickness=0,
+                command=lambda: self.reading_books(self.book_table_list),
+                relief="flat"
+            )
+        self.button_e.place(x=915.0, y=110.0, width=130.0, height=40.0)
+
+            # Cargar y almacenar las imágenes
+        self.images['boton_filtrar_f'] = tk.PhotoImage(file=relative_to_assets("boton_filtrar.png"))
+            
+            # Cargar y almacenar la imagen del botón
+        self.button_e = tk.Button(
+            self,
+            image=self.images['boton_filtrar_f'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.open_filter_window(self),
+            relief="flat"
+            )
+        self.button_e.place(x=1095.0, y=110.0, width=130.0, height=40.0)
+#ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion
+            # Tabla de libros usando Treeview
+        columns = ("ID","Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición")
+        self.book_table_list= ttk.Treeview(self.left_frame_list, columns=columns, show='headings')
+        for col in columns:
+            self.book_table_list.heading(col, text=col)
+            self.book_table_list.column(col, width=90)
+        self.book_table_list.pack(expand=True, fill="both", padx=70, pady=45)
+
+        scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
+        self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
+        scrollbar_pt.pack(side="right", fill="y")
+        
+    def boton_buscar(self, event):
+        busqueda= self.buscar.get()
+        try:
              mariadb_conexion = mariadb.connect(
                                         host='localhost',
                                         port='3306',
@@ -236,51 +293,30 @@ class L_Listar(tk.Frame):
             )
              if mariadb_conexion.is_connected():
                         cursor = mariadb_conexion.cursor()
-                        cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion FROM libro')
-                        btn_buscar= self.buscar.get()
+                        cursor.execute("""SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota,
+                                        n_registro, titulo, autor, editorial, año, edicion FROM libro WHERE 
+                                        ID_Libro=%s OR ID_Sala=%s OR ID_Categoria=%s OR 
+                                        ID_Asignatura=%s OR Cota=%s OR n_registro=%s OR 
+                                        titulo=%s OR autor=%s OR editorial=%s OR 
+                                        año=%s OR edicion=%s""", 
+                           (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
                         resultados = cursor.fetchall() 
+
+                        self.book_table_list.delete(*self.book_table_list.get_children())
                         for fila in resultados:
                             self.book_table_list.insert("", "end", values=tuple(fila))
-                            if btn_buscar in fila:
+                            if busqueda in fila:
                                 self.book_table_list.item(self.book_table_list.get_children()[-1], tags='match')
                             else:
                                 self.book_table_list.item(self.book_table_list.get_children()[-1], tags='nomatch')
-                            self.book_table_list.tag_configure('match', background='green')
-                            self.book_table_list.tag_configure('nomatch', background='gray')
-                        if read_books(btn_buscar):
+                        self.book_table_list.tag_configure('match', background='green')
+                        self.book_table_list.tag_configure('nomatch', background='gray')
+                        if resultados:
                             messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
                         else:
                             messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
-            except mariadb.Error as ex:
-                    print("Error durante la conexión:", ex)
-        #Boton Cargar Libros
-        # Cargar y almacenar las imágenes
-        self.images['boton_cargar'] = tk.PhotoImage(file=relative_to_assets("Cargar_rojo.png"))
-        
-        # Cargar y almacenar la imagen del botón
-        self.button_e = tk.Button(
-            self,
-            image=self.images['boton_cargar'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: self.reading_books(self.book_table_list),
-            relief="flat"
-        )
-        self.button_e.place(x=915.0, y=110.0, width=130.0, height=40.0)
-
-        # Cargar y almacenar las imágenes
-        self.images['boton_filtrar_f'] = tk.PhotoImage(file=relative_to_assets("boton_filtrar.png"))
-        
-        # Cargar y almacenar la imagen del botón
-        self.button_e = tk.Button(
-            self,
-            image=self.images['boton_filtrar_f'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: self.open_filter_window(parent),
-            relief="flat"
-        )
-        self.button_e.place(x=1095.0, y=110.0, width=130.0, height=40.0)
+        except mariadb.Error as ex:
+                print("Error durante la conexión:", ex)
         
         # Botones del menú de navegación
         #buttons = ["Libros", "Prestamos", "Usuarios", "Mi Perfil"]
@@ -297,18 +333,6 @@ class L_Listar(tk.Frame):
         #tk.Label(search_frame, text="Buscar:").pack(side="left")
         #tk.Entry(search_frame).pack(side="left", fill="x", expand=True)
         #tk.Button(search_frame, text="Filtrar Sesión").pack(side="left", padx=5)
-        
-    # Tabla de libros usando Treeview
-        columns = ("ID","Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición")
-        self.book_table_list= ttk.Treeview(self.left_frame_list, columns=columns, show='headings')
-        for col in columns:
-            self.book_table_list.heading(col, text=col)
-            self.book_table_list.column(col, width=90)
-        self.book_table_list.pack(expand=True, fill="both", padx=70, pady=45)
-
-        scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
-        self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
-        scrollbar_pt.pack(side="right", fill="y")
   
     def open_filter_window(self,parent):
         filter_window = tk.Toplevel(self)
@@ -369,8 +393,8 @@ class L_Listar(tk.Frame):
         text = self.n_registro_entry.get().replace(".", "")
         
         # Formatear el texto para insertar un punto después de las tres primeras cifras
-        if len(text)> 2:
-            formatted_text = text[:2] + "." + text[2:]
+        if len(text)> 1:
+            formatted_text = text[:1] + "." + text[1:]
         else:
             formatted_text = text
 
@@ -389,7 +413,9 @@ class L_Listar(tk.Frame):
         año = self.año_entry.get().lower() or self.sala_entry.get().upper()
         edicion = self.edicion_entry.get().lower() or self.sala_entry.get().upper()
         editorial = self.editorial_entry.get().lower() or self.sala_entry.get().upper()
-
+        self.salas_types = [
+        "3G", "2E", "1I","3g","2e","1i"
+        ]
         for row in self.book_table_list.get_children():
             values = self.book_table_list.item(row, "values")
               # Convertir los valores a enteros si es posible, de lo contrario mantenerlos como cadenas
@@ -400,7 +426,7 @@ class L_Listar(tk.Frame):
                 except ValueError:
                     converted_values.append(value)
             values = [str(value) for value in values]
-            if (sala in values[1].lower() and values[1].upper() and
+            if (sala in self.salas_types and
                 categoria in values[2].lower() and values[2].upper() and
                 asignatura in values[3].lower() and values[3].upper() and
                 cota in values[4].lower() and values[4].upper() and
@@ -417,9 +443,8 @@ class L_Listar(tk.Frame):
         self.book_table_list.tag_configure('match', background='green')
         self.book_table_list.tag_configure('nomatch', background='gray')
     
-    def reading_books(self,book_table):
+    def reading_books(self,book_table_list):
                             try:
-                                # subprocess.run(['mysql', '-u', 'root', '-p2525', 'basedatosbiblioteca', '<', 'backend/BD_BIBLIOTECA_V7.sql'], check=True)
                                 mariadb_conexion = mariadb.connect(
                                                             host='localhost',
                                                             port='3306',
@@ -430,12 +455,12 @@ class L_Listar(tk.Frame):
                                     cursor = mariadb_conexion.cursor()
                                     cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion FROM libro')
                                     resultados = cursor.fetchall() 
-                                    for row in book_table.get_children():
-                                        book_table.delete(row)
+                                    for row in book_table_list.get_children():
+                                        book_table_list.delete(row)
                                         
                                         # Insertar los datos en el Treeview
                                     for fila in resultados:
-                                        book_table.insert("", "end", values=tuple(fila))
+                                        book_table_list.insert("", "end", values=tuple(fila))
                                     mariadb_conexion.close()
                             except mariadb.Error as ex:
                                     print("Error durante la conexión:", ex)
@@ -619,10 +644,25 @@ class L_Modificar(tk.Frame):
                 print("\n")
                 if update_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares, ID_Libro):
                     messagebox.showinfo("Éxito", "Modificación del libro éxitoso.")
+                    self.clear_entries_modify()
                 else:
                     messagebox.showinfo("Modificación fallida", "Libro mantiene sus valores.")
        
-        
+    def clear_entries_modify(self):
+        self.combobox1.delete(0, tk.END)
+        #self.menu_actual.delete(0, tk.END)
+        self.combobox3.delete(0, tk.END)
+        self.cota.delete(0, tk.END)
+        self.registro_m.delete(0, tk.END)
+        self.edicion_m.delete(0, tk.END)
+        self.volumen_m.delete(0, tk.END)
+        self.titulo_m.delete(0, tk.END)
+        self.autor_m.delete(0, tk.END)
+        self.editorial_m.delete(0, tk.END)
+        self.registro_m.delete(0, tk.END)
+        self.año_m.delete(0, tk.END)
+        self.ejemplares_m.delete(0, tk.END)
+        self.id_m.delete(0, tk.END)
         
         # Obtener el tipo seleccionado del combobox
         #tipo_combobox = self.tipos_de_pokemones.get()
@@ -694,9 +734,13 @@ class L_Eliminar(tk.Frame):
                 if respuesta:
                     if delete_books(ID_Libro):
                         messagebox.showinfo("Éxito", "Eliminación exitosa del libro.")
+                        self.clear_entries_delete()
                     else:
                         messagebox.showinfo("Falla en la Eliminación", "El libro no existe o ya fue eliminado.")
                 else:
                     messagebox.showinfo("Cancelado", "Eliminación cancelada.")
             else:
                 messagebox.showinfo("Error", "Por favor, proporciona un ID de libro válido.")
+        
+    def clear_entries_delete(self):
+        self.id_eliminar.delete(0, tk.END)

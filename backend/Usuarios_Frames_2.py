@@ -2,9 +2,9 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-from Library.librerias import recoger_sesion, drop_sesion
+#from Library.librerias import recoger_sesion, drop_sesion
 
-from Vistas.listas import *
+#from Vistas.listas import *
 import random
 
 def validate_number_input(text):
