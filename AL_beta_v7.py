@@ -13,8 +13,6 @@ from backend.Prestamos_Frames_2 import *
 #relleno_menu
 
 
-def relative_to_assets(path: str) -> str:
-    return f"./assets_2/{path}"
 
 
 class Bienvenida(tk.Frame):
@@ -268,7 +266,6 @@ class Starter(tk.Tk):
 if __name__ == "__main__":
     app = Starter()
     app.mainloop()
-
 
 
 # mi to do list:
