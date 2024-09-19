@@ -118,12 +118,18 @@ class PDF(FPDF):
         self.cell(w=16, h=10, txt="", border=1, align="C", fill=0)
         self.cell(w=16, h=10, txt="", border=1, align="C", fill=0)
         self.cell(w=0, h=10, txt="", border=1, align="C", fill=0)
+    
+    def agregar_datos_al_pdf(self,cliente, libro, fecha_registro, fecha_limite):
+        pdf.agregar_datos_cliente(cliente)
+        pdf.agregar_datos_libro(libro, fecha_registro, fecha_limite)
+        pdf.agregar_firmas()
 
 
 # Instanciación de la clase PDF
 pdf = PDF()
 pdf.alias_nb_pages()
 pdf.set_font('Arial', '', 12)
+pdf.add_page()
 
 # Crear instancia del cliente
 cliente = Cliente("Keyner Ivan Lizarazo Diaz", "04263757236", "30905297", "Las Margaritas Via Delicias")
@@ -137,19 +143,11 @@ libros_prestamos2 = [libro2,libro1]
 fecha_registro = datetime.now().strftime("%d/%m/%Y")
 fecha_limite = (datetime.now() + timedelta(days=20)).strftime("%d/%m/%Y")
 
-# Añadir pagina, se llaman a los metodos para lograr el formato deseado
-pdf.add_page()
-pdf.agregar_datos_cliente(cliente)
-pdf.agregar_datos_libro(libro1, fecha_registro, fecha_limite)
-pdf.agregar_firmas() 
-
-for indice,libro in enumerate(libros_prestamos2): # De esta forma se desempaqueta el contenido de la lista y genera las hojas necesarias
-     if indice > 0:#De esta forma se crea la pagina antes de entrar al bucle y no crear una pagina adicional
-         pdf.add_page()
-     pdf.agregar_datos_cliente(cliente)
-     pdf.agregar_datos_libro(libro, fecha_registro, fecha_limite)
-     pdf.agregar_firmas() 
-
+# Añadir páginas y datos para los libros en la lista
+for indice, libro in enumerate(libros_prestamos2):
+    if indice > 0:  # Añadir una nueva página solo después de la primera iteración
+        pdf.add_page()
+    pdf.agregar_datos_al_pdf(cliente, libro, fecha_registro, fecha_limite)
 
 
 fecha_actual = datetime.now().strftime("%d_%m_%Y")#Aqui se usa un guion bajo para evitar errores con caracteres espéciales en el nombre del documento
