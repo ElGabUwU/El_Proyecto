@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 class PDF(FPDF):
     def header(self):
-        self.image('logo-biblioteca-red-2.png', x=10, y=10, w=35, h=15)
+        self.image('assets_2/logo-biblioteca-red-2.png', x=10, y=10, w=35, h=15)
         self.set_font('Arial', 'B', 20)
         self.cell(w=0, h=15, txt='Préstamo de Libro', border=0, ln=1, align='C', fill=0)
         self.ln(5)
@@ -93,4 +93,4 @@ pdf.agregar_datos_libro()
 pdf.agregar_firmas()
 
 # Guardar el PDF
-pdf.output('prestamo_libros.pdf')
+pdf.output('Planilla_de_Prestamo_de_Libros.pdf')
