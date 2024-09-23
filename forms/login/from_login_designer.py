@@ -17,7 +17,7 @@ class FormLoginDesigner:
         self.ventana.resizable(width=0, height=0)
         utl.centrar_ventana(self.ventana, 800, 500)
 
-        logo = utl.leer_imagen("assets_2/Logo-user-blanco.png", (200, 200))
+        logo = utl.leer_imagen("./assets_2/Logo-user-blanco.png", (200, 200))
         
         # frame_logo
         frame_logo = tk.Frame(self.ventana, bd=0, width=320, relief=tk.SOLID, padx=10, pady=10, bg="#75C99A")
@@ -48,7 +48,7 @@ class FormLoginDesigner:
         etiqueta_user.pack(fill=tk.X, padx=20, pady=5)
         self.user = ttk.Entry(frame_form_fill, font=("Arial",14))
         self.user.pack(fill=tk.X,padx=20,pady=10),
-        self.user.bind("<Return>", self.verificar)
+        self.user.bind("<Return>", lambda event: self.on_enter(event, self.password))
         
 
 
