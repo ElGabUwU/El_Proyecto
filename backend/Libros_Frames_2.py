@@ -2,6 +2,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
+from tkinter import font
 #from Library.librerias import recoger_sesion, drop_sesion
 from Library.db_pokimon import *
 from PIL import Image,ImageTk
@@ -23,32 +24,32 @@ def relative_to_assets(path: str) -> str:
 class L_Registrar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
         self.images = {}
         
         # Titulos de los inputs
-        self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a agregar", fill="#4C4C4C", font=("Montserrat Medium", 15))
+        self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a agregar", fill="#a6a6a6", font=("Bold", 17))
         #fila 1
-        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(520.0, 152.0, anchor="nw", text="Categoria", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#000000", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 152.0, anchor="nw", text="Categoria", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
         
         #fila 2
-        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Numero de registro", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(1036.0, 252.0, anchor="nw", text=" N° volumen", fill="#000000", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Numero de registro", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("MBold", 17))
+        self.canvas.create_text(1036.0, 252.0, anchor="nw", text=" N° volumen", fill="#a6a6a6", font=("Bold", 17))
         
         #fila 3
-        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Titulo", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Autor", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(779.0, 352.0, anchor="nw", text="Editorial", fill="#000000", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Titulo", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(779.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
         
         #fila 4
-        self.canvas.create_text(263.0, 452.0, anchor="nw", text="Año", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(520.0, 452.0, anchor="nw", text="Cantidad de ejemplares", fill="#000000", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 452.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 452.0, anchor="nw", text="Cantidad de ejemplares", fill="#a6a6a6", font=("Bold", 17))
         #-------------------------------------------------------------------------------------
         # Crear y colocar los widgets
         #primera fila
@@ -59,45 +60,34 @@ class L_Registrar(tk.Frame):
         validatecommand=(validate_number, "%P"): Define el comando de validación. validate_number es una función que se llamará para validar la entrada, y "%P" es un marcador de posición que representa el contenido del widget después de la edición.
         """
         
-        self.cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.cota = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="solid")
         self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
-        
-        self.registro= tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.message_shown = False  # Definir la variable de control en el __init__
+        self.registro= tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.registro.place(x=520.0, y=282.0, width=237.0, height=38.0)
+        self.registro.bind("<FocusIn>", self.show_message)
  
-        self.edicion = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.edicion = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.edicion.place(x=779.0, y=282.0, width=237.0, height=37.5)
         
-        self.volumen = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.volumen = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.volumen.place(x=1036.0, y=282.0, width=237.0, height=37.5)
         #segunda fila
-        self.titulo = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.titulo = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
         self.titulo.place(x=263.0, y=382.0, width=237.0, height=37.5)
         
-        self.autor = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.autor = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
         self.autor.place(x=520.0, y=382.0, width=237.0, height=37.5)
         
-        self.editorial = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.editorial = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
         self.editorial.place(x=779.0, y=382.0, width=237.0, height=37.5)
         #tercera fila
         
-        self.año = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.año = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.año.place(x=263.0, y=482.0, width=237.0, height=37.5)
         
-        self.ejemplares = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.ejemplares = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.ejemplares.place(x=520.0, y=482.0, width=237.0, height=37.5)
-        
-        
-        #Select tipo de pokemon
-        style = ttk.Style()
-        style.theme_use('clam')
-        style.configure("TCombobox",
-                        fieldbackground="#FFFFFF",  # Fondo del campo de entrada
-                        background="#FF0000",  # Fondo del desplegable
-                        bordercolor="#000716",  # Color del borde
-                        arrowcolor="#FFFFFF",  # Color de la flecha
-                        padding= "9",
-                        ) # padding para agrandar la altura del select
         
         self.salas_types = [
         "3G", "2E", "1I"
@@ -130,36 +120,57 @@ class L_Registrar(tk.Frame):
         "Cuentos de Hadas y Fantasía","Cuentos Realistas","Poesías y Canciones Venezolanas","Cuentos de Aventuras",
         "Teatro","Teatro Venezolano","Fábulas Venezolanas","Mitos y Leyendas Venezolanas"]
 
+
+        #Select tipo de campo
+        stylebox = ttk.Style()
+        stylebox.theme_use('clam')
+        stylebox.configure("TCombobox",
+                        fieldbackground="#2E59A7",  # Fondo del campo de entrada
+                        background="#2E59A7",  # Fondo del desplegable
+                        bordercolor="#041022",  # Color del borde
+                        arrowcolor="#ffffff",  # Color de la flecha
+                        padding= "9",
+                        ) # padding para agrandar la altura del select
         #Sala
-        self.combobox1=ttk.Combobox(self, values=self.salas_types, state="readonly", width=30, font=("Montserrat Medium", 10))
+        self.combobox1=ttk.Combobox(self, values=self.salas_types, state="readonly", width=30, font=("Bold", 10), style="TCombobox")
         self.combobox1.place(x=263.0, y=181.5)
         self.combobox1.bind("<<ComboboxSelected>>",self.validacion_sala)
         self.menu_actual = None
 
     def validacion_sala(self,event):
+            #Select tipo de campo
+            stylebox = ttk.Style()
+            stylebox.theme_use('clam')
+            stylebox.configure("TCombobox",
+                            fieldbackground="#2E59A7",  # Fondo del campo de entrada
+                            background="#2E59A7",  # Fondo del desplegable
+                            bordercolor="#041022",  # Color del borde
+                            arrowcolor="#ffffff",  # Color de la flecha
+                            padding= "9",
+                            ) # padding para agrandar la altura del select
             validacion_salas=self.combobox1.get()
             if self.menu_actual:
                 self.menu_actual.destroy()
             if validacion_salas=="3G":
             # Categoria-Sala General
-                self.menu_actual = ttk.Combobox(self, values=self.categoria_types_general, state="readonly", width=30, font=("Montserrat Medium", 10))
+                self.menu_actual = ttk.Combobox(self, values=self.categoria_types_general, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
                 self.menu_actual.place(x=520.0, y=181.5)
             # Asignatura-Sala General
-                self.combobox3 = ttk.Combobox(self, values=self.asignature_type_general, state="readonly", width=30, font=("Montserrat Medium", 10))
+                self.combobox3 = ttk.Combobox(self, values=self.asignature_type_general, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
                 self.combobox3.place(x=779.0, y=181.5)
             elif validacion_salas=="2E":
             # Categoria-Sala Estadal
-                self.menu_actual = ttk.Combobox(self, values=self.categoria_types_state, state="readonly", width=30, font=("Montserrat Medium", 10))
+                self.menu_actual = ttk.Combobox(self, values=self.categoria_types_state, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
                 self.menu_actual.place(x=520.0, y=181.5)
             # Asignatura-Sala Estadal
-                self.combobox3 = ttk.Combobox(self, values=self.asignature_types_state, state="readonly", width=30, font=("Montserrat Medium", 10))
+                self.combobox3 = ttk.Combobox(self, values=self.asignature_types_state, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
                 self.combobox3.place(x=779.0, y=181.5)
             elif validacion_salas=="1I":
             # Categoria-Sala Infantil
-                self.menu_actual = ttk.Combobox(self, values=self.categoria_types_children, state="readonly", width=30, font=("Montserrat Medium", 10))
+                self.menu_actual = ttk.Combobox(self, values=self.categoria_types_children, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
                 self.menu_actual.place(x=520.0, y=181.5)
             # Asignatura-Sala Infantil
-                self.combobox3 = ttk.Combobox(self, values=self.asignature_types_children, state="readonly", width=30, font=("Montserrat Medium", 10))
+                self.combobox3 = ttk.Combobox(self, values=self.asignature_types_children, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
                 self.combobox3.place(x=779.0, y=181.5)                 
             else:
                 messagebox.showwarning("Validación", "Por favor, seleccione una opción.")
@@ -179,6 +190,9 @@ class L_Registrar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: register_book(),
                 relief="flat",
+                bg="#031A33",
+                activebackground="#031A33",  # Mismo color que el fondo del botón
+                activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
             ).place(x=265.0, y=635.0, width=130.0, height=40.0)
         
             def register_book():
@@ -216,71 +230,143 @@ class L_Registrar(tk.Frame):
         self.editorial.delete(0, tk.END)
         self.año.delete(0, tk.END)
         self.ejemplares.delete(0, tk.END)
+    
+    def show_message(self, event):
+        if not self.message_shown:
+            messagebox.showinfo("Información", "En caso de ser varios ejemplares seguidos, puede digitar los datos de la siguiente forma: 11.498-11.500")
+            self.message_shown = True  # Marcar que el mensaje ya se mostró
 
 class L_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas.pack(side="right", fill="both", expand=True)
         validate_number = self.register(validate_number_input)
         self.images = {}
 
         # Crear el marco izquierdo para el menú de navegación
-        self.left_frame_list = tk.Frame(self.canvas, bg="white")
+        self.left_frame_list = tk.Frame(self.canvas, bg="#031A33")
         self.left_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
-        self.left_frame_list.place(x=215,y=155, height=550, width=1150)
+        self.left_frame_list.place(x=215,y=205, height=480, width=1150)
 
-        # self.right_frame = tk.Frame(self)
-        # self.right_frame.pack(side="right", expand=True, fill="both")
+        stylebotn = ttk.Style()
+        stylebotn.configure("Rounded.TEntry", 
+                        fieldbackground="#031A33", 
+                        foreground="#a6a6a6", 
+                        borderwidth=0.5, 
+                        relief="solid", 
+                        padding=5)
+        stylebotn.map("Rounded.TEntry",
+                  focuscolor=[('focus', '#FFFFFF')],
+                  bordercolor=[('focus', '#000716')])
 
-        # Texto para el nombre
-        self.label_nombre = self.canvas.create_text(635.0, 85.0, anchor="nw", text="Buscar", fill="#000000", font=("Montserrat Regular", 15))
+        self.buscar = ttk.Entry(self, style="Rounded.TEntry")
+        self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
         
-        self.buscar = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key")
-        self.buscar.place(x=635.0, y=110.0, width=237.0, height=38.0)
+        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#a6a6a6", font=("Bold", 17))
         # Para llamar a read_books cuando se presiona Enter
         self.buscar.bind("<Return>", self.boton_buscar)
         
                     #Boton Cargar Libros
             # Cargar y almacenar las imágenes
-        self.images['boton_cargar'] = tk.PhotoImage(file=relative_to_assets("Cargar_rojo.png"))
+        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
                 self,
-                image=self.images['boton_cargar'],
+                image=self.images['boton_refrescar'],
                 borderwidth=0,
                 highlightthickness=0,
                 command=lambda: self.reading_books(self.book_table_list),
-                relief="flat"
+                relief="flat",
+                bg="#031A33",
+                activebackground="#031A33",  # Mismo color que el fondo del botón
+                activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=915.0, y=110.0, width=130.0, height=40.0)
+        self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
 
             # Cargar y almacenar las imágenes
-        self.images['boton_filtrar_f'] = tk.PhotoImage(file=relative_to_assets("boton_filtrar.png"))
+        # self.images['boton_filtrar_f'] = tk.PhotoImage(file=relative_to_assets("boton_filtrar.png"))
             
-            # Cargar y almacenar la imagen del botón
-        self.button_e = tk.Button(
+        #     # Cargar y almacenar la imagen del botón
+        # self.button_e = tk.Button(
+        #     self,
+        #     image=self.images['boton_filtrar_f'],
+        #     borderwidth=0,
+        #     highlightthickness=0,
+        #     command=lambda: self.open_filter_window(self),
+        #     relief="flat",
+        #     bg="white" 
+        #     )
+        # self.button_e.place(x=1095.0, y=110.0, width=130.0, height=40.0)
+
+        self.images['boton_Eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
+                    # Cargar y almacenar la imagen del botón
+        self.button_dl = tk.Button(
             self,
-            image=self.images['boton_filtrar_f'],
+            image=self.images['boton_Eliminar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.open_filter_window(self),
-            relief="flat"
+            command=lambda: delete_selected(self),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",  # Mismo color que el fondo del botón
+            activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=1095.0, y=110.0, width=130.0, height=40.0)
+        self.button_dl.place(x=1195.0, y=60.0, width=90.0, height=100.0)
+
+        self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6_editar.png"))
+            # Cargar y almacenar la imagen del botón
+        self.button_dl = tk.Button(
+            self,
+            image=self.images['boton_modificar'],
+            borderwidth=0,
+            highlightthickness=0,
+            #command=lambda: delete_selected(self),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",  # Mismo color que el fondo del botón
+            activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
+            )
+        self.button_dl.place(x=1065.0, y=60.0, width=90.0, height=100.0)
+
 #ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion
             # Tabla de libros usando Treeview
-        columns = ("ID","Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición")
-        self.book_table_list= ttk.Treeview(self.left_frame_list, columns=columns, show='headings')
+        # Configurar estilo para Treeview
+        style = ttk.Style()
+        style.configure("Rounded.Treeview", 
+                        borderwidth=2, 
+                        relief="groove", 
+                        bordercolor="blue", 
+                        lightcolor="lightblue", 
+                        darkcolor="darkblue",
+                        rowheight=30,
+                        background="#E5E1D7", 
+                        fieldbackground="#f0f0f0")
+
+        # Configurar estilo para las cabeceras
+        style.configure("Rounded.Treeview.Heading", 
+                        font=('Helvetica', 10, 'bold'), 
+                        background="#2E59A7", 
+                        foreground="#000000",
+                        borderwidth=0)
+
+
+        # Aplica el estilo al Treeview
+        columns = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición")
+        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=columns, show='headings', style="Rounded.Treeview")
         for col in columns:
             self.book_table_list.heading(col, text=col)
             self.book_table_list.column(col, width=90)
-        self.book_table_list.pack(expand=True, fill="both", padx=70, pady=45)
+        self.book_table_list.pack(expand=True, fill="both", padx=70, pady=5)
 
         scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
+
         
     def boton_buscar(self, event):
         busqueda= self.buscar.get()
@@ -317,73 +403,66 @@ class L_Listar(tk.Frame):
                             messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
         except mariadb.Error as ex:
                 print("Error durante la conexión:", ex)
-        
-        # Botones del menú de navegación
-        #buttons = ["Libros", "Prestamos", "Usuarios", "Mi Perfil"]
-        #for button in buttons:
-        #    tk.Button(self.right_frame, text=button, bg="lightgray").pack(fill="y", padx=5, pady=5)
-        
-        ##Crear el marco derecho para el área principal de contenido
-        # self.right_frame = tk.Frame(self)
-        # self.right_frame.pack(side="right", expand=True, fill="both")
-        
-        # Barra de búsqueda en la parte superior
-        #search_frame = tk.Frame(self.left_frame)
-        #search_frame.pack(fill="x", padx=10, pady=10)
-        #tk.Label(search_frame, text="Buscar:").pack(side="left")
-        #tk.Entry(search_frame).pack(side="left", fill="x", expand=True)
-        #tk.Button(search_frame, text="Filtrar Sesión").pack(side="left", padx=5)
   
     def open_filter_window(self,parent):
         filter_window = tk.Toplevel(self)
         filter_window.title("Filtrar")
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
 
-        tk.Label(filter_window, text="Sala").grid(row=0, column=0, padx=10, pady=5)
-        self.sala_entry = tk.Entry(filter_window)
-        self.sala_entry.grid(row=0, column=1, padx=10, pady=5)
+        self.bg_image = tk.PhotoImage(file=relative_to_assets("Fondo Botones V1.png"))
+        # Crear un Label para la imagen de fondo
+        bg_label = tk.Label(filter_window, image=self.bg_image)
+        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-        tk.Label(filter_window, text="Categoria").grid(row=0, column=2, padx=10, pady=5)
-        self.categoria_entry = tk.Entry(filter_window)
-        self.categoria_entry.grid(row=0, column=3, padx=10, pady=5)
+        tk.Label(filter_window, text="Sala", fg="black", bg="white").pack(pady=5,expand=False)#.grid(row=0, column=0, padx=10, pady=5)
+        self.sala_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
+        self.sala_entry.pack(expand=False)
 
-        tk.Label(filter_window, text="Asignatura").grid(row=0, column=4, padx=10, pady=5)
-        self.asignatura_entry = tk.Entry(filter_window)
-        self.asignatura_entry.grid(row=0, column=5, padx=10, pady=5)
+        tk.Label(filter_window, text="Categoria", fg="black", bg="white").pack(pady=5,expand=False)#.grid(row=0, column=2, padx=10, pady=5)
+        self.categoria_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
+        self.categoria_entry.pack(expand=False)
 
-        tk.Label(filter_window, text="Cota").grid(row=0, column=6, padx=10, pady=5)
-        self.cota_entry = tk.Entry(filter_window)
-        self.cota_entry.grid(row=0, column=7, padx=10, pady=5)
+        tk.Label(filter_window, text="Asignatura", fg="black", bg="white").pack(pady=5,expand=False)#.grid(row=0, column=4, padx=10, pady=5)
+        self.asignatura_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
+        self.asignatura_entry.pack(expand=False)
 
-        tk.Label(filter_window, text="Autor").grid(row=1, column=0, padx=10, pady=5)
-        self.autor_entry = tk.Entry(filter_window)
-        self.autor_entry.grid(row=1, column=1, padx=10, pady=5)
+        tk.Label(filter_window, text="Cota", fg="black", bg="white").pack(pady=5,expand=False)#.grid(row=0, column=6, padx=10, pady=5)
+        self.cota_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
+        self.cota_entry.pack(expand=False)
 
-        tk.Label(filter_window, text="Titulo").grid(row=1, column=2, padx=10, pady=5)
-        self.titulo_entry = tk.Entry(filter_window)
-        self.titulo_entry.grid(row=1, column=3, padx=10, pady=5)
+        tk.Label(filter_window, text="Autor", fg="black", bg="white").pack(pady=5,expand=False)#.grid(row=1, column=0, padx=10, pady=5)
+        self.autor_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
+        self.autor_entry.pack(expand=False)
 
-        tk.Label(filter_window, text="N° Registro").grid(row=1, column=4, padx=10, pady=5)
-        self.n_registro_entry = tk.Entry(filter_window)
-        self.n_registro_entry.grid(row=1, column=5, padx=10, pady=5)
+        tk.Label(filter_window, text="Titulo", fg="black", bg="white").pack(pady=5,expand=False)#.grid(row=1, column=2, padx=10, pady=5)
+        self.titulo_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
+        self.titulo_entry.pack(expand=False)
 
-        tk.Label(filter_window, text="Año").grid(row=2, column=0, padx=10, pady=5)
-        self.año_entry = tk.Entry(filter_window)
-        self.año_entry.grid(row=2, column=1, padx=10, pady=5)
+        tk.Label(filter_window, text="N° Registro", fg="black", bg="white").pack(pady=5,expand=False)#.grid(row=1, column=4, padx=10, pady=5)
+        self.n_registro_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
+        self.n_registro_entry.pack(expand=False)
 
-        tk.Label(filter_window, text="Edicion").grid(row=2, column=2, padx=10, pady=5)
-        self.edicion_entry = tk.Entry(filter_window)
-        self.edicion_entry.grid(row=2, column=3, padx=10, pady=5)
+        tk.Label(filter_window, text="Año", fg="black", bg="white").pack(pady=5,expand=False)#.grid(row=2, column=0, padx=10, pady=5)
+        self.año_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
+        self.año_entry.pack(expand=False)
 
-        tk.Label(filter_window, text="Editorial").grid(row=2, column=4, padx=10, pady=5)
-        self.editorial_entry = tk.Entry(filter_window)
-        self.editorial_entry.grid(row=2, column=5, padx=10, pady=5)
+        tk.Label(filter_window, text="Edicion", fg="black", bg="white").pack(pady=5,expand=False)#.grid(row=2, column=2, padx=10, pady=5)
+        self.edicion_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
+        self.edicion_entry.pack(expand=False)
 
-        search_button = ttk.Button(filter_window, text="Buscar", command=self.filter_books)
-        search_button.grid(row=3, column=7, columnspan=1, pady=10)
+        tk.Label(filter_window, text="Editorial", fg="black", bg="white").pack(pady=5,expand=False)#.grid(row=2, column=4, padx=10, pady=5)
+        self.editorial_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
+        self.editorial_entry.pack(expand=False)
+        
+        # Crear un estilo personalizado
+        style = ttk.Style()
+        style.configure("Custom.TButton", background="#f80000", foreground="black")
 
-        button_cancel = ttk.Button(filter_window, text="Cancelar", command=self.filter_books)
-        button_cancel.grid(row=3, column=6, columnspan=1, pady=10)
+        search_button = ttk.Button(filter_window, text="Buscar", command=self.filter_books, style="Custom.TButton")
+        search_button.pack(pady=5, expand=False)
+
+        button_cancel = ttk.Button(filter_window, text="Cancelar", command=lambda: self.cancelar(filter_window), style="Custom.TButton")
+        button_cancel.pack(pady=5, expand=False)
 
         # Vincular el evento de escritura
         self.n_registro_entry.bind("<KeyRelease>", lambda event: self.format_n_registro(event))
@@ -467,87 +546,86 @@ class L_Listar(tk.Frame):
                             except subprocess.CalledProcessError as e:
                                 print("Error al importar el archivo SQL:", e)
 
-    def cancelar(self):
-        self.cancelar.destroy()  # Esto cerrará la ventana principal
-
+    def cancelar(self, window):
+        window.destroy()  # Esto cerrará la ventana de filtro
 
 class L_Modificar(tk.Frame):      
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
         self.images = {}
     # Titulos de los inputs
-        self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a modificar", fill="#4C4C4C", font=("Montserrat Medium", 15))
+        self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a modificar", fill="#a6a6a6", font=("Bold", 17))
         #fila 1
-        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(520.0, 152.0, anchor="nw", text="Categoria", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#000000", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 152.0, anchor="nw", text="Categoria", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
         
         #fila 2
-        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Numero de registro", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(1036.0, 252.0, anchor="nw", text=" N° volumen", fill="#000000", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Numero de registro", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(1036.0, 252.0, anchor="nw", text=" N° volumen", fill="#a6a6a6", font=("Bold", 17))
         
         #fila 3
-        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Titulo", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Autor", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(779.0, 352.0, anchor="nw", text="Editorial", fill="#000000", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Titulo", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(779.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
         
         #fila 4
-        self.canvas.create_text(263.0, 452.0, anchor="nw", text="Año", fill="#000000", font=("Montserrat Regular", 15))
-        self.canvas.create_text(520.0, 452.0, anchor="nw", text="Cantidad de ejemplares", fill="#000000", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 452.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 452.0, anchor="nw", text="Cantidad de ejemplares", fill="#a6a6a6", font=("Bold", 17))
         #fila 5
-        self.canvas.create_text(263.0, 552.0, anchor="nw", text="ID", fill="#000000", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 552.0, anchor="nw", text="ID", fill="#a6a6a6", font=("Bold", 17))
         
         
         #-------------------------------------------------------------------------------------
         # Crear y colocar los widgets
         #primera fila
-        self.cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.cota = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
         self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
 
-        self.registro_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.registro_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.registro_m.place(x=520.0, y=282.0, width=237.0, height=38.0)
         
-        self.edicion_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.edicion_m = tk.Entry(self, bd=0,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.edicion_m.place(x=779.0, y=282.0, width=237.0, height=37.5)
         
-        self.volumen_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.volumen_m = tk.Entry(self, bd=0,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.volumen_m.place(x=1036.0, y=282.0, width=237.0, height=37.5)
         #segunda fila
-        self.titulo_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid")
+        self.titulo_m = tk.Entry(self, bd=0,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
         self.titulo_m.place(x=263.0, y=382.0, width=237.0, height=37.5)
         
-        self.autor_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key")
+        self.autor_m = tk.Entry(self, bd=0,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
         self.autor_m.place(x=520.0, y=382.0, width=237.0, height=37.5)
         
-        self.editorial_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key")
+        self.editorial_m = tk.Entry(self, bd=0,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
         self.editorial_m.place(x=779.0, y=382.0, width=237.0, height=37.5)
         #tercera fila
         
-        self.año_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.año_m = tk.Entry(self, bd=0,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.año_m.place(x=263.0, y=482.0, width=237.0, height=37.5)
         
-        self.ejemplares_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.ejemplares_m = tk.Entry(self, bd=0,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.ejemplares_m.place(x=520.0, y=482.0, width=237.0, height=37.5)
         
         #cuarta fila
         
-        self.id_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.id_m = tk.Entry(self, bd=0,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.id_m.place(x=263.0, y=582.0, width=237.0, height=37.5)
         #Select tipo de pokemon
-        style = ttk.Style()
-        style.theme_use('clam')
-        style.configure("TCombobox",
-                        fieldbackground="#FFFFFF",  # Fondo del campo de entrada
-                        background="#FF0000",  # Fondo del desplegable
-                        bordercolor="#000716",  # Color del borde
-                        arrowcolor="#FFFFFF",  # Color de la flecha
-                        padding= "9",
-                        ) # padding para agrandar la altura del select
+        stylebox = ttk.Style()
+        stylebox.theme_use('clam')
+        stylebox.configure("TCombobox",
+                            fieldbackground="#2E59A7",  # Fondo del campo de entrada
+                            background="#2E59A7",  # Fondo del desplegable
+                            bordercolor="#041022",  # Color del borde
+                            arrowcolor="#ffffff",  # Color de la flecha
+                            padding= "9",
+                            ) # padding para agrandar la altura del select
         
         self.salas_types = [
         "3G", "2E", "1I"
@@ -585,6 +663,16 @@ class L_Modificar(tk.Frame):
         self.menu_actual = None
 
     def validacion_sala(self,event):
+            #Select tipo de pokemon
+            stylebox = ttk.Style()
+            stylebox.theme_use('clam')
+            stylebox.configure("TCombobox",
+                                fieldbackground="#2E59A7",  # Fondo del campo de entrada
+                                background="#2E59A7",  # Fondo del desplegable
+                                bordercolor="#041022",  # Color del borde
+                                arrowcolor="#ffffff",  # Color de la flecha
+                                padding= "9",
+                                ) # padding para agrandar la altura del select
             validacion_salas=self.combobox1.get()
             if self.menu_actual:
                 self.menu_actual.destroy()
@@ -623,6 +711,9 @@ class L_Modificar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: modify_book(),
                 relief="flat",
+                bg="#031A33",
+                activebackground="#031A33",  # Mismo color que el fondo del botón
+                activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             ).place(x=263.0, y=635.0, width=130.0, height=40.0)
             
             def modify_book():
@@ -698,18 +789,18 @@ class L_Modificar(tk.Frame):
 class L_Eliminar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
         self.images = {}
 
         # Formulario para el eliminar
-        self.label_info = self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a Eliminar", fill="#4C4C4C", font=("Montserrat Medium", 15))
+        self.label_info = self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a Eliminar", fill="#a6a6a6", font=("Bold", 15))
         
         # Texto para el nombre
-        self.label_nombre = self.canvas.create_text(263.0, 152.0, anchor="nw", text="ID", fill="#000000", font=("Montserrat Regular", 15))
+        self.label_nombre = self.canvas.create_text(263.0, 152.0, anchor="nw", text="ID", fill="#a6a6a6", font=("Bold", 17))
         
-        self.id_eliminar = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.id_eliminar = tk.Entry(self, bd=0,bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.id_eliminar.place(x=263.0, y=182.0, width=237.0, height=38.0)
 
         # Cargar y almacenar las imágenes
@@ -722,7 +813,10 @@ class L_Eliminar(tk.Frame):
             borderwidth=0,
             highlightthickness=0,
             command=lambda: delete_book(self),
-            relief="flat"
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",  # Mismo color que el fondo del botón
+            activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
         self.button_e.place(x=265.0, y=264.0, width=130.0, height=40.0)
         

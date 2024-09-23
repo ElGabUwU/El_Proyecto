@@ -88,12 +88,8 @@ class U_Registrar(tk.Frame):
         #-------------------------------------------------------------------------------
         # Cargar y almacenar las imágenes
         self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
-
-        
-
         
         # Crear el botón con la imagen inicial
-
 
         # Crear el botón
         boton_R = self.images['boton_R']

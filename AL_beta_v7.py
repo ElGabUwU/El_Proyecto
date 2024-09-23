@@ -5,14 +5,14 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 #from Library.librerias import
 from Library.db_pokimon import *
 import random
-import subprocess
 from backend.Libros_Frames_2 import *
 from backend.Usuarios_Frames_3 import *
 from backend.Prestamos_Frames_2 import *
 
 #relleno_menu
 
-
+def relative_to_assets(path: str) -> str:
+    return f"./assets_2/{path}"
 
 
 class Bienvenida(tk.Frame):
@@ -123,9 +123,7 @@ class Menu(tk.Frame):
             label="Eliminar",
             command=lambda: {self.frame_header.update_header_text("Eliminar"),mostrar_frame(app.P_frame_eliminar)}
         )
-         
-        
-        
+      
         # Ajustar el padding de los elementos del menú
         self.L_dropdown_menu.entryconfig("Registrar", font=("Helvetica", 24), accelerator=" ")
         self.U_dropdown_menu.entryconfig("Listado", font=("Helvetica", 24), accelerator=" "*1)
@@ -223,6 +221,7 @@ def mostrar_frame(frame):
     #app.P_frame_registrar2.place_forget()
     app.P_frame_registrar.place_forget()
     app.frame_perfil.place_forget()
+    #P_Registrar2.place_forget()
     frame.place(x=0, y=0)
     app.frame_menu.lift()
     app.frame_header.lift()
@@ -247,6 +246,7 @@ class Starter(tk.Tk):
         self.P_frame_listar = P_Listar(self)
         self.P_frame_registrar = P_Registrar(self)
         self.frame_perfil=Perfil(self)
+        #self.Prestamos2=P_Registrar2(self)
 
         self.frame_bienvenida = Bienvenida(self)
         self.frame_bienvenida.place(x=0, y=0)

@@ -4,12 +4,12 @@ from colorama import init, Fore, Back, Style
 import subprocess
 
 init(autoreset=True)
-# Conectar a la base de datos
-def import_sql_file():
-    try:
-        subprocess.run(['mysql', '-u', 'root', '-p2525', 'basedatosbiblioteca', '<', 'backend/BD_BIBLIOTECA_V7.sql'], check=True)
-    except subprocess.CalledProcessError as e:
-        print("Error al importar el archivo SQL:", e)
+# # Conectar a la base de datos
+# def import_sql_file():
+#     try:
+#         subprocess.run(['mysql', '-u', 'root', '-p2525', 'basedatosbiblioteca', '<', 'backend/BD_BIBLIOTECA_V7.sql'], check=True)
+#     except subprocess.CalledProcessError as e:
+#         print("Error al importar el archivo SQL:", e)
 
 def connect():
     #mariadb_conexion = mariadb.connect('backend/BD_BIBLIOTECA_V7.sql')
@@ -112,3 +112,17 @@ def delete_books(ID_Libro):
         # Handling any database errors
         print(f"Error: {err}")
         return False
+    
+def delete_selected(self):
+        selected_items = self.book_table_list.selection()
+        try:
+            mariadb_conexion=connect()
+            cursor = mariadb_conexion.cursor()
+            for item in selected_items:
+                item_id = self.book_table_list.item(item, 'values')[0]
+                cursor.execute('DELETE FROM libro WHERE ID_Libro = %s', (item_id,))
+                self.book_table_list.delete(item)
+            mariadb_conexion.commit()
+            mariadb_conexion.close()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)

@@ -55,7 +55,6 @@ def update_user(ID_Cargo, Nombre, Apellido, Cedula, Nombre_Usuario, Clave, ID_Us
         mariadb_conexion.close()
         return True
 
-
 def delete_user_db(ID_Usuario):
     try:
         # Estableciendo la conexión usando un administrador de contexto
@@ -73,6 +72,21 @@ def delete_user_db(ID_Usuario):
         # Manejando cualquier error de la base de datos
         print(f"Error: {err}")
         return False
+    
+def delete_selected_user(self):
+        selected_items = self.user_table_list.selection()
+        try:
+            mariadb_conexion = connect()
+            cursor = mariadb_conexion.cursor()
+            cursor = mariadb_conexion.cursor()
+            for item in selected_items:
+                item_id = self.user_table_list.item(item, 'values')[0]
+                cursor.execute('DELETE FROM usuarios WHERE ID_Usuario = %s', (item_id,))
+                self.user_table_list.delete(item)
+            mariadb_conexion.commit()
+            mariadb_conexion.close()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
 
 def list_users_db(user_table_list):
         try:
