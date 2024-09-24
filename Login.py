@@ -32,7 +32,7 @@ window.title("Login")
 # Modificacamos el tamaño de la ventana (pixeles)
 window.geometry("1366x768")
 #Fondo de pantalla de la ventana
-window.configure(bg = "#FFFFFF")
+window.configure(bg = "#042344")
 #Configuramos el icono de la aplicación.
 window.iconbitmap(relative_to_assets('PokeBall.ico'))
 
@@ -62,7 +62,7 @@ canvas.create_text(
     446.0,
     anchor="nw",
     text="Inicio de sesión",
-    fill="#000000",
+    fill="#FFFFFF",
     font=("Press Start 2P", 20 * -1)
 )
 #---------------------------------------

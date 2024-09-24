@@ -13,20 +13,20 @@ class FormLoginDesigner:
         self.ventana = tk.Tk()
         self.ventana.title("Inicio de Sesion")
         self.ventana.geometry("800x500")
-        self.ventana.config(bg="#fcfcfc")
+        self.ventana.config(bg="#042344")
         self.ventana.resizable(width=0, height=0)
         utl.centrar_ventana(self.ventana, 800, 500)
 
         logo = utl.leer_imagen("./assets_2/Logo-user-blanco.png", (200, 200))
         
         # frame_logo
-        frame_logo = tk.Frame(self.ventana, bd=0, width=320, relief=tk.SOLID, padx=10, pady=10, bg="#75C99A")
+        frame_logo = tk.Frame(self.ventana, bd=0, width=320, relief=tk.SOLID, padx=10, pady=10, bg="#041022")
         frame_logo.pack(side="left", expand=tk.NO, fill=tk.BOTH)
-        label = tk.Label(frame_logo, image=logo, bg="#75C99A")
+        label = tk.Label(frame_logo, image=logo, bg="#041022")
         label.place(x=0, y=0, relwidth=1, relheight=1)
         
         # frame_form
-        frame_form = tk.Frame(self.ventana, bd=0, relief=tk.SOLID, bg="white")
+        frame_form = tk.Frame(self.ventana, bd=0, relief=tk.SOLID, bg="#042344")
         frame_form.pack(side="right", expand=tk.YES, fill=tk.BOTH)
 
         #frame_form_top

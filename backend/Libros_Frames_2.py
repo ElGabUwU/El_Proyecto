@@ -24,7 +24,7 @@ def relative_to_assets(path: str) -> str:
 class L_Registrar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
         self.images = {}
@@ -32,24 +32,24 @@ class L_Registrar(tk.Frame):
         # Titulos de los inputs
         self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a agregar", fill="#a6a6a6", font=("Bold", 17))
         #fila 1
-        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 152.0, anchor="nw", text="Categoria", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(520.0, 152.0, anchor="nw", text="Categoria", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#031A33", font=("Bold", 17))
         
         #fila 2
-        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Numero de registro", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("MBold", 17))
-        self.canvas.create_text(1036.0, 252.0, anchor="nw", text=" N° volumen", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Numero de registro", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#031A33", font=("MBold", 17))
+        self.canvas.create_text(1036.0, 252.0, anchor="nw", text=" N° volumen", fill="#031A33", font=("Bold", 17))
         
         #fila 3
-        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Titulo", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(779.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Titulo", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Autor", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(779.0, 352.0, anchor="nw", text="Editorial", fill="#031A33", font=("Bold", 17))
         
         #fila 4
-        self.canvas.create_text(263.0, 452.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 452.0, anchor="nw", text="Cantidad de ejemplares", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(263.0, 452.0, anchor="nw", text="Año", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(520.0, 452.0, anchor="nw", text="Cantidad de ejemplares", fill="#031A33", font=("Bold", 17))
         #-------------------------------------------------------------------------------------
         # Crear y colocar los widgets
         #primera fila
@@ -60,33 +60,33 @@ class L_Registrar(tk.Frame):
         validatecommand=(validate_number, "%P"): Define el comando de validación. validate_number es una función que se llamará para validar la entrada, y "%P" es un marcador de posición que representa el contenido del widget después de la edición.
         """
         
-        self.cota = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="solid")
+        self.cota = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="solid" , borderwidth=0.5)
         self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
         self.message_shown = False  # Definir la variable de control en el __init__
-        self.registro= tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.registro= tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.registro.place(x=520.0, y=282.0, width=237.0, height=38.0)
         self.registro.bind("<FocusIn>", self.show_message)
  
-        self.edicion = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.edicion = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.edicion.place(x=779.0, y=282.0, width=237.0, height=37.5)
         
-        self.volumen = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.volumen = tk.Entry(self, bd=0,bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.volumen.place(x=1036.0, y=282.0, width=237.0, height=37.5)
         #segunda fila
-        self.titulo = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
+        self.titulo = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
         self.titulo.place(x=263.0, y=382.0, width=237.0, height=37.5)
         
-        self.autor = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
+        self.autor = tk.Entry(self, bd=0,bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
         self.autor.place(x=520.0, y=382.0, width=237.0, height=37.5)
         
-        self.editorial = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
+        self.editorial = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
         self.editorial.place(x=779.0, y=382.0, width=237.0, height=37.5)
         #tercera fila
         
-        self.año = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.año = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.año.place(x=263.0, y=482.0, width=237.0, height=37.5)
         
-        self.ejemplares = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.ejemplares = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.ejemplares.place(x=520.0, y=482.0, width=237.0, height=37.5)
         
         self.salas_types = [
@@ -190,8 +190,8 @@ class L_Registrar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: register_book(),
                 relief="flat",
-                bg="#031A33",
-                activebackground="#031A33",  # Mismo color que el fondo del botón
+                bg="#FFFFFF",
+                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
             ).place(x=265.0, y=635.0, width=130.0, height=40.0)
         

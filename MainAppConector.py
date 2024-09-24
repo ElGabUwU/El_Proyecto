@@ -2,7 +2,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-#from Library.librerias import
+from Library.librerias import *
 from Library.db_pokimon import *
 import random
 import subprocess
@@ -14,12 +14,11 @@ from backend.Prestamos_Frames_2 import *
 
 
 
-    
 
 class Bienvenida(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         self.images = {}
         self.canvas.create_text(
@@ -27,7 +26,7 @@ class Bienvenida(tk.Frame):
                 141.0,
                 anchor="nw",
                 text="Bienvenido",
-                fill="#191919",
+                fill="#A6A6A6",
                 font=("Inter", 64 * -1)
             )
 class Menu(tk.Frame):
@@ -38,35 +37,34 @@ class Menu(tk.Frame):
         self.images = {}
         self.canvas = tk.Canvas(
             self,
-            bg="#FFFFFF",
+            bg="#041022",
             height=768,
-            width=215,  
-            bd=0,
+            width=217,  
+            bd=1,
             highlightthickness=0,
             relief="ridge"
         )
         self.canvas.place(x=0, y=0)  
         #relleno menu
         
-        self.images["relleno_menu"] = tk.PhotoImage(file=relative_to_assets("relleno_menu.png"))
-        self.canvas.create_image(107.0, 400.0, image=self.images["relleno_menu"])
+        
         
         # Crear el botón que abrirá el menú desplegable
-        self.L_menu_button = tk.Button(self, text="Libros ▼", bg="#75C99A", fg="#333333", font=("Inter", 24), relief="raised", command=lambda:self.show_menu(self.L_dropdown_menu,self.L_menu_button), anchor="w", padx=10)
+        self.L_menu_button = tk.Button(self, text="Libros          ▾", bg="#041022", fg="#a6a6a6", font=("Inter", 22), relief="flat", command=lambda:self.show_menu(self.L_dropdown_menu,self.L_menu_button), anchor="w", padx=10)
         self.L_menu_button.place(x=1.0, y=0, width=213.0, height=58.0)
         
-        self.U_menu_button = tk.Button(self, text="Usuarios ▼", bg="#75C99A", fg="#333333", font=("Inter", 24), relief="raised", command=lambda:self.show_menu(self.U_dropdown_menu,self.U_menu_button), anchor="w", padx=10)
+        self.U_menu_button = tk.Button(self, text="Usuarios     ▾", bg="#041022", fg="#a6a6a6", font=("Inter", 22), relief="flat", command=lambda:self.show_menu(self.U_dropdown_menu,self.U_menu_button), anchor="w", padx=10)
         self.U_menu_button.place(x=1.0, y=58.0, width=213.0, height=58.0)
         
-        self.P_menu_button=tk.Button(self, text="Prestamos ▼", bg="#75C99A", fg="#333333", font=("Inter", 24), relief="raised", command=lambda:self.show_menu(self.P_dropdown_menu,self.P_menu_button), anchor="w", padx=10)
+        self.P_menu_button = tk.Button(self, text="Prestamos  ▾", bg="#041022", fg="#a6a6a6", font=("Inter", 22), relief="flat", command=lambda:self.show_menu(self.P_dropdown_menu,self.P_menu_button), anchor="w", padx=10)
         self.P_menu_button.place(x=1.0, y=116.0, width=213.0, height=58.0)
         
-        self.perfil_button=tk.Button(self, text="Mi Perfil", bg="#75C99A", fg="#333333", font=("Inter", 24), relief="raised",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
+        self.perfil_button = tk.Button(self, text="Mi Perfil", bg="#041022", fg="#a6a6a6", font=("Inter", 22), relief="flat",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
         self.perfil_button.place(x=1.0, y=174.0, width=213.0, height=58.0)
 
         # menú desplegable de Libros
-        self.L_dropdown_menu = tk.Menu(self, tearoff=0, bg="#7CE98D", fg="#333333", font=("Inter", 24),
-                                     activebackground="blue", activeforeground="white")
+        self.L_dropdown_menu = tk.Menu(self, tearoff=0, bg="#041022", fg="#a6a6a6", font=("Inter", 20),
+                                     activebackground="#2E59A7", activeforeground="#A6A6A6")
         self.L_dropdown_menu.add_command(
             label="Registrar",
             command=lambda: {self.frame_header.update_header_text("Registrar"), mostrar_frame(app.L_frame_registrar)}
@@ -85,8 +83,8 @@ class Menu(tk.Frame):
         )
         
         # menú desplegable de Usuarios
-        self.U_dropdown_menu = tk.Menu(self, tearoff=0, bg="#7CE98D", fg="#333333", font=("Inter", 24),
-                                     activebackground="blue", activeforeground="white")
+        self.U_dropdown_menu = tk.Menu(self, tearoff=0, bg="#041022", fg="#a6a6a6", font=("Inter", 20),
+                                     activebackground="#2E59A7", activeforeground="white")
         self.U_dropdown_menu.add_command(
             label="Registrar",
             command=lambda: {self.frame_header.update_header_text("Registrar"), mostrar_frame(app.U_frame_registrar)}
@@ -106,8 +104,7 @@ class Menu(tk.Frame):
         
         # menú desplegable de Prestamos
         
-        self.P_dropdown_menu = tk.Menu(self, tearoff=0, bg="#7CE98D", fg="#333333", font=("Inter", 24),
-                                     activebackground="blue", activeforeground="white")
+        self.P_dropdown_menu = tk.Menu(self, tearoff=0, bg="#041022", fg="#a6a6a6", font=("Inter", 20),activebackground="#2E59A7", activeforeground="white")
         self.P_dropdown_menu.add_command(
             label="Registrar",
             command=lambda: {self.frame_header.update_header_text("Registrar"), mostrar_frame(app.P_frame_registrar)}
@@ -124,13 +121,12 @@ class Menu(tk.Frame):
             label="Eliminar",
             command=lambda: {self.frame_header.update_header_text("Eliminar"),mostrar_frame(app.P_frame_eliminar)}
         )
-         
-        
-        
+
+
         # Ajustar el padding de los elementos del menú
-        self.L_dropdown_menu.entryconfig("Registrar", font=("Helvetica", 24), accelerator=" ")
-        self.U_dropdown_menu.entryconfig("Listado", font=("Helvetica", 24), accelerator=" "*1)
-        self.P_dropdown_menu.entryconfig("Registrar", font=("Helvetica", 24), accelerator=" ")
+        self.L_dropdown_menu.entryconfig("Registrar", font=("Helvetica", 20), accelerator=" ")
+        self.U_dropdown_menu.entryconfig("Listado", font=("Helvetica", 20), accelerator=" "*1)
+        self.P_dropdown_menu.entryconfig("Registrar", font=("Helvetica", 20), accelerator=" ")
 
     def show_menu(self,dropdown_menu,button):
         
@@ -141,35 +137,37 @@ class Header(tk.Frame):
         super().__init__(parent)
         self.var_text="Sistema de Inventario"
         self.images = {}
-        self.canvas = tk.Canvas(self, bg="white")
-        self.canvas.pack(side="left", fill="both", expand=False)
+        self.canvas = tk.Canvas(self, bg="#2E59A7")
+        self.canvas.pack(side="left", fill="both", expand= False)
         
-        self.canvas.place(x=1.0, y=0.0, width=1366.0, height=54.0)
-        self.images["image_3"] = tk.PhotoImage(file=relative_to_assets("header.png"))
-        self.canvas.create_image(682.0, 29.0, image=self.images["image_3"])
+        self.canvas.place(x=0.0, y=0.0, width=1366.0, height=54.0)
+        self.images["logo_header"] = tk.PhotoImage(file=relative_to_assets("logo_header.png"))
+        self.canvas.create_image(185.0, 26.0, image=self.images["logo_header"])
+        #self.images["image_3"] = tk.PhotoImage(file=relative_to_assets("header.png"))
+        #self.canvas.create_image(682.0, 29.0, image=self.images["image_3"])
         
         self.header_var_text=self.canvas.create_text(
-            226.0,
-            5.0,
-            anchor="nw",
+            1250.0,
+            12.0,
+            anchor="ne",
             text="Sistema de Inventario",
-            fill="#000000",
-            font=("Inter", 40 * -1)
+            fill="#ffffff",
+            font=("Inter", 25 * -1)
         )
         self.canvas.create_text(
-            26.0,
-            9.0,
+            15.0,
+            8.0,
             anchor="nw",
-            text="pepe", #cuando el login este listo se nesita imprimir el nombre del usuario con algo asi como: self.usuario
-            fill="#000000",
-            font=("Inter", 18 * -1)
+            text="Pedro Perez", #cuando el login este listo se nesita imprimir el nombre del usuario con algo asi como: self.usuario
+            fill="#a6a6a6",
+            font=("Inter", 22 * -1)
         )
         self.canvas.create_text(
-            26.0,
-            31.0,
+            15.0,
+            30.0,
             anchor="nw",
-            text="admistrador", #cuando el login este listo se nesita imprimir el rol del usuario con algo asi como: self.rol_usuario
-            fill="#000000",
+            text="admin", #cuando el login este listo se nesita imprimir el rol del usuario con algo asi como: self.rol_usuario
+            fill="#a6a6a6",
             font=("Inter", 14 * -1)
         )
     def update_header_text(self, new_text):
@@ -178,34 +176,34 @@ class Header(tk.Frame):
 class Perfil(tk.Frame):        
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#042344", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         #validate_number = self.register(validate_number_input)
         self.images = {}
         
         # Titulos de los inputs #310 x
-        self.canvas.create_text(263.0, 95.0, anchor="nw", text="Tu información", fill="#000000", font=("Montserrat Medium", 24))
+        self.canvas.create_text(263.0, 95.0, anchor="nw", text="Tu información", fill="#ffffff", font=("Montserrat Medium", 24))
         
         #seccion de informacion de cuenta
-        self.canvas.create_text(263.0, 166.0, anchor="nw", text="Información de la cuenta", fill="black", font=("Montserrat Regular", 18))
+        self.canvas.create_text(263.0, 166.0, anchor="nw", text="Información de la cuenta", fill="#a6a6a6", font=("Montserrat Regular", 18))
         
-        self.canvas.create_text(263.0, 215.0, anchor="nw", text="Nombre de usuario: El Gabo", fill="#4C4C4C", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 215.0, anchor="nw", text="Nombre de usuario: El Gabo", fill="#a6a6a6", font=("Montserrat Regular", 15))
         
-        self.canvas.create_text(263.0, 264.0, anchor="nw", text="Contraseña: 1234", fill="#4C4C4C", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 264.0, anchor="nw", text="Contraseña: 1234", fill="#a6a6a6", font=("Montserrat Regular", 15))
 
-        self.canvas.create_text(263.0, 313.0, anchor="nw", text="Rol: Admin", fill="#4C4C4C", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 313.0, anchor="nw", text="Rol: Admin", fill="#a6a6a6", font=("Montserrat Regular", 15))
         
         #seccion de informacion del usuario
-        self.canvas.create_text(263.0, 370.0, anchor="nw", text="Información del Usuario", fill="black", font=("Montserrat Regular", 18))
+        self.canvas.create_text(263.0, 370.0, anchor="nw", text="Información del Usuario", fill="white", font=("Montserrat Regular", 18))
         
-        self.canvas.create_text(263.0, 418.0, anchor="nw", text="Nombres: Pineda Benitez", fill="#4C4C4C", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 418.0, anchor="nw", text="Nombres: Pineda Benitez", fill="#a6a6a6", font=("Montserrat Regular", 15))
         
-        self.canvas.create_text(263.0, 467.0, anchor="nw", text="Apellidos: Gabriel Ernesto", fill="#4C4C4C", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 467.0, anchor="nw", text="Apellidos: Gabriel Ernesto", fill="#a6a6a6", font=("Montserrat Regular", 15))
 
-        self.canvas.create_text(263.0, 516.0, anchor="nw", text="Cargo: Administrador", fill="#4C4C4C", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 516.0, anchor="nw", text="Cargo: Administrador", fill="#a6a6a6", font=("Montserrat Regular", 15))
         
-        self.canvas.create_text(263.0, 565.0, anchor="nw", text="Cedula: 31.242.538", fill="#4C4C4C", font=("Montserrat Regular", 15))
-        
+        self.canvas.create_text(263.0, 565.0, anchor="nw", text="Cedula: V31242538", fill="#a6a6a6", font=("Montserrat Regular", 15))
+
 #los place_forget se podrian optimizar
 
 # def mostrar_frame(frame):

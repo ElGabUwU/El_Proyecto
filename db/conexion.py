@@ -9,7 +9,9 @@ def establecer_conexion():
             port='3306',
             user='root',
             password='2525',
-            database='basedatosbiblioteca'
+            database='basedatosbiblioteca',
+            charset='utf8mb4',
+            collation='utf8mb4_general_ci'
         )
         if conexion.is_connected():
             print("Conexión exitosa")
