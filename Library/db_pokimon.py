@@ -1,6 +1,7 @@
 #import sqlite3
 import mysql.connector as mariadb
 from colorama import init, Fore, Back, Style
+from db.conexion import establecer_conexion
 import subprocess
 
 init(autoreset=True)
@@ -11,21 +12,15 @@ init(autoreset=True)
 #     except subprocess.CalledProcessError as e:
 #         print("Error al importar el archivo SQL:", e)
 
-def connect():
-    #mariadb_conexion = mariadb.connect('backend/BD_BIBLIOTECA_V7.sql')
-    mariadb_conexion= mariadb.connect(host='localhost',
-                                        port='3306',
-                                        password='2525',
-                                        database='basedatosbiblioteca')
-    return mariadb_conexion
+
 
 # Crear un nuevo Pokémon
 def create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares):
     print("ID SALA", {ID_Sala}, "ID CATEGORIA", {ID_Categoria}, "ID ASIGNATURA", {ID_Asignatura}, "COTA", {Cota}, "REGISTRO", {n_registro})
     print("Edicion", {edicion}, "VOLUMEN", {n_volumenes}, "TITULO", {titulo}, "AUTOR", {autor}, "EDITORIAL", {editorial}, "AÑO", {año}, "EJEMPLARES", {n_ejemplares})
     try:
-        mariadb_conexion=connect()
-        if mariadb_conexion.is_connected():
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:#.is_connected():
             cursor=mariadb_conexion.cursor()
             cursor.execute('''
                 INSERT INTO libro (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares)
@@ -40,8 +35,8 @@ def create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion
 # Leer todos los libros
 def read_books(book_name):
     try:
-        mariadb_conexion=connect()
-        if mariadb_conexion.is_connected():
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:#.is_connected():
             cursor=mariadb_conexion.cursor()
             cursor.execute('''
                 SELECT * FROM libro''')
@@ -75,30 +70,31 @@ def read_books(book_name):
 
 # Actualizar un libro
 def update_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares, ID_Libro,):
-    mariadb_conexion=connect()
-    cursor = mariadb_conexion.cursor()
-    cursor.execute("SELECT ID_Libro FROM libro WHERE ID_Libro = %s", (ID_Libro,))
-    busqueda=()
-    busqueda=cursor.fetchone()
-    print(busqueda)
-    if busqueda is None:
-        mariadb_conexion.close()
-        return False
-    else:
-        cursor.execute('''
-            UPDATE libro
-            SET ID_Sala=%s, ID_Categoria=%s, ID_Asignatura=%s, Cota=%s, n_registro=%s, edicion=%s, n_volumenes=%s, 
-            titulo=%s, autor=%s, editorial=%s, año=%s, n_ejemplares=%s WHERE ID_Libro=%s
-        ''', (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares, ID_Libro))
-        mariadb_conexion.commit()
-        mariadb_conexion.close()
-        return True
+    mariadb_conexion = establecer_conexion()
+    if mariadb_conexion:
+        cursor = mariadb_conexion.cursor()
+        cursor.execute("SELECT ID_Libro FROM libro WHERE ID_Libro = %s", (ID_Libro,))
+        busqueda=()
+        busqueda=cursor.fetchone()
+        print(busqueda)
+        if busqueda is None:
+            mariadb_conexion.close()
+            return False
+        else:
+            cursor.execute('''
+                UPDATE libro
+                SET ID_Sala=%s, ID_Categoria=%s, ID_Asignatura=%s, Cota=%s, n_registro=%s, edicion=%s, n_volumenes=%s, 
+                titulo=%s, autor=%s, editorial=%s, año=%s, n_ejemplares=%s WHERE ID_Libro=%s
+            ''', (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares, ID_Libro))
+            mariadb_conexion.commit()
+            mariadb_conexion.close()
+            return True
 
 # Eliminar un libro
 def delete_books(ID_Libro):
     try:
-        # Establishing the connection using a context manager
-        with connect() as mariadb_conexion:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
             with mariadb_conexion.cursor() as cursor:
                 # Executing the delete statement
                 cursor.execute('DELETE FROM libro WHERE ID_Libro=%s', (ID_Libro,))
@@ -116,13 +112,14 @@ def delete_books(ID_Libro):
 def delete_selected(self):
         selected_items = self.book_table_list.selection()
         try:
-            mariadb_conexion=connect()
-            cursor = mariadb_conexion.cursor()
-            for item in selected_items:
-                item_id = self.book_table_list.item(item, 'values')[0]
-                cursor.execute('DELETE FROM libro WHERE ID_Libro = %s', (item_id,))
-                self.book_table_list.delete(item)
-            mariadb_conexion.commit()
-            mariadb_conexion.close()
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+                for item in selected_items:
+                    item_id = self.book_table_list.item(item, 'values')[0]
+                    cursor.execute('DELETE FROM libro WHERE ID_Libro = %s', (item_id,))
+                    self.book_table_list.delete(item)
+                mariadb_conexion.commit()
+                mariadb_conexion.close()
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)

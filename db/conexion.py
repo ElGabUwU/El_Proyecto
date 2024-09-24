@@ -6,12 +6,12 @@ def establecer_conexion():
     try:
         conexion = mysql.connector.connect(
             host='localhost',
-            port='3306',
+            port='3307',
             user='root',
-            password='2525',
+            password='admin',
             database='basedatosbiblioteca',
             charset='utf8mb4',
-            collation='utf8mb4_general_ci'
+            collation='utf8mb4_general_ci',
         )
         if conexion.is_connected():
             print("Conexión exitosa")
