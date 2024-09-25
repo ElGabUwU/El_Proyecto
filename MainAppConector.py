@@ -12,11 +12,8 @@ from backend.Prestamos_Frames_2 import *
 
 #relleno_menu
 
-
-
-
 class Bienvenida(tk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent): 
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)

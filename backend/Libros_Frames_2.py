@@ -90,7 +90,7 @@ class L_Registrar(tk.Frame):
         self.ejemplares.place(x=520.0, y=482.0, width=237.0, height=37.5)
         
         self.salas_types = [
-        "3G", "2E", "1I"
+        "3G" or "3g", "2E", "1I"
         ]
         self.categoria_types_general=["Ciencias de la Computación, Información y Obras Generales", "Filosofía y Psicología", "Religión-Teología", "Ciencias Sociales","Lenguas",
         "Ciencias Básicas","Tecnología y Ciencias Aplicadas","Artes y recreación","Literatura","Historia y Geografía"]
@@ -112,9 +112,13 @@ class L_Registrar(tk.Frame):
         "Artes Plásticas y Escultura","Pintura","Música","Educación Física","Deportes","Literatura-Diccioanrios","Literatura",
         "Novelas","Novelas Venezolanas","Poesías","Historia Universal","Geografía General","Geografía de Venezuela",
         "Historia","Historia de América","Historia Europea","Historia-Diccionarios"]
+
         self.categoria_types_state=["Estadal-B"]
+
         self.asignature_types_state= ["Bibliografia-Estadal","Historia Local-Rubio-Junin","Publicaciones Periódicas"]
+
         self.categoria_types_children=["Infantil-X"]
+        
         self.asignature_types_children= ["Matemáticas","Castellano y Literatura","Ciencias Naturales","Petróleo","Agricultura","Cuentos Venezolanos",
         "Fábulas","Novelas Históricas","Sección de los más pequeños","Cuentos de Animales","Novelas de Aventuras",
         "Cuentos de Hadas y Fantasía","Cuentos Realistas","Poesías y Canciones Venezolanas","Cuentos de Aventuras",
@@ -151,7 +155,7 @@ class L_Registrar(tk.Frame):
             validacion_salas=self.combobox1.get()
             if self.menu_actual:
                 self.menu_actual.destroy()
-            if validacion_salas=="3G":
+            if validacion_salas=="3G" or "3g":
             # Categoria-Sala General
                 self.menu_actual = ttk.Combobox(self, values=self.categoria_types_general, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
                 self.menu_actual.place(x=520.0, y=181.5)
@@ -239,34 +243,23 @@ class L_Registrar(tk.Frame):
 class L_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
         self.canvas.pack(side="right", fill="both", expand=True)
         validate_number = self.register(validate_number_input)
         self.images = {}
 
         # Crear el marco izquierdo para el menú de navegación
-        self.left_frame_list = tk.Frame(self.canvas, bg="#031A33")
+        self.left_frame_list = tk.Frame(self.canvas, bg="#FFFFFF")
         self.left_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
         self.left_frame_list.place(x=215,y=205, height=480, width=1150)
 
-        stylebotn = ttk.Style()
-        stylebotn.configure("Rounded.TEntry", 
-                        fieldbackground="#031A33", 
-                        foreground="#a6a6a6", 
-                        borderwidth=0.5, 
-                        relief="solid", 
-                        padding=5)
-        stylebotn.map("Rounded.TEntry",
-                  focuscolor=[('focus', '#FFFFFF')],
-                  bordercolor=[('focus', '#000716')])
-
-        self.buscar = ttk.Entry(self, style="Rounded.TEntry")
+        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
         
-        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#a6a6a6", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
         # Para llamar a read_books cuando se presiona Enter
         self.buscar.bind("<Return>", self.boton_buscar)
         
@@ -282,8 +275,8 @@ class L_Listar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: self.reading_books(self.book_table_list),
                 relief="flat",
-                bg="#031A33",
-                activebackground="#031A33",  # Mismo color que el fondo del botón
+                bg="#FFFFFF",
+                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
@@ -312,8 +305,8 @@ class L_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: delete_selected(self),
             relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
+            bg="#FFFFFF",
+            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1195.0, y=60.0, width=90.0, height=100.0)
@@ -327,8 +320,8 @@ class L_Listar(tk.Frame):
             highlightthickness=0,
             #command=lambda: delete_selected(self),
             relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
+            bg="#FFFFFF",
+            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1065.0, y=60.0, width=90.0, height=100.0)
@@ -344,7 +337,7 @@ class L_Listar(tk.Frame):
                         lightcolor="lightblue", 
                         darkcolor="darkblue",
                         rowheight=30,
-                        background="#E5E1D7", 
+                        background="#FFFFFF", 
                         fieldbackground="#f0f0f0")
 
         # Configurar estilo para las cabeceras
@@ -360,7 +353,7 @@ class L_Listar(tk.Frame):
         self.book_table_list = ttk.Treeview(self.left_frame_list, columns=columns, show='headings', style="Rounded.Treeview")
         for col in columns:
             self.book_table_list.heading(col, text=col)
-            self.book_table_list.column(col, width=90)
+            self.book_table_list.column(col, width=90, anchor="center")
         self.book_table_list.pack(expand=True, fill="both", padx=70, pady=5)
 
         scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)

@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 import random
 import string
 from backend.Filtrados_Prestamo import *
+from db.conexion import *
 
 def validate_number_input(text):
         if text == "":
@@ -319,14 +320,14 @@ class P_Listar(tk.Frame):
         self.left_frame = tk.Frame(self.canvas, bg="#031A33")
         self.left_frame.pack(expand=True, side="left", fill="both")
         self.left_frame.place(x=165,y=155, height=250, width=650)
-        #Marco listado libros prestamo
-        self.left_frame1 = tk.Frame(self.canvas, bg="#031A33")
-        self.left_frame1.pack(expand=True, side="left", fill="both") 
-        self.left_frame1.place(x=165,y=365, height=350, width=650)
+        # #Marco listado libros prestamo
+        # self.left_frame1 = tk.Frame(self.canvas, bg="#031A33")
+        # self.left_frame1.pack(expand=True, side="left", fill="both") 
+        # self.left_frame1.place(x=165,y=365, height=350, width=650)
         #Marco listado prestamo-clientes
         self.left_frame2 = tk.Frame(self.canvas, bg="#031A33")
         self.left_frame2.pack(expand=True, side="right", fill="both")
-        self.left_frame2.place(x=740,y=365, height=350, width=650)
+        self.left_frame2.place(x=210,y=365, height=350, width=1150)
 
         self.right_frame = tk.Frame(self)
         self.right_frame.pack(side="right", expand=True, fill="both")
@@ -343,8 +344,8 @@ class P_Listar(tk.Frame):
         self.label_clientes = tk.Label(self.left_frame, text="Tabla Clientes", bg="#031A33", fg="#a6a6a6", font=bold_font)
         self.label_clientes.place(x=205.0, y=5.0, width=237.0, height=38.0)
 
-        self.label_libros_prestado = tk.Label(self.left_frame1, text="Tabla Libros Prestados", bg="#031A33", fg="#a6a6a6", font=bold_font)
-        self.label_libros_prestado.place(x=220.0, y=5.0, width=237.0, height=38.0)
+        # self.label_libros_prestado = tk.Label(self.left_frame1, text="Tabla Libros Prestados", bg="#031A33", fg="#a6a6a6", font=bold_font)
+        # self.label_libros_prestado.place(x=220.0, y=5.0, width=237.0, height=38.0)
 
         self.label_prestamos = tk.Label(self.left_frame2, text="Tabla Prestamos", bg="#031A33", fg="#a6a6a6", font=bold_font)
         self.label_prestamos.place(x=215.0, y=5.0, width=237.0, height=38.0)
@@ -374,7 +375,7 @@ class P_Listar(tk.Frame):
             image=self.images['boton_refrescar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: lists_clients(self) or lists_clients_loans(self) or lists_books_loans(self),
+            command=lambda: lists_clients(self) or lists_clients_loans(self),
             relief="flat",
             bg="#031A33",
             activebackground="#031A33",  # Mismo color que el fondo del botón
@@ -457,28 +458,17 @@ class P_Listar(tk.Frame):
             self.book_table.heading(col, text=col)
             self.book_table.column(col, width=30)
         self.book_table.pack(expand=True, fill="both", padx=80, pady=45)
-        #Columnas Libro Prestamo
-        columns1 = ("ID Libro Prestamo", "ID Libro", "ID Prestamo", "Cantidad")
-        self.libro_prestamo_table = ttk.Treeview(self.left_frame1, columns=columns1, show='headings', style="Rounded.Treeview")
-        for col1 in columns1:
-            self.libro_prestamo_table.heading(col1, text=col1)
-            self.libro_prestamo_table.column(col1, width=40)
-        self.libro_prestamo_table.pack(expand=True, fill="both", padx=80, pady=45)
         #Columnas Prestamo
-        columns2 = ("ID Prestamo", "ID Cliente", "Usuario", "ID Libro Prestamo", "F.Registro", "F.Limite")
+        columns2 = ("ID Prestamo", "ID Cliente","Nombre","ID Libro Prestamo", "Titulo","Ejemplares", "F.Registro", "F.Limite", "Encargado")
         self.prestamo_table = ttk.Treeview(self.left_frame2, columns=columns2, show='headings', style="Rounded.Treeview")
         for col2 in columns2:
             self.prestamo_table.heading(col2, text=col2)
-            self.prestamo_table.column(col2, width=10)
+            self.prestamo_table.column(col2, width=100)
         self.prestamo_table.pack(expand=True, fill="both", padx=45, pady=45)
         # Agregar scrollbar a cada tabla
         scrollbar_bt = ttk.Scrollbar(self.book_table, orient="vertical", command=self.book_table.yview)
         self.book_table.configure(yscrollcommand=scrollbar_bt.set)
         scrollbar_bt.pack(side="right", fill="y")
-
-        scrollbar_lpt = ttk.Scrollbar(self.libro_prestamo_table, orient="vertical", command=self.libro_prestamo_table.yview)
-        self.libro_prestamo_table.configure(yscrollcommand=scrollbar_lpt.set)
-        scrollbar_lpt.pack(side="right", fill="y")
 
         scrollbar_pt = ttk.Scrollbar(self.prestamo_table, orient="vertical", command=self.prestamo_table.yview)
         self.prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
@@ -487,6 +477,48 @@ class P_Listar(tk.Frame):
         style = ttk.Style()
         style.configure("Treeview.Heading", font=("Helvetica", 10, "bold"), background="#75C99A")
         style.configure("Treeview", font=("Helvetica", 10), rowheight=25, background="white")
+    
+    def lists_clients_loans(self):
+        try:
+            mariadb_conexion = mariadb.connect(
+                                        host='localhost',
+                                        port='3306',
+                                        password='2525',
+                                        database='basedatosbiblioteca'
+            )
+            if mariadb_conexion.is_connected():
+                cursor = mariadb_conexion.cursor()
+            if mariadb_conexion is None:
+                print("Failed to establish connection.")
+                return
+            cursor = mariadb_conexion.cursor()
+            query = '''
+                SELECT p.ID_Prestamo, p.ID_Cliente, c.Nombre, p.ID_Libro_Prestamo, l.Titulo, l.n_ejemplares, p.Fecha_Registro, p.Fecha_Limite, u.Nombre AS Encargado
+                FROM prestamo p
+                JOIN cliente c ON p.ID_Cliente = c.ID_Cliente
+                JOIN libro l ON p.ID_Libro_Prestamo = l.ID_Libro
+                JOIN usuarios u ON p.Nombre = u.Nombre
+            '''
+            cursor.execute(query)
+            resultados = cursor.fetchall()
+            
+            # Debugging: Print the results
+            print("Query executed successfully. Results:")
+            for resultado in resultados:
+                print(resultado)
+            
+            for row in self.prestamo_table.get_children():
+                self.prestamo_table.delete(row)
+                
+            for fila in resultados:
+                self.prestamo_table.insert("", "end", values=tuple(fila))
+            
+        except Error as ex:
+            print(f"Error during query execution: {ex}")
+        finally:
+            if mariadb_conexion is not None and mariadb_conexion.is_connected():
+                mariadb_conexion.close()
+                print("Connection closed.")
   
     def boton_buscar(self,event):  
         busqueda = self.buscar.get()
@@ -500,7 +532,6 @@ class P_Listar(tk.Frame):
              if mariadb_conexion.is_connected():
                         cursor = mariadb_conexion.cursor()
                         self.book_table.delete(*self.book_table.get_children())
-                        self.libro_prestamo_table.delete(*self.libro_prestamo_table.get_children())
                         self.prestamo_table.delete(*self.prestamo_table.get_children())
                          # Ejecutar y procesar la primera consulta
                         cursor.execute("""SELECT ID_Cliente, Cedula_Cliente, Nombre,
@@ -510,48 +541,38 @@ class P_Listar(tk.Frame):
                                     (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
                         resultados_cliente = cursor.fetchall() 
                         for fila in resultados_cliente:
-                            self.book_table.insert("", "end", values=tuple(fila))
-                        # Ejecutar y procesar la segunda consulta
-                        cursor.execute("""SELECT ID_Libro_Prestamo, ID_Libro, ID_Prestamo, Cantidad FROM libros_prestamo WHERE 
-                                        ID_Libro_Prestamo=%s OR ID_Libro=%s OR ID_Prestamo=%s OR Cantidad=%s""", 
-                                    (busqueda, busqueda, busqueda, busqueda))
-                        resultados_libro_prestamo = cursor.fetchall()
-                        for fila in resultados_libro_prestamo:
-                            self.libro_prestamo_table.insert("", "end", values=tuple(fila))
-                        # Ejecutar y procesar la tercera consulta
-                        cursor.execute("""SELECT ID_Prestamo, ID_Cliente, ID_Usuario, ID_Libro_Prestamo, Fecha_Registro, Fecha_Limite FROM prestamo WHERE 
-                                        ID_Prestamo=%s OR ID_Cliente=%s OR ID_Libro_Prestamo=%s""", 
-                                    (busqueda, busqueda, busqueda))
-                        resultados_prestamo = cursor.fetchall()
-                        for fila in resultados_prestamo:
-                            self.prestamo_table.insert("", "end", values=tuple(fila))
-                        for fila in resultados_cliente + resultados_libro_prestamo + resultados_prestamo:
                             if busqueda in fila:
                                 if self.book_table.get_children():
                                     self.book_table.item(self.book_table.get_children()[-1], tags='match')
-                                if self.libro_prestamo_table.get_children():
-                                    self.libro_prestamo_table.item(self.libro_prestamo_table.get_children()[-1], tags='match')
-                                if self.prestamo_table.get_children():
-                                    self.prestamo_table.item(self.prestamo_table.get_children()[-1], tags='match')
                             else:
                                 if self.book_table.get_children():
                                     self.book_table.item(self.book_table.get_children()[-1], tags='nomatch')
-                                if self.libro_prestamo_table.get_children():
-                                    self.libro_prestamo_table.item(self.libro_prestamo_table.get_children()[-1], tags='nomatch')
-                                if self.prestamo_table.get_children():
-                                    self.prestamo_table.item(self.prestamo_table.get_children()[-1], tags='nomatch')
                         self.book_table.tag_configure('match', background='green')
                         self.book_table.tag_configure('nomatch', background='gray')
-                        self.libro_prestamo_table.tag_configure('match', background='green')
-                        self.libro_prestamo_table.tag_configure('nomatch', background='gray')
-                        self.prestamo_table.tag_configure('match', background='green')
-                        self.prestamo_table.tag_configure('nomatch', background='gray')
-                        if resultados_cliente or resultados_prestamo or resultados_libro_prestamo:
+                        if resultados_cliente:
                             messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
                         else:
                             messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
         except mariadb.Error as ex:
                     print("Error durante la conexión:", ex)
+
+    # def establecer_conexion(self):
+    #     try:
+    #         conexion = mysql.connector.connect(
+    #             host='localhost',
+    #             port='3306',
+    #             user='root',
+    #             password='2525',
+    #             database='basedatosbiblioteca',
+    #             charset='utf8mb4',
+    #             collation='utf8mb4_general_ci'
+    #         )
+    #         if conexion.is_connected():
+    #             print("Conexión exitosa")
+    #             return conexion
+    #     except Error as e:
+    #         print(f"Error al conectar a la base de datos: {e}")
+    #         return None
 
     def open_filter_window(self,parent):
         filter_window = tk.Toplevel(self)
