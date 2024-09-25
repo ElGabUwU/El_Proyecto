@@ -6,6 +6,7 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from Library.fun_db_users import *
 #from Vistas.listas import *
 import random
+from db.conexion import establecer_conexion
 
 #ID_Rol?
 #hacer que nombre y apellido sean un solo entry?
@@ -172,13 +173,8 @@ class U_Registrar(tk.Frame):
         ).place(x=265.0, y=465.0, width=130.0, height=40.0)
 
     def cedula_existe(self, cedula):
-        mariadb_conexion = mariadb.connect(
-                                        host='localhost',
-                                        port='3306',
-                                        password='2525',
-                                        database='basedatosbiblioteca'
-        )
-        if mariadb_conexion.is_connected():
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:#.is_connected():
             cursor = mariadb_conexion.cursor()
             query = "SELECT COUNT(*) FROM usuarios WHERE Cedula = %s"
             cursor.execute(query, (cedula,))
@@ -391,13 +387,8 @@ class U_Listar(tk.Frame):
     def boton_buscar(self, event):
         busqueda= self.buscar.get()
         try:
-             mariadb_conexion = mariadb.connect(
-                                        host='localhost',
-                                        port='3306',
-                                        password='2525',
-                                        database='basedatosbiblioteca'
-            )
-             if mariadb_conexion.is_connected():
+             mariadb_conexion = establecer_conexion()
+             if mariadb_conexion:#.is_connected():
                         cursor = mariadb_conexion.cursor()
                         cursor.execute("""SELECT ID_Usuario, ID_Cargo, ID_Rol, Nombre, Apellido,
                                         Cedula, Nombre_Usuario FROM usuarios WHERE 

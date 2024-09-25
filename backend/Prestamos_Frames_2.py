@@ -12,7 +12,8 @@ from datetime import datetime, timedelta
 import random
 import string
 from backend.Filtrados_Prestamo import *
-from db.conexion import *
+from db.conexion import establecer_conexion
+mariadb_conexion = establecer_conexion()
 
 def validate_number_input(text):
         if text == "":
@@ -238,8 +239,8 @@ Libros seleccionados: {selected_books}
     
     def save_books_to_db(self, book_ids, id_prestamo, cantidad):
         try:
-            mariadb_conexion = connect()
-            if mariadb_conexion.is_connected():
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:#.is_connected():
                 cursor = mariadb_conexion.cursor()
                 mariadb_conexion.start_transaction()
                 for book_id in book_ids:
@@ -255,18 +256,13 @@ Libros seleccionados: {selected_books}
             if mariadb_conexion:
                 mariadb_conexion.rollback()
         finally:
-            if mariadb_conexion.is_connected():
+            if mariadb_conexion:#.is_connected():
                 cursor.close()
                 mariadb_conexion.close()
         
     def cedula_existe(self,cedula):
-        mariadb_conexion = mariadb.connect(
-                                        host='localhost',
-                                        port='3306',
-                                        password='2525',
-                                        database='basedatosbiblioteca'
-        )
-        if mariadb_conexion.is_connected():
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:#.is_connected():
             cursor = mariadb_conexion.cursor()
             query = "SELECT COUNT(*) FROM cliente WHERE Cedula_Cliente = %s"
             cursor.execute(query, (cedula,))
@@ -276,13 +272,8 @@ Libros seleccionados: {selected_books}
 
     def reading_books(self, book_table_list_loans):
         try:
-            mariadb_conexion = mariadb.connect(
-            host='localhost',
-            port='3306',
-            password='2525',
-            database='basedatosbiblioteca'
-            )
-            if mariadb_conexion.is_connected():
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:#.is_connected():
                 cursor = mariadb_conexion.cursor()
                 cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion FROM libro')
                 resultados = cursor.fetchall() 
@@ -478,42 +469,44 @@ class P_Listar(tk.Frame):
         style.configure("Treeview.Heading", font=("Helvetica", 10, "bold"), background="#75C99A")
         style.configure("Treeview", font=("Helvetica", 10), rowheight=25, background="white")
     
+    # Tabla Prestamos
     def lists_clients_loans(self):
+
         try:
             mariadb_conexion = mariadb.connect(
-                                        host='localhost',
-                                        port='3306',
-                                        password='2525',
-                                        database='basedatosbiblioteca'
+                host='localhost',
+                port='3306',
+                password='2525',
+                database='basedatosbiblioteca'
             )
             if mariadb_conexion.is_connected():
                 cursor = mariadb_conexion.cursor()
-            if mariadb_conexion is None:
+            else:
                 print("Failed to establish connection.")
                 return
-            cursor = mariadb_conexion.cursor()
+
             query = '''
-                SELECT p.ID_Prestamo, p.ID_Cliente, c.Nombre, p.ID_Libro_Prestamo, l.Titulo, l.n_ejemplares, p.Fecha_Registro, p.Fecha_Limite, u.Nombre AS Encargado
+                SELECT p.ID_Prestamo, p.ID_Cliente, c.Nombre, p.ID_Libro_Prestamo, l.titulo, l.n_ejemplares, p.Fecha_Registro, p.Fecha_Limite, u.ID_Usuario AS Encargado
                 FROM prestamo p
                 JOIN cliente c ON p.ID_Cliente = c.ID_Cliente
                 JOIN libro l ON p.ID_Libro_Prestamo = l.ID_Libro
-                JOIN usuarios u ON p.Nombre = u.Nombre
+                JOIN usuarios u ON p.ID_Usuario = u.ID_Usuario
             '''
             cursor.execute(query)
             resultados = cursor.fetchall()
-            
+
             # Debugging: Print the results
             print("Query executed successfully. Results:")
             for resultado in resultados:
                 print(resultado)
-            
+
             for row in self.prestamo_table.get_children():
                 self.prestamo_table.delete(row)
-                
+
             for fila in resultados:
                 self.prestamo_table.insert("", "end", values=tuple(fila))
-            
-        except Error as ex:
+
+        except mariadb.Error as ex:
             print(f"Error during query execution: {ex}")
         finally:
             if mariadb_conexion is not None and mariadb_conexion.is_connected():
@@ -523,13 +516,8 @@ class P_Listar(tk.Frame):
     def boton_buscar(self,event):  
         busqueda = self.buscar.get()
         try:
-             mariadb_conexion = mariadb.connect(
-                                        host='localhost',
-                                        port='3306',
-                                        password='2525',
-                                        database='basedatosbiblioteca'
-            )
-             if mariadb_conexion.is_connected():
+             mariadb_conexion = establecer_conexion()
+             if mariadb_conexion:#.is_connected():
                         cursor = mariadb_conexion.cursor()
                         self.book_table.delete(*self.book_table.get_children())
                         self.prestamo_table.delete(*self.prestamo_table.get_children())

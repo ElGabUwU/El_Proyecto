@@ -8,7 +8,7 @@ from Library.db_pokimon import *
 from PIL import Image,ImageTk
 from Vistas.listas import *
 import random
-
+from db.conexion import establecer_conexion
 def validate_number_input(text):
         if text == "":
             return True
@@ -364,13 +364,8 @@ class L_Listar(tk.Frame):
     def boton_buscar(self, event):
         busqueda= self.buscar.get()
         try:
-             mariadb_conexion = mariadb.connect(
-                                        host='localhost',
-                                        port='3306',
-                                        password='2525',
-                                        database='basedatosbiblioteca'
-            )
-             if mariadb_conexion.is_connected():
+             mariadb_conexion = establecer_conexion()
+             if mariadb_conexion:#.is_connected():
                         cursor = mariadb_conexion.cursor()
                         cursor.execute("""SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota,
                                         n_registro, titulo, autor, editorial, año, edicion FROM libro WHERE 
@@ -517,13 +512,8 @@ class L_Listar(tk.Frame):
     
     def reading_books(self,book_table_list):
                             try:
-                                mariadb_conexion = mariadb.connect(
-                                                            host='localhost',
-                                                            port='3306',
-                                                            password='2525',
-                                                            database='basedatosbiblioteca'
-                                )
-                                if mariadb_conexion.is_connected():
+                                mariadb_conexion = establecer_conexion()
+                                if mariadb_conexion:#.is_connected():
                                     cursor = mariadb_conexion.cursor()
                                     cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion FROM libro')
                                     resultados = cursor.fetchall() 
