@@ -184,34 +184,23 @@ class U_Registrar(tk.Frame):
 class U_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
         self.images = {}
 
         # Crear el marco izquierdo para el menú de navegación
-        self.user_frame_list = tk.Frame(self.canvas, bg="#031A33")
+        self.user_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
         self.user_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
         self.user_frame_list.place(x=215,y=205, height=480, width=1150)
 
         # Texto para el nombre
-        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#a6a6a6", font=("Bold", 17))
-        
-        stylebotn = ttk.Style()
-        stylebotn.configure("Rounded.TEntry", 
-                        fieldbackground="#031A33", 
-                        foreground="#a6a6a6", 
-                        borderwidth=0.5, 
-                        relief="solid", 
-                        padding=5)
-        stylebotn.map("Rounded.TEntry",
-                  focuscolor=[('focus', '#FFFFFF')],
-                  bordercolor=[('focus', '#000716')])
+        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
 
-        self.buscar = ttk.Entry(self, style="Rounded.TEntry")
+        self.buscar = tk.Entry(self, bd=0, bg="#FAFAFA", fg="#031A33", relief="solid" , borderwidth=0.5)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
 
@@ -227,7 +216,7 @@ class U_Listar(tk.Frame):
                 highlightthickness=0,
                 command=self.refresh_frame,
                 relief="flat",
-                bg="#031A33",
+                bg="#FFFFFF",
                 activebackground="#031A33",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
@@ -244,8 +233,8 @@ class U_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: delete_selected_user(self) ,
             relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
+            bg="Green",
+            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo 
             )
         self.button_e.place(x=1175.0, y=60.0, width=130.0, height=100.0)
