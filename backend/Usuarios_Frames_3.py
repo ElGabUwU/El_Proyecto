@@ -326,7 +326,7 @@ class U_Listar(tk.Frame):
     
     def open_modify_window(self,parent):
         filter_window = tk.Toplevel(self)
-        filter_window.title("Modificar")
+        filter_window.title("Modificar Usuario")
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
         filter_window.geometry("950x550")
         filter_window.config(bg="#042344")

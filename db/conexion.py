@@ -6,9 +6,9 @@ def establecer_conexion():
     try:
         conexion = mysql.connector.connect(
             host='localhost',
-            port='3307',
+            port='3306',
             user='root',
-            password='admin',
+            password='2525',
             database='basedatosbiblioteca',
             charset='utf8mb4',
             collation='utf8mb4_general_ci',

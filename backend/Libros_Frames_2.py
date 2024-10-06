@@ -212,9 +212,6 @@ class L_Registrar(tk.Frame):
                     editorial=self.editorial.get()
                     año=self.año.get()
                     n_ejemplares=self.ejemplares.get()
-                    # print("ID SALA", {ID_Sala}, "ID CATEGORIA", {ID_Categoria}, "ID ASIGNATURA", {ID_Asignatura}, "COTA", {Cota}, "REGISTRO", {n_registro})
-                    # print("Edicion", {edicion}, "VOLUMEN", {n_volumenes}, "TITULO", {titulo}, "AUTOR", {autor}, "EDITORIAL", {editorial}, "AÑO", {año}, "EJEMPLARES", {n_ejemplares})
-                    # print("\n")
                     if create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares):
                         messagebox.showinfo("Éxito", "Registro del libro éxitoso.")
                         self.clear_entries_register()
@@ -250,8 +247,11 @@ class L_Listar(tk.Frame):
 
         # Crear el marco izquierdo para el menú de navegación
         self.left_frame_list = tk.Frame(self.canvas, bg="#FFFFFF")
-        self.left_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
-        self.left_frame_list.place(x=215,y=205, height=480, width=1150)
+        self.left_frame_list.place(x=200, y=205, height=450, width=1180)
+
+        # # Crear el marco derecho para los detalles
+        # self.right_frame_detail = tk.Frame(self.canvas, bg="#FFFFFF")
+        # self.right_frame_detail.place(x=475, y=480, height=210, width=605)
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
@@ -348,18 +348,41 @@ class L_Listar(tk.Frame):
                         borderwidth=0)
 
 
-        # Aplica el estilo al Treeview
-        columns = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición")
-        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=columns, show='headings', style="Rounded.Treeview")
-        for col in columns:
+        # Aplica el estilo al Treeview listado de libros
+        tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición", "N° Ejemplares", "N° Volúmenes")
+        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview")
+
+        # Set specific widths for "ID" and "Sala"
+        self.book_table_list.column("ID", width=50, anchor="center")
+        self.book_table_list.column("Sala", width=50, anchor="center")
+
+        # Set larger widths for the other columns
+        for col in tree:
+            if col not in ("ID", "Sala"):
+                self.book_table_list.column(col, width=85, anchor="center")
             self.book_table_list.heading(col, text=col)
-            self.book_table_list.column(col, width=90, anchor="center")
-        self.book_table_list.pack(expand=True, fill="both", padx=70, pady=5)
+
+        # self.toggle_button = tk.Button(self.left_frame_list, text="Toggle Copies", command=self.toggle_copies)
+        # self.toggle_button.pack(side=tk.BOTTOM, pady=10)
+
+        self.book_table_list.pack(expand=True, fill="both", padx=30, pady=5)
 
         scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
 
+        # #Aplicar el estilo al Treeview listado de Ejemplares-Condición Libros
+        # detail_columns = ("N° Ejemplares", "N° Registro", "N° Edición", "Condición Préstamo")
+        # self.detail_table_list = ttk.Treeview(self.right_frame_detail, columns=detail_columns, show='headings', style="Rounded.Treeview")
+
+        # for col in detail_columns:
+        #         self.detail_table_list.column(col, width=80, anchor="center")
+        #         self.detail_table_list.heading(col, text=col)
+
+        # self.detail_table_list.pack(expand=True, fill="both", padx=30, pady=5)
+
+        #     # Bind the selection event
+        # self.book_table_list.bind("<<TreeviewSelect>>", self.on_book_select)
         
     def boton_buscar(self, event):
         busqueda= self.buscar.get()
@@ -515,19 +538,89 @@ class L_Listar(tk.Frame):
                                 mariadb_conexion = establecer_conexion()
                                 if mariadb_conexion:#.is_connected():
                                     cursor = mariadb_conexion.cursor()
-                                    cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion FROM libro')
+                                    cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes FROM libro')
                                     resultados = cursor.fetchall() 
                                     for row in book_table_list.get_children():
                                         book_table_list.delete(row)
+                                         # Configurar las etiquetas para los colores
+                                    book_table_list.tag_configure('multiple', background='lightblue')
+                                    book_table_list.tag_configure('single', background='#E5E1D7')
                                         
                                         # Insertar los datos en el Treeview
                                     for fila in resultados:
-                                        book_table_list.insert("", "end", values=tuple(fila))
+                                        book_id = fila[0]
+                                        n_ejemplares = fila[11]
+                                        tag = 'multiple' if n_ejemplares > 1 else 'single'
+                                        parent = book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
+                                        # # Create and place the button
+                                        # button = tk.Button(self.book_table_list, text="Toggle Copies", command=lambda p=parent: self.toggle_copies(p))
+                                        # button.grid(row=0, column=0)
+                                                            
+                                        if n_ejemplares > 1:
+                                            for i in range(1, n_ejemplares + 1):
+                                                # book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=("", "", "", "", "", "", "", "", "", "", "", "", ""), tags=('single',))
+                                                book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=tuple(fila), tags=('single',))
                                     mariadb_conexion.close()
                             except mariadb.Error as ex:
                                     print("Error durante la conexión:", ex)
                             except subprocess.CalledProcessError as e:
                                 print("Error al importar el archivo SQL:", e)
+
+    # def toggle_copies(self, parent):
+    #     selected_item = self.book_table_list.selection()
+    #     if selected_item:
+    #         parent = selected_item[0]
+    #         if self.book_table_list.get_children(parent):
+    #             for child in self.book_table_list.get_children(parent):
+    #                 self.book_table_list.delete(child)
+    #         else:
+    #             # Reinsert the copies if needed
+    #             ID_libro = self.book_table_list.item(parent, 'text')  # Assuming book_id is stored in the text field
+    #             copies = self.get_copies_from_db(ID_libro)  # Replace with your method to get copies from the database
+    #             for copy in copies:
+    #                 self.book_table_list.insert(parent, 'end', text=copy['copy_id'], values=(copy['status'], copy['location']))
+    
+    # def get_copies_from_db(self, ID_libro):
+    #     mariadb_conexion = establecer_conexion()
+    #     if mariadb_conexion:
+    #         cursor = mariadb_conexion.cursor()
+    #         # Example function to get copies from the database
+    #         query = "SELECT n_registro, n_ejemplares, n_volumenesFROM libro WHERE ID_Libro = %s"
+    #         cursor.execute(query, (ID_libro,))
+    #         return cursor.fetchall()
+
+
+    # def mostrar_ejemplares(self,event):
+    #     item = tree.selection()[0]
+    #     if tree.get_children(item):
+    #         for child in tree.get_children(item):
+    #             tree.delete(child)
+    #     else:
+    #         for i in range(1, 4):
+    #             tree.insert(item, "end", text=f"Ejemplar {i}", values=(tree.item(item, 'values')))
+
+    # tree.bind("<<TreeviewSelect>>", mostrar_ejemplares)
+
+    # def on_book_select(self, event):
+    #     selected_item = self.book_table_list.selection()[0]
+    #     book_details = self.book_table_list.item(selected_item, "values")
+
+    #     # Clear the detail Treeview
+    #     for row in self.detail_table_list.get_children():
+    #         self.detail_table_list.delete(row)
+
+    #     # Fetch and insert the detailed information
+    #     try:
+    #         mariadb_conexion = establecer_conexion()
+    #         if mariadb_conexion:
+    #             cursor = mariadb_conexion.cursor()
+    #             cursor.execute('SELECT n_ejemplares, n_registro, edicion FROM libro_detalle WHERE ID_Libro = ?', (book_details[0],))#, condicion_prestamo
+    #             detalles = cursor.fetchall()
+    #             for detalle in detalles:
+    #                 self.detail_table_list.insert("", "end", values=tuple(detalle))
+    #             mariadb_conexion.close()
+    #     except mariadb.Error as ex:
+    #         print("Error durante la conexión:", ex)
 
     def cancelar(self, window):
         window.destroy()  # Esto cerrará la ventana de filtro

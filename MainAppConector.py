@@ -9,6 +9,8 @@ import subprocess
 from backend.Libros_Frames_2 import *
 from backend.Usuarios_Frames_3 import *
 from backend.Prestamos_Frames_2 import *
+from forms.login.from_login_designer import FormLoginDesigner
+from prueba import *
 
 #relleno_menu
 
@@ -175,31 +177,68 @@ class Perfil(tk.Frame):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="#042344", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
-        #validate_number = self.register(validate_number_input)
         self.images = {}
         
         # Titulos de los inputs #310 x
         self.canvas.create_text(263.0, 95.0, anchor="nw", text="Tu información", fill="#ffffff", font=("Montserrat Medium", 24))
         
-        #seccion de informacion de cuenta
+        # Sección de información de cuenta
         self.canvas.create_text(263.0, 166.0, anchor="nw", text="Información de la cuenta", fill="#a6a6a6", font=("Montserrat Regular", 18))
         
-        self.canvas.create_text(263.0, 215.0, anchor="nw", text="Nombre de usuario: El Gabo", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.username_text = self.canvas.create_text(263.0, 215.0, anchor="nw", text="Nombre de usuario: ", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.password_text = self.canvas.create_text(263.0, 264.0, anchor="nw", text="Contraseña: ", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.rol_text = self.canvas.create_text(263.0, 313.0, anchor="nw", text="Rol: ", fill="#a6a6a6", font=("Montserrat Regular", 15))
         
-        self.canvas.create_text(263.0, 264.0, anchor="nw", text="Contraseña: 1234", fill="#a6a6a6", font=("Montserrat Regular", 15))
-
-        self.canvas.create_text(263.0, 313.0, anchor="nw", text="Rol: Admin", fill="#a6a6a6", font=("Montserrat Regular", 15))
-        
-        #seccion de informacion del usuario
+        # Sección de información del usuario
         self.canvas.create_text(263.0, 370.0, anchor="nw", text="Información del Usuario", fill="white", font=("Montserrat Regular", 18))
         
-        self.canvas.create_text(263.0, 418.0, anchor="nw", text="Nombres: Pineda Benitez", fill="#a6a6a6", font=("Montserrat Regular", 15))
-        
-        self.canvas.create_text(263.0, 467.0, anchor="nw", text="Apellidos: Gabriel Ernesto", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.nombre_text = self.canvas.create_text(263.0, 418.0, anchor="nw", text="Nombres: ", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.apellido_text = self.canvas.create_text(263.0, 467.0, anchor="nw", text="Apellidos: ", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.cargo_text = self.canvas.create_text(263.0, 516.0, anchor="nw", text="Cargo: ", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.cedula_text = self.canvas.create_text(263.0, 565.0, anchor="nw", text="Cedula: ", fill="#a6a6a6", font=("Montserrat Regular", 15))
 
-        self.canvas.create_text(263.0, 516.0, anchor="nw", text="Cargo: Administrador", fill="#a6a6a6", font=("Montserrat Regular", 15))
+    def update_user_info(self, username, password, rol, nombre, apellido, cargo, cedula):
+            self.canvas.itemconfig(self.username_text, text=f"Nombre de usuario: {username}")
+            self.canvas.itemconfig(self.password_text, text=f"Contraseña: {password}")
+            self.canvas.itemconfig(self.rol_text, text=f"Rol: {rol}")
+            self.canvas.itemconfig(self.nombre_text, text=f"Nombres: {nombre}")
+            self.canvas.itemconfig(self.apellido_text, text=f"Apellidos: {apellido}")
+            self.canvas.itemconfig(self.cargo_text, text=f"Cargo: {cargo}")
+            self.canvas.itemconfig(self.cedula_text, text=f"Cedula: {cedula}")
+            self.canvas.update_idletasks()
+
+class Usuarios(FormLoginDesigner):
+    def __init__(self, perfil_frame):
+        super().__init__()
+        self.perfil_frame = perfil_frame
+
+    def datos_perfil_usuario(self):
+        user_name = self.user.get()
+        password = self.password.get()
         
-        self.canvas.create_text(263.0, 565.0, anchor="nw", text="Cedula: V31242538", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        # Obtener el ID del usuario
+        user_id = get_user_id_by_username(user_name)
+        
+        if user_id:
+            print(f"ID del usuario: {user_id}")
+            # Obtener el resto de los datos del usuario
+            user_data = get_user_data_by_id(user_id)
+            
+            if user_data:
+                id_cargo, id_rol, nombre, apellido, cedula, nombre_usuario, clave = user_data
+                print(f"ID_Cargo: {id_cargo}")
+                print(f"ID_Rol: {id_rol}")
+                print(f"Nombre: {nombre}")
+                print(f"Apellido: {apellido}")
+                print(f"Cédula: {cedula}")
+                print(f"Nombre de Usuario: {nombre_usuario}")
+                print(f"Clave: {password}")
+                # Actualizar el frame Perfil con los datos del usuario
+                self.perfil_frame.update_user_info(nombre_usuario, clave, id_rol, nombre, apellido, id_cargo, cedula)
+            else:
+                print("No se pudieron obtener los datos del usuario.")
+        else:
+            print("Usuario no encontrado.")
 
 #los place_forget se podrian optimizar
 
@@ -319,3 +358,4 @@ def start_starter():
 
 if __name__ == "__main__":
     start_starter()
+
