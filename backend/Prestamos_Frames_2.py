@@ -501,6 +501,7 @@ class P_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         #validate_number = self.register(validate_number_input)
         self.images = {}
@@ -512,6 +513,15 @@ class P_Listar(tk.Frame):
         # self.left_frame.place(x=165,y=155, height=250, width=650)
         #Marco listado prestamo-clientes
         self.left_frame2 = tk.Frame(self.canvas, bg="#FFFFFF")
+        self.left_frame = tk.Frame(self.canvas, bg="#FAFAFA")
+        self.left_frame.pack(expand=True, side="left", fill="both")
+        self.left_frame.place(x=165,y=155, height=250, width=650)
+        #Marco listado libros prestamo
+        self.left_frame1 = tk.Frame(self.canvas, bg="#FAFAFA")
+        self.left_frame1.pack(expand=True, side="left", fill="both") 
+        self.left_frame1.place(x=165,y=365, height=350, width=650)
+        #Marco listado prestamo-clientes
+        self.left_frame2 = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame2.pack(expand=True, side="right", fill="both")
         self.left_frame2.place(x=200,y=230, height=500, width=1180)
 
@@ -519,6 +529,7 @@ class P_Listar(tk.Frame):
         self.right_frame.pack(side="right", expand=True, fill="both")
 
         # Texto para el nombre
+
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(935.0, 220.0, text="Editar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1035.0, 220.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
@@ -539,6 +550,29 @@ class P_Listar(tk.Frame):
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
+
+        self.label_nombre = self.canvas.create_text(615.0, 60.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(960.0, 355.0, text="Editar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1135.0, 355.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(960.0, 220.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1135.0, 220.0, text="Filtrar", fill="#040F21", font=("Bold", 17))
+
+       # Títulos para los Treeviews
+        bold_font = font.Font(family="Bold", size=15, weight="bold")
+        self.label_clientes = tk.Label(self.left_frame, text="Tabla Clientes", bg="#FAFAFA", fg="#040F21", font=bold_font)
+        self.label_clientes.place(x=205.0, y=5.0, width=237.0, height=38.0)
+
+        self.label_libros_prestado = tk.Label(self.left_frame1, text="Tabla Libros Prestados", bg="#FAFAFA", fg="#040F21", font=bold_font)
+        self.label_libros_prestado.place(x=220.0, y=5.0, width=237.0, height=38.0)
+
+        self.label_prestamos = tk.Label(self.left_frame2, text="Tabla Prestamos", bg="#FAFAFA", fg="#040F21", font=bold_font)
+        self.label_prestamos.place(x=215.0, y=5.0, width=237.0, height=38.0)
+
+        #Título de boton buscar
+        self.buscar = tk.Entry(self, bd=0, bg="#FAFAFA", fg="#031A33", relief="solid" , borderwidth=0.5)
+        self.buscar.place(x=615.0, y=90.0, width=267.0, height=48.0)
+        # Para llamar a read_books cuando se presiona Enter
+
         self.buscar.bind("<Return>", self.boton_buscar)
 
         #Boton Clientes
@@ -616,8 +650,13 @@ class P_Listar(tk.Frame):
                         lightcolor="lightblue", 
                         darkcolor="darkblue",
                         rowheight=30,
-                        background="#FFFFFF", 
-                        fieldbackground="#f0f0f0")
+
+                        # background="#FFFFFF", 
+                        # fieldbackground="#f0f0f0")
+
+                        background="#E5E1D7", 
+                        fieldbackground="#z")
+
 
         # Configurar estilo para las cabeceras
         styletrees.configure("Rounded.Treeview.Heading", 
@@ -658,7 +697,7 @@ class P_Listar(tk.Frame):
         busqueda = self.buscar.get()
         try:
              mariadb_conexion = establecer_conexion()
-             if mariadb_conexion:#.is_connected():
+             if mariadb_conexion:
                         cursor = mariadb_conexion.cursor()
                         # self.book_table.delete(*self.book_table.get_children())
                         self.prestamo_table.delete(*self.prestamo_table.get_children())
