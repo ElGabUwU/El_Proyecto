@@ -2,6 +2,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
+from PIL import Image, ImageTk
 from Library.librerias import *
 from Books.backend.db_books import *
 import random
@@ -13,12 +14,13 @@ import tkinter as tk
 
 
 
+#relleno_menu
 
 
 class Bienvenida(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         self.images = {}
         self.canvas.create_text(
@@ -26,9 +28,14 @@ class Bienvenida(tk.Frame):
                 141.0,
                 anchor="nw",
                 text="Bienvenido",
-                fill="#A6A6A6",
+                fill="#040F21",
                 font=("Inter", 64 * -1)
             )
+        self.images["bienvenida"] = tk.PhotoImage(file=relative_to_assets("logo-biblioteca-red-2.png"))
+        self.images["bienvenida"]= self.images["bienvenida"].subsample(2, 2)
+        self.canvas.create_image(760.0, 360.0, image=self.images["bienvenida"])
+        
+
 class Menu(tk.Frame):
     def __init__(self, parent, mostrar_frame,frame_header):
         super().__init__(parent)
@@ -44,23 +51,68 @@ class Menu(tk.Frame):
             highlightthickness=0,
             relief="ridge"
         )
-        self.canvas.place(x=0, y=0)  
-        #relleno menu
+        self.canvas.place(x=0, y=0) 
+         
+        #iconos
+        
+        imagen_salir = Image.open("assets_2/icono_libros.png")
+        nueva_imagen = imagen_salir.resize((30, 30), Image.Resampling.LANCZOS)
+
+        self.images["icono_libros"] = ImageTk.PhotoImage(nueva_imagen)
+        
+        imagen_salir = Image.open("assets_2/icono_usuarios.png")
+        nueva_imagen = imagen_salir.resize((30, 30), Image.Resampling.LANCZOS)
+
+        self.images["icono_usuarios"] = ImageTk.PhotoImage(nueva_imagen)
+        
+        imagen_salir = Image.open("assets_2/icono_prestamos.png")
+        nueva_imagen = imagen_salir.resize((25, 25), Image.Resampling.LANCZOS)
+
+        self.images["icono_prestamos"] = ImageTk.PhotoImage(nueva_imagen)
+        
+        imagen_salir = Image.open("assets_2/icono_perfil.png")
+        nueva_imagen = imagen_salir.resize((30, 30), Image.Resampling.LANCZOS)
+
+        self.images["icono_perfil"] = ImageTk.PhotoImage(nueva_imagen)
+        
+        imagen_salir = Image.open("assets_2/logo_salir.png")
+        nueva_imagen = imagen_salir.resize((20, 20), Image.Resampling.LANCZOS)
+
+        self.images["logo_salir"] = ImageTk.PhotoImage(nueva_imagen)
         
         
         
         # Crear el botón que abrirá el menú desplegable
-        self.L_menu_button = tk.Button(self, text="Libros          ▾", bg="#041022", fg="#a6a6a6", font=("Inter", 22), relief="flat", command=lambda:self.show_menu(self.L_dropdown_menu,self.L_menu_button), anchor="w", padx=10)
-        self.L_menu_button.place(x=1.0, y=0, width=213.0, height=58.0)
+        self.L_menu_button = tk.Button(self, text="Libros",image=self.images["icono_libros"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:self.show_menu(self.L_dropdown_menu,self.L_menu_button), anchor="w", padx=10)
+        self.L_menu_button.place(x=0.0, y=0, width=213.0, height=58.0)
         
-        self.U_menu_button = tk.Button(self, text="Usuarios     ▾", bg="#041022", fg="#a6a6a6", font=("Inter", 22), relief="flat", command=lambda:self.show_menu(self.U_dropdown_menu,self.U_menu_button), anchor="w", padx=10)
-        self.U_menu_button.place(x=1.0, y=58.0, width=213.0, height=58.0)
+        self.U_menu_button = tk.Button(self, text="Usuarios",image=self.images["icono_usuarios"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:self.show_menu(self.U_dropdown_menu,self.U_menu_button), anchor="w", padx=10)
+        self.U_menu_button.place(x=0.0, y=58.0, width=213.0, height=58.0)
         
-        self.P_menu_button = tk.Button(self, text="Prestamos  ▾", bg="#041022", fg="#a6a6a6", font=("Inter", 22), relief="flat", command=lambda:self.show_menu(self.P_dropdown_menu,self.P_menu_button), anchor="w", padx=10)
-        self.P_menu_button.place(x=1.0, y=116.0, width=213.0, height=58.0)
+        self.P_menu_button = tk.Button(self, text="Prestamos ▾",image=self.images["icono_prestamos"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:self.show_menu(self.P_dropdown_menu,self.P_menu_button), anchor="w", padx=10)
+        self.P_menu_button.place(x=0.0, y=116.0, width=213.0, height=58.0)
         
-        self.perfil_button = tk.Button(self, text="Mi Perfil", bg="#041022", fg="#a6a6a6", font=("Inter", 22), relief="flat",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
-        self.perfil_button.place(x=1.0, y=174.0, width=213.0, height=58.0)
+        self.perfil_button = tk.Button(self, text="Mi Perfil",image=self.images["icono_perfil"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
+        self.perfil_button.place(x=0.0, y=174.0, width=213.0, height=58.0)
+
+        self.Salir = tk.Button(self, text="Cerrar Sesión", image=self.images["logo_salir"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 20), relief="flat", padx=10, command=lambda: self.salir())
+        self.Salir.place(x=1.0, y=600.0, width=213.0, height=58.0)
+        
+        
+        #tk.Button(self, text="Presionar", image=self.images["logo_salir"], compound="left")
+
+        
+
+        # Crear la imagen en el canvas
+        #self.canvas.create_image(15.0, 610.0, image=self.images["logo_salir"], tags="logo_salir")
+
+        # Asegurarse de que la imagen esté por encima del botón
+        #self.canvas.tag_raise("logo_salir")
+        #self.Salir.lift()
+        #self.canvas.create_text(15.0, 590.0, anchor="nw", text="Cedula: V31242538", fill="White", font=("Montserrat Regular", 15))
+        
+
+
 
         # menú desplegable de Libros
         self.L_dropdown_menu = tk.Menu(self, tearoff=0, bg="#041022", fg="#a6a6a6", font=("Inter", 20),
@@ -131,6 +183,34 @@ class Menu(tk.Frame):
     def show_menu(self,dropdown_menu,button):
         
         dropdown_menu.post(button.winfo_rootx(), button.winfo_rooty() + button.winfo_height())
+    def salir(self):
+        app.destroy()
+        self.show_login()
+    def show_login(self):
+        import tkinter as tk
+        from pathlib import Path
+        import sys
+        from tkinter import ttk, messagebox
+        from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
+        sys.path.append(str(Path(__file__).resolve().parent))
+        from Login.backend.form_login import FormLogin
+        from Login.frontend.form_master import MasterPanel
+        from Login.frontend.from_login_designer import FormLoginDesigner
+        import util.ventana as utl
+        
+        # Crear una instancia de MasterPanel y pasar el callback iniciar_starter
+        master_panel = MasterPanel(on_close_callback=self.iniciar_login)
+        
+        app.after(1500, master_panel.on_close)  # Esperar 1500 milisegundos antes de iniciar Starter
+        master_panel.show()
+    def iniciar_login(self):
+        from Login.backend.form_login import FormLogin, FormLoginDesigner
+        from Login.frontend.form_master import MasterPanel
+        
+        app = FormLogin()
+        
+        
+        
     
 class Header(tk.Frame):
     def __init__(self, parent):
@@ -140,9 +220,11 @@ class Header(tk.Frame):
         self.canvas = tk.Canvas(self, bg="#2E59A7")
         self.canvas.pack(side="left", fill="both", expand= False)
         
-        self.canvas.place(x=0.0, y=0.0, width=1366.0, height=54.0)
+        self.canvas.place(x=0.0, y=0.0, width=1366.0, height=60.0)
         self.images["logo_header"] = tk.PhotoImage(file=relative_to_assets("logo_header.png"))
         self.canvas.create_image(185.0, 26.0, image=self.images["logo_header"])
+        
+        
         #self.images["image_3"] = tk.PhotoImage(file=relative_to_assets("header.png"))
         #self.canvas.create_image(682.0, 29.0, image=self.images["image_3"])
         
@@ -176,33 +258,97 @@ class Header(tk.Frame):
 class Perfil(tk.Frame):        
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#042344", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         #validate_number = self.register(validate_number_input)
         self.images = {}
         
         # Titulos de los inputs #310 x
-        self.canvas.create_text(263.0, 95.0, anchor="nw", text="Tu información", fill="#ffffff", font=("Montserrat Medium", 24))
+        self.canvas.create_text(263.0, 95.0, anchor="nw", text="Tu información", fill="#040F21", font=("Montserrat Medium", 24))
         
         #seccion de informacion de cuenta
-        self.canvas.create_text(263.0, 166.0, anchor="nw", text="Información de la cuenta", fill="#a6a6a6", font=("Montserrat Regular", 18))
+        self.canvas.create_text(263.0, 166.0, anchor="nw", text="Información de la cuenta", fill="#042344", font=("Montserrat Regular", 18))
         
-        self.canvas.create_text(263.0, 215.0, anchor="nw", text="Nombre de usuario:", fill="#a6a6a6", font=("Montserrat Regular", 15))
-        
-        self.canvas.create_text(263.0, 264.0, anchor="nw", text="Contraseña: 1234", fill="#a6a6a6", font=("Montserrat Regular", 15))
 
-        self.canvas.create_text(263.0, 313.0, anchor="nw", text="Rol: Admin", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 215.0, anchor="nw", text="Nombre de usuario:", fill="#a6a6a6", font=("Montserrat Regular", 15))
+
+        self.canvas.create_text(263.0, 215.0, anchor="nw", text="Nombre de usuario: El Gabo", fill="#042344", font=("Montserrat Regular", 15))
+
+        
+        self.canvas.create_text(263.0, 264.0, anchor="nw", text="Contraseña: 1234", fill="#042344", font=("Montserrat Regular", 15))
+
+        self.canvas.create_text(263.0, 313.0, anchor="nw", text="Rol: Admin", fill="#042344", font=("Montserrat Regular", 15))
         
         #seccion de informacion del usuario
-        self.canvas.create_text(263.0, 370.0, anchor="nw", text="Información del Usuario", fill="white", font=("Montserrat Regular", 18))
+        self.canvas.create_text(263.0, 370.0, anchor="nw", text="Información del Usuario", fill="#040F21", font=("Montserrat Regular", 18))
         
-        self.canvas.create_text(263.0, 418.0, anchor="nw", text="Nombres: Pineda Benitez", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 418.0, anchor="nw", text="Nombres: Pineda Benitez", fill="#042344", font=("Montserrat Regular", 15))
         
-        self.canvas.create_text(263.0, 467.0, anchor="nw", text="Apellidos: Gabriel Ernesto", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 467.0, anchor="nw", text="Apellidos: Gabriel Ernesto", fill="#042344", font=("Montserrat Regular", 15))
 
-        self.canvas.create_text(263.0, 516.0, anchor="nw", text="Cargo: Administrador", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 516.0, anchor="nw", text="Cargo: Administrador", fill="#042344", font=("Montserrat Regular", 15))
         
-        self.canvas.create_text(263.0, 565.0, anchor="nw", text="Cedula: V31242538", fill="#a6a6a6", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 565.0, anchor="nw", text="Cedula: V31242538", fill="#042344", font=("Montserrat Regular", 15))
+
+#los place_forget se podrian optimizar
+
+# def mostrar_frame(frame):
+#     app.frame_bienvenida.place_forget()
+#     app.L_frame_modificar.place_forget()
+#     app.L_frame_listar.place_forget()
+#     app.L_frame_registrar.place_forget()
+#     app.L_frame_eliminar.place_forget()
+#     app.U_frame_eliminar.place_forget()
+#     app.U_frame_modificar.place_forget()
+#     app.U_frame_listar.place_forget()
+#     app.U_frame_registrar.place_forget()
+#     app.P_frame_eliminar.place_forget()
+#     app.P_frame_modificar.place_forget()
+#     app.P_frame_listar.place_forget()
+#     #app.P_frame_registrar2.place_forget()
+#     app.P_frame_registrar.place_forget()
+#     app.frame_perfil.place_forget()
+#     frame.place(x=0, y=0)
+#     app.frame_menu.lift()
+#     app.frame_header.lift()
+
+# class Starter(tk.Tk):
+#     def __init__(self):
+#         super().__init__()
+#         self.geometry("1366x768")
+#         self.title("Arcanum Library")
+#         self.iconbitmap(relative_to_assets('logo_biblioteca.ico')) #aqui iria el icono de la app
+#         self.L_frame_eliminar = L_Eliminar(self)
+#         self.L_frame_modificar = L_Modificar(self)
+#         self.L_frame_listar = L_Listar(self)
+#         self.L_frame_registrar = L_Registrar(self)
+#         self.U_frame_eliminar = U_Eliminar(self)
+#         self.U_frame_modificar = U_Modificar(self)
+#         self.U_frame_listar = U_Listar(self)
+#         self.U_frame_registrar = U_Registrar(self)
+#         #self.P_frame_registrar2= P_Registrar2(self)
+#         self.P_frame_eliminar = P_Eliminar(self)
+#         self.P_frame_modificar = P_Modificar(self)
+#         self.P_frame_listar = P_Listar(self)
+#         self.P_frame_registrar = P_Registrar(self)
+#         self.frame_perfil = Perfil(self)
+
+#         self.frame_bienvenida = Bienvenida(self)
+#         self.frame_bienvenida.place(x=0, y=0)
+
+#         self.frame_header = Header(self)
+#         self.frame_header.place(x=0, y=0, width=1366, height=54)
+
+#         self.frame_menu = Menu(self, mostrar_frame, self.frame_header)
+#         self.frame_menu.place(x=0, y=53, width=215, height=714)
+    
+#     def show(self):
+#         self.mainloop()
+
+
+
+
+
 
 
 class Starter(tk.Tk):

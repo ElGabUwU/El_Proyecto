@@ -252,12 +252,17 @@ class L_Listar(tk.Frame):
     
     def __init__(self, parent):
         super().__init__(parent)
+
         self.parent = parent
         self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
+
         self.canvas.pack(side="right", fill="both", expand=True)
         self.images = {}
 
         # Crear el marco izquierdo para el menú de navegación
+
         self.left_frame_list = tk.Frame(self.canvas, bg="#031A33")
         self.left_frame_list.pack(expand=True, side="left", fill="both")
         self.left_frame_list.place(x=215, y=205, height=480, width=1150)
@@ -273,7 +278,15 @@ class L_Listar(tk.Frame):
                       focuscolor=[('focus', '#FFFFFF')],
                       bordercolor=[('focus', '#000716')])
 
-        self.buscar = ttk.Entry(self, style="Rounded.TEntry")
+        self.left_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
+        self.left_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
+        self.left_frame_list.place(x=215,y=205, height=480, width=1150)
+
+
+        """"self.cota = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="solid" , borderwidth=0.5)
+        self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)"""
+        
+        self.buscar = tk.Entry(self, bd=0, bg="#FAFAFA", fg="#031A33", relief="solid" , borderwidth=0.5)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
 
         # Configurar estilo para Treeview
@@ -322,7 +335,7 @@ class L_Listar(tk.Frame):
         bg="#031A33",
         activebackground="#031A33",  # Mismo color que el fondo del botón
         activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
-)
+            )
         self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
 
         # Crear textos en el canvas
@@ -330,6 +343,31 @@ class L_Listar(tk.Frame):
         self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#a6a6a6", font=("Bold", 17))
         self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#a6a6a6", font=("Bold", 17))
         self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#a6a6a6", font=("Bold", 17))
+
+        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
+        # Para llamar a read_books cuando se presiona Enter
+        self.buscar.bind("<Return>", self.boton_buscar)
+        
+                    #Boton Cargar Libros
+            # Cargar y almacenar las imágenes
+        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
+            
+            # Cargar y almacenar la imagen del botón
+        self.button_e = tk.Button(
+                self,
+                image=self.images['boton_refrescar'],
+                borderwidth=0,
+                highlightthickness=0,
+                command=lambda: self.reading_books(self.book_table_list),
+                relief="flat",
+                bg="#031A33",
+                activebackground="#031A33",  # Mismo color que el fondo del botón
+                activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
+            )
+        self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
 
         
 
