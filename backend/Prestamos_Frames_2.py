@@ -432,7 +432,7 @@ class P_Listar(tk.Frame):
                         darkcolor="darkblue",
                         rowheight=30,
                         background="#E5E1D7", 
-                        fieldbackground="#f0f0f0")
+                        fieldbackground="#z")
 
         # Configurar estilo para las cabeceras
         style.configure("Rounded.Treeview.Heading", 
@@ -483,7 +483,7 @@ class P_Listar(tk.Frame):
         busqueda = self.buscar.get()
         try:
              mariadb_conexion = establecer_conexion()
-             if mariadb_conexion:#.is_connected():
+             if mariadb_conexion:
                         cursor = mariadb_conexion.cursor()
                         self.book_table.delete(*self.book_table.get_children())
                         self.libro_prestamo_table.delete(*self.libro_prestamo_table.get_children())
