@@ -3,6 +3,7 @@ import mysql.connector as mariadb
 from colorama import init, Fore, Back, Style
 from db.conexion import establecer_conexion
 import subprocess
+
 init(autoreset=True)
 # # Conectar a la base de datos
 # def import_sql_file():
@@ -10,6 +11,50 @@ init(autoreset=True)
 #         subprocess.run(['mysql', '-u', 'root', '-p2525', 'basedatosbiblioteca', '<', 'backend/BD_BIBLIOTECA_V7.sql'], check=True)
 #     except subprocess.CalledProcessError as e:
 #         print("Error al importar el archivo SQL:", e)
+
+def obtener_datos_libros():
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            cursor.execute("SELECT titulo, n_registro FROM libros")
+            datos = cursor.fetchall()
+            mariadb_conexion.close()
+            return datos
+        else:
+            return []
+    except mariadb.Error as ex:
+        print(f"Error durante la conexión: {ex}")
+        return []
+
+from collections import Counter
+
+def analizar_titulos_y_registros(datos):
+    caracteres_especiales = {}
+    numeros_en_titulos = False
+    patrones_punto = {}
+
+    for titulo, n_registro in datos:
+        # Analizar caracteres especiales en títulos
+        for char in titulo:
+            if not char.isalnum() and not char.isspace():
+                if char in caracteres_especiales:
+                    caracteres_especiales[char] += 1
+                else:
+                    caracteres_especiales[char] = 1
+            if char.isdigit():
+                numeros_en_titulos = True
+
+        # Analizar patrones en números de registro
+        if '.' in n_registro:
+            posiciones = [pos for pos, char in enumerate(n_registro) if char == '.']
+            for posicion in posiciones:
+                if posicion in patrones_punto:
+                    patrones_punto[posicion] += 1
+                else:
+                    patrones_punto[posicion] = 1
+
+    return caracteres_especiales, numeros_en_titulos, patrones_punto
 
 
 # Crear un nuevo Pokémon
