@@ -315,6 +315,10 @@ def reading_clients(client_table_list_loans):
 
 def delete_selected_cliente(self):
     selected_items = self.prestamo_table.selection()
+    if not selected_items:
+        messagebox.showwarning("Selección vacía", "Por favor, seleccione un préstamo de la tabla.")
+        return
+    selected_items = self.prestamo_table.selection()
     try:
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:

@@ -54,66 +54,7 @@ class P_Registrar(tk.Frame):
         
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="white", font=("Bold", 17))
         self.buscar.bind("<Return>", self.boton_buscar)
-        # # Titulos de los inputs
-        # self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del cliente y su préstamo a agregar", fill="#a6a6a6", font=("Bold", 17))
-        # #fila 1
-        # self.canvas.create_text(263.0, 152.0, anchor="nw", text="Cedula", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(520.0, 152.0, anchor="nw", text="Nombre", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(779.0, 152.0, anchor="nw", text="Apellido", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(1039.0, 152.0, anchor="nw", text="Cantidad", fill="#a6a6a6", font=("Bold", 17))
 
-        # #fila 2
-        # self.canvas.create_text(263.0, 252.0, anchor="nw", text="Numero de teléfono", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(520.0, 252.0, anchor="nw", text="Dirección", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(779.0, 252.0, anchor="nw", text="Fecha del Registro", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(1039.0, 252.0, anchor="nw", text="Fecha Límite", fill="#a6a6a6", font=("Bold", 17))
-        #primera fila
-    
-        # self.input_cedula = tk.Entry(
-        #     self,
-        #     bd=0,
-        #     bg="#031A33",
-        #     fg="#a6a6a6",
-        #     highlightthickness=2,
-        #     highlightbackground="#ffffff",
-        #     highlightcolor="#ffffff",
-        #     borderwidth=0.5, 
-        #     relief="solid",
-        #     validate="key",
-        #     validatecommand=(validate_number, "%P")
-        # )
-        # self.input_cedula.place(x=263.0, y=182.0, width=237.0, height=38.0)
-        
-        # self.input_nombre = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        # self.input_nombre.place(x=520.0, y=182.0, width=237.0, height=38.0)
- 
-        # self.input_apellido = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        # self.input_apellido.place(x=779.0, y=182.0, width=237.0, height=37.5)
-
-        # self.input_cantidad = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        # self.input_cantidad.place(x=1039.0, y=182.0, width=237.0, height=37.5)
-        
-        # #segunda fila
-        
-        # self.input_telefono = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        # self.input_telefono.place(x=263.0, y=282.0, width=237.0, height=37.5)
-        
-        # self.input_direccion = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        # self.input_direccion.place(x=520.0, y=282.0, width=237.0, height=38.0)
-
-        # # Campo para la fecha límite
-        # self.fecha_registrar = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        # self.fecha_registrar.place(x=779.0, y=282.0, width=237.0, height=38.0)
-
-        # self.fecha_limite = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        # self.fecha_limite.place(x=1039.0, y=282.0, width=237.0, height=38.0)
-
-        # # Establecer las fechas automáticamente
-        # fecha_actual = datetime.now().strftime("%d/%m/%Y")
-        # fecha_limite = (datetime.now() + timedelta(days=20)).strftime("%d/%m/%Y")
-
-        # self.fecha_registrar.insert(0, fecha_actual)
-        # self.fecha_limite.insert(0, fecha_limite)
         # Cargar y almacenar las imágenes
         self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
             
@@ -260,24 +201,6 @@ class P_Registrar(tk.Frame):
         self.input_direccion = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
         self.input_direccion.place(x=30.0, y=270.0, width=190.0, height=35.0)
 
-        # tk.Label(filter_window, text="Fecha Registrar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=260.0, y=240.0, width=160.0, height=35.0)
-        # self.fecha_registrar = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        # self.fecha_registrar.place(x=260.0, y=270.0, width=190.0, height=35.0)
-        
-        # tk.Label(filter_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=470.0, y=240.0, width=160.0, height=35.0)
-        # self.fecha_limite = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        # self.fecha_limite.place(x=490.0, y=270.0, width=190.0, height=35.0)
-
-        # tk.Label(filter_window, text="Cantidad", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=20.0, y=380, width=105.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        # self.input_cantidad = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        # self.input_cantidad.place(x=30.0, y=410.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
-
-        # # Establecer las fechas automáticamente
-        # fecha_actual = datetime.now().strftime("%d/%m/%Y")
-        # fecha_limite = (datetime.now() + timedelta(days=20)).strftime("%d/%m/%Y")
-
-        # self.fecha_registrar.insert(0, fecha_actual)
-        # self.fecha_limite.insert(0, fecha_limite)
 
                 # Cargar y almacenar las imágenes
         self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
@@ -439,11 +362,6 @@ class P_Registrar(tk.Frame):
         self.input_apellido.delete(0, tk.END)
         self.input_telefono.delete(0, tk.END)
         self.input_direccion.delete(0, tk.END)
-        #self.input_cantidad.delete(0, tk.END)
-    
-    def generate_alphanumeric_id(self, length=8):
-        characters = string.ascii_uppercase + string.digits
-        return ''.join(random.choices(characters, k=length))
 
     def validate_entries(self, event=None):
         # Comprobar si todos los campos están llenos
@@ -500,30 +418,16 @@ class P_Modificar(tk.Frame):
 class P_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         #validate_number = self.register(validate_number_input)
         self.images = {}
 
-        # Crear el marco izquierdo para el menú de navegación
-        #Marco listado clientes
-        # self.left_frame = tk.Frame(self.canvas, bg="#FFFFFF")
-        # self.left_frame.pack(expand=True, side="left", fill="both")
-        # self.left_frame.place(x=165,y=155, height=250, width=650)
         #Marco listado prestamo-clientes
-        self.left_frame2 = tk.Frame(self.canvas, bg="#FFFFFF")
-        self.left_frame = tk.Frame(self.canvas, bg="#FAFAFA")
-        self.left_frame.pack(expand=True, side="left", fill="both")
-        self.left_frame.place(x=165,y=155, height=250, width=650)
-        #Marco listado libros prestamo
-        self.left_frame1 = tk.Frame(self.canvas, bg="#FAFAFA")
-        self.left_frame1.pack(expand=True, side="left", fill="both") 
-        self.left_frame1.place(x=165,y=365, height=350, width=650)
-        #Marco listado prestamo-clientes
+        # self.left_frame2 = tk.Frame(self.canvas, bg="#FFFFFF")
         self.left_frame2 = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame2.pack(expand=True, side="right", fill="both")
-        self.left_frame2.place(x=200,y=230, height=500, width=1180)
+        self.left_frame2.place(x=200,y=220, height=490, width=1180)
 
         self.right_frame = tk.Frame(self)
         self.right_frame.pack(side="right", expand=True, fill="both")
@@ -531,52 +435,38 @@ class P_Listar(tk.Frame):
         # Texto para el nombre
 
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(935.0, 220.0, text="Editar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1035.0, 220.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(835.0, 220.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1135.0, 220.0, text="Filtrar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1035.0, 200.0, text="Editar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1135.0, 200.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(835.0, 200.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(935.0, 200.0, text="Agregar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1235.0, 200.0, text="Filtrar", fill="#031A33", font=("Bold", 17))
 
        # Títulos para los Treeviews
         bold_font = font.Font(family="Bold", size=15, weight="bold")
-        # self.label_clientes = tk.Label(self.left_frame, text="Tabla Clientes", bg="#031A33", fg="#a6a6a6", font=bold_font)
-        # self.label_clientes.place(x=205.0, y=4.0, width=237.0, height=38.0)
-
-        # self.label_libros_prestado = tk.Label(self.left_frame1, text="Tabla Libros Prestados", bg="#031A33", fg="#a6a6a6", font=bold_font)
-        # self.label_libros_prestado.place(x=220.0, y=5.0, width=237.0, height=38.0)
-
-        self.label_prestamos = tk.Label(self.left_frame2, text="Tabla Prestamos", bg="#FFFFFF", fg="#031A33", font=bold_font)
-        self.label_prestamos.place(x=435.0, y=4.0, width=237.0, height=38.0)
+        self.label_prestamos = tk.Label(self.left_frame2, text="Tabla Prestamos", bg="#FAFAFA", fg="#031A33", font=bold_font)
+        self.label_prestamos.place(x=445.0, y=4.0, width=237.0, height=35.0)
 
 
-        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
+        self.buscar = tk.Entry(self, bg="#FAFAFA", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
-
-        self.label_nombre = self.canvas.create_text(615.0, 60.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(960.0, 355.0, text="Editar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1135.0, 355.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(960.0, 220.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1135.0, 220.0, text="Filtrar", fill="#040F21", font=("Bold", 17))
-
-       # Títulos para los Treeviews
-        bold_font = font.Font(family="Bold", size=15, weight="bold")
-        self.label_clientes = tk.Label(self.left_frame, text="Tabla Clientes", bg="#FAFAFA", fg="#040F21", font=bold_font)
-        self.label_clientes.place(x=205.0, y=5.0, width=237.0, height=38.0)
-
-        self.label_libros_prestado = tk.Label(self.left_frame1, text="Tabla Libros Prestados", bg="#FAFAFA", fg="#040F21", font=bold_font)
-        self.label_libros_prestado.place(x=220.0, y=5.0, width=237.0, height=38.0)
-
-        self.label_prestamos = tk.Label(self.left_frame2, text="Tabla Prestamos", bg="#FAFAFA", fg="#040F21", font=bold_font)
-        self.label_prestamos.place(x=215.0, y=5.0, width=237.0, height=38.0)
-
-        #Título de boton buscar
-        self.buscar = tk.Entry(self, bd=0, bg="#FAFAFA", fg="#031A33", relief="solid" , borderwidth=0.5)
-        self.buscar.place(x=615.0, y=90.0, width=267.0, height=48.0)
-        # Para llamar a read_books cuando se presiona Enter
-
         self.buscar.bind("<Return>", self.boton_buscar)
 
-        #Boton Clientes
         # Cargar y almacenar las imágenes
+        self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
+        # Cargar y almacenar la imagen del botón
+        self.button_c = tk.Button(
+            self,
+            image=self.images['boton_agregar'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.open_register_loan(),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
+        )
+        self.button_c.place(x=890.0, y=90.0, width=90.0, height=100.0)
+
         self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
         # Cargar y almacenar la imagen del botón
         self.button_c = tk.Button(
@@ -590,7 +480,7 @@ class P_Listar(tk.Frame):
             activebackground="#FFFFFF",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_c.place(x=790.0, y=110.0, width=90.0, height=100.0)
+        self.button_c.place(x=790.0, y=90.0, width=90.0, height=100.0)
 
         #Boton Filtrar
         # Cargar y almacenar las imágenes
@@ -607,7 +497,7 @@ class P_Listar(tk.Frame):
             activebackground="#FFFFFF",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_f.place(x=1090.0, y=110.0, width=90.0, height=100.0)
+        self.button_f.place(x=1190.0, y=90.0, width=90.0, height=100.0)
 
         #Boton Modificar
         # Cargar y almacenar las imágenes
@@ -624,7 +514,7 @@ class P_Listar(tk.Frame):
             activebackground="#FFFFFF",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_m.place(x=890.0, y=110.0, width=90.0, height=100.0)
+        self.button_m.place(x=990.0, y=90.0, width=90.0, height=100.0)
 
         self.images['boton_Eliminar_f'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
         
@@ -640,7 +530,7 @@ class P_Listar(tk.Frame):
             activebackground="#FFFFFF",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         )
-        self.button_d.place(x=990, y=110.0, width=90.0, height=100.0)
+        self.button_d.place(x=1090, y=90.0, width=90.0, height=100.0)
 
         styletrees = ttk.Style()
         styletrees.configure("Rounded.Treeview", 
@@ -665,14 +555,6 @@ class P_Listar(tk.Frame):
                         foreground="#000000",
                         borderwidth=0)
 
-    # Tabla de clientes mostrados en el Treeview
-        #Columnas Clientes
-        # columns = ("ID", "Cedula", "Nombre", "Apellido", "Telefono", "Direccion")
-        # self.book_table = ttk.Treeview(self.left_frame, columns=columns, show='headings', style="Rounded.Treeview")
-        # for col in columns:
-        #     self.book_table.heading(col, text=col)
-        #     self.book_table.column(col, width=30)
-        # self.book_table.pack(expand=True, fill="both", padx=80, pady=45)
         #Columnas Prestamo
         columns2 = ("ID Prestamo", "ID Libro", "ID Cliente","Nombre","ID Libro Prestamo", "Titulo","Ejemplares", "F.Registro", "F.Limite", "Encargado")
         self.prestamo_table = ttk.Treeview(self.left_frame2, columns=columns2, show='headings', style="Rounded.Treeview")
@@ -680,26 +562,100 @@ class P_Listar(tk.Frame):
             self.prestamo_table.heading(col2, text=col2)
             self.prestamo_table.column(col2, width=90, anchor="center")
         self.prestamo_table.pack(expand=True, fill="both", padx=40, pady=45)
-        # Agregar scrollbar a cada tabla
-        # scrollbar_bt = ttk.Scrollbar(self.book_table, orient="vertical", command=self.book_table.yview)
-        # self.book_table.configure(yscrollcommand=scrollbar_bt.set)
-        # scrollbar_bt.pack(side="right", fill="y")
+
 
         scrollbar_pt = ttk.Scrollbar(self.prestamo_table, orient="vertical", command=self.prestamo_table.yview)
         self.prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
-        #Estilos para las tablas
-        # style = ttk.Style()
-        # style.configure("Treeview.Heading", font=("Helvetica", 10, "bold"), background="#75C99A")
-        # style.configure("Treeview", font=("Helvetica", 10), rowheight=25, background="white")
     
-    def boton_buscar(self,event):  
+    def open_register_loan(self):
+        filter_window = tk.Toplevel(self)
+        filter_window.title("Registrar Préstamo")
+        filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        filter_window.geometry("1550x600")
+        filter_window.config(bg="#042344")
+
+        # Crear el marco izquierdo para el menú de navegación
+        self.left_frame_list = tk.Frame(filter_window, bg="#042344")
+        self.left_frame_list.place(x=170, y=160, height=400, width=1200)
+
+        tk.Label(filter_window, text="TABLA PRESTAMOS", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=505.0, y=20.0, width=450.0, height=35.0)
+        tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=600.0, y=70.0, width=160.0, height=35.0)
+        self.id_cliente = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.id_cliente.place(x=630.0, y=100.0, width=190.0, height=35.0)
+
+        tk.Label(filter_window, text="Fecha Registrar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=20.0, y=140.0, width=160.0, height=35.0)
+        self.fecha_registrar = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.fecha_registrar.place(x=20.0, y=170.0, width=170.0, height=35.0)
+        
+        tk.Label(filter_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=20.0, y=240.0, width=160.0, height=35.0)
+        self.fecha_limite = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.fecha_limite.place(x=20.0, y=270.0, width=170.0, height=35.0)
+
+        tk.Label(filter_window, text="Cantidad", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=25.0, y=340, width=105.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        self.input_cantidad = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.input_cantidad.place(x=20.0, y=370.0, width=170.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
+
+        # Establecer las fechas automáticamente
+        fecha_actual = datetime.now().strftime("%d/%m/%Y")
+        fecha_limite = (datetime.now() + timedelta(days=20)).strftime("%d/%m/%Y")
+
+        self.fecha_registrar.insert(0, fecha_actual)
+        self.fecha_limite.insert(0, fecha_limite)
+
+        # Aplica el estilo al Treeview listado de libros
+        tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N° Registro", "Titulo", "Autor", "Editorial", "Año", "Edición", "N° Ejemplares", "N° Volúmenes")
+        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview")
+
+        # Set specific widths for "ID" and "Sala"
+        self.book_table_list.column("ID", width=40, anchor="center")
+        self.book_table_list.column("Sala", width=40, anchor="center")
+        self.book_table_list.column("Cota", width=30, anchor="center")
+        self.book_table_list.column("N° Registro", width=50, anchor="center")
+        self.book_table_list.column("Titulo", width=100, anchor="center")
+        self.book_table_list.column("Año", width=30, anchor="center")
+        self.book_table_list.column("Edición", width=30, anchor="center")
+        self.book_table_list.column("N° Ejemplares", width=70, anchor="center")
+        self.book_table_list.column("N° Volúmenes", width=70, anchor="center")
+
+        # Set larger widths for the other columns
+        for col in tree:
+            if col not in ("ID", "Sala","Cota","N° Registro", "Titulo", "Año","N° Ejemplares", "N° Volúmenes"):
+                self.book_table_list.column(col, width=95, anchor="center")
+            self.book_table_list.heading(col, text=col)
+
+        self.book_table_list.pack(expand=True, fill="both", padx=30, pady=5)
+
+        scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
+        self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
+        scrollbar_pt.pack(side="right", fill="y")
+
+        self.reading_books(self.book_table_list)
+
+        self.images['boton_r'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
+
+        self.boton_R = tk.Button(
+            filter_window,
+            image=self.images['boton_r'],
+            borderwidth=0,
+            highlightthickness=0,
+            #command=self.save_modifications,
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_R.place(x=265.0, y=450.0, width=130.0, height=40.0)
+        self.boton_R.place_forget()  # Ocultar el botón inicialmente
+
+        self.input_cantidad.bind("<KeyRelease>", self.validate_entries)
+
+    def boton_buscar(self,event=None):  
         busqueda = self.buscar.get()
         try:
              mariadb_conexion = establecer_conexion()
              if mariadb_conexion:
                         cursor = mariadb_conexion.cursor()
-                        # self.book_table.delete(*self.book_table.get_children())
                         self.prestamo_table.delete(*self.prestamo_table.get_children())
                          # Ejecutar y procesar la primera consulta
                         cursor.execute("""SELECT prestamo.ID_Prestamo, cliente.ID_Cliente, cliente.Nombre, 
@@ -731,6 +687,37 @@ class P_Listar(tk.Frame):
         finally:
             if mariadb_conexion:
                 mariadb_conexion.close()
+    
+    def reading_books(self,book_table_list):
+                            try:
+                                mariadb_conexion = establecer_conexion()
+                                if mariadb_conexion:#.is_connected():
+                                    cursor = mariadb_conexion.cursor()
+                                    cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes FROM libro')
+                                    resultados = cursor.fetchall() 
+                                    for row in book_table_list.get_children():
+                                        book_table_list.delete(row)
+                                         # Configurar las etiquetas para los colores
+                                    book_table_list.tag_configure('multiple', background='lightblue')
+                                    book_table_list.tag_configure('single', background='#E5E1D7')
+                                        
+                                        # Insertar los datos en el Treeview
+                                    for fila in resultados:
+                                        book_id = fila[0]
+                                        n_ejemplares = fila[11]
+                                        tag = 'multiple' if n_ejemplares > 1 else 'single'
+                                        parent = book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
+                                        # # Create and place the button
+                                        # button = tk.Button(self.book_table_list, text="Toggle Copies", command=lambda p=parent: self.toggle_copies(p))
+                                        # button.grid(row=0, column=0)
+                                                            
+                                        if n_ejemplares > 1:
+                                            for i in range(1, n_ejemplares + 1):
+                                                # book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=("", "", "", "", "", "", "", "", "", "", "", "", ""), tags=('single',))
+                                                book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=tuple(fila), tags=('single',))
+                                    mariadb_conexion.close()
+                            except mariadb.Error as ex:
+                                    print("Error durante la conexión:", ex)
 
     def open_filter_window(self,parent):
         filter_window = tk.Toplevel(self)
@@ -817,22 +804,20 @@ class P_Listar(tk.Frame):
                     messagebox.showinfo("Cancelado", "Modificación cancelada.")
         else:
                 messagebox.showinfo("Error", "Por favor, proporciona una ID válida.")
-
-    # def delete_client(self):
-    #         ID_Cedula=self.id_ceddelete_entry.get() if self.id_ceddelete_entry else None
-    #         if ID_Cedula:
-    #             # Confirmación antes de eliminar
-    #             respuesta = messagebox.askyesno("Confirmar Eliminación", "¿Estás seguro de que desea eliminar al cliente?")
-    #             if respuesta:
-    #                 if delete_client_loans(ID_Cedula):
-    #                     messagebox.showinfo("Éxito", "Eliminación exitosa del cliente.")
-    #                 else:
-    #                     messagebox.showinfo("Falla en la Eliminación", "El cliente no existe o ya fue eliminado.")
-    #             else:
-    #                 messagebox.showinfo("Cancelado", "Eliminación cancelada.")
-    #         else:
-    #             messagebox.showinfo("Error", "Por favor, proporciona una ID válida.")
-        
+    
+    def save_modifications(self):
+        fecha_registrar = self.format_date(self.fecha_registrar.get())
+        fecha_limite = self.format_date(self.fecha_limite.get())
+        cantidad = int(self.input_cantidad.get())
+        ID_Prestamo = self.generate_alphanumeric_id.get()
+        ID_Libro_Prestamo = self.generate_id_libro_prestamo.get()
+        ID_Cliente = self.id_cliente.get()
+    
+        if create_client_loans(id_cliente, new_cedula, nombre, apellido, telefono, direccion):
+            messagebox.showinfo("Éxito", "Realización éxitosa del préstamo.")
+            self.clear_entries_list()
+        else:
+            messagebox.showerror("Error", "Cliente no pudo ser modificado.")    
     #Boton de filtrado del Menú Lista-Prestamos
     def apply_filters(self):
         filter_books_one(self)
@@ -840,29 +825,39 @@ class P_Listar(tk.Frame):
         filter_books_three(self)
 
     def clear_entries_list(self):
-        self.id_prestamo_entry.delete(0, tk.END)
+        # elf.id_prestamo_entry.delete(0, tk.END)
         self.cantidad_entry.delete(0, tk.END)
-        self.fecha_limite_entry.delete(0, tk.END)
+        # self.fecha_limite_entry.delete(0, tk.END)
+    
+    def validate_entries(self, event=None):
+        # Comprobar si todos los campos están llenos
+        if (self.input_cantidad.get()):
+            self.boton_R.place(x=40.0, y=450.0, width=130.0, height=40.0)  # Mostrar el botón
+        else:
+            self.boton_R.place_forget()  # Ocultar el botón si algún campo está vacío
 
-    # def get_selected_books(self):
-    #     selected_items = self.prestamo_table.selection()
-    #     if len(selected_items) > 5:
-    #         print("Solo puedes seleccionar un máximo de 5 libros.")
-    #         return
+    def generate_alphanumeric_id(self, length=6):
+        characters = string.ascii_uppercase + string.digits
+        return ''.join(random.choices(characters, k=length))
+    
+    def format_date(self, date_str):
+        try:
+            # Convertir la fecha del formato DD/MM/YYYY al formato YYYY-MM-DD
+            formatted_date = datetime.strptime(date_str, "%d/%m/%Y").strftime("%Y-%m-%d")
+            return formatted_date
+        except ValueError as e:
+            print(f"Error al formatear la fecha: {e}")
+            return None
 
-    #     selected_books = []
-    #     for item in selected_items:
-    #         book_info = self.prestamo_table.item(item, "values")
-    #         selected_books.append(book_info[0])
-        
-    #     self.save_books_to_db(selected_books, book_ids, id_prestamo, cantidad)
-
+    def generate_id_libro_prestamo(self):
+        while True:
+            new_id = random.randint(1000, 9999)
+            if not self.libro_prestamo_exists(new_id):
+                return new_id
+            
     def cancelar(self, window):
         window.destroy()  # Esto cerrará la ventana de filtro
 
-
-        # Vincular el evento de escritura
-        # self.n_registro_entry.bind("<KeyRelease>", lambda event: self.format_n_registro(event))
 
     # def format_n_registro(self, event):
     #     # Obtener el texto actual del campo de entrada
@@ -873,12 +868,6 @@ class P_Listar(tk.Frame):
     #         formatted_text = text[:2] + "." + text[2:]
     #     else:
     #         formatted_text = text
-
-    #     # Actualizar el campo de entrada con el texto formateado
-    #     self.n_registro_entry.delete(0, tk.END)
-    #     self.n_registro_entry.insert(0, formatted_text)
-        
-        
 
 class P_Eliminar(tk.Frame):
     def __init__(self, parent):
