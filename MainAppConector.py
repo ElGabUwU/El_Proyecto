@@ -119,7 +119,7 @@ class Menu(tk.Frame):
                                      activebackground="#2E59A7", activeforeground="#A6A6A6")
         self.L_dropdown_menu.add_command(
             label="Registrar",
-            command=lambda: {self.frame_header.update_header_text("Registrar"), mostrar_frame(app.L_frame_registrar)}
+            #command=lambda: {self.frame_header.update_header_text("Registrar"), mostrar_frame(app.L_frame_registrar)}
         )
         self.L_dropdown_menu.add_command(
             label="Listado",
@@ -290,63 +290,6 @@ class Perfil(tk.Frame):
         
         self.canvas.create_text(263.0, 565.0, anchor="nw", text="Cedula: V31242538", fill="#042344", font=("Montserrat Regular", 15))
 
-#los place_forget se podrian optimizar
-
-# def mostrar_frame(frame):
-#     app.frame_bienvenida.place_forget()
-#     app.L_frame_modificar.place_forget()
-#     app.L_frame_listar.place_forget()
-#     app.L_frame_registrar.place_forget()
-#     app.L_frame_eliminar.place_forget()
-#     app.U_frame_eliminar.place_forget()
-#     app.U_frame_modificar.place_forget()
-#     app.U_frame_listar.place_forget()
-#     app.U_frame_registrar.place_forget()
-#     app.P_frame_eliminar.place_forget()
-#     app.P_frame_modificar.place_forget()
-#     app.P_frame_listar.place_forget()
-#     #app.P_frame_registrar2.place_forget()
-#     app.P_frame_registrar.place_forget()
-#     app.frame_perfil.place_forget()
-#     frame.place(x=0, y=0)
-#     app.frame_menu.lift()
-#     app.frame_header.lift()
-
-# class Starter(tk.Tk):
-#     def __init__(self):
-#         super().__init__()
-#         self.geometry("1366x768")
-#         self.title("Arcanum Library")
-#         self.iconbitmap(relative_to_assets('logo_biblioteca.ico')) #aqui iria el icono de la app
-#         self.L_frame_eliminar = L_Eliminar(self)
-#         self.L_frame_modificar = L_Modificar(self)
-#         self.L_frame_listar = L_Listar(self)
-#         self.L_frame_registrar = L_Registrar(self)
-#         self.U_frame_eliminar = U_Eliminar(self)
-#         self.U_frame_modificar = U_Modificar(self)
-#         self.U_frame_listar = U_Listar(self)
-#         self.U_frame_registrar = U_Registrar(self)
-#         #self.P_frame_registrar2= P_Registrar2(self)
-#         self.P_frame_eliminar = P_Eliminar(self)
-#         self.P_frame_modificar = P_Modificar(self)
-#         self.P_frame_listar = P_Listar(self)
-#         self.P_frame_registrar = P_Registrar(self)
-#         self.frame_perfil = Perfil(self)
-
-#         self.frame_bienvenida = Bienvenida(self)
-#         self.frame_bienvenida.place(x=0, y=0)
-
-#         self.frame_header = Header(self)
-#         self.frame_header.place(x=0, y=0, width=1366, height=54)
-
-#         self.frame_menu = Menu(self, mostrar_frame, self.frame_header)
-#         self.frame_menu.place(x=0, y=53, width=215, height=714)
-    
-#     def show(self):
-#         self.mainloop()
-
-
-
 
 
 
@@ -360,7 +303,7 @@ class Starter(tk.Tk):
         self.L_frame_eliminar = L_Eliminar(self)
         #self.L_frame_modificar = L_Modificar(self)
         self.L_frame_listar = L_Listar(self)
-        self.L_frame_registrar = L_Registrar(self)
+        #self.L_frame_registrar = L_Registrar(self)
         self.U_frame_eliminar = U_Eliminar(self)
         self.U_frame_modificar = U_Modificar(self)
         self.U_frame_listar = U_Listar(self)
@@ -382,7 +325,7 @@ class Starter(tk.Tk):
     
     def mostrar_frame(self, frame):
         frames = [
-            self.frame_bienvenida, self.L_frame_listar, self.L_frame_registrar,
+            self.frame_bienvenida, self.L_frame_listar, 
             self.L_frame_eliminar, self.U_frame_eliminar, self.U_frame_modificar, self.U_frame_listar,
             self.U_frame_registrar, self.P_frame_eliminar, self.P_frame_modificar, self.P_frame_listar,
             self.P_frame_registrar, self.frame_perfil

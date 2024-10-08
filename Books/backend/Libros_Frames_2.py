@@ -9,6 +9,8 @@ from PIL import Image,ImageTk
 from Vistas.listas import *
 import random
 from db.conexion import establecer_conexion
+from validations.books_validations import *
+
 def validate_number_input(text):
         if text == "":
             return True
@@ -21,7 +23,7 @@ def validate_number_input(text):
 def relative_to_assets(path: str) -> str:
     return f"./assets_2/{path}"
 
-class L_Registrar(tk.Frame):
+class L_Registrar(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
@@ -54,7 +56,7 @@ class L_Registrar(tk.Frame):
         # Crear y colocar los widgets
         #primera fila
         
-        
+
         """
         validate="key": Configura el widget para que valide la entrada cada vez que se presiona una tecla.
         validatecommand=(validate_number, "%P"): Define el comando de validación. validate_number es una función que se llamará para validar la entrada, y "%P" es un marcador de posición que representa el contenido del widget después de la edición.
@@ -624,19 +626,18 @@ class L_Listar(tk.Frame):
                             except subprocess.CalledProcessError as e:
                                 print("Error al importar el archivo SQL:", e)
 
-
     def cancelar(self, window):
         window.destroy()  # Esto cerrará la ventana de filtro
 
 class L_Modificar(tk.Toplevel):      
-    def __init__(self, parent,book_data, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
+    def __init__(self,book_data, *args, **kwargs):
+        super().__init__( *args, **kwargs)
         self.title("Modificar")
         self.book_data = book_data
         self.grab_set()
         self.geometry("1366x768")
+    
         
-        # Inicializar el diccionario de imágenes
         self.images = {}
         self.crear_boton_modificar()
         
@@ -680,8 +681,8 @@ class L_Modificar(tk.Toplevel):
             "Editorial": book_data[8],
             "Año": book_data[9],
             "Edicion": book_data[10],
-            "Volumen": book_data[10],  # Repetido intencionalmente
-            "Ejemplares": book_data[10]  # Repetido intencionalmente
+            "Volumen": book_data[12],  # Repetido intencionalmente
+            "Ejemplares": book_data[12]  # Repetido intencionalmente
         }
         
         self.original_values = self.book_data.copy()  # Copia el diccionario
@@ -779,6 +780,8 @@ class L_Modificar(tk.Toplevel):
         self.cota.insert(0, self.book_data["Cota"])
         self.cota.bind("<Return>", self.focus_next_widget)
         self.cota.bind("<KeyRelease>", self.check_changes)
+        self.cota.bind("<KeyPress>", self.allow_only_letters_numbers_dots)
+        self.cota.bind("<KeyPress>", self.convert_to_uppercase, add='+')
 
         self.registro_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.registro_m.place(x=520.0, y=282.0, width=237.0, height=38.0)
@@ -804,18 +807,26 @@ class L_Modificar(tk.Toplevel):
         self.titulo_m.insert(0, self.book_data["Titulo"])
         self.titulo_m.bind("<Return>", self.focus_next_widget)
         self.titulo_m.bind("<KeyRelease>", self.check_changes)
+        self.titulo_m.bind("<KeyPress>", self.format_title)  # Formatear al perder el foco
+        self.titulo_m.bind("<KeyPress>", self.schedule_validation)
+
 
         self.autor_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
         self.autor_m.place(x=520.0, y=382.0, width=237.0, height=37.5)
         self.autor_m.insert(0, self.book_data["Autor"])
         self.autor_m.bind("<Return>", self.focus_next_widget)
+        
         self.autor_m.bind("<KeyRelease>", self.check_changes)
+       
+        self.autor_m.bind('<KeyPress>', lambda event: self.validate_and_format_text(self.autor_m))
+        
 
         self.editorial_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
         self.editorial_m.place(x=779.0, y=382.0, width=237.0, height=37.5)
         self.editorial_m.insert(0, self.book_data["Editorial"])
         self.editorial_m.bind("<Return>", self.focus_next_widget)
         self.editorial_m.bind("<KeyRelease>", self.check_changes)
+        self.editorial_m.bind('<KeyPress>', lambda event: self.validate_and_format_text(self.editorial_m))
 
         self.ano_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.ano_m.place(x=1036.0, y=382.0, width=237.0, height=37.5)
@@ -823,7 +834,80 @@ class L_Modificar(tk.Toplevel):
         self.ano_m.bind("<Return>", self.focus_next_widget)
         self.ano_m.bind("<KeyRelease>", self.check_changes)
         
+    #AUTOR Y EDITORAL
+    def validate_and_format_text(self, entry_widget):
+        current_text = entry_widget.get()
+        
+        # Validar y formatear el texto usando la función genérica
+        formatted_text = validar_y_formatear_texto(current_text)
+        
+        # Guardar la posición del cursor
+        cursor_position = entry_widget.index(tk.INSERT)
+        
+        # Actualizar el campo de entrada
+        entry_widget.delete(0, tk.END)
+        entry_widget.insert(0, formatted_text)
+        
+        # Restaurar la posición del cursor
+        entry_widget.icursor(cursor_position)
+    #COTA
+    def convert_to_uppercase(self, event):
+        self.after(1, self._convert_to_uppercase)
 
+    def _convert_to_uppercase(self):
+        cota = self.cota.get().upper()
+        cursor_position = self.autor_m.index(tk.INSERT)
+        self.cota.delete(0, tk.END)
+        self.cota.insert(0, cota)
+        self.autor_m.icursor(cursor_position)
+    
+    def allow_only_letters_numbers_dots(self, event):
+        if event.keysym in ('BackSpace', 'Delete',"Left", "Right"):
+            return
+        if not re.match(r'^[a-zA-Z0-9.]$', event.char):
+            return "break"
+
+###AUTOR
+
+    
+
+    
+#TITULO
+   
+
+    def format_title(self, event):
+        # Formatear el título para capitalizar solo la primera letra
+        current_text = self.titulo_m.get()
+        if current_text:  # Verificar que el texto no esté vacío
+            formatted_text = current_text[0].upper() + current_text[1:]  # Capitalizar solo la primera letra
+            self.titulo_m.delete(0, tk.END)
+            self.titulo_m.insert(0, formatted_text)
+    def schedule_validation(self, event):
+        # Cancelar cualquier validación programada previamente
+        if hasattr(self, 'validation_id'):
+            self.after_cancel(self.validation_id)
+        
+        # Programar la validación y formateo con un retraso de 1 milisegundo
+        self.validation_id = self.after(1, self.validate_and_format_title)
+
+    def validate_and_format_title(self):
+        allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ áéíóúÁÉÍÓÚñÑ.,;:!?-"
+        current_text = self.titulo_m.get()
+        
+        # Filtrar caracteres no permitidos
+        filtered_text = ''.join([char for char in current_text if char in allowed_chars])
+        
+        # Formatear el texto para capitalizar solo la primera letra
+        if filtered_text:
+            formatted_text = filtered_text[0].upper() + filtered_text[1:]
+        else:
+            formatted_text = filtered_text
+        
+        # Actualizar el campo de entrada
+        self.titulo_m.delete(0, tk.END)
+        self.titulo_m.insert(0, formatted_text)
+
+        
     def check_changes(self, *args):
      try:
         current_values = {
@@ -912,41 +996,7 @@ class L_Modificar(tk.Toplevel):
         
         self.check_changes()
         
-
-    # def actualizar_campos(self, book_data):
-    #     self.combobox1.set(book_data["ID_Sala"])
-    #     self.categoria_cb.set(book_data["ID_Categoria"])
-    #     self.asignatura_cb.set(book_data["ID_Asignatura"])
-    #     self.cota.insert(0, book_data["Cota"])
-    #     self.registro_m.insert(0, book_data["n_registro"])
-    #     self.edicion_m.insert(0, book_data["Edicion"])
-    #     self.volumen_m.insert(0, book_data["Volumen"])
-    #     self.titulo_m.insert(0, book_data["Titulo"])
-    #     self.autor_m.insert(0, book_data["Autor"])
-    #     self.editorial_m.insert(0, book_data["Editorial"])
-    #     self.ano_m.insert(0, book_data["Año"])
-
-    # def seleccionar_libro(self, book_data):
-    #     # Actualiza los valores originales al seleccionar un nuevo libro
-    #     self.original_values = {
-    #         "ID_Sala": book_data["ID_Sala"],
-    #         "ID_Categoria": book_data["ID_Categoria"],
-    #         "ID_Asignatura": book_data["ID_Asignatura"],
-    #         "Cota": book_data["Cota"],
-    #         "n_registro": book_data["n_registro"],
-    #         "edicion": book_data["edicion"],
-    #         "n_volumenes": book_data["Volumen"],
-    #         "titulo": book_data["Titulo"],
-    #         "autor": book_data["Autor"],
-    #         "editorial": book_data["Editorial"],
-    #         "año": book_data["Año"]
-    #     }
-    #     # Actualiza los campos del formulario con los valores del libro seleccionado
-    #     self.actualizar_campos(book_data)
     
-
-
-
     def modify_book(self):
     # Recoger los valores de los campos
         nuevos_valores = {
@@ -962,6 +1012,10 @@ class L_Modificar(tk.Toplevel):
         "Editorial": self.editorial_m.get(),
         "Año": self.ano_m.get()
     }
+        errores = validar_campos(self.cota.get(), self.titulo_m.get())
+        if errores:
+            messagebox.showerror("Validation Errors", "\n".join(errores))
+            return
 
     # Validar que se haya seleccionado una categoría y una asignatura
         if nuevos_valores["ID_Categoria"] == "No se ha seleccionado una categoría" or not nuevos_valores["ID_Categoria"]:
