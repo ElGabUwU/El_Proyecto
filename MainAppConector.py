@@ -293,8 +293,8 @@ class Perfil(tk.Frame):
             self.canvas.itemconfig(self.last_name_text, text=f"Apellidos: {usuario.apellido}")
             self.canvas.itemconfig(self.position_text, text=f"Cargo: {usuario.id_cargo}")
             self.canvas.itemconfig(self.id_text, text=f"Cédula: {usuario.cedula}")
-        else:
-            self.canvas.itemconfig(self.username_text, text=f"Nombre de usuario: {"Keyner_23"}")
+        # else:
+        #     self.canvas.itemconfig(self.username_text, text=f"Nombre de usuario: {"Keyner_23"}")
 
 
 # Definir la clase AppState y crear una instancia global
