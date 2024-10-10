@@ -261,7 +261,7 @@ class L_Listar(tk.Frame):
         self.images = {}
 
         # Crear el marco izquierdo para el menú de navegación
-        self.left_frame_list = tk.Frame(self.canvas, bg="#FFFFFF")
+        self.left_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame_list.place(x=200, y=205, height=450, width=1180)
         
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
@@ -293,25 +293,25 @@ class L_Listar(tk.Frame):
         """"self.cota = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="solid" , borderwidth=0.5)
         self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)"""
         
-        self.buscar = tk.Entry(self, bg="#FAFAFA", fg="#031A33", highlightbackground="black", highlightcolor="black", highlightthickness=2)
+        self.buscar = tk.Entry(self, bg="#FAFAFA", fg="#FAFAFA", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
 
         # Cargar y almacenar la imagen del botón
-        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
+        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
 
-# Definir button_e antes de usarlo
-        self.button_e = tk.Button(
-        self,
-        image=self.images['boton_refrescar'],
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: self.reading_books(self.book_table_list),
-        relief="flat",
-        bg="#031A33",
-        activebackground="#031A33",  # Mismo color que el fondo del botón
-        activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
-            )
-        self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
+# # Definir button_e antes de usarlo
+#         self.button_e = tk.Button(
+#         self,
+#         image=self.images['boton_refrescar'],
+#         borderwidth=0,
+#         highlightthickness=0,
+#         command=lambda: self.reading_books(self.book_table_list),
+#         relief="flat",
+#         bg="#FAFAFA",
+#         activebackground="#031A33",  # Mismo color que el fondo del botón
+#         activeforeground="#FAFAFA"   # Color del texto cuando el botón está activo
+#             )
+#         self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
 
         # Crear textos en el canvas
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#a6a6a6", font=("Bold", 17))
@@ -328,7 +328,7 @@ class L_Listar(tk.Frame):
         
                     #Boton Cargar Libros
             # Cargar y almacenar las imágenes
-        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
+        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -338,8 +338,8 @@ class L_Listar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: self.reading_books(self.book_table_list),
                 relief="flat",
-                bg="#FFFFFF",
-                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
@@ -355,8 +355,8 @@ class L_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: delete_selected(self),
             relief="flat",
-            bg="#FFFFFF",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1195.0, y=60.0, width=90.0, height=100.0)
@@ -370,8 +370,8 @@ class L_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: self.open_modificar_window(),
             relief="flat",
-            bg="#FFFFFF",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1065.0, y=60.0, width=90.0, height=100.0)

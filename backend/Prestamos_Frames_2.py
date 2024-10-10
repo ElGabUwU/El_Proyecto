@@ -30,7 +30,7 @@ def relative_to_assets(path: str) -> str:
 class P_Registrar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
         self.images = {}
@@ -41,12 +41,12 @@ class P_Registrar(tk.Frame):
         self.canvas.create_text(1140.0, 180.0, text="Editar", fill="black", font=("Bold", 17))
         self.canvas.create_text(1240.0, 180.0, text="Eliminar", fill="black", font=("Bold", 17))
 
-        self.right_frame_list_loans = tk.Frame(self.canvas, bg="#031A33")
+        self.right_frame_list_loans = tk.Frame(self.canvas, bg="#FAFAFA")
         self.right_frame_list_loans.pack(expand=True, side="right", fill="both") #padx=212, pady=150, ipady=80
         self.right_frame_list_loans.place(x=195,y=239, height=460, width=1180)
 
         bold_font = font.Font(family="Bold", size=15, weight="bold")
-        self.label_clientes = tk.Label(self.canvas, text="Tabla Clientes", bg="#031A33", fg="black", font=bold_font)
+        self.label_clientes = tk.Label(self.canvas, text="Tabla Clientes", bg="#FAFAFA", fg="black", font=bold_font)
         self.label_clientes.place(x=655.0, y=205.0, width=237.0, height=38.0)
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
@@ -56,7 +56,7 @@ class P_Registrar(tk.Frame):
         self.buscar.bind("<Return>", self.boton_buscar)
 
         # Cargar y almacenar las imágenes
-        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
+        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -66,13 +66,13 @@ class P_Registrar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: reading_clients(self.clients_table_list_loans),
                 relief="flat",
-                bg="#031A33",
-                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=795.0, y=70.0, width=90.0, height=100.0)
 
-        self.images['boton_imprimir'] = tk.PhotoImage(file=relative_to_assets("4_reporte.png"))
+        self.images['boton_imprimir'] = tk.PhotoImage(file=relative_to_assets("4_imprimir.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -82,8 +82,8 @@ class P_Registrar(tk.Frame):
                 highlightthickness=0,
                 # command=lambda: self.reading_books(self.book_table_list),
                 relief="flat",
-                bg="#031A33",
-                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=895.0, y=70.0, width=90.0, height=100.0)
@@ -98,8 +98,8 @@ class P_Registrar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: self.open_register_window(),
                 relief="flat",
-                bg="#031A33",
-                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=995.0, y=70.0, width=90.0, height=100.0)
@@ -113,8 +113,8 @@ class P_Registrar(tk.Frame):
             highlightthickness=0,
             command=lambda: delete_client_loans(self),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1195.0, y=70.0, width=90.0, height=100.0)
@@ -128,8 +128,8 @@ class P_Registrar(tk.Frame):
             highlightthickness=0,
             command=lambda: self.open_modify_window(),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1095.0, y=70.0, width=90.0, height=100.0)
@@ -461,13 +461,13 @@ class P_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: self.open_register_loan(),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
         self.button_c.place(x=890.0, y=90.0, width=90.0, height=100.0)
 
-        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
+        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
         # Cargar y almacenar la imagen del botón
         self.button_c = tk.Button(
             self,
@@ -476,15 +476,15 @@ class P_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: lists_clients_loans(self), #or lists_clients(self),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
         self.button_c.place(x=790.0, y=90.0, width=90.0, height=100.0)
 
         #Boton Filtrar
         # Cargar y almacenar las imágenes
-        self.images['boton_filtrar_f'] = tk.PhotoImage(file=relative_to_assets("15.png"))
+        self.images['boton_filtrar_f'] = tk.PhotoImage(file=relative_to_assets("14_filtrar.png"))
         # Cargar y almacenar la imagen del botón
         self.button_f = tk.Button(
             self,
@@ -493,8 +493,8 @@ class P_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: self.open_filter_window(parent),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
         self.button_f.place(x=1190.0, y=90.0, width=90.0, height=100.0)
@@ -510,8 +510,8 @@ class P_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: self.open_filter_window_modify(parent),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
         self.button_m.place(x=990.0, y=90.0, width=90.0, height=100.0)
@@ -526,8 +526,8 @@ class P_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: delete_selected_cliente(self),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         )
         self.button_d.place(x=1090, y=90.0, width=90.0, height=100.0)
@@ -630,6 +630,9 @@ class P_Listar(tk.Frame):
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
 
+        # Asociar el evento de selección del Treeview a la función on_treeview_select
+        self.book_table_list.bind('<<TreeviewSelect>>', self.on_treeview_select)
+
         self.reading_books(self.book_table_list)
 
         self.images['boton_r'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
@@ -639,7 +642,7 @@ class P_Listar(tk.Frame):
             image=self.images['boton_r'],
             borderwidth=0,
             highlightthickness=0,
-            #command=self.save_modifications,
+            command=self.save_modifications,
             relief="flat",
             bg="#031A33",
             activebackground="#031A33",
@@ -729,8 +732,8 @@ class P_Listar(tk.Frame):
         tk.Label(filter_window, text="TABLA PRESTAMOS", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=250.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#.grid(row=4, column=5, padx=10, pady=5)
         tk.Label(filter_window, text="Ingrese el ID de Prestamo, Cliente y Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=70.0, width=530.0, height=35.0)#.pack(pady=10, expand=False)
         tk.Label(filter_window, text="ID Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=210.0, y=130.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
-        self.id_prestamo_dos_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.id_prestamo_dos_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=5, column=1, padx=10, pady=5)
+        self.id_prestamos_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.id_prestamos_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=5, column=1, padx=10, pady=5)
 
         tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=500.0, y=130.0, width=185.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
         self.id_cliente_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
@@ -782,9 +785,9 @@ class P_Listar(tk.Frame):
         button_cancel.place(x=520.0, y=480.0, width=140.0, height=50.0)#.pack(expand=True)#.place(x=390, y=400)#.pack(pady=5, expand=False)
 
     def apply_filters_modify(self):
-        id_prestamo= self.id_prestamo_entry.get() #self.cota.get()
-        cantidad = self.cantidad_entry.get()#self.combobox1.get()
-        fecha_limite = self.fecha_limite_entry.get()#self.menu_actual.get() if self.menu_actual else None
+        id_prestamo= self.id_prestamo_entry.get() 
+        cantidad = self.cantidad_entry.get()
+        fecha_limite = self.fecha_limite_entry.get()
         try:
             fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%d')
         except ValueError:
@@ -808,16 +811,36 @@ class P_Listar(tk.Frame):
     def save_modifications(self):
         fecha_registrar = self.format_date(self.fecha_registrar.get())
         fecha_limite = self.format_date(self.fecha_limite.get())
-        cantidad = int(self.input_cantidad.get())
-        ID_Prestamo = self.generate_alphanumeric_id.get()
-        ID_Libro_Prestamo = self.generate_id_libro_prestamo.get()
+        Cantidad = int(self.input_cantidad.get())
+        ID_Prestamo = self.generate_alphanumeric_id()
+        ID_Libro_Prestamo = self.generate_id_libro_prestamo()
         ID_Cliente = self.id_cliente.get()
-    
-        if create_client_loans(id_cliente, new_cedula, nombre, apellido, telefono, direccion):
-            messagebox.showinfo("Éxito", "Realización éxitosa del préstamo.")
-            self.clear_entries_list()
+                # Asegúrate de que ID_Libro esté definido
+        if hasattr(self, 'ID_Libro'):
+            ID_Libro = self.ID_Libro
         else:
-            messagebox.showerror("Error", "Cliente no pudo ser modificado.")    
+            messagebox.showerror("Error", "Por favor, selecciona un libro de la lista.")
+            return
+            # Obtener ID_Usuario
+        ID_Usuario = 5
+        if ID_Usuario is None:
+            messagebox.showerror("Error", "No se pudo obtener el ID de usuario.")
+            return
+        if create_loan(ID_Prestamo, fecha_registrar, fecha_limite):
+            if create_libro_prestamo(ID_Libro_Prestamo, ID_Prestamo, ID_Libro, Cantidad):
+                if update_prestamo_with_cliente(ID_Prestamo, ID_Cliente, ID_Libro_Prestamo):
+                    if update_prestamo_and_libro(ID_Prestamo, ID_Cliente, ID_Libro, ID_Libro_Prestamo, Cantidad):
+                            # Actualizar la tabla prestamo con ID_Usuario
+                        if update_prestamo_with_usuario(ID_Prestamo, ID_Usuario):
+                            messagebox.showinfo("Éxito", 
+f"""
+Registro éxitoso del préstamo. 
+ID Préstamo: {ID_Prestamo}
+ID Libro Préstamo: {ID_Libro_Prestamo}
+""")
+                        self.clear_entries_list()
+            else:
+                messagebox.showerror("Error", "Préstamo no pudo ser creado.")    
     #Boton de filtrado del Menú Lista-Prestamos
     def apply_filters(self):
         filter_books_one(self)
@@ -826,7 +849,7 @@ class P_Listar(tk.Frame):
 
     def clear_entries_list(self):
         # elf.id_prestamo_entry.delete(0, tk.END)
-        self.cantidad_entry.delete(0, tk.END)
+        self.input_cantidad.delete(0, tk.END)
         # self.fecha_limite_entry.delete(0, tk.END)
     
     def validate_entries(self, event=None):
@@ -852,12 +875,19 @@ class P_Listar(tk.Frame):
     def generate_id_libro_prestamo(self):
         while True:
             new_id = random.randint(1000, 9999)
-            if not self.libro_prestamo_exists(new_id):
+            if not libro_prestamo_exists(new_id):
                 return new_id
             
     def cancelar(self, window):
         window.destroy()  # Esto cerrará la ventana de filtro
 
+    def on_treeview_select(self, event):
+        # Obtener el elemento seleccionado
+        selected_item = self.book_table_list.selection()[0]
+        # Obtener los valores del elemento seleccionado
+        item_values = self.book_table_list.item(selected_item, 'values')
+        # Asumimos que el ID_Libro está en la primera columna
+        self.ID_Libro = item_values[0]
 
     # def format_n_registro(self, event):
     #     # Obtener el texto actual del campo de entrada
