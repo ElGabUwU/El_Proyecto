@@ -4,7 +4,7 @@ from tkinter.font import BOLD
 import util.ventana as utl
 from Login.frontend.from_login_designer import FormLoginDesigner
 from Login.frontend.form_master import MasterPanel
-from Login.backend.db_users import get_user_by_username, is_user, is_password, Usuario
+from Login.backend.db_users import get_user_by_username, is_user, is_password , iniciar_sesion, Usuario
 from validations.user_validations import validate_password, validate_username
 from MainAppConector import start_starter 
 
@@ -67,13 +67,17 @@ class FormLogin(FormLoginDesigner):
                                 error_counter += 1
                                 self.password.delete(0, tk.END)
                             else:
-                                print("Perra")
+                            #    Si todas las validaciones son correctas, iniciar sesión
+                                usuario = iniciar_sesion(user_name, password)
+                               
         # Mostrar todos los mensajes de error acumulados en viñetas
         if error_messages:
             messagebox.showerror(message="Por favor, corrija los siguientes errores:\n" + "\n".join(f"- {msg}" for msg in error_messages), title="Error")
             return
         # Si todas las validaciones pasan, destruir la ventana y mostrar el panel principal
         self.ventana.destroy()
+        self.mostrar_master_panel()
+
     def mostrar_master_panel(self):
         # Crear una instancia de MasterPanel y pasar el callback iniciar_starter
         master_panel = MasterPanel(on_close_callback=self.iniciar_starter)
@@ -86,5 +90,3 @@ class FormLogin(FormLoginDesigner):
 
     def on_enter(self, event, next_widget):
         next_widget.focus()
-        self.mostrar_master_panel()
-
