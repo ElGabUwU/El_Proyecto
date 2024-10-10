@@ -1,6 +1,7 @@
 import mysql.connector as mariadb
 from colorama import init, Fore, Back, Style
 from db.conexion import establecer_conexion
+from tkinter import messagebox
 
 init(autoreset=True)
 # Conectar a la base de datos
@@ -70,11 +71,13 @@ def delete_user_db(ID_Usuario):
     
 def delete_selected_user(self):
     selected_items = self.user_table_list.selection()
+    if not selected_items:
+        messagebox.showwarning("Selección vacía", "Por favor, seleccione un usuario de la tabla.")
+        return
     try:
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:
             cursor = mariadb_conexion.cursor()
-            #cursor = mariadb_conexion.cursor()
             for item in selected_items:
                 item_id = self.user_table_list.item(item, 'values')[0]
                 cursor.execute('DELETE FROM usuarios WHERE ID_Usuario = %s', (item_id,))

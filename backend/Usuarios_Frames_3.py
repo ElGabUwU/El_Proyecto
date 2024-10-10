@@ -2,6 +2,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
+from tkinter import font
 #from Library.librerias import recoger_sesion, drop_sesion
 from Library.fun_db_users import *
 #from Vistas.listas import *
@@ -184,39 +185,34 @@ class U_Registrar(tk.Frame):
 class U_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-
-        self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
         self.images = {}
 
         # Crear el marco izquierdo para el menú de navegación
-
-        self.user_frame_list = tk.Frame(self.canvas, bg="#FFFFFF")
         self.user_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
         self.user_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
-        self.user_frame_list.place(x=215,y=205, height=480, width=1150)
+        self.user_frame_list.place(x=215,y=235, height=460, width=1150)
 
-        # Texto para el nombre
-        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
-
-        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1160.0, 190.0, text="Editar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1255.0, 190.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(955.0, 190.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1055.0, 190.0, text="Agregar", fill="#040F21", font=("Bold", 17))
 
-        self.buscar = tk.Entry(self, bd=0, bg="#FAFAFA", fg="#031A33", relief="solid" , borderwidth=0.5)
+        # Títulos para los Treeviews
+        bold_font = font.Font(family="Bold", size=15, weight="bold")
+        self.label_usuarios = tk.Label(self.canvas, text="Tabla Usuarios", bg="#FAFAFA", fg="#031A33", font=bold_font)
+        self.label_usuarios.place(x=660.0, y=200.0, width=225.0, height=38.0)
+
+        self.buscar = tk.Entry(self, bg="#FAFAFA", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
 
             #Boton Cargar Libros
             # Cargar y almacenar las imágenes
-        self.images['boton_cargar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
+        self.images['boton_cargar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -226,45 +222,59 @@ class U_Listar(tk.Frame):
                 highlightthickness=0,
                 command=self.refresh_frame,
                 relief="flat",
-                bg="#FFFFFF",
-                activebackground="#031A33",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=910.0, y=60.0, width=140.0, height=100.0)
+        self.button_e.place(x=910.0, y=80.0, width=90.0, height=100.0)
 
-            # Cargar y almacenar las imágenes
-        self.images['boton_eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
+        self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
-            self,
-            image=self.images['boton_eliminar'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: delete_selected_user(self) ,
-            relief="flat",
-            bg="#FFFFFF",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
-            #bg="Green",
-            #activebackground="#FFFFFF",  # Mismo color que el fondo del botón
-            activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo 
+                self,
+                image=self.images['boton_agregar'],
+                borderwidth=0,
+                highlightthickness=0,
+                #command=self.refresh_frame,
+                relief="flat",
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+                activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=1175.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=1010.0, y=80.0, width=90.0, height=100.0)
 
+            # Cargar y almacenar las imágenes
         self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6_editar.png"))
-                    # Cargar y almacenar la imagen del botón
-        self.button_m = tk.Button(
+            
+            # Cargar y almacenar la imagen del botón
+        self.button_e = tk.Button(
             self,
             image=self.images['boton_modificar'],
             borderwidth=0,
             highlightthickness=0,
             command=lambda: self.open_modify_window(self),
             relief="flat",
-            bg="#FFFFFF",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo 
+            )
+        self.button_e.place(x=1110.0, y=80.0, width=90.0, height=100.0)
+
+        self.images['boton_eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
+                    # Cargar y almacenar la imagen del botón
+        self.button_m = tk.Button(
+            self,
+            image=self.images['boton_eliminar'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: delete_selected_user(self) ,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo  
             )
-        self.button_m.place(x=1045.0, y=60.0, width=130.0, height=100.0)
+        self.button_m.place(x=1210.0, y=80.0, width=90.0, height=100.0)
 
         style = ttk.Style()
         style.configure("Rounded.Treeview", 
@@ -290,7 +300,7 @@ class U_Listar(tk.Frame):
         for col in columns:
             self.user_table_list.heading(col, text=col)
             self.user_table_list.column(col, width=90, anchor="center")
-        self.user_table_list.pack(expand=True, fill="both", padx=70, pady=5)
+        self.user_table_list.pack(expand=True, fill="both", padx=30, pady=5)
 
         scrollbar_pt = ttk.Scrollbar(self.user_table_list, orient="vertical", command=self.user_table_list.yview)
         self.user_table_list.configure(yscrollcommand=scrollbar_pt.set)
@@ -327,7 +337,7 @@ class U_Listar(tk.Frame):
         for col in columns:
             self.user_table_list.heading(col, text=col)
             self.user_table_list.column(col, width=90, anchor="center")
-        self.user_table_list.pack(expand=True, fill="both", padx=70, pady=5)
+        self.user_table_list.pack(expand=True, fill="both", padx=30, pady=5)
 
         scrollbar_pt = ttk.Scrollbar(self.user_table_list, orient="vertical", command=self.user_table_list.yview)
         self.user_table_list.configure(yscrollcommand=scrollbar_pt.set)

@@ -2,6 +2,8 @@ import mysql.connector as mariadb
 from colorama import init, Fore, Back, Style
 from db.conexion import establecer_conexion
 from tkinter import messagebox
+import mysql.connector
+from mysql.connector import Error
 
 init(autoreset=True)
 # Conectar a la base de datos
@@ -45,9 +47,6 @@ def modify_client_loans(id_cliente, new_cedula, nombre, apellido, telefono, dire
             cursor.close()
             mariadb_conexion.close()
 
-import mysql.connector
-from mysql.connector import Error
-
 def create_loan(ID_Prestamo, fecha_registrar, fecha_limite):
     try:
         mariadb_conexion = establecer_conexion()
@@ -70,70 +69,97 @@ def create_loan(ID_Prestamo, fecha_registrar, fecha_limite):
 def update_prestamo_with_cliente(ID_Prestamo, ID_Cliente, ID_Libro_Prestamo):
     try:
         mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:#.is_connected():
+        if mariadb_conexion:
             cursor = mariadb_conexion.cursor()
-            # Consulta SQL para actualizar el préstamo con el ID del cliente y el ID del libro
-            sql_update_query = """UPDATE prestamo SET ID_Cliente = %s, ID_Libro_Prestamo = %s WHERE ID_Prestamo = %s"""
-            cursor.execute(sql_update_query, (ID_Cliente, ID_Libro_Prestamo, ID_Prestamo))
+            # Iniciar transacción
+            mariadb_conexion.start_transaction()
+            
+            # Actualizar la tabla prestamo con ID_Cliente y ID_Libro_Prestamo
+            sql_update_prestamo = """UPDATE prestamo SET ID_Cliente = %s, ID_Libro_Prestamo = %s WHERE ID_Prestamo = %s"""
+            cursor.execute(sql_update_prestamo, (ID_Cliente, ID_Libro_Prestamo, ID_Prestamo))
+            
+            # Actualizar la tabla cliente con ID_Prestamo
+            sql_update_cliente = """UPDATE cliente SET ID_Prestamo = %s WHERE ID_Cliente = %s"""
+            cursor.execute(sql_update_cliente, (ID_Prestamo, ID_Cliente))
+            
+            # Confirmar transacción
             mariadb_conexion.commit()
             return True
-
-    except Error as e:
+    except mariadb.Error as e:
         print(f"Error al conectar a la base de datos: {e}")
         if mariadb_conexion:
             mariadb_conexion.rollback()
         return False
     finally:
-        if mariadb_conexion:#.is_connected():
+        if mariadb_conexion:
             cursor.close()
             mariadb_conexion.close()
 
-def create_libro_prestamo(ID_Libro_Prestamo, ID_Prestamo, Cantidad):
+# def get_id_usuario(ID_Usuario):
+#     try:
+#         mariadb_conexion = establecer_conexion()
+#         if mariadb_conexion:
+#             cursor = mariadb_conexion.cursor()
+#             sql_select_usuario = """SELECT ID_Usuario FROM usuarios WHERE ID_Usuario = %s"""
+#             cursor.execute(sql_select_usuario, (ID_Usuario,))
+#             result = cursor.fetchone()
+#             if result:
+#                 return result[0]
+#             else:
+#                 print("Error: No se encontró el usuario con el ID_Cliente proporcionado.")
+#                 return None
+#     except mariadb.Error as e:
+#         print(f"Error al conectar a la base de datos: {e}")
+#         return None
+#     finally:
+#         if mariadb_conexion:
+#             cursor.close()
+#             mariadb_conexion.close()
+
+def update_prestamo_with_usuario(ID_Prestamo, ID_Usuario):
     try:
         mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:#.is_connected():
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            sql_update_prestamo = """UPDATE prestamo SET ID_Usuario = %s WHERE ID_Prestamo = %s"""
+            cursor.execute(sql_update_prestamo, (ID_Usuario, ID_Prestamo))
+            mariadb_conexion.commit()
+            return True
+    except mariadb.Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        if mariadb_conexion:
+            mariadb_conexion.rollback()
+        return False
+    finally:
+        if mariadb_conexion:
+            cursor.close()
+            mariadb_conexion.close()
+def create_libro_prestamo(ID_Libro_Prestamo, ID_Prestamo, ID_Libro, Cantidad):
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
             cursor = mariadb_conexion.cursor()
             # Verificar si el ID_Libro_Prestamo ya existe
             cursor.execute('SELECT COUNT(*) FROM libros_prestamo WHERE ID_Libro_Prestamo = %s', (ID_Libro_Prestamo,))
             if cursor.fetchone()[0] == 0:
                 # Consulta SQL para insertar un nuevo registro en libros_prestamo
-                sql_insert_query = """INSERT INTO libros_prestamo (ID_Libro_Prestamo, ID_Prestamo, Cantidad) VALUES (%s, %s, %s)"""
-                cursor.execute(sql_insert_query, (ID_Libro_Prestamo, ID_Prestamo, Cantidad))
+                sql_insert_query = """INSERT INTO libros_prestamo (ID_Libro_Prestamo, ID_Prestamo, ID_Libro, Cantidad) VALUES (%s, %s, %s, %s)"""
+                cursor.execute(sql_insert_query, (ID_Libro_Prestamo, ID_Prestamo, ID_Libro, Cantidad))
                 mariadb_conexion.commit()
                 return True
             else:
                 print("ID_Libro_Prestamo ya existe.")
                 return False
     except mariadb.Error as e:
+        print(f"Error al conectar con MariaDB: {e}")
         if mariadb_conexion:
             mariadb_conexion.rollback()
         return False
     finally:
-        if mariadb_conexion:#.is_connected():
+        if mariadb_conexion:
             cursor.close()
             mariadb_conexion.close()
 
-# def update_libros_prestamo(ID_Libro_Prestamo, ID_Libro, ID_Prestamo, Cantidad):
-#     try:
-#         mariadb_conexion = establecer_conexion()
-#         if mariadb_conexion:#.is_connected():
-#             cursor = mariadb_conexion.cursor()
-#             # Consulta SQL para actualizar la tabla libros_prestamo
-#             sql_update_query = """UPDATE libros_prestamo SET ID_Libro = %s, ID_Prestamo = %s, Cantidad = %s WHERE ID_Libro_Prestamo = %s"""
-#             cursor.execute(sql_update_query, (ID_Libro, ID_Prestamo, Cantidad, ID_Libro_Prestamo))
-#             mariadb_conexion.commit()
-#             return True
-
-#     except mariadb.Error as e:
-#         print(f"Error al conectar a la base de datos: {e}")
-#         if mariadb_conexion:
-#             mariadb_conexion.rollback()
-#         return False
-
-#     finally:
-#         if mariadb_conexion:#.is_connected():
-#             cursor.close()
-#             mariadb_conexion.close()
 def update_prestamo_and_libro(ID_Prestamo, ID_Cliente, ID_Libro, ID_Libro_Prestamo, Cantidad):
     try:
         mariadb_conexion = establecer_conexion()
@@ -165,6 +191,23 @@ def update_prestamo_and_libro(ID_Prestamo, ID_Cliente, ID_Libro, ID_Libro_Presta
         print(f"Error al conectar a la base de datos: {e}")
         if mariadb_conexion:
             mariadb_conexion.rollback()
+        return False
+    finally:
+        if mariadb_conexion:
+            cursor.close()
+            mariadb_conexion.close()
+
+def libro_prestamo_exists(new_id):
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            # Verificar si el ID_Libro_Prestamo existe en la tabla libros_prestamo
+            cursor.execute("SELECT 1 FROM libros_prestamo WHERE ID_Libro_Prestamo = %s", (new_id,))
+            result = cursor.fetchone()
+            return result is not None
+    except mariadb.Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
         return False
     finally:
         if mariadb_conexion:
@@ -255,48 +298,6 @@ def delete_client_loans(self):
         print("Error durante la conexión:", ex)
         messagebox.showerror("Error", f"Error durante la conexión: {ex}")
 
-# def actualizar_id_libro_prestamo(cursor, id_libro):
-#     cursor.execute('UPDATE libros SET ID_Libro_Prestamo = NULL WHERE ID_Libro = %s', (id_libro,))
-#     cursor.execute('UPDATE libros_prestamo SET ID_Libro_Prestamo = NULL WHERE ID_Libro = %s', (id_libro,))
-
-# def delete_selected_cliente(self):
-#     selected_items = self.prestamo_table.selection()
-#     try:
-#         mariadb_conexion = establecer_conexion()
-#         if mariadb_conexion:
-#             cursor = mariadb_conexion.cursor()
-#             for item in selected_items:
-#                 item_id = self.prestamo_table.item(item, 'values')[0]
-                
-#                 # Obtener los ID_Prestamo e ID_Libro asociados al cliente
-#                 cursor.execute('SELECT ID_Prestamo, ID_Libro FROM prestamo WHERE ID_Cliente = %s', (item_id,))
-#                 prestamos = cursor.fetchall()
-#                 for prestamo in prestamos:
-#                     id_prestamo = prestamo[0]
-#                     id_libro = prestamo[1]
-                    
-#                     # Actualizar ID_Libro_Prestamo a NULL en libros y libros_prestamo
-#                     cursor.execute('UPDATE libro SET ID_Libro_Prestamo = NULL WHERE ID_Libro = %s', (id_libro,))
-#                     cursor.execute('UPDATE libros_prestamo SET ID_Libro_Prestamo = NULL WHERE ID_Libro = %s', (id_libro,))
-                    
-#                     # Eliminar filas dependientes en libros_prestamo
-#                     cursor.execute('DELETE FROM libros_prestamo WHERE ID_Prestamo = %s', (id_prestamo,))
-                    
-#                     # Eliminar filas en prestamo
-#                     cursor.execute('DELETE FROM prestamo WHERE ID_Prestamo = %s', (id_prestamo,))
-                
-#                 # Eliminar el cliente
-#                 cursor.execute('DELETE FROM cliente WHERE ID_Cliente = %s', (item_id,))
-#                 self.prestamo_table.delete(item)
-            
-#             mariadb_conexion.commit()
-#             self.refresh_treeview()
-#     except mariadb.Error as ex:
-#         print("Error durante la conexión:", ex)
-#     finally:
-#          if mariadb_conexion:
-#             mariadb_conexion.close()
-
 def reading_clients(client_table_list_loans):
         try:
             mariadb_conexion = establecer_conexion()
@@ -314,6 +315,10 @@ def reading_clients(client_table_list_loans):
             print("Error durante la conexión:", ex)
 
 def delete_selected_cliente(self):
+    selected_items = self.prestamo_table.selection()
+    if not selected_items:
+        messagebox.showwarning("Selección vacía", "Por favor, seleccione un préstamo de la tabla.")
+        return
     selected_items = self.prestamo_table.selection()
     try:
         mariadb_conexion = establecer_conexion()
@@ -336,25 +341,3 @@ def delete_selected_cliente(self):
         if mariadb_conexion:
             mariadb_conexion.close()
 
-def save_books_to_db(self, book_ids, id_prestamo, cantidad):
-            try:
-                mariadb_conexion = establecer_conexion()
-                if mariadb_conexion:#.is_connected():
-                    cursor = mariadb_conexion.cursor()
-                    mariadb_conexion.start_transaction()
-                    for book_id in book_ids:
-                        id_libro_prestamo = self.generate_id_libro_prestamo()
-                        cursor.execute("INSERT INTO libros_prestamo (ID_Libro_Prestamo, ID_Libro, ID_Prestamo, Cantidad) VALUES (%s, %s, %s, %s)", 
-                                    (id_libro_prestamo, book_id, id_prestamo, cantidad))
-                        cursor.execute("UPDATE libro SET ID_Libro_Prestamo = %s WHERE ID_Libro = %s", 
-                                    (id_libro_prestamo, book_id))
-                    mariadb_conexion.commit()
-                    print("Libros guardados en la tabla libro_prestamo y actualizados en la tabla libro:", book_ids)
-            except mariadb.Error as e:
-                print(f"Error al conectar con MariaDB: {e}")
-                if mariadb_conexion:
-                    mariadb_conexion.rollback()
-            finally:
-                if mariadb_conexion:#.is_connected():
-                    cursor.close()
-                    mariadb_conexion.close()
