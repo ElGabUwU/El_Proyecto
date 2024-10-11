@@ -30,7 +30,7 @@ def relative_to_assets(path: str) -> str:
 class P_Registrar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
         self.images = {}
@@ -41,81 +41,22 @@ class P_Registrar(tk.Frame):
         self.canvas.create_text(1140.0, 180.0, text="Editar", fill="black", font=("Bold", 17))
         self.canvas.create_text(1240.0, 180.0, text="Eliminar", fill="black", font=("Bold", 17))
 
-        self.right_frame_list_loans = tk.Frame(self.canvas, bg="#031A33")
+        self.right_frame_list_loans = tk.Frame(self.canvas, bg="#FAFAFA")
         self.right_frame_list_loans.pack(expand=True, side="right", fill="both") #padx=212, pady=150, ipady=80
         self.right_frame_list_loans.place(x=195,y=239, height=460, width=1180)
 
         bold_font = font.Font(family="Bold", size=15, weight="bold")
-        self.label_clientes = tk.Label(self.canvas, text="Tabla Clientes", bg="#031A33", fg="black", font=bold_font)
+        self.label_clientes = tk.Label(self.canvas, text="Tabla Clientes", bg="#FAFAFA", fg="black", font=bold_font)
         self.label_clientes.place(x=655.0, y=205.0, width=237.0, height=38.0)
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
         
-        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="white", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="black", font=("Bold", 17))
         self.buscar.bind("<Return>", self.boton_buscar)
-        # # Titulos de los inputs
-        # self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del cliente y su préstamo a agregar", fill="#a6a6a6", font=("Bold", 17))
-        # #fila 1
-        # self.canvas.create_text(263.0, 152.0, anchor="nw", text="Cedula", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(520.0, 152.0, anchor="nw", text="Nombre", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(779.0, 152.0, anchor="nw", text="Apellido", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(1039.0, 152.0, anchor="nw", text="Cantidad", fill="#a6a6a6", font=("Bold", 17))
 
-        # #fila 2
-        # self.canvas.create_text(263.0, 252.0, anchor="nw", text="Numero de teléfono", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(520.0, 252.0, anchor="nw", text="Dirección", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(779.0, 252.0, anchor="nw", text="Fecha del Registro", fill="#a6a6a6", font=("Bold", 17))
-        # self.canvas.create_text(1039.0, 252.0, anchor="nw", text="Fecha Límite", fill="#a6a6a6", font=("Bold", 17))
-        #primera fila
-    
-        # self.input_cedula = tk.Entry(
-        #     self,
-        #     bd=0,
-        #     bg="#031A33",
-        #     fg="#a6a6a6",
-        #     highlightthickness=2,
-        #     highlightbackground="#ffffff",
-        #     highlightcolor="#ffffff",
-        #     borderwidth=0.5, 
-        #     relief="solid",
-        #     validate="key",
-        #     validatecommand=(validate_number, "%P")
-        # )
-        # self.input_cedula.place(x=263.0, y=182.0, width=237.0, height=38.0)
-        
-        # self.input_nombre = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        # self.input_nombre.place(x=520.0, y=182.0, width=237.0, height=38.0)
- 
-        # self.input_apellido = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        # self.input_apellido.place(x=779.0, y=182.0, width=237.0, height=37.5)
-
-        # self.input_cantidad = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        # self.input_cantidad.place(x=1039.0, y=182.0, width=237.0, height=37.5)
-        
-        # #segunda fila
-        
-        # self.input_telefono = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        # self.input_telefono.place(x=263.0, y=282.0, width=237.0, height=37.5)
-        
-        # self.input_direccion = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        # self.input_direccion.place(x=520.0, y=282.0, width=237.0, height=38.0)
-
-        # # Campo para la fecha límite
-        # self.fecha_registrar = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        # self.fecha_registrar.place(x=779.0, y=282.0, width=237.0, height=38.0)
-
-        # self.fecha_limite = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        # self.fecha_limite.place(x=1039.0, y=282.0, width=237.0, height=38.0)
-
-        # # Establecer las fechas automáticamente
-        # fecha_actual = datetime.now().strftime("%d/%m/%Y")
-        # fecha_limite = (datetime.now() + timedelta(days=20)).strftime("%d/%m/%Y")
-
-        # self.fecha_registrar.insert(0, fecha_actual)
-        # self.fecha_limite.insert(0, fecha_limite)
         # Cargar y almacenar las imágenes
-        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
+        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -125,13 +66,13 @@ class P_Registrar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: reading_clients(self.clients_table_list_loans),
                 relief="flat",
-                bg="#031A33",
-                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=795.0, y=70.0, width=90.0, height=100.0)
 
-        self.images['boton_imprimir'] = tk.PhotoImage(file=relative_to_assets("4_reporte.png"))
+        self.images['boton_imprimir'] = tk.PhotoImage(file=relative_to_assets("4_imprimir.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -141,8 +82,8 @@ class P_Registrar(tk.Frame):
                 highlightthickness=0,
                 # command=lambda: self.reading_books(self.book_table_list),
                 relief="flat",
-                bg="#031A33",
-                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=895.0, y=70.0, width=90.0, height=100.0)
@@ -157,8 +98,8 @@ class P_Registrar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: self.open_register_window(),
                 relief="flat",
-                bg="#031A33",
-                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=995.0, y=70.0, width=90.0, height=100.0)
@@ -172,8 +113,8 @@ class P_Registrar(tk.Frame):
             highlightthickness=0,
             command=lambda: delete_client_loans(self),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1195.0, y=70.0, width=90.0, height=100.0)
@@ -187,8 +128,8 @@ class P_Registrar(tk.Frame):
             highlightthickness=0,
             command=lambda: self.open_modify_window(),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1095.0, y=70.0, width=90.0, height=100.0)
@@ -259,25 +200,6 @@ class P_Registrar(tk.Frame):
         tk.Label(filter_window, text="Direccion", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=30.0, y=240.0, width=120.0, height=35.0)
         self.input_direccion = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
         self.input_direccion.place(x=30.0, y=270.0, width=190.0, height=35.0)
-
-        # tk.Label(filter_window, text="Fecha Registrar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=260.0, y=240.0, width=160.0, height=35.0)
-        # self.fecha_registrar = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        # self.fecha_registrar.place(x=260.0, y=270.0, width=190.0, height=35.0)
-        
-        # tk.Label(filter_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=470.0, y=240.0, width=160.0, height=35.0)
-        # self.fecha_limite = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        # self.fecha_limite.place(x=490.0, y=270.0, width=190.0, height=35.0)
-
-        # tk.Label(filter_window, text="Cantidad", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=20.0, y=380, width=105.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        # self.input_cantidad = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        # self.input_cantidad.place(x=30.0, y=410.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
-
-        # # Establecer las fechas automáticamente
-        # fecha_actual = datetime.now().strftime("%d/%m/%Y")
-        # fecha_limite = (datetime.now() + timedelta(days=20)).strftime("%d/%m/%Y")
-
-        # self.fecha_registrar.insert(0, fecha_actual)
-        # self.fecha_limite.insert(0, fecha_limite)
 
                 # Cargar y almacenar las imágenes
         self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
@@ -500,27 +422,12 @@ class P_Modificar(tk.Frame):
 class P_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
+        # self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         #validate_number = self.register(validate_number_input)
         self.images = {}
 
-        # Crear el marco izquierdo para el menú de navegación
-        #Marco listado clientes
-        # self.left_frame = tk.Frame(self.canvas, bg="#FFFFFF")
-        # self.left_frame.pack(expand=True, side="left", fill="both")
-        # self.left_frame.place(x=165,y=155, height=250, width=650)
-        #Marco listado prestamo-clientes
-        self.left_frame2 = tk.Frame(self.canvas, bg="#FFFFFF")
-        self.left_frame = tk.Frame(self.canvas, bg="#FAFAFA")
-        self.left_frame.pack(expand=True, side="left", fill="both")
-        self.left_frame.place(x=165,y=155, height=250, width=650)
-        #Marco listado libros prestamo
-        self.left_frame1 = tk.Frame(self.canvas, bg="#FAFAFA")
-        self.left_frame1.pack(expand=True, side="left", fill="both") 
-        self.left_frame1.place(x=165,y=365, height=350, width=650)
-        #Marco listado prestamo-clientes
         self.left_frame2 = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame2.pack(expand=True, side="right", fill="both")
         self.left_frame2.place(x=200,y=230, height=500, width=1180)
@@ -531,53 +438,32 @@ class P_Listar(tk.Frame):
         # Texto para el nombre
 
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(935.0, 220.0, text="Editar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1035.0, 220.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(835.0, 220.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1135.0, 220.0, text="Filtrar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1035.0, 200.0, text="Editar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1135.0, 200.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(935.0, 200.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1235.0, 200.0, text="Filtrar", fill="#031A33", font=("Bold", 17))
 
        # Títulos para los Treeviews
         bold_font = font.Font(family="Bold", size=15, weight="bold")
-        # self.label_clientes = tk.Label(self.left_frame, text="Tabla Clientes", bg="#031A33", fg="#a6a6a6", font=bold_font)
-        # self.label_clientes.place(x=205.0, y=4.0, width=237.0, height=38.0)
-
-        # self.label_libros_prestado = tk.Label(self.left_frame1, text="Tabla Libros Prestados", bg="#031A33", fg="#a6a6a6", font=bold_font)
-        # self.label_libros_prestado.place(x=220.0, y=5.0, width=237.0, height=38.0)
-
-        self.label_prestamos = tk.Label(self.left_frame2, text="Tabla Prestamos", bg="#FFFFFF", fg="#031A33", font=bold_font)
-        self.label_prestamos.place(x=435.0, y=4.0, width=237.0, height=38.0)
-
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
 
-        self.label_nombre = self.canvas.create_text(615.0, 60.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(960.0, 355.0, text="Editar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1135.0, 355.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(960.0, 220.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1135.0, 220.0, text="Filtrar", fill="#040F21", font=("Bold", 17))
-
-       # Títulos para los Treeviews
-        bold_font = font.Font(family="Bold", size=15, weight="bold")
-        self.label_clientes = tk.Label(self.left_frame, text="Tabla Clientes", bg="#FAFAFA", fg="#040F21", font=bold_font)
-        self.label_clientes.place(x=205.0, y=5.0, width=237.0, height=38.0)
-
-        self.label_libros_prestado = tk.Label(self.left_frame1, text="Tabla Libros Prestados", bg="#FAFAFA", fg="#040F21", font=bold_font)
-        self.label_libros_prestado.place(x=220.0, y=5.0, width=237.0, height=38.0)
+        # self.label_nombre = self.canvas.create_text(615.0, 60.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
 
         self.label_prestamos = tk.Label(self.left_frame2, text="Tabla Prestamos", bg="#FAFAFA", fg="#040F21", font=bold_font)
-        self.label_prestamos.place(x=215.0, y=5.0, width=237.0, height=38.0)
+        self.label_prestamos.place(x=455.0, y=5.0, width=237.0, height=38.0)
 
-        #Título de boton buscar
-        self.buscar = tk.Entry(self, bd=0, bg="#FAFAFA", fg="#031A33", relief="solid" , borderwidth=0.5)
-        self.buscar.place(x=615.0, y=90.0, width=267.0, height=48.0)
+        # #Título de boton buscar
+        # self.buscar = tk.Entry(self, bd=0, bg="#FAFAFA", fg="#031A33", relief="solid" , borderwidth=0.5)
+        # self.buscar.place(x=615.0, y=90.0, width=267.0, height=48.0)
         # Para llamar a read_books cuando se presiona Enter
 
         self.buscar.bind("<Return>", self.boton_buscar)
 
         #Boton Clientes
         # Cargar y almacenar las imágenes
-        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
+        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
         # Cargar y almacenar la imagen del botón
         self.button_c = tk.Button(
             self,
@@ -586,15 +472,15 @@ class P_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: lists_clients_loans(self), #or lists_clients(self),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_c.place(x=790.0, y=110.0, width=90.0, height=100.0)
+        self.button_c.place(x=890.0, y=90.0, width=90.0, height=100.0)
 
         #Boton Filtrar
         # Cargar y almacenar las imágenes
-        self.images['boton_filtrar_f'] = tk.PhotoImage(file=relative_to_assets("15.png"))
+        self.images['boton_filtrar_f'] = tk.PhotoImage(file=relative_to_assets("14_filtrar.png"))
         # Cargar y almacenar la imagen del botón
         self.button_f = tk.Button(
             self,
@@ -603,11 +489,11 @@ class P_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: self.open_filter_window(parent),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_f.place(x=1090.0, y=110.0, width=90.0, height=100.0)
+        self.button_f.place(x=1190.0, y=90.0, width=90.0, height=100.0)
 
         #Boton Modificar
         # Cargar y almacenar las imágenes
@@ -620,11 +506,11 @@ class P_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: self.open_filter_window_modify(parent),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_m.place(x=890.0, y=110.0, width=90.0, height=100.0)
+        self.button_m.place(x=990.0, y=90.0, width=90.0, height=100.0)
 
         self.images['boton_Eliminar_f'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
         
@@ -636,11 +522,11 @@ class P_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: delete_selected_cliente(self),
             relief="flat",
-            bg="#031A33",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         )
-        self.button_d.place(x=990, y=110.0, width=90.0, height=100.0)
+        self.button_d.place(x=1090, y=90.0, width=90.0, height=100.0)
 
         styletrees = ttk.Style()
         styletrees.configure("Rounded.Treeview", 
@@ -665,14 +551,6 @@ class P_Listar(tk.Frame):
                         foreground="#000000",
                         borderwidth=0)
 
-    # Tabla de clientes mostrados en el Treeview
-        #Columnas Clientes
-        # columns = ("ID", "Cedula", "Nombre", "Apellido", "Telefono", "Direccion")
-        # self.book_table = ttk.Treeview(self.left_frame, columns=columns, show='headings', style="Rounded.Treeview")
-        # for col in columns:
-        #     self.book_table.heading(col, text=col)
-        #     self.book_table.column(col, width=30)
-        # self.book_table.pack(expand=True, fill="both", padx=80, pady=45)
         #Columnas Prestamo
         columns2 = ("ID Prestamo", "ID Libro", "ID Cliente","Nombre","ID Libro Prestamo", "Titulo","Ejemplares", "F.Registro", "F.Limite", "Encargado")
         self.prestamo_table = ttk.Treeview(self.left_frame2, columns=columns2, show='headings', style="Rounded.Treeview")
@@ -680,18 +558,11 @@ class P_Listar(tk.Frame):
             self.prestamo_table.heading(col2, text=col2)
             self.prestamo_table.column(col2, width=90, anchor="center")
         self.prestamo_table.pack(expand=True, fill="both", padx=40, pady=45)
-        # Agregar scrollbar a cada tabla
-        # scrollbar_bt = ttk.Scrollbar(self.book_table, orient="vertical", command=self.book_table.yview)
-        # self.book_table.configure(yscrollcommand=scrollbar_bt.set)
-        # scrollbar_bt.pack(side="right", fill="y")
 
         scrollbar_pt = ttk.Scrollbar(self.prestamo_table, orient="vertical", command=self.prestamo_table.yview)
         self.prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
-        #Estilos para las tablas
-        # style = ttk.Style()
-        # style.configure("Treeview.Heading", font=("Helvetica", 10, "bold"), background="#75C99A")
-        # style.configure("Treeview", font=("Helvetica", 10), rowheight=25, background="white")
+
     
     def boton_buscar(self,event):  
         busqueda = self.buscar.get()

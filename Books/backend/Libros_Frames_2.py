@@ -26,26 +26,13 @@ class L_Listar(tk.Frame):
     
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
+        # self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
         self.parent = parent
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        # self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="right", fill="both", expand=True)
         self.images = {}
 
-        # Crear el marco izquierdo para el menú de navegación
-        self.left_frame_list = tk.Frame(self.canvas, bg="#FFFFFF")
-        self.left_frame_list.place(x=200, y=205, height=450, width=1180)
-
-        # # Crear el marco derecho para los detalles
-        # self.right_frame_detail = tk.Frame(self.canvas, bg="#FFFFFF")
-        # self.right_frame_detail.place(x=475, y=480, height=210, width=605)
-
-        
-        
-        self.left_frame_list = tk.Frame(self.canvas, bg="#031A33")
-        self.left_frame_list.pack(expand=True, side="left", fill="both")
-        self.left_frame_list.place(x=215, y=205, height=480, width=1150)
 
         stylebotn = ttk.Style()
         stylebotn.configure("Rounded.TEntry", 
@@ -66,13 +53,9 @@ class L_Listar(tk.Frame):
         """"self.cota = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="solid" , borderwidth=0.5)
         self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)"""
         
-        self.buscar = tk.Entry(self, bd=0, bg="#FAFAFA", fg="#031A33", relief="solid" , borderwidth=0.5)
+        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
 
-        
-        
-
-        
 
         # Crear textos en el canvas
 
@@ -85,7 +68,7 @@ class L_Listar(tk.Frame):
         self.buscar.bind("<Return>", self.boton_buscar)
 
             # Cargar y almacenar las imágenes
-        self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5.png"))
+        self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -95,15 +78,15 @@ class L_Listar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: self.open_registrar_window(),
                 relief="flat",
-                bg="#FFFFFF",
-                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=800.0, y=60.0, width=90.0, height=100.0)
         
                     #Boton Cargar Libros
             # Cargar y almacenar las imágenes
-        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
+        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -113,15 +96,15 @@ class L_Listar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: self.reading_books(self.book_table_list),
                 relief="flat",
-                bg="#FFFFFF",
-                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
         
         
 
-        self.images['boton_Eliminar'] = tk.PhotoImage(file=relative_to_assets("7.png"))
+        self.images['boton_Eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
                     # Cargar y almacenar la imagen del botón
         self.button_dl = tk.Button(
             self,
@@ -130,13 +113,13 @@ class L_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: delete_selected(self),
             relief="flat",
-            bg="#FFFFFF",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1195.0, y=60.0, width=90.0, height=100.0)
 
-        self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6.png"))
+        self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6_editar.png"))
             # Cargar y almacenar la imagen del botón
         self.button_dl = tk.Button(
             self,
@@ -145,14 +128,12 @@ class L_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: self.open_modificar_window(),
             relief="flat",
-            bg="#FFFFFF",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1065.0, y=60.0, width=90.0, height=100.0)
-    
-#ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion
-            # Tabla de libros usando Treeview
+
         # Configurar estilo para Treeview
         style = ttk.Style()
         style.configure("Rounded.Treeview", 

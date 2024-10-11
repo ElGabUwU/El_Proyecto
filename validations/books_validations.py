@@ -154,7 +154,7 @@ def validar_nro_registro_unico(n_registro):
     conn = establecer_conexion()
     if conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT ID_Libro FROM libro WHERE n_registro = ?", (n_registro,))
+        cursor.execute("SELECT ID_Libro FROM libro WHERE n_registro = %s", (n_registro,))
         resultado = cursor.fetchone()
         conn.close()
         if resultado:
