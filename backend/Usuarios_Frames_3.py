@@ -50,7 +50,7 @@ def relative_to_assets(path: str) -> str:
 class U_Registrar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
         self.images = {}
@@ -184,29 +184,39 @@ class U_Registrar(tk.Frame):
 class U_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
+
+        self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
         self.images = {}
 
         # Crear el marco izquierdo para el menú de navegación
+
+        self.user_frame_list = tk.Frame(self.canvas, bg="#FFFFFF")
         self.user_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
         self.user_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
         self.user_frame_list.place(x=215,y=205, height=480, width=1150)
 
         # Texto para el nombre
+        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
+
+        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
-
-        self.buscar = tk.Entry(self, bd=0, bg="#FAFAFA", fg="#031A33", relief="solid" , borderwidth=0.5)
+        
+        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
 
             #Boton Cargar Libros
             # Cargar y almacenar las imágenes
-        self.images['boton_cargar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
+        self.images['boton_cargar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -216,8 +226,8 @@ class U_Listar(tk.Frame):
                 highlightthickness=0,
                 command=self.refresh_frame,
                 relief="flat",
-                bg="#FFFFFF",
-                activebackground="#031A33",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=910.0, y=60.0, width=140.0, height=100.0)
@@ -233,8 +243,8 @@ class U_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: delete_selected_user(self) ,
             relief="flat",
-            bg="Green",
-            activebackground="#FFFFFF",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo 
             )
         self.button_e.place(x=1175.0, y=60.0, width=130.0, height=100.0)
@@ -248,8 +258,8 @@ class U_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: self.open_modify_window(self),
             relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo  
             )
         self.button_m.place(x=1045.0, y=60.0, width=130.0, height=100.0)
@@ -277,7 +287,7 @@ class U_Listar(tk.Frame):
         self.user_table_list= ttk.Treeview(self.user_frame_list, columns=columns, show='headings', style="Rounded.Treeview")
         for col in columns:
             self.user_table_list.heading(col, text=col)
-            self.user_table_list.column(col, width=90)
+            self.user_table_list.column(col, width=90, anchor="center")
         self.user_table_list.pack(expand=True, fill="both", padx=70, pady=5)
 
         scrollbar_pt = ttk.Scrollbar(self.user_table_list, orient="vertical", command=self.user_table_list.yview)
@@ -314,7 +324,7 @@ class U_Listar(tk.Frame):
         self.user_table_list = ttk.Treeview(self.user_frame_list, columns=columns, show='headings', style="Rounded.Treeview")
         for col in columns:
             self.user_table_list.heading(col, text=col)
-            self.user_table_list.column(col, width=90)
+            self.user_table_list.column(col, width=90, anchor="center")
         self.user_table_list.pack(expand=True, fill="both", padx=70, pady=5)
 
         scrollbar_pt = ttk.Scrollbar(self.user_table_list, orient="vertical", command=self.user_table_list.yview)
@@ -326,48 +336,43 @@ class U_Listar(tk.Frame):
     
     def open_modify_window(self,parent):
         filter_window = tk.Toplevel(self)
-        filter_window.title("Modificar")
+        filter_window.title("Modificar Usuario")
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        filter_window.geometry("1000x600")
+        filter_window.geometry("950x550")
+        filter_window.config(bg="#042344")
 
-        self.bg_image = tk.PhotoImage(file=relative_to_assets("Fondo Botones V1.png"))
-        # Crear un Label para la imagen de fondo
-        bg_label = tk.Label(filter_window, image=self.bg_image)
-        bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+        tk.Label(filter_window, text="MODIFICACIÓN DE USUARIOS", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=250.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#grid(row=0, column=5, padx=10, pady=5)
+        tk.Label(filter_window, text="Ingrese los datos a modificar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=70.0, width=330.0, height=35.0)#.pack(pady=10, expand=False)
+        tk.Label(filter_window, text="Cedula", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=210.0, y=130.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#grid(row=1, column=0, padx=10, pady=5)
+        self.id_cedula_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.id_cedula_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=1, column=1, padx=10, pady=5)
 
-        tk.Label(filter_window, text="MODIFICACIÓN DE USUARIOS", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place(x=450.0, y=50.0, width=320.0, height=35.0)#.pack(pady=20,expand=False)#grid(row=0, column=5, padx=10, pady=5)
-        tk.Label(filter_window, text="Ingrese el nuevo número de cédula", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place(x=300.0, y=90.0, width=320.0, height=35.0)#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="Cedula", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10,expand=False)#grid(row=1, column=0, padx=10, pady=5)
-        self.id_cedula_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
-        self.id_cedula_entry.place()#.pack(expand=False)#.grid(row=1, column=1, padx=10, pady=5)
+        #tk.Label(filter_window, text="Ingrese el nuevo nombre de usuario", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10, expand=False)
+        tk.Label(filter_window, text="Nombre de Usuario", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=500.0, y=130.0, width=185.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=3, column=0, padx=10, pady=5)
+        self.nombre_usuario_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.nombre_usuario_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)#pack(expand=False)#.grid(row=3, column=1, padx=10, pady=5)
 
-        tk.Label(filter_window, text="Ingrese el nuevo nombre de usuario", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="Nombre de Usuario", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10,expand=False)#.grid(row=3, column=0, padx=10, pady=5)
-        self.nombre_usuario_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
-        self.nombre_usuario_entry.place()#pack(expand=False)#.grid(row=3, column=1, padx=10, pady=5)
-
-        tk.Label(filter_window, text="Ingrese el nombre y apellido ", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="Nombre", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
-        self.nombre_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
-        self.nombre_entry.place()#.pack(expand=False)#.grid(row=5, column=1, padx=10, pady=5)
-        tk.Label(filter_window, text="Apellido", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.apellido_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
-        self.apellido_entry.place()#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
-        tk.Label(filter_window, text="Ingrese ID del usuario", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="ID", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.id_entry = tk.Entry(filter_window, fg="black", bg="lightgray", relief="flat", highlightthickness=2)
-        self.id_entry.place()#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
-
-        # Botón para filtrar
-        self.filter_button = tk.Button(filter_window, text="Modificar", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17),command=self.apply_modify_users)
-        self.filter_button.place()#.pack(expand=True)#.place(x=390, y=400)
+        #tk.Label(filter_window, text="Ingrese el nombre y apellido ", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10, expand=False)
+        tk.Label(filter_window, text="Nombre", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=220.0, y=230.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
+        self.nombre_entry = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.nombre_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=5, column=1, padx=10, pady=5)
+        tk.Label(filter_window, text="Apellido", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=500.0, y=230.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        self.apellido_entry = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.apellido_entry.place(x=500.0, y=270.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
+        tk.Label(filter_window, text="ID del usuario que será modificado", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=30.0, y=320.0, width=350.0, height=35.0)#.pack(pady=10, expand=False)
+        tk.Label(filter_window, text="ID", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=300.0, y=360.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        self.id_entry = tk.Entry(filter_window,  bg="#042344", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.id_entry.place(x=350.0, y=400.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
 
         # Crear un estilo personalizado
         style = ttk.Style()
-        style.configure("Custom.TButton", background="#2E59A7", foreground="#a6a6a6")
+        style.configure("Custom.TButton", background="#2E59A7", foreground="#ffffff", font=("Bold", 22))
+
+        self.filter_button = ttk.Button(filter_window, text="Modificar", style="Custom.TButton", command=self.apply_modify_users)
+        self.filter_button.place(x=250.0, y=480.0, width=140.0, height=50.0)
 
         button_cancel = ttk.Button(filter_window, text="Cancelar", command=lambda: self.cancelar(filter_window), style="Custom.TButton")
-        button_cancel.place()#.pack(pady=5, expand=False)
+        button_cancel.place(x=520.0, y=480.0, width=140.0, height=50.0)#.pack(expand=True)#.place(x=390, y=400)#.pack(pady=5, expand=False)
         
     def apply_modify_users(self):
             id_cedula= self.id_cedula_entry.get() #self.cota.get()

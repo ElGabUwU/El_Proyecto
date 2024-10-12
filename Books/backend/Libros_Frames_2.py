@@ -5,6 +5,7 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
 #from Library.librerias import recoger_sesion, drop_sesion
 from Books.backend.db_books import *
+from validations.books_validations import *
 from PIL import Image,ImageTk
 from Vistas.listas import *
 import random
@@ -21,251 +22,17 @@ def validate_number_input(text):
 def relative_to_assets(path: str) -> str:
     return f"./assets_2/{path}"
 
-class L_Registrar(tk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
-        self.canvas.pack(side="left", fill="both", expand=False)
-        validate_number = self.register(validate_number_input)
-        self.images = {}
-        
-        # Titulos de los inputs
-        self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a agregar", fill="#a6a6a6", font=("Bold", 17))
-        #fila 1
-        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(520.0, 152.0, anchor="nw", text="Categoria", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#031A33", font=("Bold", 17))
-        
-        #fila 2
-        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Numero de registro", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#031A33", font=("MBold", 17))
-        self.canvas.create_text(1036.0, 252.0, anchor="nw", text=" N° volumen", fill="#031A33", font=("Bold", 17))
-        
-        #fila 3
-        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Titulo", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Autor", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(779.0, 352.0, anchor="nw", text="Editorial", fill="#031A33", font=("Bold", 17))
-        
-        #fila 4
-        self.canvas.create_text(263.0, 452.0, anchor="nw", text="Año", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(520.0, 452.0, anchor="nw", text="Cantidad de ejemplares", fill="#031A33", font=("Bold", 17))
-        #-------------------------------------------------------------------------------------
-        # Crear y colocar los widgets
-        #primera fila
-        
-        
-        """
-        validate="key": Configura el widget para que valide la entrada cada vez que se presiona una tecla.
-        validatecommand=(validate_number, "%P"): Define el comando de validación. validate_number es una función que se llamará para validar la entrada, y "%P" es un marcador de posición que representa el contenido del widget después de la edición.
-        """
-        
-        self.cota = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="solid" , borderwidth=0.5)
-        self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
-        self.message_shown = False  # Definir la variable de control en el __init__
-        self.registro= tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.registro.place(x=520.0, y=282.0, width=237.0, height=38.0)
-        self.registro.bind("<FocusIn>", self.show_message)
- 
-        self.edicion = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.edicion.place(x=779.0, y=282.0, width=237.0, height=37.5)
-        
-        self.volumen = tk.Entry(self, bd=0,bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.volumen.place(x=1036.0, y=282.0, width=237.0, height=37.5)
-        #segunda fila
-        self.titulo = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.titulo.place(x=263.0, y=382.0, width=237.0, height=37.5)
-        
-        self.autor = tk.Entry(self, bd=0,bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.autor.place(x=520.0, y=382.0, width=237.0, height=37.5)
-        
-        self.editorial = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.editorial.place(x=779.0, y=382.0, width=237.0, height=37.5)
-        #tercera fila
-        
-        self.año = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.año.place(x=263.0, y=482.0, width=237.0, height=37.5)
-        
-        self.ejemplares = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.ejemplares.place(x=520.0, y=482.0, width=237.0, height=37.5)
-        
-        self.salas_types = [
-        "3G", "2E", "1I"
-        ]
-        self.categoria_types_general=["Ciencias de la Computación, Información y Obras Generales", "Filosofía y Psicología", "Religión-Teología", "Ciencias Sociales","Lenguas",
-        "Ciencias Básicas","Tecnología y Ciencias Aplicadas","Artes y recreación","Literatura","Historia y Geografía"]
-                
-        self.asignature_type_general= ["Almanaques Mundiales","Computacion","Enciclopedia","Enciclopedia y Diccionarios","Filosofía","Filosofía-Diccionarios",
-        "Informática","Metodología de la Investigación","Periodismo","Psicología","Psicología-Diccioanrios","Religión",
-        "Educación Familiar y Ciudadana","Sociología","Medios de Comunicación","Mujer y Familia","Estadística Social",
-        "Ciencias Políticas", "Economía Venezolana","Geografía Económica","Microeconomía","Macroeconomía","Derecho",
-        "Derecho Constitucional","Derecho Laboral","Derecho Penal","Límites y Fronteras","Administración Pública","Premilitar","Servicios Sociales", "Filosofía de la Educación","Educación","Educación Rural","Pedagogía","Técnicas de Estudio",
-        "Orientación", "Educación Preescolar","Educación Superior","Medios de Transporte","Currículo","Educación Básica","Publicaciones Oficiales-Folklore","Lenguaje",
-        "Linguística-Diccionarios","Lengua y Comunicación","Castellano y Literatura","Inglés","Castellano","Química-Física-Diccionarios",
-        "Botánica-Zoología-Diccionarios","Matemática","Ciencia","Estudios de la Naturaleza", "Álgebra","Matemática Financiera",
-        "Cálculo","Geometría","Astronomía","Física","Electricidad","Electrónica", "Química","Fisioquímica","Química Orgánica",
-        "Ciencias de la Tierra","Biología","Medicina-Diccionarios","Agricultura-Diccionarios","Biología Celular","Zoología",
-        "Ecología","Bioquímica","Enfermería","Anatomía Humana","Contaminación Ambiental","Seguridad Industrial","Naturismo","Drogar",
-        "Enfermedades Varias","Pediatría","Ingeniería","Reciclaje","Agricultura","Fertilizantes","Cultivos","Fruticultura","Ganadería",
-        "Comercio","Contabilidad","Administración","Administración de Emperesa","Avicultura","Nutrición","Ganadería","Zootecnia",
-        "Administración de Personal","Mercadotecnia","Historial del Arte","Dibujo","Arte y Recreación-Diccionarios","Artística",
-        "Artes Plásticas y Escultura","Pintura","Música","Educación Física","Deportes","Literatura-Diccioanrios","Literatura",
-        "Novelas","Novelas Venezolanas","Poesías","Historia Universal","Geografía General","Geografía de Venezuela",
-        "Historia","Historia de América","Historia Europea","Historia-Diccionarios"]
-        self.categoria_types_state=["Estadal-B"]
-        self.asignature_types_state= ["Bibliografia-Estadal","Historia Local-Rubio-Junin","Publicaciones Periódicas"]
-        self.categoria_types_children=["Infantil-X"]
-        self.asignature_types_children= ["Matemáticas","Castellano y Literatura","Ciencias Naturales","Petróleo","Agricultura","Cuentos Venezolanos",
-        "Fábulas","Novelas Históricas","Sección de los más pequeños","Cuentos de Animales","Novelas de Aventuras",
-        "Cuentos de Hadas y Fantasía","Cuentos Realistas","Poesías y Canciones Venezolanas","Cuentos de Aventuras",
-        "Teatro","Teatro Venezolano","Fábulas Venezolanas","Mitos y Leyendas Venezolanas"]
-
-
-        #Select tipo de campo
-        stylebox = ttk.Style()
-        stylebox.theme_use('clam')
-        stylebox.configure("TCombobox",
-                        fieldbackground="#2E59A7",  # Fondo del campo de entrada
-                        background="#2E59A7",  # Fondo del desplegable
-                        bordercolor="#041022",  # Color del borde
-                        arrowcolor="#ffffff",  # Color de la flecha
-                        padding= "9",
-                        ) # padding para agrandar la altura del select
-        #Sala
-        self.combobox1=ttk.Combobox(self, values=self.salas_types, state="readonly", width=30, font=("Bold", 10), style="TCombobox")
-        self.combobox1.place(x=263.0, y=181.5)
-        self.combobox1.bind("<<ComboboxSelected>>",self.validacion_sala)
-        self.menu_actual = None
-
-    def validacion_sala(self,event):
-            #Select tipo de campo
-            stylebox = ttk.Style()
-            stylebox.theme_use('clam')
-            stylebox.configure("TCombobox",
-                            fieldbackground="#2E59A7",  # Fondo del campo de entrada
-                            background="#2E59A7",  # Fondo del desplegable
-                            bordercolor="#041022",  # Color del borde
-                            arrowcolor="#ffffff",  # Color de la flecha
-                            padding= "9",
-                            ) # padding para agrandar la altura del select
-            validacion_salas=self.combobox1.get()
-            if self.menu_actual:
-                self.menu_actual.destroy()
-            if validacion_salas=="3G":
-            # Categoria-Sala General
-                self.menu_actual = ttk.Combobox(self, values=self.categoria_types_general, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
-                self.menu_actual.place(x=520.0, y=181.5)
-            # Asignatura-Sala General
-                self.combobox3 = ttk.Combobox(self, values=self.asignature_type_general, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
-                self.combobox3.place(x=779.0, y=181.5)
-            elif validacion_salas=="2E":
-            # Categoria-Sala Estadal
-                self.menu_actual = ttk.Combobox(self, values=self.categoria_types_state, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
-                self.menu_actual.place(x=520.0, y=181.5)
-            # Asignatura-Sala Estadal
-                self.combobox3 = ttk.Combobox(self, values=self.asignature_types_state, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
-                self.combobox3.place(x=779.0, y=181.5)
-            elif validacion_salas=="1I":
-            # Categoria-Sala Infantil
-                self.menu_actual = ttk.Combobox(self, values=self.categoria_types_children, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
-                self.menu_actual.place(x=520.0, y=181.5)
-            # Asignatura-Sala Infantil
-                self.combobox3 = ttk.Combobox(self, values=self.asignature_types_children, state="readonly", width=30, font=("Montserrat Medium", 10), style="TCombobox")
-                self.combobox3.place(x=779.0, y=181.5)                 
-            else:
-                messagebox.showwarning("Validación", "Por favor, seleccione una opción.")
-            
-        #-------------------------------------------------------------------------------
-            # Cargar y almacenar las imágenes
-            self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
-
-            # Crear el botón con la imagen inicial
-
-            # Crear el botón
-            boton_R = self.images['boton_R']
-            tk.Button(
-                self,
-                image=boton_R,
-                borderwidth=0,
-                highlightthickness=0,
-                command=lambda: register_book(),
-                relief="flat",
-                bg="#FFFFFF",
-                activebackground="#FFFFFF",  # Mismo color que el fondo del botón
-                activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
-            ).place(x=265.0, y=635.0, width=130.0, height=40.0)
-        
-            def register_book():
-                    ID_Sala= self.combobox1.get() #self.cota.get()
-                    ID_Categoria = self.menu_actual.get() if self.menu_actual else None #self.combobox1.get()
-                    ID_Asignatura = self.combobox3.get() if self.combobox3 else None #self.menu_actual.get() if self.menu_actual else None
-                    Cota= self.cota.get() #self.combobox3.get() if self.combobox3 else None
-                    n_registro=self.registro.get()
-                    edicion=self.edicion.get()
-                    n_volumenes=self.volumen.get()
-                    titulo=self.titulo.get()
-                    autor=self.autor.get()
-                    editorial=self.editorial.get()
-                    año=self.año.get()
-                    n_ejemplares=self.ejemplares.get()
-                    # print("ID SALA", {ID_Sala}, "ID CATEGORIA", {ID_Categoria}, "ID ASIGNATURA", {ID_Asignatura}, "COTA", {Cota}, "REGISTRO", {n_registro})
-                    # print("Edicion", {edicion}, "VOLUMEN", {n_volumenes}, "TITULO", {titulo}, "AUTOR", {autor}, "EDITORIAL", {editorial}, "AÑO", {año}, "EJEMPLARES", {n_ejemplares})
-                    # print("\n")
-                    if create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares):
-                        messagebox.showinfo("Éxito", "Registro del libro éxitoso.")
-                        self.clear_entries_register()
-                    else:
-                        messagebox.showinfo("Registro fallido", "Libro mantiene sus valores.")
-
-    def clear_entries_register(self):
-        self.combobox1.delete(0, tk.END)
-        #self.menu_actual.delete(0, tk.END)
-        self.combobox3.delete(0, tk.END)
-        self.cota.delete(0, tk.END)
-        self.registro.delete(0, tk.END)
-        self.edicion.delete(0, tk.END)
-        self.volumen.delete(0, tk.END)
-        self.titulo.delete(0, tk.END)
-        self.autor.delete(0, tk.END)
-        self.editorial.delete(0, tk.END)
-        self.año.delete(0, tk.END)
-        self.ejemplares.delete(0, tk.END)
-    
-    def show_message(self, event):
-        if not self.message_shown:
-            messagebox.showinfo("Información", "En caso de ser varios ejemplares seguidos, puede digitar los datos de la siguiente forma: 11.498-11.500")
-            self.message_shown = True  # Marcar que el mensaje ya se mostró
-
-def contar_ejemplares(libros):
-    ejemplares_dict = {}
-    for libro in libros:
-        key = (libro[1], libro[2], libro[3], libro[4], libro[5], libro[6], libro[7], libro[8], libro[9], libro[10], libro[11], libro[12], libro[13])
-        if key in ejemplares_dict:
-            ejemplares_dict[key]['total'] += 1
-            if libro[14] == 'Sí':  # Suponiendo que el estado de préstamo está en la posición 14
-                ejemplares_dict[key]['prestamo'] += 1
-        else:
-            ejemplares_dict[key] = {'total': 1, 'prestamo': 1 if libro[14] == 'Sí' else 0}
-    return ejemplares_dict
-
 class L_Listar(tk.Frame):
     
     def __init__(self, parent):
         super().__init__(parent)
-
+        # self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
         self.parent = parent
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
-
+        # self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
-
         self.canvas.pack(side="right", fill="both", expand=True)
         self.images = {}
 
-        # Crear el marco izquierdo para el menú de navegación
-
-        self.left_frame_list = tk.Frame(self.canvas, bg="#031A33")
-        self.left_frame_list.pack(expand=True, side="left", fill="both")
-        self.left_frame_list.place(x=215, y=205, height=480, width=1150)
 
         stylebotn = ttk.Style()
         stylebotn.configure("Rounded.TEntry", 
@@ -286,74 +53,40 @@ class L_Listar(tk.Frame):
         """"self.cota = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="solid" , borderwidth=0.5)
         self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)"""
         
-        self.buscar = tk.Entry(self, bd=0, bg="#FAFAFA", fg="#031A33", relief="solid" , borderwidth=0.5)
+        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
 
-        # Configurar estilo para Treeview
-        style = ttk.Style()
-        style.configure("Rounded.Treeview", 
-                        borderwidth=2, 
-                        relief="groove", 
-                        bordercolor="blue", 
-                        lightcolor="lightblue", 
-                        darkcolor="darkblue",
-                        rowheight=30,
-                        background="#E5E1D7", 
-                        fieldbackground="#f0f0f0")
-
-        # Configurar estilo para las cabeceras
-        style.configure("Rounded.Treeview.Heading", 
-                        font=('Helvetica', 10, 'bold'), 
-                        background="#2E59A7", 
-                        foreground="#000000",
-                        borderwidth=0)
-
-        # Aplica el estilo al Treeview
-        columns = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición")
-        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=columns, show='headings', style="Rounded.Treeview")
-        for col in columns:
-            self.book_table_list.heading(col, text=col)
-            self.book_table_list.column(col, width=90)
-        self.book_table_list.pack(expand=True, fill="both", padx=70, pady=5)
-        
-        self.reading_books(self.book_table_list)  # Carga la lista de libros al inicializar la aplicación
-        scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
-        self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
-        scrollbar_pt.pack(side="right", fill="y")
-
-        # Cargar y almacenar la imagen del botón
-        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
-
-# Definir button_e antes de usarlo
-        self.button_e = tk.Button(
-        self,
-        image=self.images['boton_refrescar'],
-        borderwidth=0,
-        highlightthickness=0,
-        command=lambda: self.reading_books(self.book_table_list),
-        relief="flat",
-        bg="#031A33",
-        activebackground="#031A33",  # Mismo color que el fondo del botón
-        activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
-            )
-        self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
 
         # Crear textos en el canvas
-        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#a6a6a6", font=("Bold", 17))
 
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(845.0, 170.0, text="Registrar", fill="#040F21", font=("Bold", 17))
         # Para llamar a read_books cuando se presiona Enter
         self.buscar.bind("<Return>", self.boton_buscar)
+
+            # Cargar y almacenar las imágenes
+        self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
+            
+            # Cargar y almacenar la imagen del botón
+        self.button_e = tk.Button(
+                self,
+                image=self.images['boton_agregar'],
+                borderwidth=0,
+                highlightthickness=0,
+                command=lambda: self.open_registrar_window(),
+                relief="flat",
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+                activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
+            )
+        self.button_e.place(x=800.0, y=60.0, width=90.0, height=100.0)
         
                     #Boton Cargar Libros
             # Cargar y almacenar las imágenes
-        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16.png"))
+        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -363,12 +96,12 @@ class L_Listar(tk.Frame):
                 highlightthickness=0,
                 command=lambda: self.reading_books(self.book_table_list),
                 relief="flat",
-                bg="#031A33",
-                activebackground="#031A33",  # Mismo color que el fondo del botón
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
-
+        
         
 
         self.images['boton_Eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
@@ -380,8 +113,8 @@ class L_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: delete_selected(self),
             relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1195.0, y=60.0, width=90.0, height=100.0)
@@ -395,20 +128,65 @@ class L_Listar(tk.Frame):
             highlightthickness=0,
             command=lambda: self.open_modificar_window(),
             relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1065.0, y=60.0, width=90.0, height=100.0)
-    
-    
+
+        # Configurar estilo para Treeview
+        style = ttk.Style()
+        style.configure("Rounded.Treeview", 
+                        borderwidth=2, 
+                        relief="groove", 
+                        bordercolor="blue", 
+                        lightcolor="lightblue", 
+                        darkcolor="darkblue",
+                        rowheight=30,
+                        background="#FFFFFF", 
+                        fieldbackground="#f0f0f0")
+
+        # Configurar estilo para las cabeceras
+        style.configure("Rounded.Treeview.Heading", 
+                        font=('Helvetica', 10, 'bold'), 
+                        background="#2E59A7", 
+                        foreground="#000000",
+                        borderwidth=0)
+
+
+        # Aplica el estilo al Treeview listado de libros
+        tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición","N° Volúmenes", "N° Ejemplares" )
+        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview")
+
+        # Set specific widths for "ID" and "Sala"
+        self.book_table_list.column("ID", width=50, anchor="center")
+        self.book_table_list.column("Sala", width=50, anchor="center")
+
+        # Set larger widths for the other columns
+        for col in tree:
+            if col not in ("ID", "Sala"):
+                self.book_table_list.column(col, width=85, anchor="center")
+            self.book_table_list.heading(col, text=col)
+
+        # self.toggle_button = tk.Button(self.left_frame_list, text="Toggle Copies", command=self.toggle_copies)
+        # self.toggle_button.pack(side=tk.BOTTOM, pady=10)
+
+        self.book_table_list.pack(expand=True, fill="both", padx=30, pady=5)
+
+        scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
+        self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
+        scrollbar_pt.pack(side="right", fill="y")
+
+    def open_registrar_window(self):
+        # Llamar directamente a la clase L_Registrar sin necesidad de seleccionar un elemento
+        L_Registrar(self.parent)
 
     def open_modificar_window(self):
         selected_items = self.book_table_list.selection()
         if selected_items:
             selected_item = selected_items[0]
             item_values = self.book_table_list.item(selected_item, "values")
-            L_Modificar(self.parent, item_values)
+            L_Modificar(item_values)
         else:
             print("No hay ningún elemento seleccionado.")
 
@@ -566,32 +344,383 @@ class L_Listar(tk.Frame):
                                 mariadb_conexion = establecer_conexion()
                                 if mariadb_conexion:#.is_connected():
                                     cursor = mariadb_conexion.cursor()
-                                    cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion FROM libro')
+                                    cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion,n_volumenes, n_ejemplares FROM libro')
                                     resultados = cursor.fetchall() 
                                     for row in book_table_list.get_children():
                                         book_table_list.delete(row)
+                                         # Configurar las etiquetas para los colores
+                                    book_table_list.tag_configure('multiple', background='lightblue')
+                                    book_table_list.tag_configure('single', background='#E5E1D7')
                                         
                                         # Insertar los datos en el Treeview
                                     for fila in resultados:
-                                        book_table_list.insert("", "end", values=tuple(fila))
+                                        book_id = fila[0]
+                                        n_ejemplares = fila[11]
+                                        tag = 'multiple' if n_ejemplares > 1 else 'single'
+                                        parent = book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
+                                        # # Create and place the button
+                                        # button = tk.Button(self.book_table_list, text="Toggle Copies", command=lambda p=parent: self.toggle_copies(p))
+                                        # button.grid(row=0, column=0)
+                                                            
+                                        # if n_ejemplares > 1:
+                                        #     for i in range(1, n_ejemplares + 1):
+                                        #         # book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=("", "", "", "", "", "", "", "", "", "", "", "", ""), tags=('single',))
+                                        #         book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=tuple(fila), tags=('single',))
                                     mariadb_conexion.close()
                             except mariadb.Error as ex:
                                     print("Error durante la conexión:", ex)
                             except subprocess.CalledProcessError as e:
                                 print("Error al importar el archivo SQL:", e)
 
+   
+
     def cancelar(self, window):
         window.destroy()  # Esto cerrará la ventana de filtro
+from validations.books_validations import *
+
+class L_Registrar(tk.Toplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent)
+        self.parent = parent
+        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        self.canvas.pack(side="left", fill="both", expand=False)
+       # validate_number = self.register(validate_number_input)
+        self.images = {}
+        self.salas_types = ["1I", "2E", "3G"]
+        self.categoria_types_general=["Ciencias de la Computación, Información y Obras Generales", "Filosofía y Psicología", "Religión-Teología", "Ciencias Sociales","Lenguas",
+        "Ciencias Básicas","Tecnología y Ciencias Aplicadas","Artes y recreación","Literatura","Historia y Geografía"]
+        self.asignature_type_general= ["Almanaques Mundiales","Computacion","Enciclopedia","Enciclopedia y Diccionarios","Filosofía","Filosofía-Diccionarios",
+        "Informática","Metodología de la Investigación","Periodismo","Psicología","Psicología-Diccioanrios","Religión",
+        "Educación Familiar y Ciudadana","Sociología","Medios de Comunicación","Mujer y Familia","Estadística Social",
+        "Ciencias Políticas", "Economía Venezolana","Geografía Económica","Microeconomía","Macroeconomía","Derecho",
+        "Derecho Constitucional","Derecho Laboral","Derecho Penal","Límites y Fronteras","Administración Pública","Premilitar",                                  "Servicios Sociales", "Filosofía de la Educación","Educación","Educación Rural","Pedagogía","Técnicas de Estudio",
+        "Orientación", "Educación Preescolar","Educación Superior","Medios de Transporte","Currículo","Educación Básica",                                  "Publicaciones Oficiales-Folklore","Lenguaje","Linguística-Diccionarios","Lengua y Comunicación","Castellano y Literatura",
+        "Inglés","Castellano","Química-Física-Diccionarios","Botánica-Zoología-Diccionarios","Matemática","Ciencia",
+        "Estudios de la Naturaleza", "Álgebra","Matemática Financiera","Cálculo","Geometría","Astronomía","Física","Electricidad",
+        "Electrónica", "Química","Fisioquímica","Química Orgánica","Ciencias de la Tierra","Biología","Medicina-Diccionarios",
+        "Agricultura-Diccionarios","Biología Celular","Zoología","Ecología","Bioquímica","Enfermería","Anatomía Humana",
+        "Contaminación Ambiental","Seguridad Industrial","Naturismo","Drogar","Enfermedades Varias","Pediatría","Ingeniería","Reciclaje",
+        "Agricultura","Fertilizantes","Cultivos","Fruticultura","Ganadería","Comercio","Contabilidad","Administración",
+        "Administración de Emperesa","Avicultura","Nutrición","Ganadería","Zootecnia","Administración de Personal","Mercadotecnia",
+        "Historial del Arte","Dibujo","Arte y Recreación-Diccionarios","Artística","Artes Plásticas y Escultura","Pintura","Música",
+        "Educación Física","Deportes","Literatura-Diccioanrios","Literatura","Novelas","Novelas Venezolanas","Poesías","Historia Universal",
+        "Geografía General","Geografía de Venezuela","Historia","Historia de América","Historia Europea","Historia-Diccionarios"]
+        self.categoria_types_state=["Estadal-B"]
+        self.asignature_types_state= ["Bibliografia-Estadal","Historia Local-Rubio-Junin","Publicaciones Periódicas"]
+        self.categoria_types_children=["Infantil-X"]
+        self.asignature_types_children= ["Matemáticas","Castellano y Literatura","Ciencias Naturales","Petróleo","Agricultura","Cuentos Venezolanos",
+        "Fábulas","Novelas Históricas","Sección de los más pequeños","Cuentos de Animales","Novelas de Aventuras",
+        "Cuentos de Hadas y Fantasía","Cuentos Realistas","Poesías y Canciones Venezolanas","Cuentos de Aventuras",
+        "Teatro","Teatro Venezolano","Fábulas Venezolanas","Mitos y Leyendas Venezolanas"]
+        
+        # Cargar y almacenar las imágenes
+        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
+
+            # Crear el botón con la imagen inicial
+
+            # Crear el botón
+        boton_R = self.images['boton_R']
+        tk.Button(
+                self,
+                image=boton_R,
+                borderwidth=0,
+                highlightthickness=0,
+                command=lambda: self.register_book,
+                relief="flat",
+                bg="#031A33",
+                activebackground="#031A33", # Mismo color que el fondo del botón
+                activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
+            ).place(x=265.0, y=635.0, width=130.0, height=40.0)
+          
+            
+        
+        self.inicializar_titulos()
+        self.inicializar_campos_y_widgets()
+        self.validacion_sala(None)
+
+    def inicializar_titulos(self):
+        # Títulos de los inputs
+        self.canvas.create_text(263.0, 106.0, anchor="nw", text=f"Registro de libros", fill="#a6a6a6", font=("Bold", 17))
+        
+        # Fila 1
+        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 152.0, anchor="nw", text="Categoría", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
+        
+        # Fila 2
+        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Número de registro", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(1036.0, 252.0, anchor="nw", text="N° volumen", fill="#a6a6a6", font=("Bold", 17))
+        
+        # Fila 3
+        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Título", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(779.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(1036.0, 352.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
+    def inicializar_campos_y_widgets(self):
+        validate_number = self.register(validate_number_input)
+        # Configuración del estilo de los Combobox
+        stylebox = ttk.Style()
+        stylebox.theme_use('clam')
+        stylebox.configure("TCombobox",
+                            fieldbackground="#2E59A7",
+                            background="#2E59A7",
+                            bordercolor="#041022",
+                            arrowcolor="#ffffff",
+                            padding="9")
+
+        # Combobox para Sala
+        self.combobox1 = ttk.Combobox(self, values=self.salas_types, state="readonly", width=30, font=("Montserrat Medium", 10))
+        self.combobox1.place(x=263.0, y=181.5)
+        self.combobox1.set("1I")  # Establece el valor inicial a "1I"
+        self.combobox1.bind("<<ComboboxSelected>>", self.validacion_sala)
+
+        # Combobox para Categoría
+        self.categoria_cb = ttk.Combobox(self, state="readonly", width=30, font=("Montserrat Medium", 10))
+        self.categoria_cb.place(x=520.0, y=181.5)
+        self.categoria_cb.set("No se ha seleccionado una categoría")
+        # Combobox para Asignatura
+        self.asignatura_cb = ttk.Combobox(self, state="readonly", width=30, font=("Montserrat Medium", 10))
+        self.asignatura_cb.place(x=779.0, y=181.5)
+        self.asignatura_cb.set("No se ha seleccionado una asignatura")
+        
+
+        # Crear y colocar los widgets
+        # Primera fila
+        self.cota = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
+        self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        self.cota.bind("<Return>", self.focus_next_widget)
+        self.cota.bind("<KeyPress>",self.on_key_press)
+        
+
+        self.registro_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.registro_m.place(x=520.0, y=282.0, width=237.0, height=38.0)
+        self.registro_m.bind("<Return>", self.focus_next_widget)
+        self.registro_m.bind("<KeyPress>",self.on_key_press)
+
+        self.edicion_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.edicion_m.place(x=779.0, y=282.0, width=237.0, height=37.5)
+        self.edicion_m.bind("<Return>", self.focus_next_widget)
+        self.edicion_m.bind("<KeyPress>",self.on_key_press)
+
+        self.volumen_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.volumen_m.place(x=1036.0, y=282.0, width=237.0, height=37.5)
+        self.volumen_m.bind("<Return>", self.focus_next_widget)
+        self.volumen_m.bind("<KeyPress>",self.on_key_press)
+
+        # Segunda fila
+        self.titulo_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
+        self.titulo_m.place(x=263.0, y=382.0, width=237.0, height=37.5)
+        self.titulo_m.bind("<Return>", self.focus_next_widget)
+        self.titulo_m.bind("<KeyPress>", self.on_key_press)  # Formatear al perder el foco
+
+        self.autor_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
+        self.autor_m.place(x=520.0, y=382.0, width=237.0, height=37.5)
+        self.autor_m.bind("<Return>", self.focus_next_widget)
+        self.autor_m.bind("<KeyPress>", self.on_key_press)
+        
+
+        self.editorial_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
+        self.editorial_m.place(x=779.0, y=382.0, width=237.0, height=37.5)
+        self.editorial_m.bind("<Return>", self.focus_next_widget)
+        self.editorial_m.bind("<KeyPress>", self.on_key_press)
+
+        self.ano_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.ano_m.place(x=1036.0, y=382.0, width=237.0, height=37.5)
+        self.ano_m.bind("<Return>", self.focus_next_widget)
+        self.ano_m.bind("<KeyPress>",self.on_key_press)
+    
+    
+    def on_key_press(self, event):
+        widget = event.widget
+        current_text = widget.get()
+        
+        if widget == self.titulo_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,;:!?-":
+                return "break"
+            if len(current_text) >= 166:
+                return "break"
+            current_text = longitud_titulo(current_text)
+            formatted_text = validate_and_format_title(current_text)
+        elif widget == self.cota:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not allow_only_letters_numbers_dots(event.char):
+                return "break"
+            if len(current_text) >= 14:
+                return "break"
+            current_text = limitar_longitud_cota(current_text)
+            formatted_text = convert_to_uppercase(current_text)
+        elif widget == self.autor_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isalpha() and event.char != " ":
+                return "break"
+            if len(current_text) >= 53:
+                return "break"
+            current_text = longitud_autor(current_text)
+            formatted_text = validar_y_formatear_texto(current_text)
+        elif widget == self.editorial_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isalpha() and event.char != " ":
+                return "break"
+            if len(current_text) >= 49:
+                return "break"
+            current_text = longitud_editorial(current_text)
+            formatted_text = validar_y_formatear_texto(current_text)
+        elif widget == self.registro_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+            if len(current_text) >= 10:
+                return "break"
+            current_text = longitud_nro_registro(current_text)
+            formatted_text = current_text
+        elif widget == self.ano_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+            if len(current_text) >= 4:
+                return "break"
+            current_text = longitud_anio(current_text)
+            formatted_text = current_text
+        elif widget == self.edicion_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+            if len(current_text) >= 2:
+                return "break"
+            current_text = longitud_nro_edicion(current_text)
+            formatted_text = current_text
+        elif widget == self.volumen_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+            if len(current_text) >= 2:
+                return "break"
+            current_text = longitud_volumen(current_text)
+            formatted_text = current_text
+        
+        # Guardar la posición del cursor
+        cursor_position = widget.index(tk.INSERT)
+        
+        # Actualizar el campo de entrada
+        widget.delete(0, tk.END)
+        widget.insert(0, formatted_text)
+        
+        # Restaurar la posición del cursor
+        widget.icursor(cursor_position)
+
+    def focus_next_widget(self, event):
+        event.widget.tk_focusNext().focus()
+        return "break"
+
+    
+        
+        
+    def actualizar_opciones(self, combobox, values):
+        combobox['values'] = values
+        combobox.set('')
+
+    def mostrar_opciones(self, categoria_values, asignatura_values):
+        self.actualizar_opciones(self.categoria_cb, categoria_values)
+        self.actualizar_opciones(self.asignatura_cb, asignatura_values)
+
+    def validacion_sala(self, event):
+        sala_seleccionada = self.combobox1.get()
+        
+        
+        if sala_seleccionada == self.combobox1:
+            self.categoria_cb.set(self.categoria_cb)
+            self.asignatura_cb.set(self.asignatura_cb)
+        else:
+            self.categoria_cb.set("No se ha seleccionado una categoría")
+            self.asignatura_cb.set("No se ha seleccionado una asignatura")
+        if sala_seleccionada == "1I":
+            self.mostrar_opciones(self.categoria_types_children, self.asignature_types_children)
+        elif sala_seleccionada == "2E":
+            self.mostrar_opciones(self.categoria_types_state, self.asignature_types_state)
+        elif sala_seleccionada == "3G":
+            self.mostrar_opciones(self.categoria_types_general, self.asignature_type_general)
+        else:
+            
+            messagebox.showwarning("Validación", "Por favor, seleccione una opción ")
+
+        #-------------------------------------------------------------------------------
+            
+        
+    def register_book(self):
+        ID_Sala= self.combobox1.get() #self.cota.get()
+        ID_Categoria = self.categoria_cb.get() if self.categoria_cb else None #self.combobox1.get()
+        ID_Asignatura = self.asignatura_cb.get() if self.asignatura_cb else None #self.menu_actual.get() if self.menu_actual else None
+        Cota= self.cota.get() #self.combobox3.get() if self.combobox3 else None
+        n_registro=self.registro_m.get()
+        edicion=self.edicion_m.get()
+        n_volumenes=self.volumen_m.get()
+        titulo=self.titulo_m.get()
+        autor=self.autor_m.get()
+        editorial=self.editorial_m.get()
+        año=self.ano_m.get()
+        #n_ejemplares=self.ejemplares.get()
+        if create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año):
+            messagebox.showinfo("Éxito", "Registro del libro éxitoso.")
+            self.clear_entries_register()
+        else:
+            messagebox.showinfo("Registro fallido", "Libro mantiene sus valores."            )
+    
+    def clear_entries_register(self):
+        self.combobox1.delete(0, tk.END)
+        #self.menu_actual.delete(0, tk.END)
+        self.combobox1.delete(0, tk.END)
+        self.cota.delete(0, tk.END)
+        self.registro_m.delete(0, tk.END)
+        self.edicion_m.delete(0, tk.END)
+        self.volumen_m.delete(0, tk.END)
+        self.titulo_m.delete(0, tk.END)
+        self.autor_m.delete(0, tk.END)
+        self.editorial_m.delete(0, tk.END)
+        self.ano_m.delete(0, tk.END)
+        #self.ejemplares.delete(0, tk.END)
+    
+    def show_message(self, event):
+        if not self.message_shown:
+            messagebox.showinfo("Información", "En caso de ser varios ejemplares seguidos, puede digitar los datos de la siguiente forma: 11.498-11.500")
+            self.message_shown = True  # Marcar que el mensaje ya se mostró
+
+def contar_ejemplares(libros):
+    ejemplares_dict = {}
+    for libro in libros:
+        key = (libro[1], libro[2], libro[3], libro[4], libro[5], libro[6], libro[7], libro[8], libro[9], libro[10], libro[11], libro[12], libro[13])
+        if key in ejemplares_dict:
+            ejemplares_dict[key]['total'] += 1
+            if libro[14] == 'Sí':  # Suponiendo que el estado de préstamo está en la posición 14
+                ejemplares_dict[key]['prestamo'] += 1
+        else:
+            ejemplares_dict[key] = {'total': 1, 'prestamo': 1 if libro[14] == 'Sí' else 0}
+    return ejemplares_dict
 
 class L_Modificar(tk.Toplevel):      
-    def __init__(self, parent,book_data, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
+    def __init__(self,book_data, *args, **kwargs):
+        super().__init__( *args, **kwargs)
         self.title("Modificar")
         self.book_data = book_data
         self.grab_set()
         self.geometry("1366x768")
+        longitudes = obtener_longitudes_min_max()
+        if longitudes:
+            for campo, valores in longitudes.items():
+                print(f"{campo.capitalize()}: Longitud mínima = {valores['min']}, Longitud máxima = {valores['max']}")
+        #validate_volumenes = self.register(self.validar_numero_volumenes_edicion)
+        #validate_volumenes = self.register(self.validar_numero_volumenes_edicion)
         
-        # Inicializar el diccionario de imágenes
         self.images = {}
         self.crear_boton_modificar()
         
@@ -635,27 +764,12 @@ class L_Modificar(tk.Toplevel):
             "Editorial": book_data[8],
             "Año": book_data[9],
             "Edicion": book_data[10],
-            "Volumen": book_data[10],  # Repetido intencionalmente
-            "Ejemplares": book_data[10]  # Repetido intencionalmente
+            "Volumen": book_data[12],  # Repetido intencionalmente
+            "Ejemplares": book_data[12]  # Repetido intencionalmente
         }
         
         self.original_values = self.book_data.copy()  # Copia el diccionario
 
-        # Imprimir los datos recibidos
-        print("Datos del libro seleccionados:")
-        print(f"ID: {book_data[0]}")
-        print(f"Sala: {book_data[1]}")
-        print(f"Categoria: {book_data[2]}")
-        print(f"Asignatura: {book_data[3]}")
-        print(f"Cota: {book_data[4]}")
-        print(f"Registro: {book_data[5]}")
-        print(f"Edición: {book_data[10]}")
-        print(f"Volumen: {book_data[10]}")
-        print(f"Título: {book_data[6]}")
-        print(f"Autor: {book_data[7]}")
-        print(f"Editorial: {book_data[8]}")
-        print(f"Año: {book_data[9]}")
-        print(f"Ejemplares: {book_data[10]}")
 
         self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
@@ -734,24 +848,28 @@ class L_Modificar(tk.Toplevel):
         self.cota.insert(0, self.book_data["Cota"])
         self.cota.bind("<Return>", self.focus_next_widget)
         self.cota.bind("<KeyRelease>", self.check_changes)
+        self.cota.bind("<KeyPress>",self.on_key_press)
 
         self.registro_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.registro_m.place(x=520.0, y=282.0, width=237.0, height=38.0)
         self.registro_m.insert(0, self.book_data["n_registro"])
         self.registro_m.bind("<Return>", self.focus_next_widget)
         self.registro_m.bind("<KeyRelease>", self.check_changes)
+        self.registro_m.bind("<KeyPress>",self.on_key_press)
 
         self.edicion_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.edicion_m.place(x=779.0, y=282.0, width=237.0, height=37.5)
         self.edicion_m.insert(0, self.book_data["Edicion"])
         self.edicion_m.bind("<Return>", self.focus_next_widget)
         self.edicion_m.bind("<KeyRelease>", self.check_changes)
+        self.edicion_m.bind("<KeyPress>",self.on_key_press)
 
         self.volumen_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.volumen_m.place(x=1036.0, y=282.0, width=237.0, height=37.5)
         self.volumen_m.insert(0, self.book_data["Volumen"])
         self.volumen_m.bind("<Return>", self.focus_next_widget)
         self.volumen_m.bind("<KeyRelease>", self.check_changes)
+        self.volumen_m.bind("<KeyPress>",self.on_key_press)
 
         # Segunda fila
         self.titulo_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
@@ -759,26 +877,127 @@ class L_Modificar(tk.Toplevel):
         self.titulo_m.insert(0, self.book_data["Titulo"])
         self.titulo_m.bind("<Return>", self.focus_next_widget)
         self.titulo_m.bind("<KeyRelease>", self.check_changes)
+        self.titulo_m.bind("<KeyPress>", self.on_key_press)  # Formatear al perder el foco
+        
+
 
         self.autor_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
         self.autor_m.place(x=520.0, y=382.0, width=237.0, height=37.5)
         self.autor_m.insert(0, self.book_data["Autor"])
         self.autor_m.bind("<Return>", self.focus_next_widget)
+        
         self.autor_m.bind("<KeyRelease>", self.check_changes)
+        
+        self.autor_m.bind("<KeyPress>", self.on_key_press)
+        
 
         self.editorial_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
         self.editorial_m.place(x=779.0, y=382.0, width=237.0, height=37.5)
         self.editorial_m.insert(0, self.book_data["Editorial"])
         self.editorial_m.bind("<Return>", self.focus_next_widget)
         self.editorial_m.bind("<KeyRelease>", self.check_changes)
+        self.editorial_m.bind("<KeyPress>", self.on_key_press)
 
         self.ano_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.ano_m.place(x=1036.0, y=382.0, width=237.0, height=37.5)
         self.ano_m.insert(0, self.book_data["Año"])
         self.ano_m.bind("<Return>", self.focus_next_widget)
         self.ano_m.bind("<KeyRelease>", self.check_changes)
+        self.ano_m.bind("<KeyPress>",self.on_key_press)
+    
+    
+    def on_key_press(self, event):
+        widget = event.widget
+        current_text = widget.get()
         
+        if widget == self.titulo_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,;:!?-":
+                return "break"
+            if len(current_text) >= 166:
+                return "break"
+            current_text = longitud_titulo(current_text)
+            formatted_text = validate_and_format_title(current_text)
+        elif widget == self.cota:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not allow_only_letters_numbers_dots(event.char):
+                return "break"
+            if len(current_text) >= 14:
+                return "break"
+            current_text = limitar_longitud_cota(current_text)
+            formatted_text = convert_to_uppercase(current_text)
+        elif widget == self.autor_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isalpha() and event.char != " ":
+                return "break"
+            if len(current_text) >= 53:
+                return "break"
+            current_text = longitud_autor(current_text)
+            formatted_text = validar_y_formatear_texto(current_text)
+        elif widget == self.editorial_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isalpha() and event.char != " ":
+                return "break"
+            if len(current_text) >= 49:
+                return "break"
+            current_text = longitud_editorial(current_text)
+            formatted_text = validar_y_formatear_texto(current_text)
+        elif widget == self.registro_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+            if len(current_text) >= 10:
+                return "break"
+            current_text = longitud_nro_registro(current_text)
+            formatted_text = current_text
+        elif widget == self.ano_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+            if len(current_text) >= 4:
+                return "break"
+            current_text = longitud_ano(current_text)
+            formatted_text = current_text
+        elif widget == self.edicion_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+            if len(current_text) >= 2:
+                return "break"
+            current_text = longitud_nro_edicion(current_text)
+            formatted_text = current_text
+        elif widget == self.volumen_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+            if len(current_text) >= 2:
+                return "break"
+            current_text = longitud_volumen(current_text)
+            formatted_text = current_text
+        
+        # Guardar la posición del cursor
+        cursor_position = widget.index(tk.INSERT)
+        
+        # Actualizar el campo de entrada
+        widget.delete(0, tk.END)
+        widget.insert(0, formatted_text)
+        
+        # Restaurar la posición del cursor
+        widget.icursor(cursor_position)
 
+    
+    
+
+
+        
     def check_changes(self, *args):
      try:
         current_values = {
@@ -796,8 +1015,8 @@ class L_Modificar(tk.Toplevel):
         }
 
         # Agrega depuración para ver los valores actuales y originales
-        print("Valores actuales:", current_values)
-        print("Valores originales:", self.original_values)
+        # print("Valores actuales:", current_values)
+        # print("Valores originales:", self.original_values)
 
         # Comparar valores clave por clave
         differences = []
@@ -867,76 +1086,62 @@ class L_Modificar(tk.Toplevel):
         
         self.check_changes()
         
-
-    # def actualizar_campos(self, book_data):
-    #     self.combobox1.set(book_data["ID_Sala"])
-    #     self.categoria_cb.set(book_data["ID_Categoria"])
-    #     self.asignatura_cb.set(book_data["ID_Asignatura"])
-    #     self.cota.insert(0, book_data["Cota"])
-    #     self.registro_m.insert(0, book_data["n_registro"])
-    #     self.edicion_m.insert(0, book_data["Edicion"])
-    #     self.volumen_m.insert(0, book_data["Volumen"])
-    #     self.titulo_m.insert(0, book_data["Titulo"])
-    #     self.autor_m.insert(0, book_data["Autor"])
-    #     self.editorial_m.insert(0, book_data["Editorial"])
-    #     self.ano_m.insert(0, book_data["Año"])
-
-    # def seleccionar_libro(self, book_data):
-    #     # Actualiza los valores originales al seleccionar un nuevo libro
-    #     self.original_values = {
-    #         "ID_Sala": book_data["ID_Sala"],
-    #         "ID_Categoria": book_data["ID_Categoria"],
-    #         "ID_Asignatura": book_data["ID_Asignatura"],
-    #         "Cota": book_data["Cota"],
-    #         "n_registro": book_data["n_registro"],
-    #         "edicion": book_data["edicion"],
-    #         "n_volumenes": book_data["Volumen"],
-    #         "titulo": book_data["Titulo"],
-    #         "autor": book_data["Autor"],
-    #         "editorial": book_data["Editorial"],
-    #         "año": book_data["Año"]
-    #     }
-    #     # Actualiza los campos del formulario con los valores del libro seleccionado
-    #     self.actualizar_campos(book_data)
     
+    def modify_book(self):    
+        # Recoger los valores de los campos    
+        nuevos_valores = {        
+            "ID_Sala": self.combobox1.get(),        
+            "ID_Categoria": self.categoria_cb.get(),        
+            "ID_Asignatura": self.asignatura_cb.get(),        
+            "Cota": self.cota.get(),        
+            "n_registro": self.registro_m.get(),        
+            "Edicion": self.edicion_m.get(),        
+            "n_volumenes": self.volumen_m.get(),        
+            "Titulo": self.titulo_m.get(),        
+            "Autor": self.autor_m.get(),        
+            "Editorial": self.editorial_m.get(),        
+            "Año": self.ano_m.get()    
+        }
 
+        # Obtener el ID del libro desde los valores originales    
+        id_libro = self.original_values["ID"]    
+        print(f"ID del libro: {id_libro}")
 
-
-    def modify_book(self):
-    # Recoger los valores de los campos
-        nuevos_valores = {
-        "ID_Sala": self.combobox1.get(),
-        "ID_Categoria": self.categoria_cb.get(),
-        "ID_Asignatura": self.asignatura_cb.get(),
-        "Cota": self.cota.get(),
-        "n_registro": self.registro_m.get(),
-        "Edicion": self.edicion_m.get(),
-        "n_volumenes": self.volumen_m.get(),
-        "Titulo": self.titulo_m.get(),
-        "Autor": self.autor_m.get(),
-        "Editorial": self.editorial_m.get(),
-        "Año": self.ano_m.get()
-    }
-
-    # Validar que se haya seleccionado una categoría y una asignatura
-        if nuevos_valores["ID_Categoria"] == "No se ha seleccionado una categoría" or not nuevos_valores["ID_Categoria"]:
-            messagebox.showerror("Error", "Debe seleccionar una categoría.")
+        # Validar los campos incluyendo el ID del libro    
+        errores = validar_campos(        
+            self.cota.get(),        
+            self.titulo_m.get(),        
+            self.autor_m.get(),        
+            self.editorial_m.get(),        
+            self.registro_m.get(),        
+            self.volumen_m.get(),        
+            self.edicion_m.get(),        
+            self.ano_m.get(),
+            id_libro              # Pasar el ID del libro aquí    
+        )    
+        print(f"Errores: {errores}")  # Agregar esta línea para depuración
+        if errores:        
+            messagebox.showerror("Validation Errors", "\n".join(errores))        
             return
-        if nuevos_valores["ID_Asignatura"] == "No se ha seleccionado una asignatura" or not nuevos_valores["ID_Asignatura"]:
-            messagebox.showerror("Error", "Debe seleccionar una asignatura.")
+
+        # Validar que se haya seleccionado una categoría y una asignatura    
+        if nuevos_valores["ID_Categoria"] == "No se ha seleccionado una categoría" or not nuevos_valores["ID_Categoria"]:        
+            messagebox.showerror("Error", "Debe seleccionar una categoría.")        
+            return    
+        if nuevos_valores["ID_Asignatura"] == "No se ha seleccionado una asignatura" or not nuevos_valores["ID_Asignatura"]:        
+            messagebox.showerror("Error", "Debe seleccionar una asignatura.")        
             return
 
-        print("Datos recogidos:")
-        for key, value in nuevos_valores.items():
+        print("Datos recogidos:")    
+        for key, value in nuevos_valores.items():        
             print(f"{key}: {value}")
 
-        # Actualizar los libros con los nuevos valores
-        if update_books(self.book_data, nuevos_valores):
-                messagebox.showinfo("Éxito", "Modificación del libro exitosa.")
-                self.clear_entries_modify()
-        else:
+        # Actualizar los libros con los nuevos valores    
+        if update_books(self.book_data, nuevos_valores):        
+            messagebox.showinfo("Éxito", "Modificación del libro exitosa.")        
+            self.clear_entries_modify()    
+        else:        
             messagebox.showinfo("Modificación fallida", "Libro mantiene sus valores.")
-
 
 
 

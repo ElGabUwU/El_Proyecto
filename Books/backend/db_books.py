@@ -3,6 +3,7 @@ import mysql.connector as mariadb
 from colorama import init, Fore, Back, Style
 from db.conexion import establecer_conexion
 import subprocess
+
 init(autoreset=True)
 # # Conectar a la base de datos
 # def import_sql_file():
@@ -11,19 +12,91 @@ init(autoreset=True)
 #     except subprocess.CalledProcessError as e:
 #         print("Error al importar el archivo SQL:", e)
 
-
-# Crear un nuevo Pokémon
-def create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares):
-    print("ID SALA", {ID_Sala}, "ID CATEGORIA", {ID_Categoria}, "ID ASIGNATURA", {ID_Asignatura}, "COTA", {Cota}, "REGISTRO", {n_registro})
-    print("Edicion", {edicion}, "VOLUMEN", {n_volumenes}, "TITULO", {titulo}, "AUTOR", {autor}, "EDITORIAL", {editorial}, "AÑO", {año}, "EJEMPLARES", {n_ejemplares})
+def obtener_datos_libros():
     try:
         mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:#.is_connected():
-            cursor=mariadb_conexion.cursor()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            cursor.execute("SELECT titulo, n_registro FROM libros")
+            datos = cursor.fetchall()
+            mariadb_conexion.close()
+            return datos
+        else:
+            return []
+    except mariadb.Error as ex:
+        print(f"Error durante la conexión: {ex}")
+        return []
+
+from collections import Counter
+
+def analizar_titulos_y_registros(datos):
+    caracteres_especiales = {}
+    numeros_en_titulos = False
+    patrones_punto = {}
+
+    for titulo, n_registro in datos:
+        # Analizar caracteres especiales en títulos
+        for char in titulo:
+            if not char.isalnum() and not char.isspace():
+                if char in caracteres_especiales:
+                    caracteres_especiales[char] += 1
+                else:
+                    caracteres_especiales[char] = 1
+            if char.isdigit():
+                numeros_en_titulos = True
+
+        # Analizar patrones en números de registro
+        if '.' in n_registro:
+            posiciones = [pos for pos, char in enumerate(n_registro) if char == '.']
+            for posicion in posiciones:
+                if posicion in patrones_punto:
+                    patrones_punto[posicion] += 1
+                else:
+                    patrones_punto[posicion] = 1
+
+    return caracteres_especiales, numeros_en_titulos, patrones_punto
+def obtener_longitudes_min_max():
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+
+            # Consultas para obtener las longitudes mínimas y máximas
+            consultas = {
+                "titulo": "SELECT MIN(LENGTH(titulo)), MAX(LENGTH(titulo)) FROM libro",
+                "autor": "SELECT MIN(LENGTH(autor)), MAX(LENGTH(autor)) FROM libro",
+                "editorial": "SELECT MIN(LENGTH(editorial)), MAX(LENGTH(editorial)) FROM libro",
+                "n_registro": "SELECT MIN(LENGTH(n_registro)), MAX(LENGTH(n_registro)) FROM libro",
+                "n_volumenes": "SELECT MIN(LENGTH(n_volumenes)), MAX(LENGTH(n_volumenes)) FROM libro",
+                "edicion": "SELECT MIN(LENGTH(edicion)), MAX(LENGTH(edicion)) FROM libro"
+            }
+
+            longitudes = {}
+            for campo, consulta in consultas.items():
+                cursor.execute(consulta)
+                resultado = cursor.fetchone()
+                longitudes[campo] = {"min": resultado[0], "max": resultado[1]}
+
+            mariadb_conexion.close()
+            return longitudes
+    except mariadb.Error as ex:
+        print(f"Error durante la consulta: {ex}")
+        return None
+
+
+
+# Crear un nuevo libro
+def create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año):
+    print("ID SALA", {ID_Sala}, "ID CATEGORIA", {ID_Categoria}, "ID ASIGNATURA", {ID_Asignatura}, "COTA", {Cota}, "REGISTRO", {n_registro})
+    print("Edicion", {edicion}, "VOLUMEN", {n_volumenes}, "TITULO", {titulo}, "AUTOR", {autor}, "EDITORIAL", {editorial}, "AÑO", {año})
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
             cursor.execute('''
-                INSERT INTO libro (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ''', (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares))
+                INSERT INTO libro (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año))
             mariadb_conexion.commit()
             mariadb_conexion.close()
             return True

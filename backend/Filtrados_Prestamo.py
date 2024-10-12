@@ -28,7 +28,7 @@ def filter_books_two(self):
             converted_values = []
             for value in values:
                 try:
-                    converted_values.append(int(value))
+                    converted_values.append(int(value) )
                 except ValueError:
                     converted_values.append(value)
             values = [str(value) for value in values]

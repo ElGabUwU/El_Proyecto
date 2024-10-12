@@ -74,7 +74,6 @@ class FormLogin(FormLoginDesigner):
         if error_messages:
             messagebox.showerror(message="Por favor, corrija los siguientes errores:\n" + "\n".join(f"- {msg}" for msg in error_messages), title="Error")
             return
-
         # Si todas las validaciones pasan, destruir la ventana y mostrar el panel principal
         self.ventana.destroy()
         self.mostrar_master_panel()
