@@ -1,5 +1,6 @@
 import mysql.connector as mariadb
 from colorama import init, Fore, Back, Style
+from tkinter import messagebox
 from db.conexion import establecer_conexion
 
 init(autoreset=True)
@@ -70,20 +71,31 @@ def delete_user_db(ID_Usuario):
     
 def delete_selected_user(self):
     selected_items = self.user_table_list.selection()
+    if not selected_items:
+        messagebox.showwarning("Selección vacía", "Por favor, seleccione un usuario de la tabla.")
+        return
+
     try:
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:
             cursor = mariadb_conexion.cursor()
-            #cursor = mariadb_conexion.cursor()
             for item in selected_items:
                 item_id = self.user_table_list.item(item, 'values')[0]
-                cursor.execute('DELETE FROM usuarios WHERE ID_Usuario = %s', (item_id,))
+                
+                # Marcar el registro como eliminado en lugar de eliminarlo
+                cursor.execute('UPDATE usuarios SET estado = "eliminado" WHERE ID_Usuario = %s', (item_id,))
+                
+                # Eliminar la fila del Treeview
                 self.user_table_list.delete(item)
+            
             mariadb_conexion.commit()
-            mariadb_conexion.close()
+            messagebox.showinfo("Éxito", "El usuario ha sido marcado como eliminado.")
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
-
+        messagebox.showerror("Error", f"Error durante la conexión: {ex}")
+    finally:
+        if mariadb_conexion:
+            mariadb_conexion.close()
 def list_users_db(user_table_list):
     mariadb_conexion = establecer_conexion()
     try:
@@ -91,7 +103,7 @@ def list_users_db(user_table_list):
         if mariadb_conexion:#.is_connected():
             cursor = mariadb_conexion.cursor()
             cursor.execute("""SELECT ID_Usuario, ID_Cargo, ID_Rol, Nombre, Apellido, 
-                        Cedula, Nombre_Usuario FROM usuarios""")
+                        Cedula, Nombre_Usuario FROM usuarios WHERE estado_usuario != "eliminado""")
             resultados = cursor.fetchall() 
             for row in user_table_list.get_children():
                 user_table_list.delete(row)

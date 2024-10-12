@@ -168,9 +168,6 @@ class P_Registrar(tk.Frame):
         self.clients_table_list_loans.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
 
-        # # Botón para obtener las filas seleccionadas
-        # self.select_button = tk.Button(self.canvas, text="Seleccionar Libros", command=self.get_selected_books)
-        # self.select_button.place(x=265.0, y=435.0, width=130.0, height=40.0)
         reading_clients (self.clients_table_list_loans)
 
     def open_register_window(self):
@@ -224,8 +221,6 @@ class P_Registrar(tk.Frame):
         self.input_apellido.bind("<KeyRelease>", self.validate_entries)
         self.input_telefono.bind("<KeyRelease>", self.validate_entries)
         self.input_direccion.bind("<KeyRelease>", self.validate_entries)
-        # self.fecha_registrar.bind("<KeyRelease>", self.validate_entries)
-        # self.fecha_limite.bind("<KeyRelease>", self.validate_entries)
 
         # Crear un estilo personalizado
         style = ttk.Style()
@@ -528,7 +523,7 @@ class P_Listar(tk.Frame):
             image=self.images['boton_Eliminar_f'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: delete_selected_cliente(self),
+            command=lambda: delete_selected_prestamo(self),
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -602,7 +597,7 @@ class P_Listar(tk.Frame):
 
         # Establecer las fechas automáticamente
         fecha_actual = datetime.now().strftime("%d/%m/%Y")
-        fecha_limite = (datetime.now() + timedelta(days=20)).strftime("%d/%m/%Y")
+        fecha_limite = (datetime.now() + timedelta(days=0)).strftime("%d/%m/%Y")
 
         self.fecha_registrar.insert(0, fecha_actual)
         self.fecha_limite.insert(0, fecha_limite)
@@ -826,7 +821,7 @@ class P_Listar(tk.Frame):
             messagebox.showerror("Error", "Por favor, selecciona un libro de la lista.")
             return
             # Obtener ID_Usuario
-        ID_Usuario = 5
+        ID_Usuario = 1 or 2 or 3
         if ID_Usuario is None:
             messagebox.showerror("Error", "No se pudo obtener el ID de usuario.")
             return
@@ -836,7 +831,8 @@ class P_Listar(tk.Frame):
                     if update_prestamo_and_libro(ID_Prestamo, ID_Cliente, ID_Libro, ID_Libro_Prestamo, Cantidad):
                             # Actualizar la tabla prestamo con ID_Usuario
                         if update_prestamo_with_usuario(ID_Prestamo, ID_Usuario):
-                            messagebox.showinfo("Éxito", 
+                             if update_cliente_with_prestamo(ID_Cliente, ID_Prestamo):
+                                messagebox.showinfo("Éxito", 
 f"""
 Registro éxitoso del préstamo. 
 ID Préstamo: {ID_Prestamo}
@@ -892,17 +888,6 @@ ID Libro Préstamo: {ID_Libro_Prestamo}
         item_values = self.book_table_list.item(selected_item, 'values')
         # Asumimos que el ID_Libro está en la primera columna
         self.ID_Libro = item_values[0]
-
-    # def format_n_registro(self, event):
-    #     # Obtener el texto actual del campo de entrada
-    #     text = self.n_registro_entry.get().replace(".", "")
-        
-    #     # Formatear el texto para insertar un punto después de las tres primeras cifras
-    #     if len(text)> 2:
-    #         formatted_text = text[:2] + "." + text[2:]
-    #     else:
-    #         formatted_text = text
-
         
 
 class P_Eliminar(tk.Frame):

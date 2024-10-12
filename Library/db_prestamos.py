@@ -87,6 +87,25 @@ def update_prestamo_with_cliente(ID_Prestamo, ID_Cliente, ID_Libro_Prestamo):
             cursor.close()
             mariadb_conexion.close()
 
+def update_cliente_with_prestamo(ID_Cliente, ID_Prestamo):
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            # Consulta SQL para actualizar el cliente con el ID del préstamo
+            sql_update_query = """UPDATE cliente SET ID_Prestamo = %s WHERE ID_Cliente = %s"""
+            cursor.execute(sql_update_query, (ID_Prestamo, ID_Cliente))
+            mariadb_conexion.commit()
+            return True
+    except mariadb.Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        if mariadb_conexion:
+            mariadb_conexion.rollback()
+        return False
+    finally:
+        if mariadb_conexion:
+            cursor.close()
+            mariadb_conexion.close()
 
 def update_prestamo_with_usuario(ID_Prestamo, ID_Usuario):
     try:
@@ -250,47 +269,62 @@ def update_client_loans(id_prestamo, cantidad, fecha_limite):
         mariadb_conexion.close()
         return True
 
-# Eliminar prestamo del cliente
+# Eliminar cliente
 def delete_client_loans(self):
     selected_clients = self.clients_table_list_loans.selection()
     if not selected_clients:
         messagebox.showwarning("Selección vacía", "Por favor, seleccione un cliente de la tabla.")
         return
-
     try:
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:
             cursor = mariadb_conexion.cursor()
             for cliente in selected_clients:
-                item_id = self.clients_table_list_loans.item(cliente, 'values')[0]
-                cursor.execute('DELETE FROM cliente WHERE ID_Cliente = %s', (item_id,))
+                item_cliente = self.clients_table_list_loans.item(cliente, 'values')
+                item_client = item_cliente[0]
+                
+                # Eliminar el cliente de la base de datos
+                cursor.execute('UPDATE cliente SET estado_cliente = "eliminado" WHERE ID_Cliente = %s', (item_client,))
+                
+                # Eliminar la fila del Treeview
                 self.clients_table_list_loans.delete(cliente)
+            
             mariadb_conexion.commit()
-            mariadb_conexion.close()
-            messagebox.showinfo("Éxito", "Eliminación exitosa del cliente.")
+            messagebox.showinfo("Éxito", "El cliente ha sido eliminado.")
+            print(f"Cliente con ID {item_client} eliminado.")
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
         messagebox.showerror("Error", f"Error durante la conexión: {ex}")
-
+    finally:
+        if mariadb_conexion:
+            mariadb_conexion.close()
 
 def reading_clients(client_table_list_loans):
-        try:
-            mariadb_conexion = establecer_conexion()
-            if mariadb_conexion:#.is_connected():
-                cursor = mariadb_conexion.cursor()
-                cursor.execute('SELECT ID_Cliente, ID_Prestamo, Cedula_Cliente, Nombre, Apellido, Telefono, Direccion FROM cliente')
-                resultados = cursor.fetchall() 
-                for row in client_table_list_loans.get_children():
-                    client_table_list_loans.delete(row)
-                    # Insertar los datos en el Treeview
-                for fila in resultados:
-                    client_table_list_loans.insert("", "end", values=tuple(fila))
-                mariadb_conexion.close()
-        except mariadb.Error as ex:
-            print("Error durante la conexión:", ex)
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            cursor.execute('SELECT ID_Cliente, ID_Prestamo, Cedula_Cliente, Nombre, Apellido, Telefono, Direccion FROM cliente WHERE estado_cliente != "eliminado"')
+            resultados = cursor.fetchall()
+            
+            # Clear existing rows in the Treeview
+            for row in client_table_list_loans.get_children():
+                client_table_list_loans.delete(row)
+            
+            # Insert new data into the Treeview
+            for fila in resultados:
+                client_table_list_loans.insert("", "end", values=tuple(fila))
+            
+            mariadb_conexion.close()
+    except mariadb.Error as ex:
+        print("Error durante la conexión:", ex)
 
-def delete_selected_cliente(self):
+# Eliminar prestamo del cliente
+def delete_selected_prestamo(self):
     selected_items = self.prestamo_table.selection()
+    if not selected_items:
+        messagebox.showwarning("Selección vacía", "Por favor, seleccione un préstamo de la tabla.")
+        return
     try:
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:
