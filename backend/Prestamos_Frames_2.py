@@ -410,10 +410,6 @@ class P_Modificar(tk.Frame):
         #validate_number = self.register(validate_number_input)
         self.images = {}
         
-        #hacer algo similar a R_selection para decidir si modificar los libros que tiene un cliente asignados o la informacion de este?
-        #o hacer que solo se pueda modificar la informacion de cliente o los libros
-        #tomar esta misma decicion para eliminar
-        
 class P_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
@@ -423,10 +419,9 @@ class P_Listar(tk.Frame):
         self.images = {}
 
         #Marco listado prestamo-clientes
-        # self.left_frame2 = tk.Frame(self.canvas, bg="#FFFFFF")
         self.left_frame2 = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame2.pack(expand=True, side="right", fill="both")
-        self.left_frame2.place(x=200,y=220, height=490, width=1180)
+        self.left_frame2.place(x=200,y=230, height=455, width=1180)
 
         self.right_frame = tk.Frame(self)
         self.right_frame.pack(side="right", expand=True, fill="both")
@@ -434,16 +429,16 @@ class P_Listar(tk.Frame):
         # Texto para el nombre
 
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1035.0, 200.0, text="Editar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1135.0, 200.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(835.0, 200.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(935.0, 200.0, text="Agregar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1235.0, 200.0, text="Filtrar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1035.0, 180.0, text="Editar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1135.0, 180.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(835.0, 180.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(935.0, 180.0, text="Agregar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1235.0, 180.0, text="Filtrar", fill="#031A33", font=("Bold", 17))
 
        # Títulos para los Treeviews
         bold_font = font.Font(family="Bold", size=15, weight="bold")
-        self.label_prestamos = tk.Label(self.left_frame2, text="Tabla Prestamos", bg="#FAFAFA", fg="#031A33", font=bold_font)
-        self.label_prestamos.place(x=445.0, y=4.0, width=237.0, height=35.0)
+        self.label_prestamos = tk.Label(self.canvas, text="Tabla Prestamos", bg="#FAFAFA", fg="#031A33", font=bold_font)
+        self.label_prestamos.place(x=640.0, y=200.0, width=230.0, height=35.0)
 
 
         self.buscar = tk.Entry(self, bg="#FAFAFA", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
@@ -464,7 +459,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_c.place(x=890.0, y=90.0, width=90.0, height=100.0)
+        self.button_c.place(x=890.0, y=70.0, width=90.0, height=100.0)
 
         self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
         # Cargar y almacenar la imagen del botón
@@ -479,7 +474,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_c.place(x=790.0, y=90.0, width=90.0, height=100.0)
+        self.button_c.place(x=790.0, y=70.0, width=90.0, height=100.0)
 
         #Boton Filtrar
         # Cargar y almacenar las imágenes
@@ -496,7 +491,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_f.place(x=1190.0, y=90.0, width=90.0, height=100.0)
+        self.button_f.place(x=1190.0, y=70.0, width=90.0, height=100.0)
 
         #Boton Modificar
         # Cargar y almacenar las imágenes
@@ -513,7 +508,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_m.place(x=990.0, y=90.0, width=90.0, height=100.0)
+        self.button_m.place(x=990.0, y=70.0, width=90.0, height=100.0)
 
         self.images['boton_Eliminar_f'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
         
@@ -529,7 +524,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         )
-        self.button_d.place(x=1090, y=90.0, width=90.0, height=100.0)
+        self.button_d.place(x=1090, y=70.0, width=90.0, height=100.0)
 
         styletrees = ttk.Style()
         styletrees.configure("Rounded.Treeview", 
@@ -560,7 +555,7 @@ class P_Listar(tk.Frame):
         for col2 in columns2:
             self.prestamo_table.heading(col2, text=col2)
             self.prestamo_table.column(col2, width=90, anchor="center")
-        self.prestamo_table.pack(expand=True, fill="both", padx=40, pady=45)
+        self.prestamo_table.pack(expand=True, fill="both", padx=30, pady=5)
 
 
         scrollbar_pt = ttk.Scrollbar(self.prestamo_table, orient="vertical", command=self.prestamo_table.yview)
@@ -597,7 +592,7 @@ class P_Listar(tk.Frame):
 
         # Establecer las fechas automáticamente
         fecha_actual = datetime.now().strftime("%d/%m/%Y")
-        fecha_limite = (datetime.now() + timedelta(days=0)).strftime("%d/%m/%Y")
+        fecha_limite = (datetime.now() + timedelta(days=20)).strftime("%d/%m/%Y")
 
         self.fecha_registrar.insert(0, fecha_actual)
         self.fecha_limite.insert(0, fecha_limite)
@@ -730,11 +725,11 @@ class P_Listar(tk.Frame):
 
         tk.Label(filter_window, text="TABLA PRESTAMOS", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=250.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#.grid(row=4, column=5, padx=10, pady=5)
         tk.Label(filter_window, text="Ingrese el ID de Prestamo, Cliente y Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=70.0, width=530.0, height=35.0)#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="ID Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=210.0, y=130.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
+        tk.Label(filter_window, text="ID Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=130.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
         self.id_prestamos_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
         self.id_prestamos_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=5, column=1, padx=10, pady=5)
 
-        tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=500.0, y=130.0, width=185.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=460.0, y=130.0, width=185.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
         self.id_cliente_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
         self.id_cliente_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
 

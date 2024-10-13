@@ -314,8 +314,6 @@ def reading_clients(client_table_list_loans):
             # Insert new data into the Treeview
             for fila in resultados:
                 client_table_list_loans.insert("", "end", values=tuple(fila))
-            
-            mariadb_conexion.close()
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
 

@@ -770,21 +770,6 @@ class L_Modificar(tk.Toplevel):
         
         self.original_values = self.book_data.copy()  # Copia el diccionario
 
-        # Imprimir los datos recibidos
-        print("Datos del libro seleccionados:")
-        print(f"ID: {book_data[0]}")
-        print(f"Sala: {book_data[1]}")
-        print(f"Categoria: {book_data[2]}")
-        print(f"Asignatura: {book_data[3]}")
-        print(f"Cota: {book_data[4]}")
-        print(f"Registro: {book_data[5]}")
-        print(f"Edición: {book_data[10]}")
-        print(f"Volumen: {book_data[10]}")
-        print(f"Título: {book_data[6]}")
-        print(f"Autor: {book_data[7]}")
-        print(f"Editorial: {book_data[8]}")
-        print(f"Año: {book_data[9]}")
-        print(f"Ejemplares: {book_data[10]}")
 
         self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
@@ -1033,8 +1018,8 @@ class L_Modificar(tk.Toplevel):
         }
 
         # Agrega depuración para ver los valores actuales y originales
-        print("Valores actuales:", current_values)
-        print("Valores originales:", self.original_values)
+        # print("Valores actuales:", current_values)
+        # print("Valores originales:", self.original_values)
 
         # Comparar valores clave por clave
         differences = []
@@ -1135,17 +1120,24 @@ class L_Modificar(tk.Toplevel):
             messagebox.showerror("Error", "Debe seleccionar una asignatura.")
             return
 
-        print("Datos recogidos:")
-        for key, value in nuevos_valores.items():
+        # Validar que se haya seleccionado una categoría y una asignatura    
+        if nuevos_valores["ID_Categoria"] == "No se ha seleccionado una categoría" or not nuevos_valores["ID_Categoria"]:        
+            messagebox.showerror("Error", "Debe seleccionar una categoría.")        
+            return    
+        if nuevos_valores["ID_Asignatura"] == "No se ha seleccionado una asignatura" or not nuevos_valores["ID_Asignatura"]:        
+            messagebox.showerror("Error", "Debe seleccionar una asignatura.")        
+            return
+
+        print("Datos recogidos:")    
+        for key, value in nuevos_valores.items():        
             print(f"{key}: {value}")
 
-        # Actualizar los libros con los nuevos valores
-        if update_books(self.book_data, nuevos_valores):
-                messagebox.showinfo("Éxito", "Modificación del libro exitosa.")
-                self.clear_entries_modify()
-        else:
+        # Actualizar los libros con los nuevos valores    
+        if update_books(self.book_data, nuevos_valores):        
+            messagebox.showinfo("Éxito", "Modificación del libro exitosa.")        
+            self.clear_entries_modify()    
+        else:        
             messagebox.showinfo("Modificación fallida", "Libro mantiene sus valores.")
-
 
 
 
