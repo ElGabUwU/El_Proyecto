@@ -32,6 +32,7 @@ class P_Registrar(tk.Frame):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
+        self.parent=parent
         validate_number = self.register(validate_number_input)
         self.images = {}
 
@@ -111,7 +112,7 @@ class P_Registrar(tk.Frame):
             image=self.images['boton_Eliminar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: delete_client_loans(self),
+            command=lambda: self.verificar_eliminar(),
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -170,6 +171,14 @@ class P_Registrar(tk.Frame):
 
         reading_clients (self.clients_table_list_loans)
 
+
+    def verificar_eliminar(self):
+        if self.parent.id_rol == 1:
+            print("Sin permisos suficientes para eliminar!")
+            messagebox.showinfo("AVISO", "Sin permisos suficientes para eliminar!")
+        
+        else:
+            delete_client_loans(self)
     def open_register_window(self):
         filter_window = tk.Toplevel(self)
         filter_window.title("Registro")
@@ -407,6 +416,7 @@ class P_Modificar(tk.Frame):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
+        
         #validate_number = self.register(validate_number_input)
         self.images = {}
         
@@ -415,6 +425,7 @@ class P_Listar(tk.Frame):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
+        self.parent = parent
         #validate_number = self.register(validate_number_input)
         self.images = {}
 
@@ -518,7 +529,7 @@ class P_Listar(tk.Frame):
             image=self.images['boton_Eliminar_f'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: delete_selected_prestamo(self),
+            command=lambda: self.verificar_eliminar(),
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -561,6 +572,15 @@ class P_Listar(tk.Frame):
         scrollbar_pt = ttk.Scrollbar(self.prestamo_table, orient="vertical", command=self.prestamo_table.yview)
         self.prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
+    
+    
+    def verificar_eliminar(self):
+        if self.parent.id_rol == 1:
+            print("Sin permisos suficientes para eliminar!")
+            messagebox.showinfo("AVISO", "Sin permisos suficientes para eliminar!")
+        
+        else:
+            delete_selected_prestamo(self)
     
     def open_register_loan(self):
         filter_window = tk.Toplevel(self)

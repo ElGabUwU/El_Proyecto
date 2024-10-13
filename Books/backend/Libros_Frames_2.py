@@ -111,7 +111,7 @@ class L_Listar(tk.Frame):
             image=self.images['boton_Eliminar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: delete_selected(self),
+            command=lambda: self.verificar_eliminar(),
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -176,6 +176,15 @@ class L_Listar(tk.Frame):
         scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
+
+    def verificar_eliminar(self):
+        if self.parent.id_rol == 1:
+            print("Sin permisos suficientes para eliminar!")
+            messagebox.showinfo("AVISO", "Sin permisos suficientes para eliminar!")
+        
+        else:
+            delete_selected(self)
+
 
     def open_registrar_window(self):
         # Llamar directamente a la clase L_Registrar sin necesidad de seleccionar un elemento
