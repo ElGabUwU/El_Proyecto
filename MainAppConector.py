@@ -271,53 +271,23 @@ class Perfil(tk.Frame):
         #seccion de informacion del usuario
         self.canvas.create_text(263.0, 370.0, anchor="nw", text="Información del Usuario", fill="#040F21", font=("Montserrat Regular", 18))
         
-        self.update_user_info()
+        self.canvas.create_text(263.0, 418.0, anchor="nw", text=f"Nombre: {self.parent.nombre}", fill="#042344", font=("Montserrat Regular", 15))
+        
+        self.canvas.create_text(263.0, 467.0, anchor="nw", text=f"Apellido: {self.parent.apellido}", fill="#042344", font=("Montserrat Regular", 15))
 
-    def update_user_info(self):
-        """Método para actualizar la información del usuario en el perfil"""
-        usuario = app_state.usuario
-        if usuario:
-            self.canvas.itemconfig(self.username_text, text=f"Nombre de usuario: {usuario.nombre_usuario}")
-            self.canvas.itemconfig(self.password_text, text=f"Contraseña: {usuario.clave}")
-            self.canvas.itemconfig(self.role_text, text=f"Rol: {usuario.id_rol}")
-            self.canvas.itemconfig(self.first_name_text, text=f"Nombres: {usuario.nombre}")
-            self.canvas.itemconfig(self.last_name_text, text=f"Apellidos: {usuario.apellido}")
-            self.canvas.itemconfig(self.position_text, text=f"Cargo: {usuario.id_cargo}")
-            self.canvas.itemconfig(self.id_text, text=f"Cédula: {usuario.cedula}")
-        # else:
-        #     self.canvas.itemconfig(self.username_text, text=f"Nombre de usuario: {"Keyner_23"}")
+        self.canvas.create_text(263.0, 516.0, anchor="nw", text=f"Cargo: {self.cargo}", fill="#042344", font=("Montserrat Regular", 15))
+        
+        self.canvas.create_text(263.0, 565.0, anchor="nw", text=f"Cedula: {self.parent.cedula}", fill="#042344", font=("Montserrat Regular", 15))
+
+        """self.parent.U_nombre
+        self.parent.id_usuario
+        self.parent.id_cargo
+        self.parent.id_rol
+        self.parent.nombre
+        self.parent.apellido
+        self.parent.cedula"""
 
 
-# Definir la clase AppState y crear una instancia global
-class AppState:
-    def __init__(self):
-        self.usuario = None
-
-    def iniciar_sesion(self,usuario):
-        self.usuario = usuario
-
-app_state = AppState()
-
-# Definir la clase Usuario
-class Usuario:
-    def __init__(self, user_data):
-        self.id_usuario = user_data[0]
-        self.id_cargo = user_data[1]
-        self.id_rol = user_data[2]
-        self.nombre = user_data[3]
-        self.apellido = user_data[4]
-        self.cedula = user_data[5]
-        self.nombre_usuario = user_data[6]
-        self.clave = user_data[7]
-
-    def mostrar_informacion(self):
-        print(f"ID Usuario: {self.id_usuario}")
-        print(f"ID Cargo: {self.id_cargo}")
-        print(f"ID Rol: {self.id_rol}")
-        print(f"Nombre: {self.nombre}")
-        print(f"Apellido: {self.apellido}")
-        print(f"Cédula: {self.cedula}")
-        print(f"Nombre de Usuario: {self.nombre_usuario}")
 
 class Starter(tk.Tk):
     def __init__(self):
