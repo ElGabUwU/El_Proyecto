@@ -1,32 +1,10 @@
 import mysql.connector as mariadb
 from colorama import init, Fore, Back, Style
-from tkinter import messagebox
 from db.conexion import establecer_conexion
 
 init(autoreset=True)
 # Conectar a la base de datos
 
-
-# Crear un nuevo Pokémon
-# def create_user(ID_Cargo, ID_Rol, Nombre,Apellido,Cedula,Nombre_Usuario,Clave):
-#     print("CARGO:", ID_Cargo,"ID_Rol:", ID_Rol, "Nombre:", Nombre, "APELLIDO:", Apellido, "CEDULA:", Cedula)
-#     print("NOMBRE DE USUARIO:", Nombre_Usuario, "CLAVE:", Clave)
-#     try:
-#         mariadb_conexion = establecer_conexion()
-#         if mariadb_conexion:#.is_connected():
-#             cursor=mariadb_conexion.cursor()
-#             cursor.execute('''
-#                 INSERT INTO usuarios (ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clave)
-#             VALUES (%s, %s, %s, %s, %s, %s, %s)
-#         ''', (ID_Cargo, ID_Rol, Nombre,Apellido, Cedula, Nombre_Usuario, Clave))
-#             # Confirmar la transacción
-#             mariadb_conexion.commit()
-#             # Cerrar la conexión
-#             mariadb_conexion.close()
-#             return True
-#     except mariadb.Error as ex:
-#         print("Error durante la conexión:", ex)
-#         return False
 def create_user(ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clave):
     print("CARGO:", ID_Cargo, "ID_Rol:", ID_Rol, "Nombre:", Nombre, "APELLIDO:", Apellido, "CEDULA:", Cedula)
     print("NOMBRE DE USUARIO:", Nombre_Usuario, "CLAVE:", Clave)
@@ -90,14 +68,11 @@ def delete_user_db(ID_Usuario):
     
 def delete_selected_user(self):
     selected_items = self.user_table_list.selection()
-    if not selected_items:
-        messagebox.showwarning("Selección vacía", "Por favor, seleccione un usuario de la tabla.")
-        return
-
     try:
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:
             cursor = mariadb_conexion.cursor()
+            #cursor = mariadb_conexion.cursor()
             for item in selected_items:
                 item_id = self.user_table_list.item(item, 'values')[0]
                 

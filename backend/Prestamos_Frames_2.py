@@ -6,7 +6,6 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 #from Library.librerias import recoger_sesion, drop_sesion
 from Library.db_prestamos import *
 from Library.bd_prestamo_listado_Frames2 import *
-from Vistas.listas import *
 from tkcalendar import Calendar
 from datetime import datetime, timedelta
 import random
@@ -81,7 +80,7 @@ class P_Registrar(tk.Frame):
                 image=self.images['boton_imprimir'],
                 borderwidth=0,
                 highlightthickness=0,
-                # command=lambda: self.reading_books(self.book_table_list),
+                command=self.imprimir_seleccionado,
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -170,6 +169,49 @@ class P_Registrar(tk.Frame):
         scrollbar_pt.pack(side="right", fill="y")
 
         reading_clients (self.clients_table_list_loans)
+    def imprimir_seleccionado(self):
+        selected_items = self.clients_table_list_loans.selection()
+        if not selected_items:
+            messagebox.showwarning("Advertencia", "No se ha seleccionado ningún préstamo.")
+            return
+
+        selected_item = selected_items[0]
+        item_values = self.clients_table_list_loans.item(selected_item, 'values')
+        cliente_id = item_values[0]
+        prestamo_id = item_values[1]
+
+        try:
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+
+                # Consulta para obtener la información del cliente y préstamo
+                cursor.execute('''
+                    SELECT c.Cedula_Cliente, c.Nombre, c.Apellido, c.Telefono, c.Direccion, l.ID_Libro, l.Titulo, l.Autor
+                    FROM cliente c
+                    JOIN prestamos p ON c.ID_Cliente = p.ID_Cliente
+                    JOIN libro l ON p.ID_Libro = l.ID_Libro
+                    WHERE c.ID_Cliente = %s AND p.ID_Prestamo = %s
+                ''', (cliente_id, prestamo_id))
+
+                resultado = cursor.fetchone()
+                if resultado:
+                    cedula, nombre, apellido, telefono, direccion, id_libro, titulo, autor = resultado
+                    print("Cédula:", cedula)
+                    print("Nombre:", nombre)
+                    print("Apellido:", apellido)
+                    print("Teléfono:", telefono)
+                    print("Dirección:", direccion)
+                    print("ID Libro:", id_libro)
+                    print("Título:", titulo)
+                    print("Autor:", autor)
+                else:
+                    print("No se encontró información para el cliente y préstamo seleccionados.")
+                
+                mariadb_conexion.close()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+            messagebox.showerror("Error", f"Error durante la conexión: {ex}")
 
 
     def verificar_eliminar(self):

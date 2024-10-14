@@ -11,7 +11,7 @@ def filter_books_one(self):
                 except ValueError:
                     converted_values.append(value)
             values = [str(value) for value in values]
-            if (id_cliente in values[2].lower() and values[1].upper()):
+            if (id_cliente in values[1].lower() and values[1].upper()):
                 self.prestamo_table.item(row, tags='match')
             else:
                 self.prestamo_table.item(row, tags='nomatch')
@@ -32,8 +32,8 @@ def filter_books_two(self):
                 except ValueError:
                     converted_values.append(value)
             values = [str(value) for value in values]
-            if (id_prestamo in values[1].lower() and values[3].upper()):
-                self.prestamo_table.item(row, tags='match')
+            if (id_prestamo in values[3].lower() and values[3].upper()):
+                self.libro_prestamo_table.item(row, tags='match')
             else:
                 self.prestamo_table.item(row, tags='nomatch')
 
