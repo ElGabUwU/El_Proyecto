@@ -8,32 +8,6 @@ from Library.fun_db_users import *
 import random
 from db.conexion import establecer_conexion
 
-#ID_Rol?
-#hacer que nombre y apellido sean un solo entry?
-def campos_validacion(Cargo,Nombre,Apellido,Cedula,Nombre_Usuario,Clave):
-    if not Cargo:
-        messagebox.showerror("Error", "El campo 'Cargo' es obligatorio.")
-        return True
-    if not Nombre:
-        messagebox.showerror("Error", "El campo 'Nombre' es obligatorio.")
-        return True
-    if not Apellido:
-        messagebox.showerror("Error", "El campo 'Apellido' es obligatorio.")
-        return True
-    if not Cedula:
-        messagebox.showerror("Error", "El campo 'Cedula' es obligatorio.")
-        return True
-    
-    if not Nombre_Usuario:
-        messagebox.showerror("Error", "El campo 'Nombre de Usuario' es obligatorio.")
-        return True
-    
-    if not Clave:
-        messagebox.showerror("Error", "El campo 'Contraseña' es obligatorio.")
-        return True
-    else:
-        return False
-
 
 def validate_number_input(text):
         if text == "":
@@ -47,114 +21,15 @@ def validate_number_input(text):
 def relative_to_assets(path: str) -> str:
     return f"./assets_2/{path}"
 
-class U_Registrar(tk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
+class U_Registrar(tk.Toplevel):
+    def __init__(self, parent,*args, **kwargs):
+        super().__init__()
+        self.parent = parent
+        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
-        validate_number = self.register(validate_number_input)
+        self.validate_number = self.register(validate_number_input)
         self.images = {}
         
-        # Titulos de los inputs
-        self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del nuevo usuario a agregar", fill="#a6a6a6", font=("Bold", 17))
-        #fila 1
-        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Cargo", fill="#a6a6a6", font=("Bold", 17))
-
-        #fila 2
-        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Nombre", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Apellido", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Cedula", fill="#a6a6a6", font=("Bold", 17))
-        
-        
-        #fila 3
-        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Nombre de usuario", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Contraseña", fill="#a6a6a6", font=("Bold", 17))
-        
-        
-        #fila 4
-        #-------------------------------------------------------------------------------------
-        # Crear y colocar los widgets
-        #primera fila
-        self.input_nombre = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.input_nombre.place(x=520.0, y=282.0, width=237.0, height=38.0)
- 
-        self.input_apellido = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.input_apellido.place(x=263.0, y=282.0, width=237.0, height=37.5)
-        
-        self.input_cedula = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.input_cedula.place(x=779.0, y=282.0, width=237.0, height=37.5)
-        
-        
-        #segunda fila
-        self.input_username = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.input_username.place(x=263.0, y=382.0, width=237.0, height=37.5)
-        
-        self.input_password = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.input_password.place(x=520.0, y=382.0, width=237.0, height=37.5)
-        
-        #tercera fila
-        
-        #Select tipo de pokemon
-        stylebox = ttk.Style()
-        stylebox.theme_use('clam')
-        stylebox.configure("TCombobox",
-                        fieldbackground="#2E59A7",  # Fondo del campo de entrada
-                        background="#2E59A7",  # Fondo del desplegable
-                        bordercolor="#041022",  # Color del borde
-                        arrowcolor="#ffffff",  # Color de la flecha
-                        padding= "9",
-                        ) # padding para agrandar la altura del select
-        
-        cargos = {
-        "Encargado de Servicio": 1, "Asistente Bibliotecario": 2
-        
-        }
-        
-        self.cargo_combobox = ttk.Combobox(self, values=list(cargos.keys()), state="readonly", width=30, font=("Bold", 10), style="TCombobox")
-        self.cargo_combobox.place(x=263.0, y=181.5)
-        
-        def register_user():
-            #REVISAR COMO SE SUBIERON LOS CARGOS A LA BD PARA HACER LAS VALIDACIONES    
-            
-            N_cargo = self.cargo_combobox.get() if self.cargo_combobox else None 
-            
-            if isinstance(N_cargo, str):
-                cargo = cargos.get(N_cargo, None)
-            else:
-                cargo = None
-            
-            nombre= self.input_nombre.get()
-            apellido=self.input_apellido.get()
-            cedula=self.input_cedula.get()
-            username=self.input_username.get()
-            password=self.input_password.get()
-            rol=1
-            
-            print("cargo ", {cargo},"nombre ", {nombre}, "apellido ", {apellido}, "cedula ", {cedula}, "username ", {username}, "password ", {password})
-            print("\n")
-            
-            
-            if campos_validacion(cargo,nombre,apellido,cedula,username,password) == True:
-                return
-            
-            if self.cedula_existe(cedula):
-                messagebox.showinfo("Error", "La cédula ya está registrada.")
-                return
-            
-            
-            if create_user(cargo, rol, nombre, apellido, cedula, username, password):
-                messagebox.showinfo("Éxito", "Registro éxitoso del usuario.")
-                self.cargo_combobox.set('')
-                self.input_nombre.delete(0, tk.END)
-                self.input_apellido.delete(0, tk.END)
-                self.input_cedula.delete(0, tk.END)
-                self.input_username.delete(0, tk.END)
-                self.input_password.delete(0, tk.END)
-            else:
-                messagebox.showinfo("Registro fallido", "Usuario no pudo registrarse.")
-                
-        
-        #-------------------------------------------------------------------------------
         # Cargar y almacenar las imágenes
         self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
 
@@ -165,13 +40,109 @@ class U_Registrar(tk.Frame):
             image=boton_R,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: register_user(),
+            command=lambda: self.register_user(),
             relief="flat",
             bg="#031A33",
             activebackground="#031A33",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         ).place(x=265.0, y=465.0, width=130.0, height=40.0)
 
+                #REVISAR COMO SE SUBIERON LOS CARGOS A LA BD PARA HACER LAS VALIDACIONES 
+        stylebox = ttk.Style()
+        stylebox.theme_use('clam')
+        stylebox.configure("TCombobox",
+                fieldbackground="#2E59A7",  # Fondo del campo de entrada
+                background="#2E59A7",  # Fondo del desplegable
+                bordercolor="#041022",  # Color del borde
+                arrowcolor="#ffffff",  # Color de la flecha
+                padding= "9",
+                ) # padding para agrandar la altura del select
+        
+        self.cargos = {
+        "Encargado de Servicio": 1, "Asistente Bibliotecario": 2
+        }
+            
+        self.cargo_combobox = ttk.Combobox(self, values=list(self.cargos.keys()), state="readonly", width=30, font=("Bold", 10), style="TCombobox")
+        self.cargo_combobox.place(x=263.0, y=181.5)
+        self.cargo_combobox.set("Encargado de Servicio")  # Establece el valor inicial a "1I" 
+        # self.combobox1 = ttk.Combobox(self, values=self.cargos, state="readonly", width=30, font=("Montserrat Medium", 10))
+        # self.combobox1.place(x=263.0, y=181.5)
+        # self.cargo_combobox.set("1I")  # Establece el valor inicial a "1I"
+        # self.combobox1.bind("<<ComboboxSelected>>", self.cargos)
+
+        # Crear y colocar los widgets
+        #primera fila
+        self.input_nombre = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
+        self.input_nombre.place(x=520.0, y=282.0, width=237.0, height=38.0)
+        self.input_apellido = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
+        self.input_apellido.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        
+        self.input_cedula = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(self.validate_number, "%P"))
+        self.input_cedula.place(x=779.0, y=282.0, width=237.0, height=37.5)
+        #segunda fila
+        self.input_username = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
+        self.input_username.place(x=263.0, y=382.0, width=237.0, height=37.5)
+        #tercera fila
+        self.input_password = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
+        self.input_password.place(x=520.0, y=382.0, width=237.0, height=37.5)
+
+        self.inicializador_titulos()
+        # self.register_user()
+        # self.validacion_sala(None)
+    
+    def inicializador_titulos(self):
+        # Titulos de los inputs
+        self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del nuevo usuario a agregar", fill="#a6a6a6", font=("Bold", 17))
+        #fila 1
+        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Cargo", fill="#a6a6a6", font=("Bold", 17))
+
+        #fila 2
+        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Nombre", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Apellido", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Cedula", fill="#a6a6a6", font=("Bold", 17))
+        
+        #fila 3
+        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Nombre de usuario", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Contraseña", fill="#a6a6a6", font=("Bold", 17))
+        #fila 4
+        
+    def register_user(self):
+        cargo=self.cargo_combobox.get()
+        cargo_id = self.cargos.get(cargo, None)
+        # if cargo=="Encargado de Servicio":
+        #     self.cargo_combobox.insert(0,1)
+        # elif cargo=="Asistente Bibliotecario":
+        #      self.cargo_combobox.insert(0,2)
+        nombre= self.input_nombre.get()
+        apellido=self.input_apellido.get()
+        cedula=self.input_cedula.get()
+        username=self.input_username.get()
+        password=self.input_password.get()
+        rol=1
+
+        print(f"cargo: {cargo_id}, nombre: {nombre}, apellido: {apellido}, cedula: {cedula}, username: {username}, password: {password}")
+        print("\n")     
+                
+        if self.campos_validacion(cargo_id, nombre, apellido, cedula, username, password):
+            return
+            
+        if self.cedula_existe(cedula):
+            messagebox.showinfo("Error", "La cédula ya está registrada.")
+            return
+        
+        if create_user(cargo_id, rol, nombre, apellido, cedula, username, password):
+            messagebox.showinfo("Éxito", "Registro éxitoso del usuario.")
+            # Limpiar los campos después del registro exitoso
+            self.cargo_combobox.set('Encargado de Servicio')
+            self.input_nombre.delete(0, tk.END)
+            self.input_apellido.delete(0, tk.END)
+            self.input_cedula.delete(0, tk.END)
+            self.input_username.delete(0, tk.END)
+            self.input_password.delete(0, tk.END)
+        else:
+            messagebox.showinfo("Registro fallido", "Usuario no pudo registrarse.")
+                
+        #-------------------------------------------------------------------------------
     def cedula_existe(self, cedula):
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:#.is_connected():
@@ -180,10 +151,35 @@ class U_Registrar(tk.Frame):
             cursor.execute(query, (cedula,))
             result = cursor.fetchone()
             return result[0] > 0
+    
+    #ID_Rol?
+#hacer que nombre y apellido sean un solo entry?
+    def campos_validacion(self, Cargo, Nombre, Apellido, Cedula, Nombre_Usuario, Clave):
+        if not Cargo:
+            messagebox.showerror("Error", "El campo 'Cargo' es obligatorio.")
+            return True
+        elif not Nombre:
+            messagebox.showerror("Error", "El campo 'Nombre' es obligatorio.")
+            return True
+        elif not Apellido:
+            messagebox.showerror("Error", "El campo 'Apellido' es obligatorio.")
+            return True
+        elif not Cedula:
+            messagebox.showerror("Error", "El campo 'Cédula' es obligatorio.")
+            return True
+        elif not Nombre_Usuario:
+            messagebox.showerror("Error", "El campo 'Nombre de Usuario' es obligatorio.")
+            return True
+        elif not Clave:
+            messagebox.showerror("Error", "El campo 'Contraseña' es obligatorio.")
+            return True
+        else:
+            return False
 
 class U_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
+        self.parent=parent
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         validate_number = self.register(validate_number_input)
@@ -216,7 +212,7 @@ class U_Listar(tk.Frame):
                 image=self.images['boton_cargar'],
                 borderwidth=0,
                 highlightthickness=0,
-                command=self.refresh_frame,
+                command= self.refresh_frame,
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -233,7 +229,7 @@ class U_Listar(tk.Frame):
                 image=self.images['boton_agregar'],
                 borderwidth=0,
                 highlightthickness=0,
-                #command=self.refresh_frame,
+                command=lambda: self.open_registrar_window(),
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -343,6 +339,10 @@ class U_Listar(tk.Frame):
         # Recargar los datos desde la base de datos
         list_users_db(self.user_table_list)
     
+    def open_registrar_window(self):
+        # Llamar directamente a la clase U_Registrar sin necesidad de seleccionar un elemento
+            U_Registrar(self.parent)
+
     def open_modify_window(self,parent):
         filter_window = tk.Toplevel(self)
         filter_window.title("Modificar Usuario")
@@ -529,8 +529,8 @@ class U_Modificar(tk.Frame):
             print("cargo ", {cargo}, "nombre ", {nombre}, "apellido ", {apellido}, "cedula ", {cedula}, "username ", {username}, "password ", {password})
         
             print("\n")
-            if campos_validacion(cargo,nombre,apellido,cedula,username,password) == True:
-                    return
+            # if campos_validacion(cargo,nombre,apellido,cedula,username,password) == True:
+            #         return
             if not id_user:
                 messagebox.showerror("Error", "El campo 'ID' es obligatorio.")
                 return 

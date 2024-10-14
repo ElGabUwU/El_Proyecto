@@ -26,9 +26,7 @@ class L_Listar(tk.Frame):
     
     def __init__(self, parent):
         super().__init__(parent)
-        # self.canvas = tk.Canvas(self, bg="#FFFFFF", width=1366, height=768)
         self.parent = parent
-        # self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="right", fill="both", expand=True)
         self.images = {}
@@ -167,9 +165,6 @@ class L_Listar(tk.Frame):
             if col not in ("ID", "Sala"):
                 self.book_table_list.column(col, width=85, anchor="center")
             self.book_table_list.heading(col, text=col)
-
-        # self.toggle_button = tk.Button(self.left_frame_list, text="Toggle Copies", command=self.toggle_copies)
-        # self.toggle_button.pack(side=tk.BOTTOM, pady=10)
 
         self.book_table_list.pack(expand=True, fill="both", padx=30, pady=5)
 
@@ -384,7 +379,7 @@ class L_Registrar(tk.Toplevel):
         self.parent = parent
         self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
-       # validate_number = self.register(validate_number_input)
+       # validate_number = self.register(validat e_number_input)
         self.images = {}
         self.salas_types = ["1I", "2E", "3G"]
         self.categoria_types_general=["Ciencias de la Computación, Información y Obras Generales", "Filosofía y Psicología", "Religión-Teología", "Ciencias Sociales","Lenguas",
