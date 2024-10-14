@@ -42,21 +42,16 @@ class Usuario:
         print(f"Nombre de Usuario: {self.nombre_usuario}")
 
 
-# Archivo de login
-usuario_actual = None
-
 def iniciar_sesion(username, password):
-    global usuario_actual
     user_data = get_user_by_username(username)
     if user_data and is_password(password, user_data):
-        usuario_actual = Usuario(user_data)
+        usuario = Usuario(user_data)
         print("Inicio de sesión exitoso")
-        usuario_actual.mostrar_informacion()
-        return usuario_actual
+        usuario.mostrar_informacion()
+        return usuario
     else:
         print("Nombre de usuario o contraseña incorrectos")
         return None
-
 
 
 

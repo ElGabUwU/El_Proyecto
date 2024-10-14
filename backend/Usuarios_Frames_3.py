@@ -2,7 +2,6 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
-from tkinter import font
 #from Library.librerias import recoger_sesion, drop_sesion
 from Library.fun_db_users import *
 #from Vistas.listas import *
@@ -197,7 +196,7 @@ class U_Listar(tk.Frame):
         self.user_frame_list = tk.Frame(self.canvas, bg="#FFFFFF")
         self.user_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
         self.user_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
-        self.user_frame_list.place(x=215,y=235, height=460, width=1150)
+        self.user_frame_list.place(x=215,y=205, height=480, width=1150)
 
         # Texto para el nombre
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
@@ -231,9 +230,10 @@ class U_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=910.0, y=80.0, width=90.0, height=100.0)
+        self.button_e.place(x=910.0, y=60.0, width=140.0, height=100.0)
 
-        self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
+            # Cargar y almacenar las imágenes
+        self.images['boton_eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -247,13 +247,11 @@ class U_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo 
             )
-        self.button_e.place(x=1010.0, y=80.0, width=90.0, height=100.0)
+        self.button_e.place(x=1175.0, y=60.0, width=130.0, height=100.0)
 
-            # Cargar y almacenar las imágenes
         self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6_editar.png"))
-            
-            # Cargar y almacenar la imagen del botón
-        self.button_e = tk.Button(
+                    # Cargar y almacenar la imagen del botón
+        self.button_m = tk.Button(
             self,
             image=self.images['boton_modificar'],
             borderwidth=0,
@@ -264,22 +262,7 @@ class U_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo  
             )
-        self.button_e.place(x=1110.0, y=80.0, width=90.0, height=100.0)
-
-        self.images['boton_eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
-                    # Cargar y almacenar la imagen del botón
-        self.button_m = tk.Button(
-            self,
-            image=self.images['boton_eliminar'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: delete_selected_user(self) ,
-            relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
-            activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo  
-            )
-        self.button_m.place(x=1210.0, y=80.0, width=90.0, height=100.0)
+        self.button_m.place(x=1045.0, y=60.0, width=130.0, height=100.0)
 
         style = ttk.Style()
         style.configure("Rounded.Treeview", 

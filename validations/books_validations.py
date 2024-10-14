@@ -15,22 +15,17 @@ def format_title(texto):
         return texto[0].upper() + texto[1:]
     return texto
 
+
 def validate_and_format_title(titulo):
-    allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ áéíóúÁÉÍÓÚñÑ.,;:!?-"
+    allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ áéíóúÁÉÍÓÚñÑ.,;:!?¡¿-"
     
     # Filtrar caracteres no permitidos
     filtered_text = ''.join([char for char in titulo if char in allowed_chars])
-    
-    # Evitar dos signos de puntuación consecutivos y permitir solo uno
-    filtered_text = re.sub(r'([.,;:!?-]){2,}', r'\1', filtered_text)
-    
-    # Evitar dos signos de puntuación diferentes consecutivos
-    filtered_text = re.sub(r'([.,;:!?-])([.,;:!?-])', r'\1', filtered_text)
-    
-    # Formatear el texto para capitalizar solo la primera letra
-    formatted_text = format_title(filtered_text)
-    
-    return formatted_text
+
+    # Evitar signos de puntuación entre letras
+    filtered_text = re.sub(r'([a-zA-Z])([.,;:!?¡¿-]+)([a-zA-Z])', r'\1 \3', filtered_text)
+
+    return filtered_text
 
 # Validaciones para Cota
 def limitar_longitud_cota(texto, max_length=14):
@@ -73,6 +68,12 @@ def longitud_nro_registro(texto, max_length=10):
     if len(texto) >= max_length:
         return texto[:max_length]
     return texto
+def allow_only_numbers_and_dot_at_thousands(text):
+    # Permitir solo números y puntos en el formato correcto
+    if re.match(r'^\d{1,3}(\.\d{0,3})*$', text):
+        return True
+    return False
+
 
 def longitud_ano(texto, max_length=4):
     if len(texto) >= max_length:
@@ -88,7 +89,14 @@ def longitud_volumen(texto, max_length=2):
     if len(texto) >= max_length:
         return texto[:max_length]
     return texto
+#VALIDACION DE SALAS 
+def mostrar_opciones(self, categoria_values, asignatura_values):
 
+        self.categoria_cb['values'] = categoria_values
+        self.asignatura_cb['values'] = asignatura_values
+        self.check_changes()
+        
+   
 
 #VALIDACION DE DATOS INGRESADOS
 def validar_cota(cota):
@@ -97,7 +105,7 @@ def validar_cota(cota):
     if len(cota) == 3 and not cota.isalpha():
         return "Las cotas de longitud 3 solo deben contener letras."
     if ".." in cota:
-        return "La cota no puede contener dos puntos consecutivos."
+        return "La cota no puede contener puntos consecutivos."
     if not re.match(r'^[a-zA-Z0-9.]+$', cota):
         return "La cota solo puede contener letras, números y puntos."
     return None
@@ -105,6 +113,51 @@ def validar_cota(cota):
 def validar_titulo(titulo):
     if len(titulo) < 4:
         return "La longitud del título debe ser al menos de 4 caracteres."
+
+    # Evitar más de un punto consecutivo
+    if ".." in titulo:
+        return "El título no puede contener más de un punto consecutivo."
+
+    # Evitar más de un signo de exclamación consecutivo
+    if "!!" in titulo or "¡¡" in titulo:
+        return "El título no puede contener más de un signo de exclamación consecutivo."
+
+    # Evitar más de un signo de interrogación consecutivo
+    if "??" in titulo or "¿¿" in titulo:
+        return "El título no puede contener más de un signo de interrogación consecutivo."
+
+    # Evitar más de un guion consecutivo
+    if "--" in titulo:
+        return "El título no puede contener más de un guion consecutivo."
+
+    # Evitar más de una coma consecutiva
+    if ",," in titulo:
+        return "El título no puede contener más de una coma consecutiva."
+
+    # Evitar más de un punto y coma consecutivo
+    if ";;" in titulo:
+        return "El título no puede contener más de un punto y coma consecutivo."
+
+    # Evitar más de un signo de dos puntos consecutivo
+    if "::" in titulo:
+        return "El título no puede contener más de un signo de dos puntos consecutivo."
+
+    # Asegurar que los signos de interrogación y exclamación están correctamente abiertos y cerrados
+    if titulo.count("¿") != titulo.count("?"):
+        return "El título debe tener un número igual de signos de apertura y cierre de interrogación."
+    if titulo.count("¡") != titulo.count("!"):
+        return "El título debe tener un número igual de signos de apertura y cierre de exclamación."
+
+    # Asegurar que los signos de puntuación están en el orden correcto
+    if re.search(r'[^¿?!¡][?!¡¿]', titulo):
+        return "El título tiene signos de puntuación en el orden incorrecto."
+
+    # Asegurar que los signos de interrogación y exclamación abren y cierran correctamente
+    if re.search(r'¿[^?]*$', titulo) or re.search(r'¡[^!]*$', titulo):
+        return "El título tiene un signo de apertura sin su correspondiente cierre."
+
+    return None  # Título válido
+
 
 def validar_autor(autor):
     if len(autor) < 5:
@@ -165,55 +218,73 @@ def validar_nro_registro_unico_modificar(n_registro, id_libro_original):
         cursor.execute("SELECT ID_Libro FROM libro WHERE n_registro = %s AND ID_Libro != %s", (n_registro, id_libro_original))
         resultado = cursor.fetchone()
         conn.close()
-        
         if resultado:
             id_libro_existente = resultado[0]
             return f"El libro con ID {id_libro_existente} ya tiene el número de registro {n_registro}."
     return None
 
 
-
-
-    
-def validar_campos(cota, titulo, autor, editorial, n_registro, n_volumenes, edicion, year, id_libro):
+def validar_campos(categoria, asignatura, cota, titulo, autor, editorial, n_registro, n_volumenes, edicion, year, id_libro=None):
     errores = []
-
+    
+    # Validación de Categoría y Asignatura
+    if (categoria == "No se ha seleccionado una categoría" or not categoria) and \
+       (asignatura == "No se ha seleccionado una asignatura" or not asignatura):
+        errores.append("Debe seleccionar una categoría y una asignatura.")
+    elif categoria == "No se ha seleccionado una categoría" or not categoria:
+        errores.append("Debe seleccionar una categoría.")
+    elif asignatura == "No se ha seleccionado una asignatura" or not asignatura:
+        errores.append("Debe seleccionar una asignatura.")
+    
+    
+    # Validar Cota
     error_cota = validar_cota(cota)
     if error_cota:
         errores.append(error_cota)
-
+    
+    # Validar Título
     error_titulo = validar_titulo(titulo)
     if error_titulo:
         errores.append(error_titulo)
-
+    
+    # Validar Autor
     error_autor = validar_autor(autor)
     if error_autor:
         errores.append(error_autor)
-
+    
+    # Validar Editorial
     error_editorial = validar_editorial(editorial)
     if error_editorial:
         errores.append(error_editorial)
-
+    
+    # Validar Número de Registro
     error_n_registro = validar_n_registro(n_registro)
     if error_n_registro:
         errores.append(error_n_registro)
     else:
-        print(f"Validar número de registro con ID libro: {id_libro}")  # Depuración
-        error_n_registro_repetido = validar_nro_registro_unico_modificar(n_registro, id_libro)
+        if id_libro:
+            print(f"Validar número de registro para modificación con ID libro: {id_libro}")  # Depuración
+            error_n_registro_repetido = validar_nro_registro_unico_modificar(n_registro, id_libro)
+        else:
+            print(f"Validar número de registro para creación: {n_registro}")  # Depuración
+            error_n_registro_repetido = validar_nro_registro_unico(n_registro)
+        
         if error_n_registro_repetido:
             errores.append(error_n_registro_repetido)
     
-
-                
+    # Validar Número de Volúmenes
     error_n_volumenes = validar_n_volumenes(n_volumenes)
     if error_n_volumenes:
         errores.append(error_n_volumenes)
-
+    
+    # Validar Edición
     error_edicion = validar_edicion(edicion)
     if error_edicion:
         errores.append(error_edicion)
-
+    
+    # Validar Año
     if not validate_year(year):
         errores.append("El año debe ser un número de 4 dígitos entre 1500 y el año actual.")
-
+    
     return errores
+

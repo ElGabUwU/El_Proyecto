@@ -3,15 +3,12 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
-#from Library.librerias import recoger_sesion, drop_sesion
 from Books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
-from Vistas.listas import *
 import random
+import mariadb
 from db.conexion import establecer_conexion
-from validations.books_validations import *
-
 def validate_number_input(text):
         if text == "":
             return True
@@ -34,8 +31,9 @@ class L_Listar(tk.Frame):
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="right", fill="both", expand=True)
         self.images = {}
+        self.book_data = {}  # Inicializar como un diccionario
 
-
+        
         stylebotn = ttk.Style()
         stylebotn.configure("Rounded.TEntry", 
                             fieldbackground="#031A33", 
@@ -50,11 +48,6 @@ class L_Listar(tk.Frame):
         self.left_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
         self.left_frame_list.place(x=215,y=205, height=480, width=1150)
-
-        # Títulos para los Treeviews
-        bold_font = font.Font(family="Bold", size=15, weight="bold")
-        self.label_usuarios = tk.Label(self.canvas, text="Tabla Libros", bg="#FAFAFA", fg="#031A33", font=bold_font)
-        self.label_usuarios.place(x=660.0, y=170.0, width=225.0, height=38.0)
 
 
         """"self.cota = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="solid" , borderwidth=0.5)
@@ -184,6 +177,9 @@ class L_Listar(tk.Frame):
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
 
+        self.book_table_list.bind("<Double-1>", self.on_book_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
+
+
     def open_registrar_window(self):
         # Llamar directamente a la clase L_Registrar sin necesidad de seleccionar un elemento
         L_Registrar(self.parent)
@@ -227,7 +223,57 @@ class L_Listar(tk.Frame):
                             messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
         except mariadb.Error as ex:
                 print("Error durante la conexión:", ex)
-  
+        
+    def on_book_double_click(self, event):
+        try:
+            selected_item = self.book_table_list.selection()[0]
+            libro_valores = self.book_table_list.item(selected_item, 'values')
+
+            self.book_data = {
+                "ID": libro_valores[0],
+                "ID_Sala": libro_valores[1],
+                "ID_Categoria": libro_valores[2],
+                "ID_Asignatura": libro_valores[3],
+                "Cota": libro_valores[4],
+                "n_registro": libro_valores[5],
+                "Titulo": libro_valores[6],
+                "Autor": libro_valores[7],
+                "Editorial": libro_valores[8],
+                "Año": libro_valores[9],
+                "Edicion": libro_valores[10],
+                "n_volumenes": libro_valores[11],
+                "n_ejemplares": libro_valores[12]  # Asegúrate de que coincida con tu índice
+            }
+
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+
+                cursor.execute('''
+                    SELECT ID_Libro
+                    FROM libro
+                    WHERE autor = %s AND editorial = %s AND titulo = %s AND año = %s
+                ''', (self.book_data["Autor"], self.book_data["Editorial"], self.book_data["Titulo"], self.book_data["Año"]))
+
+                ejemplares = cursor.fetchall()
+
+                for ejemplar in ejemplares:
+                    # Encuentra el ID_Libro en el Treeview y selecciónalo
+                    for row in self.book_table_list.get_children():
+                        if self.book_table_list.item(row, 'values')[0] == str(ejemplar[0]):
+                            self.book_table_list.selection_add(row)
+
+                mariadb_conexion.close()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+            messagebox.showerror("Error", f"Error durante la conexión: {ex}")
+        except IndexError:
+            print("No se ha seleccionado ningún libro.")
+            messagebox.showerror("Error", "No se ha seleccionado ningún libro.")
+
+
+
+
     def open_filter_window(self,parent):
         filter_window = tk.Toplevel(self)
         filter_window.title("Filtrar")
@@ -432,7 +478,7 @@ class L_Registrar(tk.Toplevel):
                 image=boton_R,
                 borderwidth=0,
                 highlightthickness=0,
-                command=lambda: self.register_book,
+                command=lambda: self.register_book(),
                 relief="flat",
                 bg="#031A33",
                 activebackground="#031A33", # Mismo color que el fondo del botón
@@ -538,71 +584,75 @@ class L_Registrar(tk.Toplevel):
         self.ano_m.bind("<Return>", self.focus_next_widget)
         self.ano_m.bind("<KeyPress>",self.on_key_press)
     
-    
     def on_key_press(self, event):
         widget = event.widget
         current_text = widget.get()
         
-        if widget == self.titulo_m:
-            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
-                return
-            if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,;:!?-":
-                return "break"
-            if len(current_text) >= 166:
-                return "break"
-            current_text = longitud_titulo(current_text)
-            formatted_text = validate_and_format_title(current_text)
-        elif widget == self.cota:
+        if widget == self.cota:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
             if not allow_only_letters_numbers_dots(event.char):
                 return "break"
-            if len(current_text) >= 14:
+            
+            # Guardar la posición del cursor antes de añadir el nuevo carácter
+            cursor_position = widget.index(tk.INSERT)
+            
+            # Añadir el nuevo carácter al texto actual en la posición del cursor
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            
+            # Limitar la longitud y convertir a mayúsculas antes de actualizar el widget
+            new_text = limitar_longitud_cota(new_text)
+            formatted_text = convert_to_uppercase(new_text)
+
+            # Actualizar el campo de entrada
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            
+            # Restaurar la posición del cursor
+            widget.icursor(cursor_position + 1)
+
+            return "break"
+        elif widget == self.registro_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not allow_only_numbers_and_dot_at_thousands(current_text + event.char):
                 return "break"
-            current_text = limitar_longitud_cota(current_text)
-            formatted_text = convert_to_uppercase(current_text)
+            formatted_text = current_text + event.char
+            formatted_text = current_text
+        elif widget == self.titulo_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,;:!?¿¡-":
+                return "break"
+            current_text = longitud_titulo(current_text)
+            current_text = format_title(current_text)
+            formatted_text = validate_and_format_title(current_text)
         elif widget == self.autor_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
             if not event.char.isalpha() and event.char != " ":
                 return "break"
-            if len(current_text) >= 53:
-                return "break"
             current_text = longitud_autor(current_text)
             formatted_text = validar_y_formatear_texto(current_text)
+            
         elif widget == self.editorial_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
             if not event.char.isalpha() and event.char != " ":
                 return "break"
-            if len(current_text) >= 49:
-                return "break"
             current_text = longitud_editorial(current_text)
             formatted_text = validar_y_formatear_texto(current_text)
-        elif widget == self.registro_m:
-            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
-                return
-            if not event.char.isdigit():
-                return "break"
-            if len(current_text) >= 10:
-                return "break"
-            current_text = longitud_nro_registro(current_text)
-            formatted_text = current_text
         elif widget == self.ano_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
             if not event.char.isdigit():
                 return "break"
-            if len(current_text) >= 4:
-                return "break"
-            current_text = longitud_anio(current_text)
+            current_text = longitud_ano(current_text)
             formatted_text = current_text
         elif widget == self.edicion_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
             if not event.char.isdigit():
-                return "break"
-            if len(current_text) >= 2:
                 return "break"
             current_text = longitud_nro_edicion(current_text)
             formatted_text = current_text
@@ -611,21 +661,20 @@ class L_Registrar(tk.Toplevel):
                 return
             if not event.char.isdigit():
                 return "break"
-            if len(current_text) >= 2:
-                return "break"
             current_text = longitud_volumen(current_text)
             formatted_text = current_text
-        
+
         # Guardar la posición del cursor
         cursor_position = widget.index(tk.INSERT)
-        
+
         # Actualizar el campo de entrada
         widget.delete(0, tk.END)
         widget.insert(0, formatted_text)
-        
+
         # Restaurar la posición del cursor
         widget.icursor(cursor_position)
-
+        event.widget.after(1,formatted_text)
+    
     def focus_next_widget(self, event):
         event.widget.tk_focusNext().focus()
         return "break"
@@ -635,7 +684,6 @@ class L_Registrar(tk.Toplevel):
         
     def actualizar_opciones(self, combobox, values):
         combobox['values'] = values
-        combobox.set('')
 
     def mostrar_opciones(self, categoria_values, asignatura_values):
         self.actualizar_opciones(self.categoria_cb, categoria_values)
@@ -643,45 +691,69 @@ class L_Registrar(tk.Toplevel):
 
     def validacion_sala(self, event):
         sala_seleccionada = self.combobox1.get()
-        
-        
-        if sala_seleccionada == self.combobox1:
-            self.categoria_cb.set(self.categoria_cb)
-            self.asignatura_cb.set(self.asignatura_cb)
-        else:
+
+        # Establecer los valores por defecto
+        if sala_seleccionada == "1I":
             self.categoria_cb.set("No se ha seleccionado una categoría")
             self.asignatura_cb.set("No se ha seleccionado una asignatura")
-        if sala_seleccionada == "1I":
             self.mostrar_opciones(self.categoria_types_children, self.asignature_types_children)
         elif sala_seleccionada == "2E":
+            self.categoria_cb.set("No se ha seleccionado una categoría")
+            self.asignatura_cb.set("No se ha seleccionado una asignatura")
             self.mostrar_opciones(self.categoria_types_state, self.asignature_types_state)
         elif sala_seleccionada == "3G":
+            self.categoria_cb.set("No se ha seleccionado una categoría")
+            self.asignatura_cb.set("No se ha seleccionado una asignatura")
             self.mostrar_opciones(self.categoria_types_general, self.asignature_type_general)
         else:
-            
-            messagebox.showwarning("Validación", "Por favor, seleccione una opción ")
+            messagebox.showwarning("Validación", "Por favor, seleccione una opción válida.")
+
 
         #-------------------------------------------------------------------------------
             
         
     def register_book(self):
-        ID_Sala= self.combobox1.get() #self.cota.get()
-        ID_Categoria = self.categoria_cb.get() if self.categoria_cb else None #self.combobox1.get()
-        ID_Asignatura = self.asignatura_cb.get() if self.asignatura_cb else None #self.menu_actual.get() if self.menu_actual else None
-        Cota= self.cota.get() #self.combobox3.get() if self.combobox3 else None
-        n_registro=self.registro_m.get()
-        edicion=self.edicion_m.get()
-        n_volumenes=self.volumen_m.get()
-        titulo=self.titulo_m.get()
-        autor=self.autor_m.get()
-        editorial=self.editorial_m.get()
-        año=self.ano_m.get()
-        #n_ejemplares=self.ejemplares.get()
+        ID_Sala = self.combobox1.get()
+        ID_Categoria = self.categoria_cb.get() if self.categoria_cb else None
+        ID_Asignatura = self.asignatura_cb.get() if self.asignatura_cb else None
+        Cota = self.cota.get()
+        n_registro = self.registro_m.get()
+        edicion = self.edicion_m.get()
+        n_volumenes = self.volumen_m.get()
+        titulo = self.titulo_m.get()
+        autor = self.autor_m.get()
+        editorial = self.editorial_m.get()
+        año = self.ano_m.get()
+
+        # Validar los campos
+        errores = validar_campos(
+            ID_Categoria,
+            ID_Asignatura,
+            Cota,
+            titulo,
+            autor,
+            editorial,
+            n_registro,
+            n_volumenes,
+            edicion,
+            año,
+            None  # No hay ID de libro para registro
+        )
+        print(f"Errores: {errores}")  # Agregar esta línea para depuración
+
+        if errores:
+            messagebox.showerror("Error", "\n".join(errores))
+            return
+
+        # Depuración de los valores que se van a pasar a create_books
+        print(f"Valores para registro: ID_Sala={ID_Sala}, ID_Categoria={ID_Categoria}, ID_Asignatura={ID_Asignatura}, Cota={Cota}, n_registro={n_registro}, edicion={edicion}, n_volumenes={n_volumenes}, titulo={titulo}, autor={autor}, editorial={editorial}, año={año}")
+
         if create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año):
             messagebox.showinfo("Éxito", "Registro del libro éxitoso.")
             self.clear_entries_register()
         else:
-            messagebox.showinfo("Registro fallido", "Libro mantiene sus valores."            )
+            messagebox.showinfo("Registro fallido", "Libro mantiene sus valores.")
+
     
     def clear_entries_register(self):
         self.combobox1.delete(0, tk.END)
@@ -771,7 +843,7 @@ class L_Modificar(tk.Toplevel):
             "Editorial": book_data[8],
             "Año": book_data[9],
             "Edicion": book_data[10],
-            "Volumen": book_data[12],  # Repetido intencionalmente
+            "Volumen": book_data[11],  # Repetido intencionalmente
             "Ejemplares": book_data[12]  # Repetido intencionalmente
         }
         
@@ -854,37 +926,39 @@ class L_Modificar(tk.Toplevel):
         self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
         self.cota.insert(0, self.book_data["Cota"])
         self.cota.bind("<Return>", self.focus_next_widget)
-        self.cota.bind("<KeyRelease>", self.check_changes)
         self.cota.bind("<KeyPress>",self.on_key_press)
+        #self.cota.bind("<KeyPress>", self.on_key_release_cota)
+
+        self.cota.bind("<KeyRelease>", self.check_changes)
 
         self.registro_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.registro_m.place(x=520.0, y=282.0, width=237.0, height=38.0)
         self.registro_m.insert(0, self.book_data["n_registro"])
         self.registro_m.bind("<Return>", self.focus_next_widget)
-        self.registro_m.bind("<KeyRelease>", self.check_changes)
         self.registro_m.bind("<KeyPress>",self.on_key_press)
+        self.registro_m.bind("<KeyRelease>", self.check_changes)
 
         self.edicion_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.edicion_m.place(x=779.0, y=282.0, width=237.0, height=37.5)
         self.edicion_m.insert(0, self.book_data["Edicion"])
         self.edicion_m.bind("<Return>", self.focus_next_widget)
-        self.edicion_m.bind("<KeyRelease>", self.check_changes)
         self.edicion_m.bind("<KeyPress>",self.on_key_press)
+        self.edicion_m.bind("<KeyRelease>", self.check_changes)
 
         self.volumen_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.volumen_m.place(x=1036.0, y=282.0, width=237.0, height=37.5)
         self.volumen_m.insert(0, self.book_data["Volumen"])
         self.volumen_m.bind("<Return>", self.focus_next_widget)
-        self.volumen_m.bind("<KeyRelease>", self.check_changes)
         self.volumen_m.bind("<KeyPress>",self.on_key_press)
+        self.volumen_m.bind("<KeyRelease>", self.check_changes)
 
         # Segunda fila
         self.titulo_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
         self.titulo_m.place(x=263.0, y=382.0, width=237.0, height=37.5)
         self.titulo_m.insert(0, self.book_data["Titulo"])
         self.titulo_m.bind("<Return>", self.focus_next_widget)
+        self.titulo_m.bind("<KeyPress>", self.on_key_press)  
         self.titulo_m.bind("<KeyRelease>", self.check_changes)
-        self.titulo_m.bind("<KeyPress>", self.on_key_press)  # Formatear al perder el foco
         
 
 
@@ -892,82 +966,86 @@ class L_Modificar(tk.Toplevel):
         self.autor_m.place(x=520.0, y=382.0, width=237.0, height=37.5)
         self.autor_m.insert(0, self.book_data["Autor"])
         self.autor_m.bind("<Return>", self.focus_next_widget)
-        
-        self.autor_m.bind("<KeyRelease>", self.check_changes)
-        
         self.autor_m.bind("<KeyPress>", self.on_key_press)
-        
+        self.autor_m.bind("<KeyRelease>", self.check_changes)
 
         self.editorial_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
         self.editorial_m.place(x=779.0, y=382.0, width=237.0, height=37.5)
         self.editorial_m.insert(0, self.book_data["Editorial"])
         self.editorial_m.bind("<Return>", self.focus_next_widget)
-        self.editorial_m.bind("<KeyRelease>", self.check_changes)
         self.editorial_m.bind("<KeyPress>", self.on_key_press)
+        self.editorial_m.bind("<KeyRelease>", self.check_changes)
 
         self.ano_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.ano_m.place(x=1036.0, y=382.0, width=237.0, height=37.5)
         self.ano_m.insert(0, self.book_data["Año"])
         self.ano_m.bind("<Return>", self.focus_next_widget)
-        self.ano_m.bind("<KeyRelease>", self.check_changes)
         self.ano_m.bind("<KeyPress>",self.on_key_press)
+        self.ano_m.bind("<KeyRelease>", self.check_changes)
     
     
     def on_key_press(self, event):
         widget = event.widget
         current_text = widget.get()
         
-        if widget == self.titulo_m:
-            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
-                return
-            if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,;:!?-":
-                return "break"
-            if len(current_text) >= 166:
-                return "break"
-            current_text = longitud_titulo(current_text)
-            formatted_text = validate_and_format_title(current_text)
-        elif widget == self.cota:
+        if widget == self.cota:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
             if not allow_only_letters_numbers_dots(event.char):
                 return "break"
-            if len(current_text) >= 14:
+            
+            # Guardar la posición del cursor antes de añadir el nuevo carácter
+            cursor_position = widget.index(tk.INSERT)
+            
+            # Añadir el nuevo carácter al texto actual en la posición del cursor
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            
+            # Limitar la longitud y convertir a mayúsculas antes de actualizar el widget
+            new_text = limitar_longitud_cota(new_text)
+            formatted_text = convert_to_uppercase(new_text)
+
+            # Actualizar el campo de entrada
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            
+            # Restaurar la posición del cursor
+            widget.icursor(cursor_position + 1)
+
+            return "break"
+        elif widget == self.registro_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not allow_only_numbers_and_dot_at_thousands(current_text + event.char):
                 return "break"
-            current_text = limitar_longitud_cota(current_text)
-            formatted_text = convert_to_uppercase(current_text)
+            formatted_text = current_text + event.char
+            formatted_text = current_text
+        elif widget == self.titulo_m:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,;:!?¿¡-":
+                return "break"
+            current_text = longitud_titulo(current_text)
+            current_text = format_title(current_text)
+            formatted_text = validate_and_format_title(current_text)
         elif widget == self.autor_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
             if not event.char.isalpha() and event.char != " ":
                 return "break"
-            if len(current_text) >= 53:
-                return "break"
             current_text = longitud_autor(current_text)
             formatted_text = validar_y_formatear_texto(current_text)
+            
         elif widget == self.editorial_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
             if not event.char.isalpha() and event.char != " ":
                 return "break"
-            if len(current_text) >= 49:
-                return "break"
             current_text = longitud_editorial(current_text)
             formatted_text = validar_y_formatear_texto(current_text)
-        elif widget == self.registro_m:
-            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
-                return
-            if not event.char.isdigit():
-                return "break"
-            if len(current_text) >= 10:
-                return "break"
-            current_text = longitud_nro_registro(current_text)
-            formatted_text = current_text
         elif widget == self.ano_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
             if not event.char.isdigit():
-                return "break"
-            if len(current_text) >= 4:
                 return "break"
             current_text = longitud_ano(current_text)
             formatted_text = current_text
@@ -976,8 +1054,6 @@ class L_Modificar(tk.Toplevel):
                 return
             if not event.char.isdigit():
                 return "break"
-            if len(current_text) >= 2:
-                return "break"
             current_text = longitud_nro_edicion(current_text)
             formatted_text = current_text
         elif widget == self.volumen_m:
@@ -985,69 +1061,20 @@ class L_Modificar(tk.Toplevel):
                 return
             if not event.char.isdigit():
                 return "break"
-            if len(current_text) >= 2:
-                return "break"
             current_text = longitud_volumen(current_text)
             formatted_text = current_text
-        
+
         # Guardar la posición del cursor
         cursor_position = widget.index(tk.INSERT)
-        
+
         # Actualizar el campo de entrada
         widget.delete(0, tk.END)
         widget.insert(0, formatted_text)
-        
+
         # Restaurar la posición del cursor
         widget.icursor(cursor_position)
+        event.widget.after(1,formatted_text)
 
-    
-    
-
-
-        
-    def check_changes(self, *args):
-     try:
-        current_values = {
-            "ID_Sala": self.combobox1.get().strip(),
-            "ID_Categoria": self.categoria_cb.get().strip(),
-            "ID_Asignatura": self.asignatura_cb.get().strip(),
-            "Cota": self.cota.get().strip(),
-            "n_registro": self.registro_m.get().strip(),
-            "Titulo": self.titulo_m.get().strip(),
-            "Autor": self.autor_m.get().strip(),
-            "Editorial": self.editorial_m.get().strip(),
-            "Año": self.ano_m.get().strip(),
-            "Edicion": self.edicion_m.get().strip(),
-            "Volumen": self.volumen_m.get().strip(),
-        }
-
-        # Agrega depuración para ver los valores actuales y originales
-        # print("Valores actuales:", current_values)
-        # print("Valores originales:", self.original_values)
-
-        # Comparar valores clave por clave
-        differences = []
-        for key in current_values:
-            if current_values[key] != self.original_values[key]:
-                differences.append(f"Diferencia en {key}: {current_values[key]} (actual) != {self.original_values[key]} (original)")
-
-        if differences:
-            for diff in differences:
-                print(diff)
-            self.mostrar_boton_modificar()
-            print("Se detectaron cambios. Botón 'Modificar' mostrado.")
-        else:
-            self.ocultar_boton_modificar()
-            print("No se detectaron cambios. Botón 'Modificar' oculto.")
-     except Exception as e:
-        print(f"Error en check_changes: {e}")
-
-
-
-
-    def focus_next_widget(self, event):
-        event.widget.tk_focusNext().focus()
-        return "break"
 
     def mostrar_opciones(self, categoria_values, asignatura_values):
 
@@ -1087,11 +1114,58 @@ class L_Modificar(tk.Toplevel):
             
         elif sala_seleccionada == "3G":
             self.mostrar_opciones(self.categoria_types_general, self.asignature_type_general)
-            
-        else:
-            messagebox.showwarning("Validación", "Por favor, seleccione una opción válida.")
         
         self.check_changes()
+        
+
+
+    
+    
+
+
+        
+    def check_changes(self, *args):
+     try:
+        current_values = {
+            "ID_Sala": self.combobox1.get().strip(),
+            "ID_Categoria": self.categoria_cb.get().strip(),
+            "ID_Asignatura": self.asignatura_cb.get().strip(),
+            "Cota": self.cota.get().strip(),
+            "n_registro": self.registro_m.get().strip(),
+            "Titulo": self.titulo_m.get().strip(),
+            "Autor": self.autor_m.get().strip(),
+            "Editorial": self.editorial_m.get().strip(),
+            "Año": self.ano_m.get().strip(),
+            "Edicion": self.edicion_m.get().strip(),
+            "Volumen": self.volumen_m.get().strip(),
+        }
+
+
+        # Comparar valores clave por clave
+        differences = []
+        for key in current_values:
+            if current_values[key] != self.original_values[key]:
+                differences.append(f"Diferencia en {key}: {current_values[key]} (actual) != {self.original_values[key]} (original)")
+
+        if differences:
+            for diff in differences:
+                print(diff)
+            self.mostrar_boton_modificar()
+            print("Se detectaron cambios. Botón 'Modificar' mostrado.")
+        else:
+            self.ocultar_boton_modificar()
+            print("No se detectaron cambios. Botón 'Modificar' oculto.")
+     except Exception as e:
+        print(f"Error en check_changes: {e}")
+
+
+
+
+    def focus_next_widget(self, event):
+        event.widget.tk_focusNext().focus()
+        return "break"
+
+    
         
     
     def modify_book(self):    
@@ -1110,12 +1184,15 @@ class L_Modificar(tk.Toplevel):
             "Año": self.ano_m.get()    
         }
 
+        # 
         # Obtener el ID del libro desde los valores originales    
         id_libro = self.original_values["ID"]    
         print(f"ID del libro: {id_libro}")
 
         # Validar los campos incluyendo el ID del libro    
-        errores = validar_campos(        
+        errores = validar_campos(
+            self.categoria_cb.get(),        
+            self.asignatura_cb.get(),
             self.cota.get(),        
             self.titulo_m.get(),        
             self.autor_m.get(),        
@@ -1128,17 +1205,8 @@ class L_Modificar(tk.Toplevel):
         )    
         print(f"Errores: {errores}")  # Agregar esta línea para depuración
         if errores:        
-            messagebox.showerror("Validation Errors", "\n".join(errores))        
+            messagebox.showerror("Error", "\n".join(errores))        
             return
-
-        # Validar que se haya seleccionado una categoría y una asignatura    
-        if nuevos_valores["ID_Categoria"] == "No se ha seleccionado una categoría" or not nuevos_valores["ID_Categoria"]:        
-            messagebox.showerror("Error", "Debe seleccionar una categoría.")        
-            return    
-        if nuevos_valores["ID_Asignatura"] == "No se ha seleccionado una asignatura" or not nuevos_valores["ID_Asignatura"]:        
-            messagebox.showerror("Error", "Debe seleccionar una asignatura.")        
-            return
-
         print("Datos recogidos:")    
         for key, value in nuevos_valores.items():        
             print(f"{key}: {value}")
