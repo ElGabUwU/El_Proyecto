@@ -53,7 +53,7 @@ class P_Registrar(tk.Frame):
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
         
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="black", font=("Bold", 17))
-        self.buscar.bind("<Return>", self.boton_buscar)
+        self.buscar.bind("<Return>", self.boton_buscar_cliente)
 
         # Cargar y almacenar las imágenes
         self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
@@ -371,7 +371,7 @@ class P_Registrar(tk.Frame):
         else:
             self.boton_R.place_forget()  # Ocultar el botón si algún campo está vacío
 
-    def boton_buscar(self, event):
+    def boton_buscar_cliente(self, event):
         busqueda= self.buscar.get()
         try:
              mariadb_conexion = establecer_conexion()
@@ -550,7 +550,7 @@ class P_Listar(tk.Frame):
                         borderwidth=0)
 
         #Columnas Prestamo
-        columns2 = ("ID Prestamo", "ID Libro", "ID Cliente","Nombre","ID Libro Prestamo", "Titulo","Ejemplares", "F.Registro", "F.Limite", "Encargado")
+        columns2 = ("ID Prestamo", "ID Libro", "ID Cliente","Nombre","ID Libro Prestamo", "Titulo","Cantidad", "F.Registro", "F.Limite", "Encargado")
         self.prestamo_table = ttk.Treeview(self.left_frame2, columns=columns2, show='headings', style="Rounded.Treeview")
         for col2 in columns2:
             self.prestamo_table.heading(col2, text=col2)
@@ -656,15 +656,17 @@ class P_Listar(tk.Frame):
                         self.prestamo_table.delete(*self.prestamo_table.get_children())
                          # Ejecutar y procesar la primera consulta
                         cursor.execute("""SELECT prestamo.ID_Prestamo, cliente.ID_Cliente, cliente.Nombre, 
-                        libro.ID_Libro, libro.titulo, libro.n_ejemplares, prestamo.Fecha_Registro, 
+                        libro.ID_Libro, libro.titulo, libros_prestamo.Cantidad, prestamo.Fecha_Registro, 
                         prestamo.Fecha_Limite, prestamo.ID_Usuario
                         FROM prestamo 
                         JOIN cliente ON prestamo.ID_Cliente = cliente.ID_Cliente 
-                        JOIN libro ON prestamo.ID_Libro = libro.ID_Libro 
-                        WHERE cliente.ID_Cliente=%s OR cliente.Nombre=%s OR cliente.Apellido=%s 
+                        JOIN libro ON prestamo.ID_Libro = libro.ID_Libro
+                        JOIN libros_prestamo ON prestamo.ID_Libro_Prestamo 
+                        WHERE cliente.ID_Cliente=%s OR cliente.Nombre=%s 
                                 OR libro.ID_Libro=%s OR libro.titulo=%s 
+                                OR libros_prestamo.ID_Libro_Prestamo=%s  OR libros_prestamo.Cantidad=%s 
                                 OR prestamo.ID_Prestamo=%s OR prestamo.ID_Usuario=%s""", 
-                        (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+                        (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
                         resultados_prestamo = cursor.fetchall() 
                         for fila in resultados_prestamo:
                             if busqueda in fila:
@@ -836,11 +838,13 @@ ID Libro Préstamo: {ID_Libro_Prestamo}
                         self.clear_entries_list()
             else:
                 messagebox.showerror("Error", "Préstamo no pudo ser creado.")    
-    #Boton de filtrado del Menú Lista-Prestamos
     def apply_filters(self):
-        filter_books_one(self)
-        filter_books_two(self)
-        filter_books_three(self)
+        found_three = filter_books_three(self)
+
+        if found_three: 
+            messagebox.showinfo("Resultado de Búsqueda", "Se encontraron resultados.")
+        else:
+            messagebox.showinfo("Resultado de Búsqueda", "No se encontraron resultados.")
 
     def clear_entries_list(self):
         # elf.id_prestamo_entry.delete(0, tk.END)

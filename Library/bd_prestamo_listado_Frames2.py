@@ -57,7 +57,7 @@ def lists_clients_loans(self):
             c.Nombre AS Nombre_Cliente,
             lp.ID_Libro_Prestamo,
             l.titulo,
-            l.n_ejemplares,
+            lp.Cantidad,
             p.Fecha_Registro,
             p.Fecha_Limite,
             u.Nombre AS Nombre_Usuario

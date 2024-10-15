@@ -8,17 +8,36 @@ init(autoreset=True)
 
 
 # Crear un nuevo Pokémon
-def create_user(ID_Cargo, ID_Rol, Nombre,Apellido,Cedula,Nombre_Usuario,Clave):
-    print("CARGO:", ID_Cargo,"ID_Rol:", ID_Rol, "Nombre:", Nombre, "APELLIDO:", Apellido, "CEDULA:", Cedula)
+# def create_user(ID_Cargo, ID_Rol, Nombre,Apellido,Cedula,Nombre_Usuario,Clave):
+#     print("CARGO:", ID_Cargo,"ID_Rol:", ID_Rol, "Nombre:", Nombre, "APELLIDO:", Apellido, "CEDULA:", Cedula)
+#     print("NOMBRE DE USUARIO:", Nombre_Usuario, "CLAVE:", Clave)
+#     try:
+#         mariadb_conexion = establecer_conexion()
+#         if mariadb_conexion:#.is_connected():
+#             cursor=mariadb_conexion.cursor()
+#             cursor.execute('''
+#                 INSERT INTO usuarios (ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clave)
+#             VALUES (%s, %s, %s, %s, %s, %s, %s)
+#         ''', (ID_Cargo, ID_Rol, Nombre,Apellido, Cedula, Nombre_Usuario, Clave))
+#             # Confirmar la transacción
+#             mariadb_conexion.commit()
+#             # Cerrar la conexión
+#             mariadb_conexion.close()
+#             return True
+#     except mariadb.Error as ex:
+#         print("Error durante la conexión:", ex)
+#         return False
+def create_user(ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clave):
+    print("CARGO:", ID_Cargo, "ID_Rol:", ID_Rol, "Nombre:", Nombre, "APELLIDO:", Apellido, "CEDULA:", Cedula)
     print("NOMBRE DE USUARIO:", Nombre_Usuario, "CLAVE:", Clave)
     try:
         mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:#.is_connected():
-            cursor=mariadb_conexion.cursor()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
             cursor.execute('''
                 INSERT INTO usuarios (ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clave)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        ''', (ID_Cargo, ID_Rol, Nombre,Apellido, Cedula, Nombre_Usuario, Clave))
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ''', (ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clave))
             # Confirmar la transacción
             mariadb_conexion.commit()
             # Cerrar la conexión
@@ -83,7 +102,7 @@ def delete_selected_user(self):
                 item_id = self.user_table_list.item(item, 'values')[0]
                 
                 # Marcar el registro como eliminado en lugar de eliminarlo
-                cursor.execute('UPDATE usuarios SET estado = "eliminado" WHERE ID_Usuario = %s', (item_id,))
+                cursor.execute('UPDATE usuarios SET estado_usuario = "eliminado" WHERE ID_Usuario = %s', (item_id,))
                 
                 # Eliminar la fila del Treeview
                 self.user_table_list.delete(item)
@@ -103,7 +122,7 @@ def list_users_db(user_table_list):
         if mariadb_conexion:#.is_connected():
             cursor = mariadb_conexion.cursor()
             cursor.execute("""SELECT ID_Usuario, ID_Cargo, ID_Rol, Nombre, Apellido, 
-                        Cedula, Nombre_Usuario FROM usuarios WHERE estado_usuario != "eliminado""")
+                        Cedula, Nombre_Usuario FROM usuarios WHERE estado_usuario != 'eliminado'""")
             resultados = cursor.fetchall() 
             for row in user_table_list.get_children():
                 user_table_list.delete(row)

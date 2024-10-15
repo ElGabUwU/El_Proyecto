@@ -338,6 +338,7 @@ def delete_selected_prestamo(self):
                 self.prestamo_table.delete(item)
             
             mariadb_conexion.commit()
+            messagebox.showinfo("Éxito", "El préstamo ha sido marcado como eliminado.")
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
     finally:
