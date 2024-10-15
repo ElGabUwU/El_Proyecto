@@ -191,6 +191,12 @@ class U_Listar(tk.Frame):
         self.user_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
         self.user_frame_list.place(x=215,y=205, height=480, width=1150)
 
+        # # Texto para el nombre
+        # self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
+        # self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#031A33", font=("Bold", 17))
+        # self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
+        # self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
+
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1077.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
@@ -218,10 +224,10 @@ class U_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=810.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=910.0, y=60.0, width=140.0, height=100.0)
 
-                    # Cargar y almacenar las imágenes
-        self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
+            # Cargar y almacenar las imágenes
+        self.images['boton_eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -252,7 +258,7 @@ class U_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo 
             )
-        self.button_e.place(x=1110.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=1175.0, y=60.0, width=130.0, height=100.0)
 
         self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6_editar.png"))
                     # Cargar y almacenar la imagen del botón
@@ -267,7 +273,7 @@ class U_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo  
             )
-        self.button_m.place(x=1010.0, y=60.0, width=130.0, height=100.0)
+        self.button_m.place(x=1045.0, y=60.0, width=130.0, height=100.0)
 
         style = ttk.Style()
         style.configure("Rounded.Treeview", 
@@ -300,10 +306,6 @@ class U_Listar(tk.Frame):
         scrollbar_pt.pack(side="right", fill="y")
         
         list_users_db(self.user_table_list)
-
-    def open_registrar_window(self):
-        # Llamar directamente a la clase U_Registrar sin necesidad de seleccionar un elemento
-            U_Registrar(self.parent)
 
     def refresh_frame(self):
         # Eliminar todos los widgets del frame
@@ -342,6 +344,11 @@ class U_Listar(tk.Frame):
 
         # Recargar los datos desde la base de datos
         list_users_db(self.user_table_list)
+
+    
+    def open_registrar_window(self):
+        # Llamar directamente a la clase U_Registrar sin necesidad de seleccionar un elemento
+            U_Registrar(self.parent)
 
     def open_modify_window(self,parent):
         filter_window = tk.Toplevel(self)

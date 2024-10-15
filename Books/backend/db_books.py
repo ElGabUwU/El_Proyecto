@@ -1,5 +1,6 @@
 
 import mysql.connector as mariadb
+import mariadb
 from colorama import init, Fore, Back, Style
 from db.conexion import establecer_conexion
 from tkinter import messagebox
@@ -255,30 +256,6 @@ def update_books(book_data, nuevos_valores):
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
         return False
-
-
-        
-
-# # Eliminar un libro
-# def delete_books(ID_Libro):
-#     try:
-#         mariadb_conexion = establecer_conexion()
-#         if mariadb_conexion:
-#             with mariadb_conexion.cursor() as cursor:
-#                 # Executing the delete statement
-#                 cursor.execute('DELETE FROM libro WHERE ID_Libro=%s', (ID_Libro,))
-#                 if cursor.rowcount == 0:
-#                     print("No se encontró el libro con el ID proporcionado.")
-#                     return False
-#                 # Committing the transaction
-#                 mariadb_conexion.commit()
-#         return True
-#     except mariadb.Error as err:
-#         # Handling any database errors
-#         print(f"Error: {err}")
-#         return False
-    
-import mariadb
 
 def delete_selected(self):
     selected_items = self.book_table_list.selection()

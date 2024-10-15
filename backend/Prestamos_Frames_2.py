@@ -6,7 +6,6 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 #from Library.librerias import recoger_sesion, drop_sesion
 from Library.db_prestamos import *
 from Library.bd_prestamo_listado_Frames2 import *
-from Vistas.listas import *
 from tkcalendar import Calendar
 from datetime import datetime, timedelta
 import random
@@ -32,6 +31,7 @@ class P_Registrar(tk.Frame):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
+        self.parent=parent
         validate_number = self.register(validate_number_input)
         self.images = {}
 
@@ -80,7 +80,7 @@ class P_Registrar(tk.Frame):
                 image=self.images['boton_imprimir'],
                 borderwidth=0,
                 highlightthickness=0,
-                # command=lambda: self.reading_books(self.book_table_list),
+                command=self.imprimir_seleccionado,
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -111,7 +111,7 @@ class P_Registrar(tk.Frame):
             image=self.images['boton_Eliminar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: delete_client_loans(self),
+            command=lambda: self.verificar_eliminar(),
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -169,7 +169,58 @@ class P_Registrar(tk.Frame):
         scrollbar_pt.pack(side="right", fill="y")
 
         reading_clients (self.clients_table_list_loans)
+    def imprimir_seleccionado(self):
+        selected_items = self.clients_table_list_loans.selection()
+        if not selected_items:
+            messagebox.showwarning("Advertencia", "No se ha seleccionado ningún préstamo.")
+            return
 
+        selected_item = selected_items[0]
+        item_values = self.clients_table_list_loans.item(selected_item, 'values')
+        cliente_id = item_values[0]
+        prestamo_id = item_values[1]
+
+        try:
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+
+                # Consulta para obtener la información del cliente y préstamo
+                cursor.execute('''
+                    SELECT c.Cedula_Cliente, c.Nombre, c.Apellido, c.Telefono, c.Direccion, l.ID_Libro, l.Titulo, l.Autor
+                    FROM cliente c
+                    JOIN prestamos p ON c.ID_Cliente = p.ID_Cliente
+                    JOIN libro l ON p.ID_Libro = l.ID_Libro
+                    WHERE c.ID_Cliente = %s AND p.ID_Prestamo = %s
+                ''', (cliente_id, prestamo_id))
+
+                resultado = cursor.fetchone()
+                if resultado:
+                    cedula, nombre, apellido, telefono, direccion, id_libro, titulo, autor = resultado
+                    print("Cédula:", cedula)
+                    print("Nombre:", nombre)
+                    print("Apellido:", apellido)
+                    print("Teléfono:", telefono)
+                    print("Dirección:", direccion)
+                    print("ID Libro:", id_libro)
+                    print("Título:", titulo)
+                    print("Autor:", autor)
+                else:
+                    print("No se encontró información para el cliente y préstamo seleccionados.")
+                
+                mariadb_conexion.close()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+            messagebox.showerror("Error", f"Error durante la conexión: {ex}")
+
+
+    def verificar_eliminar(self):
+        if self.parent.id_rol == 1:
+            print("Sin permisos suficientes para eliminar!")
+            messagebox.showinfo("AVISO", "Sin permisos suficientes para eliminar!")
+        
+        else:
+            delete_client_loans(self)
     def open_register_window(self):
         filter_window = tk.Toplevel(self)
         filter_window.title("Registro")
@@ -407,6 +458,7 @@ class P_Modificar(tk.Frame):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="white", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
+        
         #validate_number = self.register(validate_number_input)
         self.images = {}
         
@@ -415,6 +467,7 @@ class P_Listar(tk.Frame):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
+        self.parent = parent
         #validate_number = self.register(validate_number_input)
         self.images = {}
 
@@ -518,7 +571,7 @@ class P_Listar(tk.Frame):
             image=self.images['boton_Eliminar_f'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: delete_selected_prestamo(self),
+            command=lambda: self.verificar_eliminar(),
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -561,6 +614,15 @@ class P_Listar(tk.Frame):
         scrollbar_pt = ttk.Scrollbar(self.prestamo_table, orient="vertical", command=self.prestamo_table.yview)
         self.prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
+    
+    
+    def verificar_eliminar(self):
+        if self.parent.id_rol == 1:
+            print("Sin permisos suficientes para eliminar!")
+            messagebox.showinfo("AVISO", "Sin permisos suficientes para eliminar!")
+        
+        else:
+            delete_selected_prestamo(self)
     
     def open_register_loan(self):
         filter_window = tk.Toplevel(self)

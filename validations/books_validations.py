@@ -74,7 +74,6 @@ def allow_only_numbers_and_dot_at_thousands(text):
         return True
     return False
 
-
 def longitud_ano(texto, max_length=4):
     if len(texto) >= max_length:
         return texto[:max_length]
@@ -113,6 +112,51 @@ def validar_cota(cota):
 def validar_titulo(titulo):
     if len(titulo) < 4:
         return "La longitud del título debe ser al menos de 4 caracteres."
+
+    # Evitar más de un punto consecutivo
+    if ".." in titulo:
+        return "El título no puede contener más de un punto consecutivo."
+
+    # Evitar más de un signo de exclamación consecutivo
+    if "!!" in titulo or "¡¡" in titulo:
+        return "El título no puede contener más de un signo de exclamación consecutivo."
+
+    # Evitar más de un signo de interrogación consecutivo
+    if "??" in titulo or "¿¿" in titulo:
+        return "El título no puede contener más de un signo de interrogación consecutivo."
+
+    # Evitar más de un guion consecutivo
+    if "--" in titulo:
+        return "El título no puede contener más de un guion consecutivo."
+
+    # Evitar más de una coma consecutiva
+    if ",," in titulo:
+        return "El título no puede contener más de una coma consecutiva."
+
+    # Evitar más de un punto y coma consecutivo
+    if ";;" in titulo:
+        return "El título no puede contener más de un punto y coma consecutivo."
+
+    # Evitar más de un signo de dos puntos consecutivo
+    if "::" in titulo:
+        return "El título no puede contener más de un signo de dos puntos consecutivo."
+
+    # Asegurar que los signos de interrogación y exclamación están correctamente abiertos y cerrados
+    if titulo.count("¿") != titulo.count("?"):
+        return "El título debe tener un número igual de signos de apertura y cierre de interrogación."
+    if titulo.count("¡") != titulo.count("!"):
+        return "El título debe tener un número igual de signos de apertura y cierre de exclamación."
+
+    # Asegurar que los signos de puntuación están en el orden correcto
+    if re.search(r'[^¿?!¡][?!¡¿]', titulo):
+        return "El título tiene signos de puntuación en el orden incorrecto."
+
+    # Asegurar que los signos de interrogación y exclamación abren y cierran correctamente
+    if re.search(r'¿[^?]*$', titulo) or re.search(r'¡[^!]*$', titulo):
+        return "El título tiene un signo de apertura sin su correspondiente cierre."
+
+    return None  # Título válido
+
 
     # Evitar más de un punto consecutivo
     if ".." in titulo:
