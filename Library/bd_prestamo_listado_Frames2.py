@@ -2,7 +2,93 @@ import mysql.connector as mariadb
 from mysql.connector import Error
 from db.conexion import establecer_conexion
 from tkinter import ttk, messagebox
-from datetime import datetime
+
+# Tabla Cliente
+# def lists_clients(self):
+#     conexion = establecer_conexion()
+#     if conexion:
+#         try:
+#             cursor = conexion.cursor()
+#             cursor.execute("SELECT ID_Cliente, Cedula_Cliente, Nombre, Apellido, Telefono, Direccion FROM cliente")
+#             resultados = cursor.fetchall()
+#             for row in self.book_table.get_children():
+#                 self.book_table.delete(row)
+#             for fila in resultados:
+#                 self.book_table.insert("", "end", values=tuple(fila))
+#         except Error as e:
+#             messagebox.showerror(message=f"Error durante la consulta: {e}", title="Error de Consulta")
+#         finally:
+#             if cursor:
+#                 cursor.close()
+#             if conexion.is_connected():
+#                 conexion.close()
+#OBTENCION DE DATOS PARA REPORTE DE PDF
+def obtener_datos_libro(libro_id):
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            cursor.execute('''
+                SELECT ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares
+                FROM libro
+                WHERE ID_Libro = %s
+            ''', (libro_id,))
+            resultado_libro = cursor.fetchone()
+            if resultado_libro:
+                book_data = {
+                    "ID_Sala": resultado_libro[0],
+                    "ID_Categoria": resultado_libro[1],
+                    "ID_Asignatura": resultado_libro[2],
+                    "Cota": resultado_libro[3],
+                    "n_registro": resultado_libro[4],
+                    "edicion": resultado_libro[5],
+                    "n_volumenes": resultado_libro[6],
+                    "titulo": resultado_libro[7],
+                    "autor": resultado_libro[8],
+                    "editorial": resultado_libro[9],
+                    "año": resultado_libro[10],
+                    "n_ejemplares": resultado_libro[11]
+                }
+                print("Book Data:", book_data)
+                return book_data
+            else:
+                print("No se encontró información del libro.")
+            mariadb_conexion.close()
+    except mariadb.Error as ex:
+        print("Error durante la conexión:", ex)
+    return None
+
+
+
+
+def obtener_datos_cliente(cliente_id):
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            cursor.execute('''
+                SELECT Cedula_Cliente, Nombre, Apellido, Telefono, Direccion
+                FROM cliente
+                WHERE ID_Cliente = %s
+            ''', (cliente_id,))
+            resultado_cliente = cursor.fetchone()
+            print(f"Resultado Cliente: {resultado_cliente}")  # Depuración
+            if resultado_cliente:
+                user_data = {
+                    "Cedula": resultado_cliente[0],
+                    "Nombre": resultado_cliente[1],
+                    "Apellido": resultado_cliente[2],
+                    "Telefono": resultado_cliente[3],
+                    "Direccion": resultado_cliente[4]
+                }
+                print("User Data:", user_data)  # Depuración
+                return user_data
+            else:
+                print("No se encontró información del cliente.")
+            mariadb_conexion.close()
+    except mariadb.Error as ex:
+        print("Error durante la conexión:", ex)
+    return None
 
 # Tabla Libros Prestamos
 def lists_books_loans(self):
@@ -24,22 +110,6 @@ def lists_books_loans(self):
             if conexion.is_connected():
                 conexion.close()
 
-def format_date(self, date_obj):
-    try:
-        # Si date_obj ya es un objeto datetime.date, conviértelo a cadena en formato YYYY-MM-DD
-        if isinstance(date_obj, datetime):
-            formatted_date = date_obj.strftime("%Y-%m-%d")
-        elif isinstance(date_obj, str):
-            # Convertir la fecha del formato DD/MM/YYYY al formato YYYY-MM-DD
-            formatted_date = datetime.strptime(date_obj, "%d/%m/%Y").strftime("%Y-%m-%d")
-        else:
-            print(f"Tipo de dato inesperado: {type(date_obj)}")
-            return None
-        return formatted_date
-    except ValueError as e:
-        print(f"Error al formatear la fecha: {e}")
-        return None
-
 def lists_clients_loans(self):
     try:
         mariadb_conexion = establecer_conexion()
@@ -57,7 +127,7 @@ def lists_clients_loans(self):
             c.Nombre AS Nombre_Cliente,
             lp.ID_Libro_Prestamo,
             l.titulo,
-            lp.Cantidad,
+            l.n_ejemplares,
             p.Fecha_Registro,
             p.Fecha_Limite,
             u.Nombre AS Nombre_Usuario
@@ -87,14 +157,7 @@ def lists_clients_loans(self):
             self.prestamo_table.delete(row)
 
         for fila in resultados1:
-            fecha_limite = fila[8]  # Asumimos que fila[8] es un objeto datetime.date
-            if fecha_limite < datetime.now().date():
-                self.prestamo_table.insert("", "end", values=tuple(fila), tags=('vencido',))
-            else:
-                self.prestamo_table.insert("", "end", values=tuple(fila))
-
-        # Configurar el estilo para las filas vencidas
-        self.prestamo_table.tag_configure('vencido', background='red')
+            self.prestamo_table.insert("", "end", values=tuple(fila))
 
     except mariadb.Error as ex:
         print(f"Error during query execution: {ex}")

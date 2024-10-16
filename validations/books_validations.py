@@ -62,7 +62,22 @@ def longitud_editorial(texto, max_length=49):
     if len(texto) >= max_length:
         return texto[:max_length]
     return texto
-
+#Longitud de nro de edicion y volumen
+def validar_digitos(event, longitud_func, max_digitos=3):
+    if event.keysym in ('BackSpace', 'Delete', 'Left', 'Right'):
+        # Obtener el texto actual antes de borrar
+        current_text = event.widget.get()
+        if event.keysym == 'Delete':
+            current_text = current_text[:-1]  # Eliminar solo un carácter
+        if len(current_text) > max_digitos:
+            return "break"
+        return longitud_func(current_text)
+    if not event.char.isdigit():
+        return "break"
+    current_text = event.widget.get()
+    if len(current_text) >= max_digitos:
+        return "break"
+    return longitud_func(current_text)
 # Validaciones para Nro de Registro, Año, Nro de Edición y Volumen
 def longitud_nro_registro(texto, max_length=10):
     if len(texto) >= max_length:
@@ -79,12 +94,12 @@ def longitud_ano(texto, max_length=4):
         return texto[:max_length]
     return texto
 
-def longitud_nro_edicion(texto, max_length=2):
+def longitud_nro_edicion(texto, max_length=3):
     if len(texto) >= max_length:
         return texto[:max_length]
     return texto
 
-def longitud_volumen(texto, max_length=2):
+def longitud_volumen(texto, max_length=3):
     if len(texto) >= max_length:
         return texto[:max_length]
     return texto
@@ -99,6 +114,8 @@ def mostrar_opciones(self, categoria_values, asignatura_values):
 
 #VALIDACION DE DATOS INGRESADOS
 def validar_cota(cota):
+    if not cota:
+        return "El campo cota es obligatorio."
     if len(cota) < 3:
         return "La longitud de la cota debe ser al menos de 3 caracteres."
     if len(cota) == 3 and not cota.isalpha():
@@ -110,6 +127,8 @@ def validar_cota(cota):
     return None
 
 def validar_titulo(titulo):
+    if not titulo:
+        return "El campo titulo es obligatorio."
     if len(titulo) < 4:
         return "La longitud del título debe ser al menos de 4 caracteres."
 
@@ -204,6 +223,8 @@ def validar_titulo(titulo):
 
 
 def validar_autor(autor):
+    if not autor:
+        return "El campo autor es obligatorio."
     if len(autor) < 5:
         return "La longitud del nombre del autor debe ser al menos de 5 caracteres."
     if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', autor):
@@ -211,6 +232,8 @@ def validar_autor(autor):
     return None
 
 def validar_editorial(editorial):
+    if not editorial:
+        return "El campo editorial es obligatorio."
     if len(editorial) < 3:
         return "La longitud del nombre de la editorial debe ser al menos de 3 caracteres."
     if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', editorial):
@@ -218,10 +241,14 @@ def validar_editorial(editorial):
     return None
 
 def validar_n_registro(n_registro):
-    if len(n_registro) < 1:
-        return "La longitud del número de registro debe ser al menos de 1 carácter."
+    if not n_registro:
+        return "El campo número de registro es obligatorio."
+    if len(n_registro) < 5:
+        return "La longitud del número de registro debe ser al menos de  4 numeros."
 
 def validar_n_volumenes(n_volumenes):
+    if not n_volumenes:
+        return "El campo número de volumenes es obligatorio."
     if len(n_volumenes) < 1:
         return "La longitud del número de volúmenes debe ser al menos de 1 carácter."
     if not n_volumenes.isdigit():
@@ -229,6 +256,8 @@ def validar_n_volumenes(n_volumenes):
     return None
 
 def validar_edicion(edicion):
+    if not edicion:
+        return "El campo edición es obligatorio."
     if len(edicion) < 1:
         return "La longitud del número de edición debe ser al menos de 1 carácter."
     if not edicion.isdigit():
@@ -236,6 +265,8 @@ def validar_edicion(edicion):
     return None
 
 def validate_year(new_value):
+    if not new_value:
+        return "El campo año es obligatorio."
     if new_value.isdigit() and len(new_value) == 4:
         year = int(new_value)
         current_year = datetime.now().year
