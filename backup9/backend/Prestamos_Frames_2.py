@@ -790,12 +790,14 @@ class P_Listar(tk.Frame):
         filter_window = tk.Toplevel(self)
         filter_window.title("Filtrar")
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        filter_window.geometry("950x550")
+        filter_window.geometry("950x450")
         filter_window.config(bg="#042344")
         filter_window.resizable(False, False)
-
-        tk.Label(filter_window, text="TABLA PRESTAMOS", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=250.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#.grid(row=4, column=5, padx=10, pady=5)
-        tk.Label(filter_window, text="Ingrese el ID de Prestamo, Cliente y Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=70.0, width=530.0, height=35.0)#.pack(pady=10, expand=False)
+        rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=4)
+        rectangulo_color.place(x=0, y=0)
+        
+        tk.Label(filter_window, text="Tabla de Prestamos", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=250.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#.grid(row=4, column=5, padx=10, pady=5)
+        tk.Label(filter_window, text="Ingrese el ID de Prestamo, Cliente y Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=80.0, width=530.0, height=35.0)#.pack(pady=10, expand=False)
         tk.Label(filter_window, text="ID Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=130.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
         self.id_prestamos_entry = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.id_prestamos_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=5, column=1, padx=10, pady=5)
@@ -808,8 +810,38 @@ class P_Listar(tk.Frame):
         self.id_libro_cliente_entry = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.id_libro_cliente_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=7, column=1, padx=10, pady=5)
 
+        
+        self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
+
+        self.boton_M = tk.Button(
+            filter_window,
+            image=self.images['boton_m'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.apply_filters,
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_M.place(x=530.0, y=350.0, width=130.0, height=40.0)
+        
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+
+        self.boton_C = tk.Button(
+            filter_window,
+            image=self.images['boton_c'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(filter_window),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=270.0, y=350.0, width=130.0, height=40.0)
          # Crear un estilo personalizado
-        style = ttk.Style()
+        """style = ttk.Style()
         style.configure("Custom.TButton", background="#2E59A7", foreground="#ffffff", font=("Bold", 22))
 
         # Botón para filtrar
@@ -817,7 +849,7 @@ class P_Listar(tk.Frame):
         self.filter_button.place(x=250.0, y=480.0, width=140.0, height=50.0)#.pack(expand=True)#.place(x=390, y=400)
 
         button_cancel = ttk.Button(filter_window, text="Cancelar", command=lambda: self.cancelar(filter_window), style="Custom.TButton")
-        button_cancel.place(x=520.0, y=480.0, width=140.0, height=50.0)#.pack(pady=5, expand=False)
+        button_cancel.place(x=520.0, y=480.0, width=140.0, height=50.0)#.pack(pady=5, expand=False)"""
     
     def open_filter_window_modify(self,parent):
         filter_window = tk.Toplevel(self)
