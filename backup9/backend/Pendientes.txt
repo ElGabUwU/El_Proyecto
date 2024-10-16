@@ -1,0 +1,4 @@
+1.Despues de ingresar se guarde en alguna variable el nombre y el rol del uusuario para ponerlo en la interfaz
+a partir de ahi se gestionan sus permiso en base a su rol
+2.Agregar casillas en el reporte de pdf para firma del encargado y cliente
+3.Instalar sqltools para visualizar lña base de datos en vs code
