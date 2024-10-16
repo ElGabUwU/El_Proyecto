@@ -32,7 +32,7 @@ class L_Listar(tk.Frame):
         self.canvas.pack(side="right", fill="both", expand=True)
         self.images = {}
         self.book_data = {}  # Inicializar como un diccionario
-
+        
         
         stylebotn = ttk.Style()
         stylebotn.configure("Rounded.TEntry", 
@@ -156,7 +156,7 @@ class L_Listar(tk.Frame):
 
         # Aplica el estilo al Treeview listado de libros
         tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición","N° Volúmenes", "N° Ejemplares" )
-        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview")
+        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview",selectmode="browse")
 
         # Set specific widths for "ID" and "Sala"
         self.book_table_list.column("ID", width=50, anchor="center")
@@ -177,7 +177,8 @@ class L_Listar(tk.Frame):
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
 
-        self.book_table_list.bind("<Double-1>", self.on_book_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
+        #self.book_table_list.bind("<Double-1>", self.on_book_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
+        self.reading_books(self.book_table_list)
 
 
     def open_registrar_window(self):
@@ -185,13 +186,15 @@ class L_Listar(tk.Frame):
         L_Registrar(self.parent)
 
     def open_modificar_window(self):
-        selected_items = self.book_table_list.selection()
-        if selected_items:
-            selected_item = selected_items[0]
-            item_values = self.book_table_list.item(selected_item, "values")
-            L_Modificar(item_values)
-        else:
-            print("No hay ningún elemento seleccionado.")
+         selected_items = self.book_table_list.selection()
+         if selected_items:
+             selected_item = selected_items[0]
+             item_values = self.book_table_list.item(selected_item, "values")
+             L_Modificar(item_values)
+         else:
+             messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un libro para modificarlo.")
+   
+
 
     def boton_buscar(self, event):
         busqueda= self.buscar.get()
@@ -397,9 +400,7 @@ class L_Listar(tk.Frame):
                                 mariadb_conexion = establecer_conexion()
                                 if mariadb_conexion:#.is_connected():
                                     cursor = mariadb_conexion.cursor()
-                                    cursor.execute("""
-                                                   SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion,n_volumenes, n_ejemplares FROM libro WHERE estado_libro != 'eliminado'
-                                                   """)
+                                    cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion,n_volumenes, n_ejemplares FROM libro')
                                     resultados = cursor.fetchall() 
                                     for row in book_table_list.get_children():
                                         book_table_list.delete(row)
@@ -426,7 +427,6 @@ class L_Listar(tk.Frame):
                                     print("Error durante la conexión:", ex)
                             except subprocess.CalledProcessError as e:
                                 print("Error al importar el archivo SQL:", e)
-
    
 
     def cancelar(self, window):
@@ -437,6 +437,7 @@ class L_Registrar(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent)
         self.parent = parent
+        self.grab_set()
         self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
        # validate_number = self.register(validate_number_input)
@@ -649,22 +650,22 @@ class L_Registrar(tk.Toplevel):
                 return
             if not event.char.isdigit():
                 return "break"
-            current_text = longitud_ano(current_text)
-            formatted_text = current_text
+            current_text = widget.get()  # Obtener texto actual sin añadir el nuevo carácter aún
+            if len(current_text) >= 4:
+                return "break"
+            # Permitir añadir el nuevo carácter si no excede la longitud
+            formatted_text = current_text[:widget.index(tk.INSERT)] + event.char + + current_text[widget.index(tk.INSERT):]
         elif widget == self.edicion_m:
-            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
-                return
-            if not event.char.isdigit():
+            resultado = validar_digitos(event, longitud_nro_edicion)
+            if resultado == "break":
                 return "break"
-            current_text = longitud_nro_edicion(current_text)
-            formatted_text = current_text
+            formatted_text = resultado
+
         elif widget == self.volumen_m:
-            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
-                return
-            if not event.char.isdigit():
+            resultado = validar_digitos(event, longitud_volumen)
+            if resultado == "break":
                 return "break"
-            current_text = longitud_volumen(current_text)
-            formatted_text = current_text
+            formatted_text = resultado
 
         # Guardar la posición del cursor
         cursor_position = widget.index(tk.INSERT)
@@ -710,7 +711,7 @@ class L_Registrar(tk.Toplevel):
         else:
             messagebox.showwarning("Validación", "Por favor, seleccione una opción válida.")
 
-
+    
         #-------------------------------------------------------------------------------
             
         
@@ -744,17 +745,18 @@ class L_Registrar(tk.Toplevel):
         print(f"Errores: {errores}")  # Agregar esta línea para depuración
 
         if errores:
-            messagebox.showerror("Error", "\n".join(errores))
+            messagebox.showerror("Error", "\n".join(errores),parent=self)
             return
 
         # Depuración de los valores que se van a pasar a create_books
         print(f"Valores para registro: ID_Sala={ID_Sala}, ID_Categoria={ID_Categoria}, ID_Asignatura={ID_Asignatura}, Cota={Cota}, n_registro={n_registro}, edicion={edicion}, n_volumenes={n_volumenes}, titulo={titulo}, autor={autor}, editorial={editorial}, año={año}")
 
         if create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año):
-            messagebox.showinfo("Éxito", "Registro del libro éxitoso.")
+            messagebox.showinfo("Éxito", "Registro del libro éxitoso.",parent=self)
             self.clear_entries_register()
-        else:
-            messagebox.showinfo("Registro fallido", "Libro mantiene sus valores.")
+            self.destroy()
+        # else:
+        #     messagebox.showinfo("Registro fallido", "Libro mantiene sus valores.",parent=self)
 
     
     def clear_entries_register(self):
@@ -1049,22 +1051,22 @@ class L_Modificar(tk.Toplevel):
                 return
             if not event.char.isdigit():
                 return "break"
-            current_text = longitud_ano(current_text)
-            formatted_text = current_text
+            current_text = widget.get()  # Obtener texto actual sin añadir el nuevo carácter aún
+            if len(current_text) >= 4:
+                return "break"
+            # Permitir añadir el nuevo carácter si no excede la longitud
+            formatted_text = current_text[:widget.index(tk.INSERT)] + event.char + + current_text[widget.index(tk.INSERT):]
         elif widget == self.edicion_m:
-            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
-                return
-            if not event.char.isdigit():
+            resultado = validar_digitos(event, longitud_nro_edicion)
+            if resultado == "break":
                 return "break"
-            current_text = longitud_nro_edicion(current_text)
-            formatted_text = current_text
+            formatted_text = resultado
+
         elif widget == self.volumen_m:
-            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
-                return
-            if not event.char.isdigit():
+            resultado = validar_digitos(event, longitud_volumen)
+            if resultado == "break":
                 return "break"
-            current_text = longitud_volumen(current_text)
-            formatted_text = current_text
+            formatted_text = resultado
 
         # Guardar la posición del cursor
         cursor_position = widget.index(tk.INSERT)
@@ -1207,18 +1209,19 @@ class L_Modificar(tk.Toplevel):
         )    
         print(f"Errores: {errores}")  # Agregar esta línea para depuración
         if errores:        
-            messagebox.showerror("Error", "\n".join(errores))        
+            messagebox.showerror("Error", "\n".join(errores),parent=self)        
             return
         print("Datos recogidos:")    
         for key, value in nuevos_valores.items():        
             print(f"{key}: {value}")
 
         # Actualizar los libros con los nuevos valores    
-        if update_books(self.book_data, nuevos_valores):        
-            messagebox.showinfo("Éxito", "Modificación del libro exitosa.")        
-            self.clear_entries_modify()    
+        if update_books(self.book_data, nuevos_valores): 
+            messagebox.showinfo("Éxito", "Modificación del libro exitosa.",parent=self)        
+            self.clear_entries_modify()  
+            self.destroy()         
         else:        
-            messagebox.showinfo("Modificación fallida", "Libro mantiene sus valores.")
+            messagebox.showinfo("Modificación fallida", "Libro mantiene sus valores.",parent=self)
 
 
 

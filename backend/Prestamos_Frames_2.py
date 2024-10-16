@@ -6,7 +6,6 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 #from Library.librerias import recoger_sesion, drop_sesion
 from Library.db_prestamos import *
 from Library.bd_prestamo_listado_Frames2 import *
-from Vistas.listas import *
 from tkcalendar import Calendar
 from datetime import datetime, timedelta
 import random
@@ -35,8 +34,7 @@ class P_Registrar(tk.Frame):
         validate_number = self.register(validate_number_input)
         self.images = {}
 
-        self.canvas.create_text(840.0, 180.0, text="Refrescar", fill="black", font=("Bold", 17))
-        self.canvas.create_text(940.0, 180.0, text="Imprimir", fill="black", font=("Bold", 17))
+        self.canvas.create_text(940.0, 180.0, text="Refrescar", fill="black", font=("Bold", 17))
         self.canvas.create_text(1040.0, 180.0, text="Agregar", fill="black", font=("Bold", 17))
         self.canvas.create_text(1140.0, 180.0, text="Editar", fill="black", font=("Bold", 17))
         self.canvas.create_text(1240.0, 180.0, text="Eliminar", fill="black", font=("Bold", 17))
@@ -53,7 +51,7 @@ class P_Registrar(tk.Frame):
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
         
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="black", font=("Bold", 17))
-        self.buscar.bind("<Return>", self.boton_buscar_cliente)
+        self.buscar.bind("<Return>", self.boton_buscar)
 
         # Cargar y almacenar las imágenes
         self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
@@ -70,23 +68,9 @@ class P_Registrar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=795.0, y=70.0, width=90.0, height=100.0)
-
-        self.images['boton_imprimir'] = tk.PhotoImage(file=relative_to_assets("4_imprimir.png"))
-            
-            # Cargar y almacenar la imagen del botón
-        self.button_e = tk.Button(
-                self,
-                image=self.images['boton_imprimir'],
-                borderwidth=0,
-                highlightthickness=0,
-                # command=lambda: self.reading_books(self.book_table_list),
-                relief="flat",
-                bg="#FAFAFA",
-                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
-                activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
-            )
         self.button_e.place(x=895.0, y=70.0, width=90.0, height=100.0)
+
+        
 
         self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
             
@@ -168,8 +152,11 @@ class P_Registrar(tk.Frame):
         self.clients_table_list_loans.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
 
+        # # Botón para obtener las filas seleccionadas
+        # self.select_button = tk.Button(self.canvas, text="Seleccionar Libros", command=self.get_selected_books)
+        # self.select_button.place(x=265.0, y=435.0, width=130.0, height=40.0)
         reading_clients (self.clients_table_list_loans)
-
+    
     def open_register_window(self):
         filter_window = tk.Toplevel(self)
         filter_window.title("Registro")
@@ -221,6 +208,8 @@ class P_Registrar(tk.Frame):
         self.input_apellido.bind("<KeyRelease>", self.validate_entries)
         self.input_telefono.bind("<KeyRelease>", self.validate_entries)
         self.input_direccion.bind("<KeyRelease>", self.validate_entries)
+        # self.fecha_registrar.bind("<KeyRelease>", self.validate_entries)
+        # self.fecha_limite.bind("<KeyRelease>", self.validate_entries)
 
         # Crear un estilo personalizado
         style = ttk.Style()
@@ -371,7 +360,7 @@ class P_Registrar(tk.Frame):
         else:
             self.boton_R.place_forget()  # Ocultar el botón si algún campo está vacío
 
-    def boton_buscar_cliente(self, event):
+    def boton_buscar(self, event):
         busqueda= self.buscar.get()
         try:
              mariadb_conexion = establecer_conexion()
@@ -410,6 +399,10 @@ class P_Modificar(tk.Frame):
         #validate_number = self.register(validate_number_input)
         self.images = {}
         
+        #hacer algo similar a R_selection para decidir si modificar los libros que tiene un cliente asignados o la informacion de este?
+        #o hacer que solo se pueda modificar la informacion de cliente o los libros
+        #tomar esta misma decicion para eliminar
+        
 class P_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
@@ -419,9 +412,10 @@ class P_Listar(tk.Frame):
         self.images = {}
 
         #Marco listado prestamo-clientes
+        # self.left_frame2 = tk.Frame(self.canvas, bg="#FFFFFF")
         self.left_frame2 = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame2.pack(expand=True, side="right", fill="both")
-        self.left_frame2.place(x=200,y=230, height=455, width=1180)
+        self.left_frame2.place(x=200,y=220, height=490, width=1180)
 
         self.right_frame = tk.Frame(self)
         self.right_frame.pack(side="right", expand=True, fill="both")
@@ -429,22 +423,37 @@ class P_Listar(tk.Frame):
         # Texto para el nombre
 
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1035.0, 180.0, text="Editar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1135.0, 180.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(835.0, 180.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(935.0, 180.0, text="Agregar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1235.0, 180.0, text="Filtrar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1035.0, 200.0, text="Editar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1135.0, 200.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(735.0, 200.0, text="Imprimir", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(835.0, 200.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(935.0, 200.0, text="Agregar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1235.0, 200.0, text="Filtrar", fill="#031A33", font=("Bold", 17))
 
        # Títulos para los Treeviews
         bold_font = font.Font(family="Bold", size=15, weight="bold")
-        self.label_prestamos = tk.Label(self.canvas, text="Tabla Prestamos", bg="#FAFAFA", fg="#031A33", font=bold_font)
-        self.label_prestamos.place(x=640.0, y=200.0, width=230.0, height=35.0)
+        self.label_prestamos = tk.Label(self.left_frame2, text="Tabla Prestamos", bg="#FAFAFA", fg="#031A33", font=bold_font)
+        self.label_prestamos.place(x=445.0, y=4.0, width=237.0, height=35.0)
 
 
         self.buscar = tk.Entry(self, bg="#FAFAFA", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
-
+        self.images['boton_imprimir'] = tk.PhotoImage(file=relative_to_assets("4_imprimir.png"))
+            
+            # Cargar y almacenar la imagen del botón
+        self.button_e = tk.Button(
+                self,
+                image=self.images['boton_imprimir'],
+                borderwidth=0,
+                highlightthickness=0,
+                command=lambda: self.imprimir_seleccionado(),
+                relief="flat",
+                bg="#FAFAFA",
+                activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+                activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
+            )
+        self.button_e.place(x=695.0, y=90.0, width=90.0, height=100.0)
         # Cargar y almacenar las imágenes
         self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
         # Cargar y almacenar la imagen del botón
@@ -459,7 +468,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_c.place(x=890.0, y=70.0, width=90.0, height=100.0)
+        self.button_c.place(x=890.0, y=90.0, width=90.0, height=100.0)
 
         self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
         # Cargar y almacenar la imagen del botón
@@ -474,7 +483,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_c.place(x=790.0, y=70.0, width=90.0, height=100.0)
+        self.button_c.place(x=790.0, y=90.0, width=90.0, height=100.0)
 
         #Boton Filtrar
         # Cargar y almacenar las imágenes
@@ -491,7 +500,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_f.place(x=1190.0, y=70.0, width=90.0, height=100.0)
+        self.button_f.place(x=1190.0, y=90.0, width=90.0, height=100.0)
 
         #Boton Modificar
         # Cargar y almacenar las imágenes
@@ -508,7 +517,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_m.place(x=990.0, y=70.0, width=90.0, height=100.0)
+        self.button_m.place(x=990.0, y=90.0, width=90.0, height=100.0)
 
         self.images['boton_Eliminar_f'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
         
@@ -518,13 +527,13 @@ class P_Listar(tk.Frame):
             image=self.images['boton_Eliminar_f'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: delete_selected_prestamo(self),
+            command=lambda: delete_selected_cliente(self),
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         )
-        self.button_d.place(x=1090, y=70.0, width=90.0, height=100.0)
+        self.button_d.place(x=1090, y=90.0, width=90.0, height=100.0)
 
         styletrees = ttk.Style()
         styletrees.configure("Rounded.Treeview", 
@@ -550,18 +559,29 @@ class P_Listar(tk.Frame):
                         borderwidth=0)
 
         #Columnas Prestamo
-        columns2 = ("ID Prestamo", "ID Libro", "ID Cliente","Nombre","ID Libro Prestamo", "Titulo","Cantidad", "F.Registro", "F.Limite", "Encargado")
+        columns2 = ("ID Prestamo", "ID Libro", "ID Cliente","Nombre","ID Libro Prestamo", "Titulo","Ejemplares", "F.Registro", "F.Limite", "Encargado")
         self.prestamo_table = ttk.Treeview(self.left_frame2, columns=columns2, show='headings', style="Rounded.Treeview")
         for col2 in columns2:
             self.prestamo_table.heading(col2, text=col2)
             self.prestamo_table.column(col2, width=90, anchor="center")
-        self.prestamo_table.pack(expand=True, fill="both", padx=30, pady=5)
+        self.prestamo_table.pack(expand=True, fill="both", padx=40, pady=45)
 
 
         scrollbar_pt = ttk.Scrollbar(self.prestamo_table, orient="vertical", command=self.prestamo_table.yview)
         self.prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
-    
+
+    def imprimir_seleccionado(self):
+        selected_items = self.prestamo_table.selection()
+        if not selected_items:
+            messagebox.showwarning("Advertencia", "No se ha seleccionado ningún préstamo.")
+            return
+
+        selected_item = self.prestamo_table.item(selected_items[0], 'values')
+        imprimir = ImprimirPrestamo(selected_item)
+        imprimir.obtener_datos()
+
+
     def open_register_loan(self):
         filter_window = tk.Toplevel(self)
         filter_window.title("Registrar Préstamo")
@@ -656,17 +676,15 @@ class P_Listar(tk.Frame):
                         self.prestamo_table.delete(*self.prestamo_table.get_children())
                          # Ejecutar y procesar la primera consulta
                         cursor.execute("""SELECT prestamo.ID_Prestamo, cliente.ID_Cliente, cliente.Nombre, 
-                        libro.ID_Libro, libro.titulo, libros_prestamo.Cantidad, prestamo.Fecha_Registro, 
+                        libro.ID_Libro, libro.titulo, libro.n_ejemplares, prestamo.Fecha_Registro, 
                         prestamo.Fecha_Limite, prestamo.ID_Usuario
                         FROM prestamo 
                         JOIN cliente ON prestamo.ID_Cliente = cliente.ID_Cliente 
-                        JOIN libro ON prestamo.ID_Libro = libro.ID_Libro
-                        JOIN libros_prestamo ON prestamo.ID_Libro_Prestamo 
-                        WHERE cliente.ID_Cliente=%s OR cliente.Nombre=%s 
+                        JOIN libro ON prestamo.ID_Libro = libro.ID_Libro 
+                        WHERE cliente.ID_Cliente=%s OR cliente.Nombre=%s OR cliente.Apellido=%s 
                                 OR libro.ID_Libro=%s OR libro.titulo=%s 
-                                OR libros_prestamo.ID_Libro_Prestamo=%s  OR libros_prestamo.Cantidad=%s 
                                 OR prestamo.ID_Prestamo=%s OR prestamo.ID_Usuario=%s""", 
-                        (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+                        (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
                         resultados_prestamo = cursor.fetchall() 
                         for fila in resultados_prestamo:
                             if busqueda in fila:
@@ -727,11 +745,11 @@ class P_Listar(tk.Frame):
 
         tk.Label(filter_window, text="TABLA PRESTAMOS", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=250.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#.grid(row=4, column=5, padx=10, pady=5)
         tk.Label(filter_window, text="Ingrese el ID de Prestamo, Cliente y Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=70.0, width=530.0, height=35.0)#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="ID Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=130.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
+        tk.Label(filter_window, text="ID Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=210.0, y=130.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
         self.id_prestamos_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
         self.id_prestamos_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=5, column=1, padx=10, pady=5)
 
-        tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=460.0, y=130.0, width=185.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=500.0, y=130.0, width=185.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
         self.id_cliente_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
         self.id_cliente_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
 
@@ -818,7 +836,7 @@ class P_Listar(tk.Frame):
             messagebox.showerror("Error", "Por favor, selecciona un libro de la lista.")
             return
             # Obtener ID_Usuario
-        ID_Usuario = 1 or 2 or 3
+        ID_Usuario = 5
         if ID_Usuario is None:
             messagebox.showerror("Error", "No se pudo obtener el ID de usuario.")
             return
@@ -828,8 +846,7 @@ class P_Listar(tk.Frame):
                     if update_prestamo_and_libro(ID_Prestamo, ID_Cliente, ID_Libro, ID_Libro_Prestamo, Cantidad):
                             # Actualizar la tabla prestamo con ID_Usuario
                         if update_prestamo_with_usuario(ID_Prestamo, ID_Usuario):
-                             if update_cliente_with_prestamo(ID_Cliente, ID_Prestamo):
-                                messagebox.showinfo("Éxito", 
+                            messagebox.showinfo("Éxito", 
 f"""
 Registro éxitoso del préstamo. 
 ID Préstamo: {ID_Prestamo}
@@ -838,13 +855,11 @@ ID Libro Préstamo: {ID_Libro_Prestamo}
                         self.clear_entries_list()
             else:
                 messagebox.showerror("Error", "Préstamo no pudo ser creado.")    
+    #Boton de filtrado del Menú Lista-Prestamos
     def apply_filters(self):
-        found_three = filter_books_three(self)
-
-        if found_three: 
-            messagebox.showinfo("Resultado de Búsqueda", "Se encontraron resultados.")
-        else:
-            messagebox.showinfo("Resultado de Búsqueda", "No se encontraron resultados.")
+        filter_books_one(self)
+        filter_books_two(self)
+        filter_books_three(self)
 
     def clear_entries_list(self):
         # elf.id_prestamo_entry.delete(0, tk.END)
@@ -887,7 +902,115 @@ ID Libro Préstamo: {ID_Libro_Prestamo}
         item_values = self.book_table_list.item(selected_item, 'values')
         # Asumimos que el ID_Libro está en la primera columna
         self.ID_Libro = item_values[0]
+
+    # def format_n_registro(self, event):
+    #     # Obtener el texto actual del campo de entrada
+    #     text = self.n_registro_entry.get().replace(".", "")
         
+    #     # Formatear el texto para insertar un punto después de las tres primeras cifras
+    #     if len(text)> 2:
+    #         formatted_text = text[:2] + "." + text[2:]
+    #     else:
+    #         formatted_text = text
+from tkinter import messagebox
+from datetime import datetime
+from backend.Reporte_PDF import generar_pdf
+from backend.models import Cliente, Libro
+
+
+
+class ImprimirPrestamo:
+    def __init__(self, selected_item):
+        self.selected_item = {
+            "ID_Prestamo": selected_item[0],
+            "ID_Libro": selected_item[1],
+            "ID_Cliente": selected_item[2],
+            "Nombre": selected_item[3],
+            "ID_Libro_Prestamo": selected_item[4],
+            "Titulo": selected_item[5],
+            "ejemplares": selected_item[6],
+            "fecha_r": selected_item[7],
+            "fecha_en": selected_item[8],
+            "estado_prestamo": selected_item[9],
+        }
+        self.user_data = {}
+        self.book_data = {}
+        self.prestamo = {}
+        self.datos_prestamos = self.selected_item.copy()
+        print(self.datos_prestamos)
+
+    def obtener_datos(self):
+        cliente_id = self.datos_prestamos["ID_Cliente"]
+        libro_id = self.datos_prestamos["ID_Libro"]
+        print(f"Cliente ID: {cliente_id}, Libro ID: {libro_id}")  # Depuración
+
+        try:
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+
+                # Obtener los datos del cliente
+                cursor.execute('''
+                    SELECT Cedula_Cliente, Nombre, Apellido, Telefono, Direccion
+                    FROM cliente
+                    WHERE ID_Cliente = %s
+                ''', (cliente_id,))
+                resultado_cliente = cursor.fetchone()
+                print(f"Resultado Cliente: {resultado_cliente}")  # Depuración
+                if resultado_cliente:
+                    self.user_data = {
+                        "Cedula": resultado_cliente[0],
+                        "Nombre": resultado_cliente[1],
+                        "Apellido": resultado_cliente[2],
+                        "Telefono": resultado_cliente[3],
+                        "Direccion": resultado_cliente[4]
+                    }
+
+                # Crear instancia de Cliente
+                cliente = Cliente(
+                    cedula=self.user_data["Cedula"],
+                    nombre=self.user_data["Nombre"],
+                    apellido=self.user_data["Apellido"],
+                    telefono=self.user_data["Telefono"],
+                    direccion=self.user_data["Direccion"]
+                )
+
+                # Obtener los datos del libro
+                self.book_data = obtener_datos_libro(libro_id)
+                if self.book_data:
+                    # Crear instancia de Libro con el orden correcto de los parámetros
+                    libro = Libro(
+                        cota=self.book_data["Cota"],
+                        categoria=self.book_data["ID_Categoria"],
+                        sala=self.book_data["ID_Sala"],
+                        asignatura=self.book_data["ID_Asignatura"],
+                        numero_registro=self.book_data["n_registro"],
+                        autor=self.book_data["autor"],
+                        titulo=self.book_data["titulo"],
+                        num_volumenes=self.book_data["n_volumenes"],
+                        num_ejemplares=self.book_data["n_ejemplares"],
+                        edicion=self.book_data["edicion"],
+                        año=self.book_data["año"],
+                        editorial=self.book_data["editorial"]
+                    )
+
+                    self.prestamo = {
+                        "Cliente": self.user_data,
+                        "Libro": self.book_data
+                    }
+
+                    print("Prestamo Data:", self.prestamo)
+
+                    # Llamar a generar_reporte_pdf después de obtener los datos
+                    fecha_actual = datetime.now().strftime("%d_%m_%Y")
+                    nombre_corregido = self.user_data.get("Nombre", "").replace(" ", "_")
+                    nombre_archivo_base = f"Reporte_de_prestamo_{nombre_corregido}_{fecha_actual}"
+                    generar_pdf(cliente, libro, self.datos_prestamos["fecha_r"], self.datos_prestamos["fecha_en"], nombre_archivo_base)
+
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+            messagebox.showerror("Error", f"Error durante la conexión")
+
 
 class P_Eliminar(tk.Frame):
     def __init__(self, parent):
