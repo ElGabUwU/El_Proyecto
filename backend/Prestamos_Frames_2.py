@@ -164,30 +164,56 @@ class P_Registrar(tk.Frame):
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
         filter_window.geometry("950x400")
         filter_window.config(bg="#042344")
+        filter_window.resizable(False, False)
         
-        tk.Label(filter_window, text="REGISTRO DE CLIENTES", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=270.0, y=20.0, width=400.0, height=35.0)
-        tk.Label(filter_window, text="Cedula", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=100.0, width=120.0, height=35.0)
-        self.input_cedula = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.input_cedula.place(x=30.0, y=130.0, width=190.0, height=35.0)
 
-        tk.Label(filter_window, text="Nombre", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.input_nombre = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.input_nombre.place(x=260.0, y=130.0, width=190.0, height=35.0)
-
-        tk.Label(filter_window, text="Apellido", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=470.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
-        self.input_apellido = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.input_apellido.place(x=490.0, y=130.0, width=190.0, height=35.0)
+        # ESTO ME SIRVE PARA LA VENTANA DE LIBROS!!!!
+        #lienzo.create_rectangle(0, 0, 950, 74, fill="#2E59A7")
         
-        tk.Label(filter_window, text="Telefono", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=710.0, y=100.0, width=120.0, height=35.0)
-        self.input_telefono = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.input_telefono.place(x=720.0, y=130.0, width=190.0, height=35.0)
+        
+        rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=4)
+        rectangulo_color.place(x=0, y=0)  # Posición del rectángulo dentro de la ventana
+        tk.Label(filter_window, text="Registro de Clientes", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=270.0, y=13.0, width=400.0, height=40.0)
+        tk.Label(filter_window, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=3.0, y=100.0, width=120.0, height=35.0)
+        self.input_cedula = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.input_cedula.place(x=33.0, y=130.0, width=190.0, height=35.0)
+        #que es esto???
 
-        tk.Label(filter_window, text="Direccion", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=30.0, y=240.0, width=120.0, height=35.0)
-        self.input_direccion = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.input_direccion.place(x=30.0, y=270.0, width=190.0, height=35.0)
+        tk.Label(filter_window, text="Nombre", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=238.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        self.input_nombre = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.input_nombre.place(x=263.0, y=130.0, width=190.0, height=35.0)
+
+        tk.Label(filter_window, text="Apellido", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=469.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
+        self.input_apellido = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.input_apellido.place(x=493.0, y=130.0, width=190.0, height=35.0)
+        
+        tk.Label(filter_window, text="Teléfono", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=700.0, y=100.0, width=120.0, height=35.0)
+        self.input_telefono = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.input_telefono.place(x=723.0, y=130.0, width=190.0, height=35.0)
+
+        tk.Label(filter_window, text="Dirección", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=14.0, y=200.0, width=120.0, height=35.0)
+        self.input_direccion = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.input_direccion.place(x=33.0, y=230.0, width=190.0, height=35.0)
 
                 # Cargar y almacenar las imágenes
-        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
+                
+        
+                
+        self.images['boton_C'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+
+        self.boton_C = tk.Button(
+            filter_window,
+            image=self.images['boton_C'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda:self.cancelar(filter_window),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=753.0, y=300.0, width=130.0, height=40.0)
+        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_button_light_blue.png"))
 
         self.boton_R = tk.Button(
             filter_window,
@@ -200,57 +226,62 @@ class P_Registrar(tk.Frame):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_R.place(x=265.0, y=450.0, width=130.0, height=40.0)
-        self.boton_R.place_forget()  # Ocultar el botón inicialmente
+        
+        #Inesesario???????????????????????????????
+        #self.boton_R.place(x=265.0, y=450.0, width=130.0, height=40.0)
+        #self.boton_R.place_forget()  # Ocultar el botón inicialmente
 
+
+        
         # Vincular la validación a los eventos de los campos de entrada
         self.input_cedula.bind("<KeyRelease>", self.validate_entries)
         self.input_nombre.bind("<KeyRelease>", self.validate_entries)
         self.input_apellido.bind("<KeyRelease>", self.validate_entries)
         self.input_telefono.bind("<KeyRelease>", self.validate_entries)
         self.input_direccion.bind("<KeyRelease>", self.validate_entries)
-        # self.fecha_registrar.bind("<KeyRelease>", self.validate_entries)
-        # self.fecha_limite.bind("<KeyRelease>", self.validate_entries)
 
         # Crear un estilo personalizado
-        style = ttk.Style()
+        """style = ttk.Style()
         style.configure("Custom.TButton", background="#2E59A7", foreground="#ffffff", font=("Bold", 22))
 
         button_cancel = ttk.Button(filter_window, text="Cancelar", command=lambda: self.cancelar(filter_window), style="Custom.TButton")
-        button_cancel.place(x=500.0, y=300.0, width=140.0, height=50.0)
+        button_cancel.place(x=500.0, y=300.0, width=140.0, height=50.0)"""
     
     def open_modify_window(self):
         filter_window = tk.Toplevel(self)
-        filter_window.title("Registro")
+        filter_window.title("Modificar")
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
         filter_window.geometry("950x400")
         filter_window.config(bg="#042344")
+        filter_window.resizable(False, False)
+        rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=4)
+        rectangulo_color.place(x=0, y=0)
+        tk.Label(filter_window, text="Modificación de Clientes", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=270.0, y=20.0, width=420.0, height=35.0)
+        tk.Label(filter_window, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=3.0, y=100.0, width=120.0, height=35.0)
+        self.input_cedula = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.input_cedula.place(x=33.0, y=130.0, width=190.0, height=35.0)
         
-        tk.Label(filter_window, text="MODIFICACIÓN DE CLIENTES", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=270.0, y=20.0, width=420.0, height=35.0)
-        tk.Label(filter_window, text="Cedula", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=100.0, width=120.0, height=35.0)
-        self.input_cedula = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.input_cedula.place(x=30.0, y=130.0, width=190.0, height=35.0)
 
-        tk.Label(filter_window, text="Nombre", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.input_nombre = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.input_nombre.place(x=260.0, y=130.0, width=190.0, height=35.0)
+        tk.Label(filter_window, text="Nombre", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=238.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        self.input_nombre = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.input_nombre.place(x=263.0, y=130.0, width=190.0, height=35.0)
 
-        tk.Label(filter_window, text="Apellido", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=470.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
-        self.input_apellido = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.input_apellido.place(x=490.0, y=130.0, width=190.0, height=35.0)
+        tk.Label(filter_window, text="Apellido", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=469.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
+        self.input_apellido = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.input_apellido.place(x=493.0, y=130.0, width=190.0, height=35.0)
         
-        tk.Label(filter_window, text="Telefono", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=710.0, y=100.0, width=120.0, height=35.0)
-        self.input_telefono = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.input_telefono.place(x=720.0, y=130.0, width=190.0, height=35.0)
+        tk.Label(filter_window, text="Teléfono", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=700.0, y=100.0, width=120.0, height=35.0)
+        self.input_telefono = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.input_telefono.place(x=723.0, y=130.0, width=190.0, height=35.0)
 
-        tk.Label(filter_window, text="Direccion", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=30.0, y=240.0, width=120.0, height=35.0)
-        self.input_direccion = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.input_direccion.place(x=30.0, y=270.0, width=190.0, height=35.0)
+        tk.Label(filter_window, text="Dirección", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=14.0, y=200.0, width=120.0, height=35.0)
+        self.input_direccion = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.input_direccion.place(x=33.0, y=230.0, width=190.0, height=35.0)
 
         self.modify_client()
 
                         # Cargar y almacenar las imágenes
-        self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("M_Boton.png"))
+        self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
 
         self.boton_R = tk.Button(
             filter_window,
@@ -263,22 +294,32 @@ class P_Registrar(tk.Frame):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_R.place(x=265.0, y=450.0, width=130.0, height=40.0)
-        self.boton_R.place_forget()  # Ocultar el botón inicialmente
+        #self.boton_R.place(x=265.0, y=450.0, width=130.0, height=40.0)
+        #self.boton_R.place_forget()  # Ocultar el botón inicialmente
 
+        
+        self.images['boton_C'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+
+        self.boton_C = tk.Button(
+            filter_window,
+            image=self.images['boton_C'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda:self.cancelar(filter_window),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=753.0, y=300.0, width=130.0, height=40.0)
+        
+        
         # Vincular la validación a los eventos de los campos de entrada
         self.input_cedula.bind("<KeyRelease>", self.validate_entries)
         self.input_nombre.bind("<KeyRelease>", self.validate_entries)
         self.input_apellido.bind("<KeyRelease>", self.validate_entries)
         self.input_telefono.bind("<KeyRelease>", self.validate_entries)
         self.input_direccion.bind("<KeyRelease>", self.validate_entries)
-
-        # Crear un estilo personalizado
-        style = ttk.Style()
-        style.configure("Custom.TButton", background="#2E59A7", foreground="#ffffff", font=("Bold", 22))
-
-        button_cancel = ttk.Button(filter_window, text="Cancelar", command=lambda: self.cancelar(filter_window), style="Custom.TButton")
-        button_cancel.place(x=500.0, y=300.0, width=140.0, height=50.0)
         
     def cancelar(self, window):
         window.destroy()  # Esto cerrará la ventana de filtro
@@ -357,7 +398,7 @@ class P_Registrar(tk.Frame):
         if (self.input_cedula.get() and self.input_nombre.get() and self.input_apellido.get() and
                 self.input_telefono.get() and self.input_direccion.get()):
                 # self.fecha_registrar.get() and self.fecha_limite.get()):
-            self.boton_R.place(x=740.0, y=300.0, width=130.0, height=40.0)  # Mostrar el botón
+            self.boton_R.place(x=553.0, y=300.0, width=130.0, height=40.0)  # Mostrar el botón
         else:
             self.boton_R.place_forget()  # Ocultar el botón si algún campo está vacío
 
@@ -598,28 +639,32 @@ class P_Listar(tk.Frame):
         filter_window = tk.Toplevel(self)
         filter_window.title("Registrar Préstamo")
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        filter_window.geometry("1550x600")
+        filter_window.geometry("1355x600")
         filter_window.config(bg="#042344")
+        filter_window.resizable(False, False)
 
         # Crear el marco izquierdo para el menú de navegación
         self.left_frame_list = tk.Frame(filter_window, bg="#042344")
         self.left_frame_list.place(x=170, y=160, height=400, width=1200)
-
-        tk.Label(filter_window, text="TABLA PRESTAMOS", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=505.0, y=20.0, width=450.0, height=35.0)
+        
+        
+        rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=3)
+        rectangulo_color.place(x=0, y=0)  # Posición del rectángulo dentro de la ventana
+        tk.Label(filter_window, text="Tabla Prestamos",fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=505.0, y=8.0, width=450.0, height=35.0)
         tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=600.0, y=70.0, width=160.0, height=35.0)
-        self.id_cliente = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.id_cliente = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.id_cliente.place(x=630.0, y=100.0, width=190.0, height=35.0)
-
-        tk.Label(filter_window, text="Fecha Registrar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=20.0, y=140.0, width=160.0, height=35.0)
-        self.fecha_registrar = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        #self.input_cedula = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        tk.Label(filter_window, text="Fecha Registrar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=22.0, y=140.0, width=160.0, height=35.0)
+        self.fecha_registrar = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.fecha_registrar.place(x=20.0, y=170.0, width=170.0, height=35.0)
         
-        tk.Label(filter_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=20.0, y=240.0, width=160.0, height=35.0)
-        self.fecha_limite = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        tk.Label(filter_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=7.0, y=240.0, width=160.0, height=35.0)
+        self.fecha_limite = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.fecha_limite.place(x=20.0, y=270.0, width=170.0, height=35.0)
 
-        tk.Label(filter_window, text="Cantidad", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=25.0, y=340, width=105.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.input_cantidad = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        tk.Label(filter_window, text="Cantidad", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=15.0, y=340, width=105.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        self.input_cantidad = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.input_cantidad.place(x=20.0, y=370.0, width=170.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
 
         # Establecer las fechas automáticamente
@@ -661,7 +706,7 @@ class P_Listar(tk.Frame):
 
         self.reading_books(self.book_table_list)
 
-        self.images['boton_r'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
+        self.images['boton_r'] = tk.PhotoImage(file=relative_to_assets("R_button_light_blue.png"))
 
         self.boton_R = tk.Button(
             filter_window,
@@ -676,6 +721,8 @@ class P_Listar(tk.Frame):
         )
         self.boton_R.place(x=265.0, y=450.0, width=130.0, height=40.0)
         self.boton_R.place_forget()  # Ocultar el botón inicialmente
+
+        self.input_cantidad.bind("<KeyRelease>", self.validate_entries)
 
         self.input_cantidad.bind("<KeyRelease>", self.validate_entries)
 
@@ -752,25 +799,59 @@ class P_Listar(tk.Frame):
         filter_window = tk.Toplevel(self)
         filter_window.title("Filtrar")
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        filter_window.geometry("950x550")
+        filter_window.geometry("950x450")
         filter_window.config(bg="#042344")
-
-        tk.Label(filter_window, text="TABLA PRESTAMOS", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=250.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#.grid(row=4, column=5, padx=10, pady=5)
-        tk.Label(filter_window, text="Ingrese el ID de Prestamo, Cliente y Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=70.0, width=530.0, height=35.0)#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="ID Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=210.0, y=130.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
-        self.id_prestamos_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        
+        filter_window.resizable(False, False)
+        rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=4)
+        rectangulo_color.place(x=0, y=0)
+        
+        tk.Label(filter_window, text="Tabla de Prestamos", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=250.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#.grid(row=4, column=5, padx=10, pady=5)
+        tk.Label(filter_window, text="Ingrese el ID de Prestamo, Cliente y Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=80.0, width=530.0, height=35.0)#.pack(pady=10, expand=False)
+        tk.Label(filter_window, text="ID Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=130.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
+        self.id_prestamos_entry = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.id_prestamos_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=5, column=1, padx=10, pady=5)
 
-        tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=500.0, y=130.0, width=185.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.id_cliente_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=460.0, y=130.0, width=185.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        self.id_cliente_entry = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.id_cliente_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
 
         tk.Label(filter_window, text="ID Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=230.0, width=180.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
-        self.id_libro_cliente_entry = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        self.id_libro_cliente_entry = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.id_libro_cliente_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=7, column=1, padx=10, pady=5)
 
+        
+        self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("boton_filtrar.png"))
+
+        self.boton_M = tk.Button(
+            filter_window,
+            image=self.images['boton_m'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.apply_filters,
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_M.place(x=530.0, y=350.0, width=130.0, height=40.0)
+        
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+
+        self.boton_C = tk.Button(
+            filter_window,
+            image=self.images['boton_c'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(filter_window),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=270.0, y=350.0, width=130.0, height=40.0)
          # Crear un estilo personalizado
-        style = ttk.Style()
+        """style = ttk.Style()
         style.configure("Custom.TButton", background="#2E59A7", foreground="#ffffff", font=("Bold", 22))
 
         # Botón para filtrar
@@ -778,7 +859,7 @@ class P_Listar(tk.Frame):
         self.filter_button.place(x=250.0, y=480.0, width=140.0, height=50.0)#.pack(expand=True)#.place(x=390, y=400)
 
         button_cancel = ttk.Button(filter_window, text="Cancelar", command=lambda: self.cancelar(filter_window), style="Custom.TButton")
-        button_cancel.place(x=520.0, y=480.0, width=140.0, height=50.0)#.pack(pady=5, expand=False)
+        button_cancel.place(x=520.0, y=480.0, width=140.0, height=50.0)#.pack(pady=5, expand=False)"""
     
     def open_filter_window_modify(self,parent):
         filter_window = tk.Toplevel(self)
@@ -786,29 +867,58 @@ class P_Listar(tk.Frame):
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
         filter_window.geometry("950x550")
         filter_window.config(bg="#042344")
-
-        tk.Label(filter_window, text="MODIFICACIÓN DE PRÉSTAMO", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=250.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#grid(row=0, column=5, padx=10, pady=5)
-        tk.Label(filter_window, text="Ingrese los datos a modificar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=70.0, width=330.0, height=35.0)#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=237.0, y=130.0, width=130.0, height=35.0)#.pack(pady=10,expand=False)#grid(row=1, column=0, padx=10, pady=5)
-        self.fecha_limite_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.fecha_limite_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=1, column=1, padx=10, pady=5)
-        tk.Label(filter_window, text="Cantidad", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=449.0, y=130.0, width=185.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=3, column=0, padx=10, pady=5)
-        self.cantidad_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.cantidad_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)#pack(expand=False)#.grid(row=3, column=1, padx=10, pady=5)
-        tk.Label(filter_window, text="ID del prestamo que será modificado", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=30.0, y=320.0, width=350.0, height=35.0)#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="ID", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=300.0, y=360.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.id_prestamo_entry = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
-        self.id_prestamo_entry.place(x=350.0, y=400.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
+        filter_window.resizable(False, False)
+        rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=4)
+        rectangulo_color.place(x=0, y=0)
+        tk.Label(filter_window, text="Modificación De Préstamo", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=235.0, y=15.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#grid(row=0, column=5, padx=10, pady=5)
+        tk.Label(filter_window, text="Ingrese los datos a modificar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=80.0, width=330.0, height=35.0)#.pack(pady=10, expand=False)
+        tk.Label(filter_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=227.0, y=140.0, width=130.0, height=35.0)#.pack(pady=10,expand=False)#grid(row=1, column=0, padx=10, pady=5)
+        self.fecha_limite_entry = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.fecha_limite_entry.place(x=230.0, y=180.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=1, column=1, padx=10, pady=5)
+        tk.Label(filter_window, text="Cantidad", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=439.0, y=140.0, width=185.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=3, column=0, padx=10, pady=5)
+        self.cantidad_entry = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.cantidad_entry.place(x=490.0, y=180.0, width=190.0, height=35.0)#pack(expand=False)#.grid(row=3, column=1, padx=10, pady=5)
+        tk.Label(filter_window, text="ID del prestamo que será modificado", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=30.0, y=255.0, width=368.0, height=35.0)#.pack(pady=10, expand=False)
+        tk.Label(filter_window, text="ID", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=315.0, y=315.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        self.id_prestamo_entry = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        self.id_prestamo_entry.place(x=365.0, y=355.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
 
         # Crear un estilo personalizado
-        style = ttk.Style()
-        style.configure("Custom.TButton", background="#2E59A7", foreground="#ffffff", font=("Bold", 22))
+        self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
 
-        self.filter_button = ttk.Button(filter_window, text="Modificar", style="Custom.TButton", command=self.apply_filters_modify)
+        self.boton_M = tk.Button(
+            filter_window,
+            image=self.images['boton_m'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.apply_filters_modify,
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_M.place(x=530.0, y=450.0, width=130.0, height=40.0)
+        
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+
+        self.boton_C = tk.Button(
+            filter_window,
+            image=self.images['boton_c'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(filter_window),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=270.0, y=450.0, width=130.0, height=40.0)
+
+        """self.filter_button = ttk.Button(filter_window, text="Modificar", style="Custom.TButton", command=self.apply_filters_modify)
         self.filter_button.place(x=250.0, y=480.0, width=140.0, height=50.0)
 
         button_cancel = ttk.Button(filter_window, text="Cancelar", command=lambda: self.cancelar(filter_window), style="Custom.TButton")
-        button_cancel.place(x=520.0, y=480.0, width=140.0, height=50.0)#.pack(expand=True)#.place(x=390, y=400)#.pack(pady=5, expand=False)
+        button_cancel.place(x=520.0, y=480.0, width=140.0, height=50.0)#.pack(expand=True)#.place(x=390, y=400)#.pack(pady=5, expand=False)"""
 
     def apply_filters_modify(self):
         id_prestamo= self.id_prestamo_entry.get() 

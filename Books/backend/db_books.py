@@ -1,6 +1,6 @@
 
 import mysql.connector as mariadb
-import mariadb
+#import mariadb
 from colorama import init, Fore, Back, Style
 from db.conexion import establecer_conexion
 import subprocess
@@ -152,7 +152,7 @@ def create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion
         return False
 
 
-import mariadb
+#import mariadb
 
 def update_books(book_data, nuevos_valores):
     try:

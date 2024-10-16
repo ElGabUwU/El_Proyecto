@@ -17,6 +17,7 @@ import tkinter as tk
 
 #id_usuario,id_cargo,id_rol,nombre,apellido,cedula,U_nombre = None,None,None,None,None,None,None
 
+
 #relleno_menu
 
 
@@ -45,6 +46,7 @@ class Menu(tk.Frame):
         self.pack(side="left", fill="both", expand=True)
         self.frame_header=frame_header
         self.images = {}
+        self.parent = parent
         self.canvas = tk.Canvas(
             self,
             bg="#041022",
@@ -83,23 +85,44 @@ class Menu(tk.Frame):
 
         self.images["logo_salir"] = ImageTk.PhotoImage(nueva_imagen)
         
+        """def mostrar_nombre_usuario(self):
+            global U_nombre  # Declarar que usaremos la variable global
+            if U_nombre:
+                print(f"Nombre de Usuario: {U_nombre}")
+            else:
+                print("No hay nombre de usuario disponible")
+        mostrar_nombre_usuario(self)"""
+        
+        # Crear el botón que abrirá el menú desplegable
+        
+        
+        self.L_menu_button = tk.Button(self, text="Libros",image=self.images["icono_libros"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:{self.frame_header.update_header_text("Libros"),mostrar_frame(app.L_frame_listar)}, anchor="w", padx=10)
+        self.L_menu_button.place(x=0.0, y=0, width=213.0, height=58.0)
+        
+        self.Salir = tk.Button(self, text="Cerrar Sesión", image=self.images["logo_salir"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 20), relief="flat", padx=10, command=lambda: self.salir())
+        self.Salir.place(x=1.0, y=600.0, width=213.0, height=58.0)
+        
         
         
         # Crear el botón que abrirá el menú desplegable
-        self.L_menu_button = tk.Button(self, text="Libros",image=self.images["icono_libros"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:self.show_menu(self.L_dropdown_menu,self.L_menu_button), anchor="w", padx=10)
-        self.L_menu_button.place(x=0.0, y=0, width=213.0, height=58.0)
-        
-        self.U_menu_button = tk.Button(self, text="Usuarios",image=self.images["icono_usuarios"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:self.show_menu(self.U_dropdown_menu,self.U_menu_button), anchor="w", padx=10)
-        self.U_menu_button.place(x=0.0, y=58.0, width=213.0, height=58.0)
-        
-        self.P_menu_button = tk.Button(self, text="Prestamos ▾",image=self.images["icono_prestamos"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:self.show_menu(self.P_dropdown_menu,self.P_menu_button), anchor="w", padx=10)
-        self.P_menu_button.place(x=0.0, y=116.0, width=213.0, height=58.0)
-        
-        self.perfil_button = tk.Button(self, text="Mi Perfil",image=self.images["icono_perfil"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
-        self.perfil_button.place(x=0.0, y=174.0, width=213.0, height=58.0)
-
-        self.Salir = tk.Button(self, text="Cerrar Sesión", image=self.images["logo_salir"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 20), relief="flat", padx=10, command=lambda: self.salir())
-        self.Salir.place(x=1.0, y=600.0, width=213.0, height=58.0)
+        if self.parent.id_rol == 1:
+            
+            self.P_menu_button = tk.Button(self, text="Prestamos ▾",image=self.images["icono_prestamos"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:self.show_menu(self.P_dropdown_menu,self.P_menu_button), anchor="w", padx=10)
+            self.P_menu_button.place(x=0.0, y=58.0, width=213.0, height=58.0)
+            
+            self.perfil_button = tk.Button(self, text="Mi Perfil",image=self.images["icono_perfil"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
+            self.perfil_button.place(x=0.0, y=116.0, width=213.0, height=58.0)
+            
+        else: 
+            
+            self.U_menu_button = tk.Button(self, text="Usuarios",image=self.images["icono_usuarios"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:{self.frame_header.update_header_text("Usuarios"), mostrar_frame(app.U_frame_listar)}, anchor="w", padx=10)
+            self.U_menu_button.place(x=0.0, y=58.0, width=213.0, height=58.0)
+            
+            self.P_menu_button = tk.Button(self, text="Prestamos ▾",image=self.images["icono_prestamos"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:self.show_menu(self.P_dropdown_menu,self.P_menu_button), anchor="w", padx=10)
+            self.P_menu_button.place(x=0.0, y=116.0, width=213.0, height=58.0)
+            
+            self.perfil_button = tk.Button(self, text="Mi Perfil",image=self.images["icono_perfil"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
+            self.perfil_button.place(x=0.0, y=174.0, width=213.0, height=58.0)
         
         
         #tk.Button(self, text="Presionar", image=self.images["logo_salir"], compound="left")
@@ -113,75 +136,23 @@ class Menu(tk.Frame):
         #self.canvas.tag_raise("logo_salir")
         #self.Salir.lift()
         #self.canvas.create_text(15.0, 590.0, anchor="nw", text="Cedula: V31242538", fill="White", font=("Montserrat Regular", 15))
-        
 
-
-
-        # menú desplegable de Libros
-        self.L_dropdown_menu = tk.Menu(self, tearoff=0, bg="#041022", fg="#a6a6a6", font=("Inter", 20),
-                                     activebackground="#2E59A7", activeforeground="#A6A6A6")
-        self.L_dropdown_menu.add_command(
-            label="Registrar",
-            #command=lambda: {self.frame_header.update_header_text("Registrar"), mostrar_frame(app.L_frame_registrar)}
-        )
-        self.L_dropdown_menu.add_command(
-            label="Listado",
-            command=lambda: {self.frame_header.update_header_text("Listado"),mostrar_frame(app.L_frame_listar)}
-        )
-        self.L_dropdown_menu.add_command(
-            label="Modificar",
-            #command=lambda: {self.frame_header.update_header_text("Modificar"),mostrar_frame(app.L_frame_modificar)}
-        )
-        self.L_dropdown_menu.add_command(
-            label="Eliminar",
-            command=lambda: {self.frame_header.update_header_text("Eliminar"),mostrar_frame(app.L_frame_eliminar)}
-        )
-        
-        # menú desplegable de Usuarios
-        self.U_dropdown_menu = tk.Menu(self, tearoff=0, bg="#041022", fg="#a6a6a6", font=("Inter", 20),
-                                     activebackground="#2E59A7", activeforeground="white")
-        self.U_dropdown_menu.add_command(
-            label="Registrar",
-            command=lambda: {self.frame_header.update_header_text("Registrar"), mostrar_frame(app.U_frame_registrar)}
-        )
-        self.U_dropdown_menu.add_command(
-            label="Listado",
-            command=lambda: {self.frame_header.update_header_text("Listado"), mostrar_frame(app.U_frame_listar)}
-        )
-        self.U_dropdown_menu.add_command(
-            label="Modificar",
-            command=lambda: {self.frame_header.update_header_text("Modificar"),mostrar_frame(app.U_frame_modificar)}
-        )
-        self.U_dropdown_menu.add_command(
-            label="Eliminar",
-            command=lambda: {self.frame_header.update_header_text("Eliminar"),mostrar_frame(app.U_frame_eliminar)}
-        )
-        
         # menú desplegable de Prestamos
         
         self.P_dropdown_menu = tk.Menu(self, tearoff=0, bg="#041022", fg="#a6a6a6", font=("Inter", 20),activebackground="#2E59A7", activeforeground="white")
         self.P_dropdown_menu.add_command(
-            label="Registrar",
-            command=lambda: {self.frame_header.update_header_text("Registrar"), mostrar_frame(app.P_frame_registrar)}
+            label="Clientes",
+            command=lambda: {self.frame_header.update_header_text("Prestamos-Clientes"), mostrar_frame(app.P_frame_registrar)}
         )
         self.P_dropdown_menu.add_command(
-            label="Listado",
-            command=lambda: {self.frame_header.update_header_text("Listado"), mostrar_frame(app.P_frame_listar)}
+            label="Libros",
+            command=lambda: {self.frame_header.update_header_text("Prestamos-Libros"), mostrar_frame(app.P_frame_listar)}
         )
-        self.P_dropdown_menu.add_command(
-            label="Modificar",
-            command=lambda: {self.frame_header.update_header_text("Modificar"),mostrar_frame(app.P_frame_modificar)}
-        )
-        self.P_dropdown_menu.add_command(
-            label="Eliminar",
-            command=lambda: {self.frame_header.update_header_text("Eliminar"),mostrar_frame(app.P_frame_eliminar)}
-        )
-
+        
+        
 
         # Ajustar el padding de los elementos del menú
-        self.L_dropdown_menu.entryconfig("Registrar", font=("Helvetica", 20), accelerator=" ")
-        self.U_dropdown_menu.entryconfig("Listado", font=("Helvetica", 20), accelerator=" "*1)
-        self.P_dropdown_menu.entryconfig("Registrar", font=("Helvetica", 20), accelerator=" ")
+        self.P_dropdown_menu.entryconfig("Clientes", font=("Helvetica", 20), accelerator=" "*6)
 
     def show_menu(self,dropdown_menu,button):
         
@@ -211,11 +182,15 @@ class Menu(tk.Frame):
         from Login.frontend.form_master import MasterPanel
         
         app = FormLogin()
+        
+        
+        
     
 class Header(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.var_text="Sistema de Inventario"
+        self.parent = parent
         self.images = {}
         self.canvas = tk.Canvas(self, bg="#2E59A7")
         self.canvas.pack(side="left", fill="both", expand= False)
@@ -228,6 +203,10 @@ class Header(tk.Frame):
         #self.images["image_3"] = tk.PhotoImage(file=relative_to_assets("header.png"))
         #self.canvas.create_image(682.0, 29.0, image=self.images["image_3"])
         
+        if self.parent.id_rol == 1:
+            self.rol="Admin"
+        else:
+            self.rol="Super Admin"
         self.header_var_text=self.canvas.create_text(
             1250.0,
             12.0,
@@ -240,45 +219,57 @@ class Header(tk.Frame):
             15.0,
             8.0,
             anchor="nw",
-            text="Pedro Perez", #cuando el login este listo se nesita imprimir el nombre del usuario con algo asi como: self.usuario
-            fill="#a6a6a6",
+            text=self.parent.U_nombre, #cuando el login este listo se nesita imprimir el nombre del usuario con algo asi como: self.usuario
+            fill="#a6a6a6", 
             font=("Inter", 22 * -1)
         )
         self.canvas.create_text(
             15.0,
             30.0,
             anchor="nw",
-            text="admin", #cuando el login este listo se nesita imprimir el rol del usuario con algo asi como: self.rol_usuario
+            text=self.rol, #cuando el login este listo se nesita imprimir el rol del usuario con algo asi como: self.rol_usuario
             fill="#a6a6a6",
             font=("Inter", 14 * -1)
         )
     def update_header_text(self, new_text):
         self.canvas.itemconfig(self.header_var_text, text=new_text)
         
-# Definir la clase Perfil
-class Perfil(tk.Frame):
+class Perfil(tk.Frame):        
     def __init__(self, parent):
         super().__init__(parent)
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
+        #validate_number = self.register(validate_number_input)
+        self.parent = parent
         self.images = {}
         
-        # Titulos de los inputs
+        if self.parent.id_rol == 1:
+            self.rol="Admin"
+        else:
+            self.rol="Super Admin"
+            
+        if self.parent.id_cargo == 1:
+            self.cargo="Encargado de Servicio"
+        else:
+            self.cargo="Asistente Bibliotecario"
+        
+        # Titulos de los inputs #310 x
         self.canvas.create_text(263.0, 95.0, anchor="nw", text="Tu información", fill="#040F21", font=("Montserrat Medium", 24))
         
-        # Sección de información de cuenta
+        #seccion de informacion de cuenta
         self.canvas.create_text(263.0, 166.0, anchor="nw", text="Información de la cuenta", fill="#042344", font=("Montserrat Regular", 18))
         
-        self.username_text = self.canvas.create_text(263.0, 215.0, anchor="nw", text="Nombre de usuario:", fill="#a6a6a6", font=("Montserrat Regular", 15))
-        self.password_text = self.canvas.create_text(263.0, 264.0, anchor="nw", text="Contraseña:", fill="#042344", font=("Montserrat Regular", 15))
-        self.role_text = self.canvas.create_text(263.0, 313.0, anchor="nw", text="Rol:", fill="#042344", font=("Montserrat Regular", 15))
+
+
+        self.canvas.create_text(263.0, 215.0, anchor="nw", text=f"Nombre de usuario: {self.parent.U_nombre}", fill="#042344", font=("Montserrat Regular", 15))
+
         
-        # Sección de información del usuario
+        self.canvas.create_text(263.0, 264.0, anchor="nw", text="Contraseña: ******", fill="#042344", font=("Montserrat Regular", 15))
+
+        self.canvas.create_text(263.0, 313.0, anchor="nw", text=f"Rol: {self.rol}", fill="#042344", font=("Montserrat Regular", 15))
+        
+        #seccion de informacion del usuario
         self.canvas.create_text(263.0, 370.0, anchor="nw", text="Información del Usuario", fill="#040F21", font=("Montserrat Regular", 18))
-        self.first_name_text = self.canvas.create_text(263.0, 418.0, anchor="nw", text="Nombres:", fill="#042344", font=("Montserrat Regular", 15))
-        self.last_name_text = self.canvas.create_text(263.0, 467.0, anchor="nw", text="Apellidos:", fill="#042344", font=("Montserrat Regular", 15))
-        self.position_text = self.canvas.create_text(263.0, 516.0, anchor="nw", text="Cargo:", fill="#042344", font=("Montserrat Regular", 15))
-        self.id_text = self.canvas.create_text(263.0, 565.0, anchor="nw", text="Cédula:", fill="#042344", font=("Montserrat Regular", 15))
         
         self.canvas.create_text(263.0, 418.0, anchor="nw", text=f"Nombre: {self.parent.nombre}", fill="#042344", font=("Montserrat Regular", 15))
         
@@ -297,52 +288,25 @@ class Perfil(tk.Frame):
         self.parent.cedula"""
 
 
-# Definir la clase AppState y crear una instancia global
-# class AppState:
-#     def __init__(self):
-#         self.usuario = None
-
-#     def iniciar_sesion(self,usuario):
-#         self.usuario = usuario
-
-# app_state = AppState()
-
-# Definir la clase Usuario
-class Usuario:
-    def __init__(self, user_data):
-        self.id_usuario = user_data[0]
-        self.id_cargo = user_data[1]
-        self.id_rol = user_data[2]
-        self.nombre = user_data[3]
-        self.apellido = user_data[4]
-        self.cedula = user_data[5]
-        self.nombre_usuario = user_data[6]
-        self.clave = user_data[7]
-
-    def mostrar_informacion(self):
-        print(f"ID Usuario: {self.id_usuario}")
-        print(f"ID Cargo: {self.id_cargo}")
-        print(f"ID Rol: {self.id_rol}")
-        print(f"Nombre: {self.nombre}")
-        print(f"Apellido: {self.apellido}")
-        print(f"Cédula: {self.cedula}")
-        print(f"Nombre de Usuario: {self.nombre_usuario}")
 
 class Starter(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.app_state = app_state
         self.geometry("1366x768")
         self.title("Arcanum Library")
-        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))  
+        self.iconbitmap(relative_to_assets('logo_biblioteca.ico')) 
+        self.U_nombre = self.id_usuario = self.id_cargo = self.id_rol = self.nombre = self.apellido = self.cedula = None
+        self.agarrar_datos()
+        print("funciono?")
+        print(self.U_nombre)
         self.L_frame_eliminar = L_Eliminar(self)
         #self.L_frame_modificar = L_Modificar(self)
         self.L_frame_listar = L_Listar(self)
         #self.L_frame_registrar = L_Registrar(self)
         self.U_frame_eliminar = U_Eliminar(self)
-        # self.U_frame_modificar = U_Modificar(self)
+        self.U_frame_modificar = U_Modificar(self)
         self.U_frame_listar = U_Listar(self)
-        # self.U_frame_registrar = U_Registrar(self)
+        #self.U_frame_registrar = U_Registrar(self)
         self.P_frame_eliminar = P_Eliminar(self)
         self.P_frame_modificar = P_Modificar(self)
         self.P_frame_listar = P_Listar(self)
@@ -357,12 +321,56 @@ class Starter(tk.Tk):
 
         self.frame_menu = Menu(self, lambda frame: self.mostrar_frame(frame), self.frame_header)
         self.frame_menu.place(x=0, y=53, width=215, height=714)
+        
+        #if usuario_actual:
+        
+        #self.id_usuario = usuario_actual.id_usuario if usuario_actual else None
+        #print(self.id_usuario)
+            
+        """id_cargo=usuario_actual.id_cargo
+        id_rol=usuario_actual.id_rol
+        nombre=usuario_actual.nombre
+        apellido=usuario_actual.apellido
+        cedula=usuario_actual.cedula
+        nombre_usuario=usuario_actual.nombre_usuario
+        print("dato recivido")
+        print(id_usuario)
+    else:
+        print("error")"""
+        
+        
+    def agarrar_datos(self):
+        from Login.backend.db_users import Usuario,usuario_actual
+        if usuario_actual:
+            print("usuario logueado!!!!!")
+            print(f"ID Usuario: {usuario_actual.id_usuario}")
+            print(f"ID Cargo: {usuario_actual.id_cargo}")
+            print(f"ID Rol: {usuario_actual.id_rol}")
+            print(f"Nombre: {usuario_actual.nombre}")
+            print(f"Apellido: {usuario_actual.apellido}")
+            print(f"Cédula: {usuario_actual.cedula}")
+            print(f"Nombre de Usuario: {usuario_actual.nombre_usuario}")
+            #global id_usuario,id_cargo,id_rol,nombre,apellido,cedula,U_nombre
+            self.U_nombre=usuario_actual.nombre_usuario
+            self.id_usuario=usuario_actual.id_usuario
+            self.id_cargo=usuario_actual.id_cargo
+            self.id_rol=usuario_actual.id_rol
+            self.nombre=usuario_actual.nombre
+            self.apellido=usuario_actual.apellido
+            self.cedula=usuario_actual.cedula
+            print(self.U_nombre)
+        else:
+            print("No hay usuario logueado")
     
+        
+    
+    
+        
     def mostrar_frame(self, frame):
         frames = [
             self.frame_bienvenida, self.L_frame_listar, 
             self.L_frame_eliminar, self.U_frame_eliminar, self.U_frame_listar, #self.U_frame_modificar
-            self.P_frame_eliminar, self.P_frame_modificar, self.P_frame_listar, #self.U_frame_registrar
+            self.P_frame_eliminar, self.P_frame_modificar, self.P_frame_listar, #self.U_frame_registrar,
             self.P_frame_registrar, self.frame_perfil
         ]
         
@@ -386,3 +394,6 @@ def start_starter():
 
 if __name__ == "__main__":
     start_starter()
+
+
+#hola

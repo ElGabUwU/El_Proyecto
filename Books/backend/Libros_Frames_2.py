@@ -7,7 +7,7 @@ from Books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
-import mariadb
+#import mariadb
 from db.conexion import establecer_conexion
 def validate_number_input(text):
         if text == "":
@@ -175,7 +175,13 @@ class L_Listar(tk.Frame):
         #self.book_table_list.bind("<Double-1>", self.on_book_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
         self.reading_books(self.book_table_list)
 
-
+    def verificar_eliminar(self):
+        if self.parent.id_rol == 1:
+            print("Sin permisos suficientes para eliminar!")
+            messagebox.showinfo("AVISO", "Sin permisos suficientes para eliminar!")
+        
+        else:
+            delete_selected(self)
     def open_registrar_window(self):
         # Llamar directamente a la clase L_Registrar sin necesidad de seleccionar un elemento
         L_Registrar(self.parent)
@@ -433,8 +439,10 @@ class L_Registrar(tk.Toplevel):
         super().__init__(parent)
         self.parent = parent
         self.grab_set()
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#031A33", width=1142, height=530)
         self.canvas.pack(side="left", fill="both", expand=False)
+        self.resizable(False, False)
+        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
        # validate_number = self.register(validat e_number_input)
         self.images = {}
         self.salas_types = ["1I", "2E", "3G"]
@@ -465,7 +473,7 @@ class L_Registrar(tk.Toplevel):
         "Teatro","Teatro Venezolano","Fábulas Venezolanas","Mitos y Leyendas Venezolanas"]
         
         # Cargar y almacenar las imágenes
-        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
+        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_button_light_blue.png"))
 
             # Crear el botón con la imagen inicial
 
@@ -481,7 +489,7 @@ class L_Registrar(tk.Toplevel):
                 bg="#031A33",
                 activebackground="#031A33", # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
-            ).place(x=265.0, y=635.0, width=130.0, height=40.0)
+            ).place(x=61.0, y=465.0, width=130.0, height=40.0)
           
             
         
@@ -490,25 +498,28 @@ class L_Registrar(tk.Toplevel):
         self.validacion_sala(None)
 
     def inicializar_titulos(self):
+        
+        self.canvas.create_rectangle(0, 0, 1142, 74, fill="#2E59A7")
         # Títulos de los inputs
-        self.canvas.create_text(263.0, 106.0, anchor="nw", text=f"Registro de libros", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(400.0, 21.0, anchor="nw", text="Registro de Libros", fill="#ffffff", font=("Montserrat Medium", 28))
+        self.canvas.create_text(61.0, 106.0, anchor="nw", text="Ingrese la información del libro a registrar", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 1
-        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 152.0, anchor="nw", text="Categoría", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(318.0, 152.0, anchor="nw", text="Categoría", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(575.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 2
-        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Número de registro", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1036.0, 252.0, anchor="nw", text="N° volumen", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(318.0, 252.0, anchor="nw", text="Número de registro", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(575.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(846.0, 252.0, anchor="nw", text="N° volumen", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 3
-        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Título", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(779.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1036.0, 352.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 352.0, anchor="nw", text="Título", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(318.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(575.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(846.0, 352.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
     def inicializar_campos_y_widgets(self):
         validate_number = self.register(validate_number_input)
         # Configuración del estilo de los Combobox
@@ -523,62 +534,62 @@ class L_Registrar(tk.Toplevel):
 
         # Combobox para Sala
         self.combobox1 = ttk.Combobox(self, values=self.salas_types, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.combobox1.place(x=263.0, y=181.5)
+        self.combobox1.place(x=61.0, y=181.5)
         self.combobox1.set("1I")  # Establece el valor inicial a "1I"
         self.combobox1.bind("<<ComboboxSelected>>", self.validacion_sala)
 
         # Combobox para Categoría
         self.categoria_cb = ttk.Combobox(self, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.categoria_cb.place(x=520.0, y=181.5)
+        self.categoria_cb.place(x=318.0, y=181.5)
         self.categoria_cb.set("No se ha seleccionado una categoría")
         # Combobox para Asignatura
         self.asignatura_cb = ttk.Combobox(self, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.asignatura_cb.place(x=779.0, y=181.5)
+        self.asignatura_cb.place(x=575.0, y=181.5)
         self.asignatura_cb.set("No se ha seleccionado una asignatura")
         
 
         # Crear y colocar los widgets
         # Primera fila
-        self.cota = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        self.cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.cota.place(x=61.0, y=282.0, width=237.0, height=37.5)
         self.cota.bind("<Return>", self.focus_next_widget)
         self.cota.bind("<KeyPress>",self.on_key_press)
         
 
-        self.registro_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.registro_m.place(x=520.0, y=282.0, width=237.0, height=38.0)
+        self.registro_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.registro_m.place(x=318.0, y=282.0, width=237.0, height=38.0)
         self.registro_m.bind("<Return>", self.focus_next_widget)
         self.registro_m.bind("<KeyPress>",self.on_key_press)
 
-        self.edicion_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.edicion_m.place(x=779.0, y=282.0, width=237.0, height=37.5)
+        self.edicion_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.edicion_m.place(x=575.0, y=282.0, width=237.0, height=37.5)
         self.edicion_m.bind("<Return>", self.focus_next_widget)
         self.edicion_m.bind("<KeyPress>",self.on_key_press)
 
-        self.volumen_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.volumen_m.place(x=1036.0, y=282.0, width=237.0, height=37.5)
+        self.volumen_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.volumen_m.place(x=846.0, y=282.0, width=237.0, height=37.5)
         self.volumen_m.bind("<Return>", self.focus_next_widget)
         self.volumen_m.bind("<KeyPress>",self.on_key_press)
 
         # Segunda fila
-        self.titulo_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.titulo_m.place(x=263.0, y=382.0, width=237.0, height=37.5)
+        self.titulo_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.titulo_m.place(x=61.0, y=382.0, width=237.0, height=37.5)
         self.titulo_m.bind("<Return>", self.focus_next_widget)
         self.titulo_m.bind("<KeyPress>", self.on_key_press)  # Formatear al perder el foco
 
-        self.autor_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
-        self.autor_m.place(x=520.0, y=382.0, width=237.0, height=37.5)
+        self.autor_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key")
+        self.autor_m.place(x=318.0, y=382.0, width=237.0, height=37.5)
         self.autor_m.bind("<Return>", self.focus_next_widget)
         self.autor_m.bind("<KeyPress>", self.on_key_press)
         
 
-        self.editorial_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
-        self.editorial_m.place(x=779.0, y=382.0, width=237.0, height=37.5)
+        self.editorial_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key")
+        self.editorial_m.place(x=575.0, y=382.0, width=237.0, height=37.5)
         self.editorial_m.bind("<Return>", self.focus_next_widget)
         self.editorial_m.bind("<KeyPress>", self.on_key_press)
 
-        self.ano_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.ano_m.place(x=1036.0, y=382.0, width=237.0, height=37.5)
+        self.ano_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
+        self.ano_m.place(x=846.0, y=382.0, width=237.0, height=37.5)
         self.ano_m.bind("<Return>", self.focus_next_widget)
         self.ano_m.bind("<KeyPress>",self.on_key_press)
     
@@ -790,12 +801,13 @@ class L_Modificar(tk.Toplevel):
         super().__init__( *args, **kwargs)
         self.title("Modificar")
         self.book_data = book_data
+        
         self.grab_set()
-        self.geometry("1366x768")
+        """self.geometry("1366x768")
         longitudes = obtener_longitudes_min_max()
         if longitudes:
             for campo, valores in longitudes.items():
-                print(f"{campo.capitalize()}: Longitud mínima = {valores['min']}, Longitud máxima = {valores['max']}")
+                print(f"{campo.capitalize()}: Longitud mínima = {valores['min']}, Longitud máxima = {valores['max']}")"""
         #validate_volumenes = self.register(self.validar_numero_volumenes_edicion)
         #validate_volumenes = self.register(self.validar_numero_volumenes_edicion)
         
@@ -849,8 +861,10 @@ class L_Modificar(tk.Toplevel):
         self.original_values = self.book_data.copy()  # Copia el diccionario
 
 
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#031A33", width=1142, height=530)
         self.canvas.pack(side="left", fill="both", expand=False)
+        self.resizable(False, False)
+        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
         
         
         self.inicializar_titulos()
@@ -865,25 +879,28 @@ class L_Modificar(tk.Toplevel):
 
     
     def inicializar_titulos(self):
+        self.canvas.create_rectangle(0, 0, 1142, 74, fill="#2E59A7")
+        
+        self.canvas.create_text(400.0, 21.0, anchor="nw", text="Modificacion de Libros", fill="#ffffff", font=("Montserrat Medium", 28))
         # Títulos de los inputs
-        self.canvas.create_text(263.0, 106.0, anchor="nw", text=f"Modificación del libro con el ID:{self.book_data['ID']}", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 106.0, anchor="nw", text=f"Modificación del libro con el ID:{self.book_data['ID']}", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 1
-        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 152.0, anchor="nw", text="Categoría", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(779.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(318.0, 152.0, anchor="nw", text="Categoría", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(575.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 2
-        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Número de registro", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1036.0, 252.0, anchor="nw", text="N° volumen", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(318.0, 252.0, anchor="nw", text="Número de registro", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(575.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(846.0, 252.0, anchor="nw", text="N° volumen", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 3
-        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Título", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(779.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1036.0, 352.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 352.0, anchor="nw", text="Título", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(318.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(575.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(846.0, 352.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
 
         
     
@@ -902,27 +919,27 @@ class L_Modificar(tk.Toplevel):
 
         # Combobox para Sala
         self.combobox1 = ttk.Combobox(self, values=self.salas_types, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.combobox1.place(x=263.0, y=181.5)
+        self.combobox1.place(x=61.0, y=181.5)
         self.combobox1.set(self.book_data["ID_Sala"])
         self.combobox1.bind("<<ComboboxSelected>>", self.validacion_sala)
         
         
         # Combobox para Categoría
         self.categoria_cb = ttk.Combobox(self, values=self.categoria_types_general, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.categoria_cb.place(x=520.0, y=181.5)
+        self.categoria_cb.place(x=318.0, y=181.5)
         self.categoria_cb.set(self.book_data["ID_Categoria"])
         self.categoria_cb.bind("<<ComboboxSelected>>", self.check_changes)
 
         # Combobox para Asignatura
         self.asignatura_cb = ttk.Combobox(self, values=self.asignature_type_general, state="readonly", width=30, font=("Montserrat Medium", 10))
-        self.asignatura_cb.place(x=779.0, y=181.5)
+        self.asignatura_cb.place(x=575.0, y=181.5)
         self.asignatura_cb.set(self.book_data["ID_Asignatura"])
         self.asignatura_cb.bind("<<ComboboxSelected>>", self.check_changes)
 
         # Crear y colocar los widgets
         # Primera fila
         self.cota = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        self.cota.place(x=61.0, y=282.0, width=237.0, height=37.5)
         self.cota.insert(0, self.book_data["Cota"])
         self.cota.bind("<Return>", self.focus_next_widget)
         self.cota.bind("<KeyPress>",self.on_key_press)
@@ -931,21 +948,21 @@ class L_Modificar(tk.Toplevel):
         self.cota.bind("<KeyRelease>", self.check_changes)
 
         self.registro_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.registro_m.place(x=520.0, y=282.0, width=237.0, height=38.0)
+        self.registro_m.place(x=318.0, y=282.0, width=237.0, height=38.0)
         self.registro_m.insert(0, self.book_data["n_registro"])
         self.registro_m.bind("<Return>", self.focus_next_widget)
         self.registro_m.bind("<KeyPress>",self.on_key_press)
         self.registro_m.bind("<KeyRelease>", self.check_changes)
 
         self.edicion_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.edicion_m.place(x=779.0, y=282.0, width=237.0, height=37.5)
+        self.edicion_m.place(x=575.0, y=282.0, width=237.0, height=37.5)
         self.edicion_m.insert(0, self.book_data["Edicion"])
         self.edicion_m.bind("<Return>", self.focus_next_widget)
         self.edicion_m.bind("<KeyPress>",self.on_key_press)
         self.edicion_m.bind("<KeyRelease>", self.check_changes)
 
         self.volumen_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.volumen_m.place(x=1036.0, y=282.0, width=237.0, height=37.5)
+        self.volumen_m.place(x=846.0, y=282.0, width=237.0, height=37.5)
         self.volumen_m.insert(0, self.book_data["Volumen"])
         self.volumen_m.bind("<Return>", self.focus_next_widget)
         self.volumen_m.bind("<KeyPress>",self.on_key_press)
@@ -953,7 +970,7 @@ class L_Modificar(tk.Toplevel):
 
         # Segunda fila
         self.titulo_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.titulo_m.place(x=263.0, y=382.0, width=237.0, height=37.5)
+        self.titulo_m.place(x=61.0, y=382.0, width=237.0, height=37.5)
         self.titulo_m.insert(0, self.book_data["Titulo"])
         self.titulo_m.bind("<Return>", self.focus_next_widget)
         self.titulo_m.bind("<KeyPress>", self.on_key_press)  
@@ -962,21 +979,21 @@ class L_Modificar(tk.Toplevel):
 
 
         self.autor_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
-        self.autor_m.place(x=520.0, y=382.0, width=237.0, height=37.5)
+        self.autor_m.place(x=318.0, y=382.0, width=237.0, height=37.5)
         self.autor_m.insert(0, self.book_data["Autor"])
         self.autor_m.bind("<Return>", self.focus_next_widget)
         self.autor_m.bind("<KeyPress>", self.on_key_press)
         self.autor_m.bind("<KeyRelease>", self.check_changes)
 
         self.editorial_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
-        self.editorial_m.place(x=779.0, y=382.0, width=237.0, height=37.5)
+        self.editorial_m.place(x=575.0, y=382.0, width=237.0, height=37.5)
         self.editorial_m.insert(0, self.book_data["Editorial"])
         self.editorial_m.bind("<Return>", self.focus_next_widget)
         self.editorial_m.bind("<KeyPress>", self.on_key_press)
         self.editorial_m.bind("<KeyRelease>", self.check_changes)
 
         self.ano_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.ano_m.place(x=1036.0, y=382.0, width=237.0, height=37.5)
+        self.ano_m.place(x=846.0, y=382.0, width=237.0, height=37.5)
         self.ano_m.insert(0, self.book_data["Año"])
         self.ano_m.bind("<Return>", self.focus_next_widget)
         self.ano_m.bind("<KeyPress>",self.on_key_press)
@@ -1209,7 +1226,7 @@ class L_Modificar(tk.Toplevel):
 
 
     def crear_boton_modificar(self):
-        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("M_Boton.png"))
+        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
          # Crear el botón
          
         self.boton_modificar = tk.Button(
@@ -1224,12 +1241,12 @@ class L_Modificar(tk.Toplevel):
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
          )
          # Asignar la posición del botón
-        self.boton_modificar.place(x=263.0, y=635.0, width=130.0, height=40.0)
+        """self.boton_modificar.place(x=263.0, y=635.0, width=130.0, height=40.0)
         self.boton_modificar.place_forget()  # Ocultar el botón inicialmente
-        print("Botón 'Modificar' creado y oculto inicialmente.")
+        print("Botón 'Modificar' creado y oculto inicialmente.")"""
         
     def mostrar_boton_modificar(self):
-        self.boton_modificar.place(x=263.0, y=635.0, width=130.0, height=40.0)
+        self.boton_modificar.place(x=61.0, y=465.0, width=130.0, height=40.0)
         print("Botón 'Modificar' mostrado.")
 
     def ocultar_boton_modificar(self):

@@ -25,13 +25,20 @@ class U_Registrar(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__()
         self.parent = parent
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#031A33", width=863, height=530)
         self.canvas.pack(side="left", fill="both", expand=False)
         self.validate_number = self.register(validate_number_input)
         self.images = {}
+        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        self.resizable(False, False)
+        self.canvas.create_rectangle(0, 0, 950, 74, fill="#2E59A7")
+        """rectangulo_color = tk.Label(self, bg="#2E59A7", width=200, height=4)
+        rectangulo_color.place(x=0, y=0)"""
+        self.canvas.create_text(255.0, 21.0, anchor="nw", text="Registro de Usuarios", fill="#ffffff", font=("Montserrat Medium", 28))
+        
         
         # Cargar y almacenar las imágenes
-        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_Boton_registrar.png"))
+        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_button_light_blue.png"))
 
         # Crear el botón
         boton_R = self.images['boton_R']
@@ -45,7 +52,7 @@ class U_Registrar(tk.Toplevel):
             bg="#031A33",
             activebackground="#031A33",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
-        ).place(x=265.0, y=465.0, width=130.0, height=40.0)
+        ).place(x=61.0, y=465.0, width=130.0, height=40.0)
 
                 #REVISAR COMO SE SUBIERON LOS CARGOS A LA BD PARA HACER LAS VALIDACIONES 
         stylebox = ttk.Style()
@@ -63,7 +70,7 @@ class U_Registrar(tk.Toplevel):
         }
             
         self.cargo_combobox = ttk.Combobox(self, values=list(self.cargos.keys()), state="readonly", width=30, font=("Bold", 10), style="TCombobox")
-        self.cargo_combobox.place(x=263.0, y=181.5)
+        self.cargo_combobox.place(x=61.0, y=181.5)
         self.cargo_combobox.set("Encargado de Servicio")  # Establece el valor inicial a "1I" 
         # self.combobox1 = ttk.Combobox(self, values=self.cargos, state="readonly", width=30, font=("Montserrat Medium", 10))
         # self.combobox1.place(x=263.0, y=181.5)
@@ -72,19 +79,19 @@ class U_Registrar(tk.Toplevel):
 
         # Crear y colocar los widgets
         #primera fila
-        self.input_nombre = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.input_nombre.place(x=520.0, y=282.0, width=237.0, height=38.0)
-        self.input_apellido = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.input_apellido.place(x=263.0, y=282.0, width=237.0, height=37.5)
+        self.input_nombre = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_nombre.place(x=318.0, y=282.0, width=237.0, height=38.0)
+        self.input_apellido = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_apellido.place(x=61.0, y=282.0, width=237.0, height=37.5)
         
-        self.input_cedula = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(self.validate_number, "%P"))
-        self.input_cedula.place(x=779.0, y=282.0, width=237.0, height=37.5)
+        self.input_cedula = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(self.validate_number, "%P"))
+        self.input_cedula.place(x=575.0, y=282.0, width=237.0, height=37.5)
         #segunda fila
-        self.input_username = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.input_username.place(x=263.0, y=382.0, width=237.0, height=37.5)
+        self.input_username = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_username.place(x=61.0, y=382.0, width=237.0, height=37.5)
         #tercera fila
-        self.input_password = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
-        self.input_password.place(x=520.0, y=382.0, width=237.0, height=37.5)
+        self.input_password = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_password.place(x=318.0, y=382.0, width=237.0, height=37.5)
 
         self.inicializador_titulos()
         # self.register_user()
@@ -92,18 +99,18 @@ class U_Registrar(tk.Toplevel):
     
     def inicializador_titulos(self):
         # Titulos de los inputs
-        self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del nuevo usuario a agregar", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 106.0, anchor="nw", text="Ingrese la información del nuevo usuario a agregar", fill="#a6a6a6", font=("Bold", 17))
         #fila 1
-        self.canvas.create_text(263.0, 152.0, anchor="nw", text="Cargo", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 152.0, anchor="nw", text="Cargo", fill="#a6a6a6", font=("Bold", 17))
 
         #fila 2
-        self.canvas.create_text(263.0, 252.0, anchor="nw", text="Nombre", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 252.0, anchor="nw", text="Apellido", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(779.0, 252.0, anchor="nw", text="Cedula", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 252.0, anchor="nw", text="Nombre", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(318.0, 252.0, anchor="nw", text="Apellido", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(575.0, 252.0, anchor="nw", text="Cedula", fill="#a6a6a6", font=("Bold", 17))
         
         #fila 3
-        self.canvas.create_text(263.0, 352.0, anchor="nw", text="Nombre de usuario", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(520.0, 352.0, anchor="nw", text="Contraseña", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 352.0, anchor="nw", text="Nombre de usuario", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(318.0, 352.0, anchor="nw", text="Contraseña", fill="#a6a6a6", font=("Bold", 17))
         #fila 4
         
     def register_user(self):
@@ -218,16 +225,16 @@ class U_Listar(tk.Frame):
                 image=self.images['boton_cargar'],
                 borderwidth=0,
                 highlightthickness=0,
-                command= self.refresh_frame,
+                command=self.refresh_frame,
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=910.0, y=60.0, width=140.0, height=100.0)
+        self.button_e.place(x=810.0, y=60.0, width=130.0, height=100.0)
 
-            # Cargar y almacenar las imágenes
-        self.images['boton_eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
+                    # Cargar y almacenar las imágenes
+        self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -235,7 +242,7 @@ class U_Listar(tk.Frame):
                 image=self.images['boton_agregar'],
                 borderwidth=0,
                 highlightthickness=0,
-                command=lambda: self.open_registrar_window(),
+                command=lambda:self.open_registrar_window(),
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -258,7 +265,7 @@ class U_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo 
             )
-        self.button_e.place(x=1175.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=1110.0, y=60.0, width=130.0, height=100.0)
 
         self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6_editar.png"))
                     # Cargar y almacenar la imagen del botón
@@ -273,7 +280,7 @@ class U_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo  
             )
-        self.button_m.place(x=1045.0, y=60.0, width=130.0, height=100.0)
+        self.button_m.place(x=1010.0, y=60.0, width=130.0, height=100.0)
 
         style = ttk.Style()
         style.configure("Rounded.Treeview", 
@@ -356,39 +363,61 @@ class U_Listar(tk.Frame):
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
         filter_window.geometry("950x550")
         filter_window.config(bg="#042344")
-
-        tk.Label(filter_window, text="MODIFICACIÓN DE USUARIOS", fg="#ffffff", bg="#042344", font=("Bold", 25)).place(x=250.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#grid(row=0, column=5, padx=10, pady=5)
-        tk.Label(filter_window, text="Ingrese los datos a modificar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=70.0, width=330.0, height=35.0)#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="Cedula", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=210.0, y=130.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#grid(row=1, column=0, padx=10, pady=5)
-        self.id_cedula_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        filter_window.resizable(False, False)
+        rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=4)
+        rectangulo_color.place(x=0, y=0)
+        tk.Label(filter_window, text="Modificación de Usuarios", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=225.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#grid(row=0, column=5, padx=10, pady=5)
+        tk.Label(filter_window, text="Ingrese los datos a modificar", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=10.0, y=90.0, width=330.0, height=35.0)#.pack(pady=10, expand=False)
+        tk.Label(filter_window, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=210.0, y=130.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#grid(row=1, column=0, padx=10, pady=5)
+        self.id_cedula_entry = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.id_cedula_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=1, column=1, padx=10, pady=5)
 
         #tk.Label(filter_window, text="Ingrese el nuevo nombre de usuario", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="Nombre de Usuario", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=500.0, y=130.0, width=185.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=3, column=0, padx=10, pady=5)
-        self.nombre_usuario_entry = tk.Entry(filter_window, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        tk.Label(filter_window, text="Nombre de Usuario", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=130.0, width=185.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=3, column=0, padx=10, pady=5)
+        self.nombre_usuario_entry = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.nombre_usuario_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)#pack(expand=False)#.grid(row=3, column=1, padx=10, pady=5)
 
         #tk.Label(filter_window, text="Ingrese el nombre y apellido ", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="Nombre", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=220.0, y=230.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
-        self.nombre_entry = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        tk.Label(filter_window, text="Nombre", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=220.0, y=230.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
+        self.nombre_entry = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.nombre_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=5, column=1, padx=10, pady=5)
-        tk.Label(filter_window, text="Apellido", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=500.0, y=230.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.apellido_entry = tk.Entry(filter_window,  bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        tk.Label(filter_window, text="Apellido", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=230.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        self.apellido_entry = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.apellido_entry.place(x=500.0, y=270.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
-        tk.Label(filter_window, text="ID del usuario que será modificado", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=30.0, y=320.0, width=350.0, height=35.0)#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="ID", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=300.0, y=360.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.id_entry = tk.Entry(filter_window,  bg="#042344", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="flat")
+        tk.Label(filter_window, text="ID del usuario que será modificado", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=30.0, y=320.0, width=350.0, height=35.0)#.pack(pady=10, expand=False)
+        tk.Label(filter_window, text="ID", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=300.0, y=360.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        self.id_entry = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.id_entry.place(x=350.0, y=400.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
 
-        # Crear un estilo personalizado
-        style = ttk.Style()
-        style.configure("Custom.TButton", background="#2E59A7", foreground="#ffffff", font=("Bold", 22))
+        self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
 
-        self.filter_button = ttk.Button(filter_window, text="Modificar", style="Custom.TButton", command=self.apply_modify_users)
-        self.filter_button.place(x=250.0, y=480.0, width=140.0, height=50.0)
+        self.boton_M = tk.Button(
+            filter_window,
+            image=self.images['boton_m'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.apply_modify_users,
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_M.place(x=530.0, y=480.0, width=130.0, height=40.0)
+        
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
 
-        button_cancel = ttk.Button(filter_window, text="Cancelar", command=lambda: self.cancelar(filter_window), style="Custom.TButton")
-        button_cancel.place(x=520.0, y=480.0, width=140.0, height=50.0)#.pack(expand=True)#.place(x=390, y=400)#.pack(pady=5, expand=False)
+        self.boton_C = tk.Button(
+            filter_window,
+            image=self.images['boton_c'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(filter_window),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=270.0, y=480.0, width=130.0, height=40.0)
         
     def apply_modify_users(self):
             id_cedula= self.id_cedula_entry.get() #self.cota.get()
