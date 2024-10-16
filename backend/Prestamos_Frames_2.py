@@ -157,6 +157,14 @@ class P_Registrar(tk.Frame):
         # self.select_button = tk.Button(self.canvas, text="Seleccionar Libros", command=self.get_selected_books)
         # self.select_button.place(x=265.0, y=435.0, width=130.0, height=40.0)
         reading_clients (self.clients_table_list_loans)
+        
+    def verificar_eliminar(self):
+        if self.parent.id_rol == 1:
+            print("Sin permisos suficientes para eliminar!")
+            messagebox.showinfo("AVISO", "Sin permisos suficientes para eliminar!")
+        
+        else:
+            delete_client_loans(self)
     
     def open_register_window(self):
         filter_window = tk.Toplevel(self)
