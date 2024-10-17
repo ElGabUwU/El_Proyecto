@@ -4,12 +4,13 @@ from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from PIL import Image, ImageTk
 from Library.librerias import *
-from Books.backend.db_books import *
+from books.backend.db_books import *
 import random
 import subprocess
-from Books.backend.Libros_Frames_2 import *
-from backend.Usuarios_Frames_3 import *
-from backend.Prestamos_Frames_2 import *
+from books.backend.books_management import *
+from users.backend.user_management import *
+from loans.backend.loans_management import *
+from clients.backend.clients_management import *
 import tkinter as tk
 
 
@@ -308,9 +309,9 @@ class Starter(tk.Tk):
         self.U_frame_listar = U_Listar(self)
         #self.U_frame_registrar = U_Registrar(self)
         self.P_frame_eliminar = P_Eliminar(self)
-        self.P_frame_modificar = P_Modificar(self)
+        #self.P_frame_modificar = Pdificar(self)
         self.P_frame_listar = P_Listar(self)
-        self.P_frame_registrar = P_Registrar(self)
+        self.P_frame_registrar = C_Listar(self)#CLIENTES
         self.frame_perfil = Perfil(self)
 
         self.frame_bienvenida = Bienvenida(self)
@@ -340,7 +341,7 @@ class Starter(tk.Tk):
         
         
     def agarrar_datos(self):
-        from Login.backend.db_users import Usuario,usuario_actual
+        from users.backend.db_users import Usuario,usuario_actual
         if usuario_actual:
             print("usuario logueado!!!!!")
             print(f"ID Usuario: {usuario_actual.id_usuario}")
@@ -370,7 +371,7 @@ class Starter(tk.Tk):
         frames = [
             self.frame_bienvenida, self.L_frame_listar, 
             self.L_frame_eliminar, self.U_frame_eliminar, self.U_frame_listar, #self.U_frame_modificar
-            self.P_frame_eliminar, self.P_frame_modificar, self.P_frame_listar, #self.U_frame_registrar,
+            self.P_frame_eliminar, self.P_frame_listar, #self.U_frame_registrar,
             self.P_frame_registrar, self.frame_perfil
         ]
         
