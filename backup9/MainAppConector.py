@@ -8,8 +8,8 @@ from Books.backend.db_books import *
 import random
 import subprocess
 from Books.backend.Libros_Frames_2 import *
-from backend.Usuarios_Frames_3 import *
-from backend.Prestamos_Frames_2 import *
+from users.backend.user_management import *
+from loans.backend.loans_management import *
 import tkinter as tk
 
 
