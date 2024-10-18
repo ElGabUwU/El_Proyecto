@@ -154,7 +154,7 @@ class L_Listar(tk.Frame):
 
         # Aplica el estilo al Treeview listado de libros
         tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición","N° Volúmenes", "N° Ejemplares" )
-        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview",selectmode="browse")
+        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview")#selectmode="browse"
 
         # Set specific widths for "ID" and "Sala"
         self.book_table_list.column("ID", width=50, anchor="center")
@@ -172,7 +172,7 @@ class L_Listar(tk.Frame):
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
 
-        #self.book_table_list.bind("<Double-1>", self.on_book_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
+        self.book_table_list.bind("<Double-1>", self.on_book_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
         self.reading_books(self.book_table_list)
 
     def verificar_eliminar(self):
@@ -1058,6 +1058,7 @@ class L_Modificar(tk.Toplevel):
                 return "break"
             current_text = longitud_editorial(current_text)
             formatted_text = validar_y_formatear_texto(current_text)
+            formatted_text = current_text.title
         elif widget == self.ano_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
@@ -1209,7 +1210,7 @@ class L_Modificar(tk.Toplevel):
         )    
         print(f"Errores: {errores}")  # Agregar esta línea para depuración
         if errores:        
-            messagebox.showerror("Error", "\n".join("-",(errores),parent=self))
+            messagebox.showerror("Error al modificar", "Por favor, corrija los siguientes errores:\n\n" + "\n".join(f"- {msg}" for msg in errores),parent=self)
             return
         print("Datos recogidos:")    
         for key, value in nuevos_valores.items():        
@@ -1267,56 +1268,3 @@ class L_Modificar(tk.Toplevel):
         self.registro_m.delete(0, tk.END)
         self.ano_m.delete(0, tk.END)
         
-        
-class L_Eliminar(tk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
-        self.canvas.pack(side="left", fill="both", expand=False)
-        validate_number = self.register(validate_number_input)
-        self.images = {}
-
-        # Formulario para el eliminar
-        self.label_info = self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a Eliminar", fill="#a6a6a6", font=("Bold", 15))
-        
-        # Texto para el nombre
-        self.label_nombre = self.canvas.create_text(263.0, 152.0, anchor="nw", text="ID", fill="#a6a6a6", font=("Bold", 17))
-        
-        self.id_eliminar = tk.Entry(self, bd=0,bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.id_eliminar.place(x=263.0, y=182.0, width=237.0, height=38.0)
-
-        # Cargar y almacenar las imágenes
-        self.images['boton_Eliminar_f'] = tk.PhotoImage(file=relative_to_assets("Boton_eliminar.png"))
-        
-        # Cargar y almacenar la imagen del botón
-        self.button_e = tk.Button(
-            self,
-            image=self.images['boton_Eliminar_f'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: delete_book(self),
-            relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
-            activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
-        )
-        self.button_e.place(x=265.0, y=264.0, width=130.0, height=40.0)
-        
-        def delete_book(self):
-            ID_Libro=self.id_eliminar.get() if self.id_eliminar else None
-            if ID_Libro:
-                # Confirmación antes de eliminar
-                respuesta = messagebox.askyesno("Confirmar Eliminación", "¿Estás seguro de que deseas eliminar este libro?")
-                if respuesta:
-                    if delete_books(ID_Libro):
-                        messagebox.showinfo("Éxito", "Eliminación exitosa del libro.")
-                        self.clear_entries_delete()
-                    else:
-                        messagebox.showinfo("Falla en la Eliminación", "El libro no existe o ya fue eliminado.")
-                else:
-                    messagebox.showinfo("Cancelado", "Eliminación cancelada.")
-            else:
-                messagebox.showinfo("Error", "Por favor, proporciona un ID de libro válido.")
-        
-    def clear_entries_delete(self):
-        self.id_eliminar.delete(0, tk.END)

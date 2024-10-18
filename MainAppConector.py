@@ -130,13 +130,6 @@ class Menu(tk.Frame):
 
         
 
-        # Crear la imagen en el canvas
-        #self.canvas.create_image(15.0, 610.0, image=self.images["logo_salir"], tags="logo_salir")
-
-        # Asegurarse de que la imagen esté por encima del botón
-        #self.canvas.tag_raise("logo_salir")
-        #self.Salir.lift()
-        #self.canvas.create_text(15.0, 590.0, anchor="nw", text="Cedula: V31242538", fill="White", font=("Montserrat Regular", 15))
 
         # menú desplegable de Prestamos
         
@@ -168,9 +161,9 @@ class Menu(tk.Frame):
         from tkinter import ttk, messagebox
         from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
         sys.path.append(str(Path(__file__).resolve().parent))
-        from Login.backend.form_login import FormLogin
-        from Login.frontend.form_master import MasterPanel
-        from Login.frontend.from_login_designer import FormLoginDesigner
+        from users.backend.form_login import FormLogin
+        from users.frontend.form_master import MasterPanel
+        from users.frontend.from_login_designer import FormLoginDesigner
         import util.ventana as utl
         
         # Crear una instancia de MasterPanel y pasar el callback iniciar_starter
@@ -179,8 +172,8 @@ class Menu(tk.Frame):
         app.after(1500, master_panel.on_close)  # Esperar 1500 milisegundos antes de iniciar Starter
         master_panel.show()
     def iniciar_login(self):
-        from Login.backend.form_login import FormLogin, FormLoginDesigner
-        from Login.frontend.form_master import MasterPanel
+        from users.backend.form_login import FormLogin, FormLoginDesigner
+        from users.frontend.form_master import MasterPanel
         
         app = FormLogin()
         
@@ -300,12 +293,12 @@ class Starter(tk.Tk):
         self.agarrar_datos()
         print("funciono?")
         print(self.U_nombre)
-        self.L_frame_eliminar = L_Eliminar(self)
+        #self.L_frame_eliminar = L_Eliminar(self)
         #self.L_frame_modificar = L_Modificar(self)
         self.L_frame_listar = L_Listar(self)
         #self.L_frame_registrar = L_Registrar(self)
-        self.U_frame_eliminar = U_Eliminar(self)
-        self.U_frame_modificar = U_Modificar(self)
+        #self.U_frame_eliminar = U_Eliminar(self)
+        #self.U_frame_modificar = U_Modificar()
         self.U_frame_listar = U_Listar(self)
         #self.U_frame_registrar = U_Registrar(self)
         self.P_frame_eliminar = P_Eliminar(self)
@@ -370,7 +363,7 @@ class Starter(tk.Tk):
     def mostrar_frame(self, frame):
         frames = [
             self.frame_bienvenida, self.L_frame_listar, 
-            self.L_frame_eliminar, self.U_frame_eliminar, self.U_frame_listar, #self.U_frame_modificar
+            self.U_frame_listar, #self.U_frame_modificar
             self.P_frame_eliminar, self.P_frame_listar, #self.U_frame_registrar,
             self.P_frame_registrar, self.frame_perfil
         ]
