@@ -123,42 +123,43 @@ def update_user(ID_Cargo, Nombre, Apellido, Cedula, Nombre_Usuario, Clave, ID_Us
             mariadb_conexion.close()
             return True
 
-def delete_user_db(ID_Usuario):
-    try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            with mariadb_conexion.cursor() as cursor:
-                # Ejecutando la sentencia de eliminación
-                cursor.execute('DELETE FROM usuarios WHERE ID_Usuario=%s', (ID_Usuario,))
-                if cursor.rowcount == 0:
-                    print("No se encontró el usuario con el ID proporcionado.")
-                    return False
-                # Confirmando la transacción
-                mariadb_conexion.commit()
-        return True
-    except mariadb.Error as err:
-        # Manejando cualquier error de la base de datos
-        print(f"Error: {err}")
-        return False
-    
 def delete_selected_user(self):
+    from users.backend.db_users import usuario_actual
+
     selected_items = self.user_table_list.selection()
+
+    if not selected_items:
+        messagebox.showinfo("Error", "Por favor, selecciona al menos un usuario para eliminar.")
+        return
+
+    respuesta = messagebox.askyesno("Confirmar Eliminación", "¿Estás seguro de que deseas eliminar los usuarios seleccionados?")
+    if not respuesta:
+        messagebox.showinfo("Cancelado", "Eliminación cancelada.")
+        return
+
     try:
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:
             cursor = mariadb_conexion.cursor()
-            #cursor = mariadb_conexion.cursor()
+            users_deleted = False
             for item in selected_items:
                 item_id = self.user_table_list.item(item, 'values')[0]
-                
-                # Marcar el registro como eliminado en lugar de eliminarlo
-                cursor.execute('UPDATE usuarios SET estado_usuario = "eliminado" WHERE ID_Usuario = %s', (item_id,))
-                
+
+                # Verificar si el usuario seleccionado es el usuario actual
+                if str(item_id) == str(usuario_actual.id_usuario):
+                    messagebox.showwarning("Advertencia", "No puedes eliminar el usuario que está actualmente logueado.")
+                    continue
+
+                # Borrar el registro directamente de la base de datos
+                cursor.execute('DELETE FROM usuarios WHERE ID_Usuario = %s', (item_id,))
+
                 # Eliminar la fila del Treeview
                 self.user_table_list.delete(item)
-            
-            mariadb_conexion.commit()
-            messagebox.showinfo("Éxito", "El usuario ha sido marcado como eliminado.")
+                users_deleted = True
+
+            if users_deleted:
+                mariadb_conexion.commit()
+                messagebox.showinfo("Éxito", "El usuario ha sido eliminado.")
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
         messagebox.showerror("Error", f"Error durante la conexión: {ex}")
@@ -166,23 +167,29 @@ def delete_selected_user(self):
         if mariadb_conexion:
             mariadb_conexion.close()
             
-def list_users_db(user_table_list):
+
+def list_users_db(treeview, cargos):
+    # Conexión a la base de datos y obtención de datos
     mariadb_conexion = establecer_conexion()
-    try:
+    if mariadb_conexion:
+        cursor = mariadb_conexion.cursor()
+        query = "SELECT * FROM usuarios"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        cursor.close()
+        mariadb_conexion.close()
         
-        if mariadb_conexion:#.is_connected():
-            cursor = mariadb_conexion.cursor()
-            cursor.execute("""SELECT ID_Usuario, ID_Cargo, ID_Rol, Nombre, Apellido, 
-                        Cedula, Nombre_Usuario FROM usuarios WHERE estado_usuario != 'eliminado'""")
-            resultados = cursor.fetchall() 
-            for row in user_table_list.get_children():
-                user_table_list.delete(row)
-            # Insertar los datos en el Treeview
-            for fila in resultados:
-                user_table_list.insert("", "end", values=tuple(fila))
-            mariadb_conexion.close()
-    except mariadb.Error as ex:
-        print("Error durante la conexión:", ex)
+        # Limpiar el Treeview
+        for item in treeview.get_children():
+            treeview.delete(item)
+
+        # Insertar datos en el Treeview
+        for row in rows:
+            # Reemplazar el ID de cargo con su nombre correspondiente
+            row = list(row)
+            row[1] = cargos.get(row[1], "Desconocido")  # Supongamos que la columna 1 es la del cargo
+            treeview.insert('', 'end', values=tuple(row))
+
 
 # Actualizar un prestamo
 def update_user_list(id_cedula, name_user, nombre, apellido, id):
