@@ -11,7 +11,7 @@ from tkcalendar import Calendar
 from datetime import datetime, timedelta
 import random
 import string
-from backend.Filtrados_Prestamo import *
+from backend.loans_filters import *
 from db.conexion import establecer_conexion
 mariadb_conexion = establecer_conexion()
 

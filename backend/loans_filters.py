@@ -1,6 +1,6 @@
 from tkinter import messagebox
 
-def filter_books_three(self):
+def filter_books(self):
     id_prestamo = self.id_prestamos_entry.get().lower() or self.id_prestamos_entry.get().upper()
     id_cliente = self.id_cliente_entry.get().lower() or self.id_cliente_entry.get().upper()
     id_libro_cliente = self.id_libro_cliente_entry.get().lower() or self.id_libro_cliente_entry.get().upper()
