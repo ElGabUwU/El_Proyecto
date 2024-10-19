@@ -57,6 +57,39 @@ class U_Listar(tk.Frame):
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
 
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure("Rounded.Treeview", 
+                        background="#E5E1D7",
+                        foreground="black",
+                        rowheight=30,
+                        fieldbackground="#f0f0f0",
+                        bordercolor="blue",
+                        lightcolor="lightblue",
+                        darkcolor="darkblue")
+        style.map('Rounded.Treeview', 
+                background=[('selected', '#347083')])
+
+        style.configure("Rounded.Treeview.Heading", 
+                        font=('Helvetica', 10, 'bold'), 
+                        background="#2E59A7", 
+                        foreground="#000000",
+                        borderwidth=0)
+
+
+
+        columns = ("ID Usuario", "Cargo", "ID Rol", "Nombre", "Apellido", "C.I", "Nombre Usuario")
+        self.user_table_list= ttk.Treeview(self.user_frame_list, columns=columns, show='headings', style="Rounded.Treeview",selectmode="browse")
+        for col in columns:
+            self.user_table_list.heading(col, text=col)
+            self.user_table_list.column(col, width=90, anchor="center")
+        self.user_table_list.pack(expand=True, fill="both", padx=70, pady=5)
+
+        scrollbar_pt = ttk.Scrollbar(self.user_table_list, orient="vertical", command=self.user_table_list.yview)
+        self.user_table_list.configure(yscrollcommand=scrollbar_pt.set)
+        scrollbar_pt.pack(side="right", fill="y")
+        
+        list_users_db(self.user_table_list,self.cargos)
             
             # Cargar y almacenar las imágenes
         self.images['boton_cargar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
@@ -67,7 +100,7 @@ class U_Listar(tk.Frame):
                 image=self.images['boton_cargar'],
                 borderwidth=0,
                 highlightthickness=0,
-                command=self.refresh_frame,
+                command=lambda: self.refresh_frame(),
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -124,37 +157,6 @@ class U_Listar(tk.Frame):
             )
         self.button_m.place(x=1010.0, y=60.0, width=130.0, height=100.0)
 
-        style = ttk.Style()
-        style.configure("Rounded.Treeview", 
-                        borderwidth=2, 
-                        relief="groove", 
-                        bordercolor="blue", 
-                        lightcolor="lightblue", 
-                        darkcolor="darkblue",
-                        rowheight=30,
-                        background="#E5E1D7", 
-                        fieldbackground="#f0f0f0")
-
-        # Configurar estilo para las cabeceras
-        style.configure("Rounded.Treeview.Heading", 
-                        font=('Helvetica', 10, 'bold'), 
-                        background="#2E59A7", 
-                        foreground="#000000",
-                        borderwidth=0)
-
-
-        columns = ("ID Usuario", "Cargo", "ID Rol", "Nombre", "Apellido", "C.I", "Nombre Usuario")
-        self.user_table_list= ttk.Treeview(self.user_frame_list, columns=columns, show='headings', style="Rounded.Treeview")
-        for col in columns:
-            self.user_table_list.heading(col, text=col)
-            self.user_table_list.column(col, width=90, anchor="center")
-        self.user_table_list.pack(expand=True, fill="both", padx=70, pady=5)
-
-        scrollbar_pt = ttk.Scrollbar(self.user_table_list, orient="vertical", command=self.user_table_list.yview)
-        self.user_table_list.configure(yscrollcommand=scrollbar_pt.set)
-        scrollbar_pt.pack(side="right", fill="y")
-        
-        list_users_db(self.user_table_list,self.cargos)
 
     def refresh_frame(self):
         # Eliminar todos los widgets del frame
@@ -472,7 +474,6 @@ class U_Registrar(tk.Toplevel):
 
     
 
-
 class U_Modificar(tk.Toplevel):
     def __init__(self, parent, item_values, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -484,35 +485,67 @@ class U_Modificar(tk.Toplevel):
         self.config(bg="#042344")
         self.resizable(False, False)
         self.grab_set()
-
+        
         # Guardar los datos del usuario en un diccionario
         self.user_data = {
             "id": item_values[0],
             "nombre": item_values[1],
-            "cargo": item_values[2]
+            "cargo": item_values[2],
+            "apellido": item_values[3],
+            "cedula": item_values[4],
+            "username": item_values[5],
+            "password": "",  # Este campo se actualizará al modificar
+            "verify_password": ""  # Este campo se actualizará al modificar
         }
+        
+        # Crear los elementos de la interfaz
+        self.create_widgets()
+        self.populate_fields()
 
+    def create_widgets(self):
         rectangulo_color = tk.Label(self, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)
+
         tk.Label(self, text="Modificación de Usuarios", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=225.0, y=20.0, width=450.0, height=35.0)
         tk.Label(self, text="Ingrese los datos a modificar", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=10.0, y=100.0, width=330.0, height=35.0)
-        tk.Label(self, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=210.0, y=130.0, width=120.0, height=35.0)
-        self.id_cedula_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.id_cedula_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)
 
-        tk.Label(self, text="Nombre de Usuario", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=130.0, width=185.0, height=35.0)
-        self.nombre_usuario_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.nombre_usuario_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)
+        # Crear y colocar los widgets
+        # Primera fila
+        self.input_nombre = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_nombre.place(x=61.0, y=185.0, width=237.0, height=37.5)
+        self.input_nombre.bind("<Return>", self.focus_next_widget)  # Llamada a focus_next_widget
+        self.input_nombre.bind("<KeyPress>", self.on_key_press_modify)  # Llamada a on_key_press_modify
 
-        tk.Label(self, text="Nombre", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=220.0, y=230.0, width=120.0, height=35.0)
-        self.nombre_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.nombre_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)
+        self.input_apellido = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_apellido.place(x=318.0, y=185.0, width=237.0, height=38.0)
+        self.input_apellido.bind("<Return>", self.focus_next_widget)  # Llamada a focus_next_widget
+        self.input_apellido.bind("<KeyPress>", self.on_key_press_modify)  # Llamada a on_key_press_modify
 
-        tk.Label(self, text="Apellido", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=230.0, width=120.0, height=35.0)
-        self.apellido_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.apellido_entry.place(x=500.0, y=270.0, width=190.0, height=35.0)
+        self.input_cedula = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(self.validate_number, "%P"))
+        self.input_cedula.place(x=575.0, y=185.0, width=237.0, height=37.5)
+        self.input_cedula.bind("<Return>", self.focus_next_widget)  # Llamada a focus_next_widget
+        self.input_cedula.bind("<KeyPress>", self.on_key_press_modify)  # Llamada a on_key_press_modify
 
-        
+        # Segunda fila
+        self.input_username = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_username.place(x=61.0, y=285.0, width=237.0, height=37.5)
+        self.input_username.bind("<Return>", self.focus_next_widget)  # Llamada a focus_next_widget
+        self.input_username.bind("<KeyPress>", self.on_key_press_modify)  # Llamada a on_key_press_modify
+
+        # Tercera fila
+        self.input_password = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", show="*")
+        self.input_password.place(x=318.0, y=285.0, width=237.0, height=37.5)
+        self.input_password.bind("<Return>", self.focus_next_widget)  # Llamada a focus_next_widget
+        self.input_password.bind("<KeyPress>", self.on_key_press_modify)  # Llamada a on_key_press_modify
+
+        self.input_verify_password = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", show="*")
+        self.input_verify_password.place(x=575.0, y=285.0, width=237.0, height=37.5)
+        self.input_verify_password.bind("<Return>", lambda event: self.modify_user())
+        self.input_verify_password.bind("<KeyPress>", self.on_key_press_modify)  # Llamada a on_key_press_modify
+
+        self.inicializador_titulos()
+
+        # Botones
         self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
         self.boton_M = tk.Button(
             self,
@@ -533,7 +566,7 @@ class U_Modificar(tk.Toplevel):
             image=self.images['boton_c'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.cancelar(self),
+            command=self.cancelar,
             relief="flat",
             bg="#031A33",
             activebackground="#031A33",
@@ -541,13 +574,40 @@ class U_Modificar(tk.Toplevel):
         )
         self.boton_C.place(x=270.0, y=480.0, width=130.0, height=40.0)
 
-    def apply_modify_users(self):
-        # Implementa la lógica para aplicar los cambios
+    def inicializador_titulos(self):
+        # Titulos de los inputs
+        tk.Label(self, text="Nombre", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=61.0, y=152.0)
+        tk.Label(self, text="Apellido", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=318.0, y=152.0)
+        tk.Label(self, text="Cedula", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=575.0, y=152.0)
+        tk.Label(self, text="Nombre de usuario", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=61.0, y=252.0)
+        tk.Label(self, text="Contraseña", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=318.0, y=252.0)
+        tk.Label(self, text="Confirmar Contraseña", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=575.0, y=252.0)
+
+    def populate_fields(self):
+        self.input_nombre.insert(0, self.user_data['nombre'])
+        self.input_apellido.insert(0, self.user_data['apellido'])
+        self.input_cedula.insert(0, self.user_data['cedula'])
+        self.input_username.insert(0, self.user_data['username'])
+        # La contraseña no se rellena por motivos de seguridad
+
+    def focus_next_widget(self, event):
+        event.widget.tk_focusNext().focus()
+        return "break"
+
+    def on_key_press_modify(self, event):
+        # Aquí puedes manejar la validación al presionar una tecla
         pass
 
-    def cancelar(self, window):
-        window.destroy()
+    def apply_modify_users(self):
+        # Lógica para aplicar los cambios en la modificación del usuario
+        pass
 
+    def cancelar(self):
+        self.destroy()
+
+    def modify_user(self):
+        # Lógica para modificar el usuario
+        pass
 
 # class U_Modificar(tk.Toplevel):
 #     def __init__(self, parent):

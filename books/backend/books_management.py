@@ -154,7 +154,7 @@ class L_Listar(tk.Frame):
 
         # Aplica el estilo al Treeview listado de libros
         tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición","N° Volúmenes", "N° Ejemplares" )
-        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview")#selectmode="browse"
+        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview",selectmode="browse")
 
         # Set specific widths for "ID" and "Sala"
         self.book_table_list.column("ID", width=50, anchor="center")

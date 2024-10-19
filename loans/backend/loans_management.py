@@ -199,7 +199,7 @@ class P_Listar(tk.Frame):
         scrollbar_pt = ttk.Scrollbar(self.prestamo_table, orient="vertical", command=self.prestamo_table.yview)
         self.prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
-
+    
     def imprimir_seleccionado(self):
         selected_items = self.prestamo_table.selection()
         if not selected_items:
