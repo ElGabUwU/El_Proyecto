@@ -366,8 +366,9 @@ class U_Registrar(tk.Toplevel):
         # self.register_user()
         # self.validacion_sala(None)
     def cancelar(self, window):
-        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana? Los datos del nuevo usuario no se guardarán.", parent=self):
             window.destroy()
+
     def inicializador_titulos(self):
         # Titulos de los inputs
         self.canvas.create_text(61.0, 106.0, anchor="nw", text="Ingrese la información del nuevo usuario a agregar", fill="#a6a6a6", font=("Bold", 17))
@@ -500,7 +501,7 @@ class U_Registrar(tk.Toplevel):
     
 
 class U_Modificar(tk.Toplevel):
-    def __init__(self, parent, item_values, *args, **kwargs):
+    def __init__(self, parent, user_data, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.validate_number = self.register(validate_number_input)
@@ -509,24 +510,25 @@ class U_Modificar(tk.Toplevel):
         self.geometry("950x450")
         self.config(bg="#042344")
         self.resizable(False, False)
-        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
+        #self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
         self.grab_set()
         
         # Guardar los datos del usuario en un diccionario
         self.user_data = {
-            "id": item_values[0],
-            "nombre": item_values[1],
-            "cargo": item_values[2],
-            "apellido": item_values[3],
-            "cedula": item_values[4],
-            "username": item_values[5],
-            "password": "",  # Este campo se actualizará al modificar
+            "id": user_data[0],
+            "nombre": user_data[3],
+            
+            "apellido": user_data[4],
+            "cedula": user_data[5],
+            "username": user_data[6],
+            "password": user_data[7],  # Este campo se actualizará al modificar
             "verify_password": ""  # Este campo se actualizará al modificar
         }
-        
+        self.original_values_user = self.user_data.copy()
+        print(self.user_data,"\n",self.original_values_user)
         # Crear los elementos de la interfaz
         self.create_widgets()
-        self.populate_fields()
+        self.insert_values_user()
 
     def create_widgets(self):
         rectangulo_color = tk.Label(self, bg="#2E59A7", width=200, height=4)
@@ -579,7 +581,7 @@ class U_Modificar(tk.Toplevel):
             image=self.images['boton_m'],
             borderwidth=0,
             highlightthickness=0,
-            command=self.apply_modify_users,
+#            command=self.apply_modify_users,
             relief="flat",
             bg="#031A33",
             activebackground="#031A33",
@@ -610,12 +612,19 @@ class U_Modificar(tk.Toplevel):
         tk.Label(self, text="Contraseña", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=318.0, y=252.0)
         tk.Label(self, text="Confirmar Contraseña", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=575.0, y=252.0)
 
-    def populate_fields(self):
+    def insert_values_user(self):
         self.input_nombre.insert(0, self.user_data['nombre'])
         self.input_apellido.insert(0, self.user_data['apellido'])
         self.input_cedula.insert(0, self.user_data['cedula'])
         self.input_username.insert(0, self.user_data['username'])
-        # La contraseña no se rellena por motivos de seguridad
+        
+    def clear_entries_user_modify(self):
+        self.input_nombre.delete(0, tk.END)
+        self.input_apellido.delete(0, tk.END)
+        self.input_cedula.delete(0, tk.END)
+        self.input_username.delete(0, tk.END)
+        self.input_password.delete(0, tk.END)
+        self.input_verify_password.delete(0, tk.END)
 
     def focus_next_widget(self, event):
         event.widget.tk_focusNext().focus()
@@ -626,9 +635,11 @@ class U_Modificar(tk.Toplevel):
         pass
 
 
-    def cancelar(self, window):
-        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+    def cancelar(self, window, usuario_nombre):
+        mensaje = f"¿Seguro que quieres cerrar esta ventana? Todos los cambios no guardados en el usuario {self.original_values_user["Nombre"]}' se perderán."
+        if messagebox.askyesno("Advertencia", mensaje, parent=self):
             window.destroy()
+
 
 
 

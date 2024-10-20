@@ -76,7 +76,7 @@ def is_password(password, user):
 init(autoreset=True)
 # Conectar a la base de datos
 
-#import mariadb
+import mariadb
 
 def create_user(ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clave):
     print("CARGO:", ID_Cargo, "ID_Rol:", ID_Rol, "Nombre:", Nombre, "APELLIDO:", Apellido, "CEDULA:", Cedula)
@@ -100,28 +100,37 @@ def create_user(ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clav
         if mariadb_conexion:
             mariadb_conexion.close()
 
-        
- #revisar el orden de los datos enviados
-def update_user(ID_Cargo, Nombre, Apellido, Cedula, Nombre_Usuario, Clave, ID_Usuario):
-    ID_Rol=1
+def update_user(user_data, nuevos_valores):
+    ID_Usuario = user_data["id"]
     mariadb_conexion = establecer_conexion()
     if mariadb_conexion:
         cursor = mariadb_conexion.cursor()
+        
+        # Verificar si el usuario existe
         cursor.execute("SELECT ID_Usuario FROM usuarios WHERE ID_Usuario = %s", (ID_Usuario,))
         busqueda = cursor.fetchone()
-        print(busqueda)
+        
         if busqueda is None:
             mariadb_conexion.close()
             return False
+        
         else:
+            # Ejecutar la actualización
             cursor.execute('''
                 UPDATE usuarios
-                SET ID_Cargo=%s, ID_Rol=%s, Nombre=%s, Apellido=%s, Cedula=%s, Nombre_Usuario=%s, Clave=%s
+                SET ID_Cargo=%s, Nombre=%s, Apellido=%s, Cedula=%s, Nombre_Usuario=%s, Clave=%s
                 WHERE ID_Usuario=%s
-            ''', (ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clave, ID_Usuario))
+            ''', (
+                nuevos_valores["cargo"], nuevos_valores["nombre"], nuevos_valores["apellido"],
+                nuevos_valores["cedula"], nuevos_valores["username"], nuevos_valores["password"], ID_Usuario
+            ))
+            
             mariadb_conexion.commit()
             mariadb_conexion.close()
             return True
+    else:
+        return False
+
 
 def delete_selected_user(self):
     from users.backend.db_users import usuario_actual
@@ -166,7 +175,7 @@ def delete_selected_user(self):
     finally:
         if mariadb_conexion:
             mariadb_conexion.close()
-            
+
 
 def list_users_db(treeview, cargos):
     # Conexión a la base de datos y obtención de datos
