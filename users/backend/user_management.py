@@ -511,19 +511,19 @@ class U_Modificar(tk.Toplevel):
         self.geometry("950x450")
         self.config(bg="#042344")
         self.resizable(False, False)
-        #self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
         self.grab_set()
         
         # Guardar los datos del usuario en un diccionario
         self.user_data = {
-            "id": user_data[0],
-            "nombre": user_data[3],
+            "ID": user_data[0],
+            "Nombre": user_data[3],
             
-            "apellido": user_data[4],
-            "cedula": user_data[5],
-            "username": user_data[6],
-            "password": user_data[7],  # Este campo se actualizará al modificar
-            "verify_password": ""  # Este campo se actualizará al modificar
+            "Apellido": user_data[4],
+            "Cedula": user_data[5],
+            "Username": user_data[6],
+            "Password": user_data[7],  # Este campo se actualizará al modificar
+            "Verify_Password": ""  # Este campo se actualizará al modificar
         }
         self.original_values_user = self.user_data.copy()
         print(self.user_data,"\n",self.original_values_user)
@@ -588,7 +588,21 @@ class U_Modificar(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_M.place(x=530.0, y=380.0, width=130.0, height=40.0)
+        self.boton_M.place(x=61.0, y=380.0, width=130.0, height=40.0)
+
+        self.images['boton_r'] = tk.PhotoImage(file=relative_to_assets("rest_button_green.png"))
+        self.boton_R = tk.Button(
+            self,
+            image=self.images['boton_r'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda :self.insert_values_user(),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_R.place(x=220.0, y=380.0, width=130.0, height=40.0)
 
         self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
         self.boton_C = tk.Button(
@@ -602,7 +616,7 @@ class U_Modificar(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_C.place(x=270.0, y=380.0, width=130.0, height=40.0)
+        self.boton_C.place(x=380.0, y=380.0, width=130.0, height=40.0)
 
     def inicializador_titulos(self):
         # Titulos de los inputs
@@ -614,10 +628,11 @@ class U_Modificar(tk.Toplevel):
         tk.Label(self, text="Confirmar Contraseña", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=575.0, y=252.0)
 
     def insert_values_user(self):
-        self.input_nombre.insert(0, self.user_data['nombre'])
-        self.input_apellido.insert(0, self.user_data['apellido'])
-        self.input_cedula.insert(0, self.user_data['cedula'])
-        self.input_username.insert(0, self.user_data['username'])
+        self.clear_entries_user_modify()
+        self.input_nombre.insert(0, self.original_values_user['Nombre'])
+        self.input_apellido.insert(0, self.original_values_user['Apellido'])
+        self.input_cedula.insert(0, self.original_values_user['Cedula'])
+        self.input_username.insert(0, self.original_values_user['Username'])
         
     def clear_entries_user_modify(self):
         self.input_nombre.delete(0, tk.END)
@@ -636,9 +651,9 @@ class U_Modificar(tk.Toplevel):
         pass
 
 
-    def cancelar(self, window, usuario_nombre):
-        mensaje = f"¿Seguro que quieres cerrar esta ventana? Todos los cambios no guardados en el usuario {self.original_values_user["Nombre"]}' se perderán."
-        if messagebox.askyesno("Advertencia", mensaje, parent=self):
+    def cancelar(self, window):
+
+        if messagebox.askyesno("Advertencia", f"¿Seguro que quieres cerrar esta ventana? Todos los cambios no guardados en el usuario {self.original_values_user["Nombre"]}' se perderán.", parent=self):
             window.destroy()
 
 
@@ -647,127 +662,3 @@ class U_Modificar(tk.Toplevel):
     def modify_user(self):
         # Lógica para modificar el usuario
         pass
-
-# class U_Modificar(tk.Toplevel):
-#     def __init__(self, parent):
-#         super().__init__(parent)
-#         self.title("Modificar Usuario")
-#         self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-#         self.geometry("950x550")
-#         self.config(bg="#042344")
-#         self.resizable(False, False)
-#         self.images = {}
-#         validate_number = self.register(validate_number_input)
-
-#         self.create_labels()
-#         self.create_entries()
-#         self.create_buttons()
-
-#     def create_labels(self):
-#         tk.Label(self, bg="#2E59A7", width=200, height=4).place(x=0, y=0)
-#         tk.Label(self, text="Modificación de Usuarios", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=225.0, y=20.0, width=450.0, height=35.0)
-#         tk.Label(self, text="Ingrese los datos a modificar", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=10.0, y=100.0, width=330.0, height=35.0)
-#         tk.Label(self, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=210.0, y=130.0, width=120.0, height=35.0)
-#         tk.Label(self, text="Nombre de Usuario", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=130.0, width=185.0, height=35.0)
-#         tk.Label(self, text="Nombre", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=220.0, y=230.0, width=120.0, height=35.0)
-#         tk.Label(self, text="Apellido", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=230.0, width=120.0, height=35.0)
-#         tk.Label(self, text="ID del usuario que será modificado", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=30.0, y=320.0, width=350.0, height=35.0)
-#         tk.Label(self, text="ID", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=300.0, y=360.0, width=120.0, height=35.0)
-
-#     def create_entries(self):
-#         self.id_cedula_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-#         self.id_cedula_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)
-
-#         self.nombre_usuario_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-#         self.nombre_usuario_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)
-
-#         self.nombre_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-#         self.nombre_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)
-
-#         self.apellido_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-#         self.apellido_entry.place(x=500.0, y=270.0, width=190.0, height=35.0)
-
-#         self.id_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-#         self.id_entry.place(x=350.0, y=400.0, width=190.0, height=35.0)
-
-#     def create_buttons(self):
-#         self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
-#         self.boton_M = tk.Button(
-#             self,
-#             image=self.images['boton_m'],
-#             borderwidth=0,
-#             highlightthickness=0,
-#             command=self.apply_modify_users,
-#             relief="flat",
-#             bg="#031A33",
-#             activebackground="#031A33",
-#             activeforeground="#FFFFFF"
-#         )
-#         self.boton_M.place(x=530.0, y=480.0, width=130.0, height=40.0)
-
-#         self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
-#         self.boton_C = tk.Button(
-#             self,
-#             image=self.images['boton_c'],
-#             borderwidth=0,
-#             highlightthickness=0,
-#             command=self.cancelar,
-#             relief="flat",
-#             bg="#031A33",
-#             activebackground="#031A33",
-#             activeforeground="#FFFFFF"
-#         )
-#         self.boton_C.place(x=270.0, y=480.0, width=130.0, height=40.0)
-
-#     def apply_modify_users(self):
-#         id_cedula = self.id_cedula_entry.get()
-#         name_user = self.nombre_usuario_entry.get()
-#         nombre = self.nombre_entry.get()
-#         apellido = self.apellido_entry.get()
-#         id_usuario = self.id_entry.get()
-
-#         if id_usuario:
-#             respuesta = messagebox.askyesno("Confirmar modificación", "¿Desea modificar?")
-#             if respuesta:
-#                 if update_user_list(id_cedula, name_user, nombre, apellido, id_usuario):
-#                     messagebox.showinfo("Éxito", "Modificación éxitosa del usuario")
-#                 else:
-#                     messagebox.showinfo("Fallido", "No se pudo modificar al usuario.")
-#             else:
-#                 messagebox.showinfo("Cancelado", "Modificación cancelada.")
-#         else:
-#             messagebox.showinfo("Error", "Por favor, proporciona una ID válida.")
-
-#     def boton_buscar(self, event):
-#         busqueda = self.buscar.get()
-#         try:
-#             mariadb_conexion = establecer_conexion()
-#             if mariadb_conexion:
-#                 cursor = mariadb_conexion.cursor()
-#                 cursor.execute("""
-#                     SELECT ID_Usuario, ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario
-#                     FROM usuarios
-#                     WHERE ID_Usuario=%s OR ID_Cargo=%s OR ID_Rol=%s OR Nombre=%s OR Apellido=%s OR Cedula=%s OR Nombre_Usuario=%s
-#                 """, (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
-#                 resultados = cursor.fetchall()
-                
-#                 self.user_table_list.delete(*self.user_table_list.get_children())
-#                 for fila in resultados:
-#                     self.user_table_list.insert("", "end", values=tuple(fila))
-#                     if busqueda in fila:
-#                         self.user_table_list.item(self.user_table_list.get_children()[-1], tags='match')
-#                     else:
-#                         self.user_table_list.item(self.user_table_list.get_children()[-1], tags='nomatch')
-
-#                 self.user_table_list.tag_configure('match', background='green')
-#                 self.user_table_list.tag_configure('nomatch', background='gray')
-                
-#                 if resultados:
-#                     messagebox.showinfo("Búsqueda Éxitosa", "Resultados en pantalla.")
-#                 else:
-#                     messagebox.showinfo("Búsqueda Fallida", "No se encontraron resultados.")
-#         except mariadb.Error as ex:
-#             print("Error durante la conexión:", ex)
-
-#     def cancelar(self):
-#         self.destroy()

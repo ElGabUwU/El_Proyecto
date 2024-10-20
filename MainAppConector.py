@@ -156,7 +156,7 @@ class Menu(tk.Frame):
         self.P_dropdown_menu.entryconfig("Clientes", font=("Helvetica", 20), accelerator=" "*6)
 
     def on_enter(self, button):
-        button['background'] = 'grey'
+        button['background'] = "#2E59A7"
 
     def on_leave(self, button):
         button['background'] = '#041022'
