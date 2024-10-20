@@ -15,6 +15,7 @@ class FormLoginDesigner:
         self.ventana.title("Inicio de Sesion")
         self.ventana.geometry("800x500")
         self.ventana.config(bg="#042344")
+        self.ventana.iconbitmap('./assets_2/logo_biblioteca.ico')
         self.ventana.resizable(width=0, height=0)
         utl.centrar_ventana(self.ventana, 800, 500)
 
