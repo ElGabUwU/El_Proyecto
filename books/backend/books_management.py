@@ -816,6 +816,7 @@ class L_Modificar(tk.Toplevel):
         self.book_data = book_data
         
         self.grab_set()
+        
         """self.geometry("1366x768")
         longitudes = obtener_longitudes_min_max()
         if longitudes:

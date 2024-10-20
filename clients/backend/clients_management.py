@@ -164,6 +164,7 @@ class C_Listar(tk.Frame):
         register_window.geometry("950x400")
         register_window.config(bg="#042344")
         register_window.resizable(False, False)
+        register_window.grab_set()
         self.register_window=register_window
         # ESTO ME SIRVE PARA LA VENTANA DE LIBROS!!!!
         #lienzo.create_rectangle(0, 0, 950, 74, fill="#2E59A7")
@@ -250,6 +251,7 @@ class C_Listar(tk.Frame):
         modify_window.geometry("950x400")
         modify_window.config(bg="#042344")
         modify_window.resizable(False, False)
+        modify_window.grab_set()
         self.modify_window=modify_window
         rectangulo_color = tk.Label(modify_window, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)
