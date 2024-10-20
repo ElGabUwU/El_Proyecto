@@ -247,7 +247,8 @@ class U_Listar(tk.Frame):
                 print("Error durante la conexión:", ex)
 
     def cancelar(self, window):
-        window.destroy()  # Esto cerrará la ventana de filtro
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()  # Esto cerrará la ventana de filtro
 
     def clear_entries_modify_window(self):
         self.nombre_entry.delete(0, tk.END)
@@ -267,6 +268,7 @@ class U_Registrar(tk.Toplevel):
         self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
         self.resizable(False, False)
         self.grab_set()
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
         self.canvas.create_rectangle(0, 0, 950, 74, fill="#2E59A7")
         """rectangulo_color = tk.Label(self, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)"""
@@ -362,7 +364,8 @@ class U_Registrar(tk.Toplevel):
         # self.register_user()
         # self.validacion_sala(None)
     def cancelar(self, window):
-        window.destroy()
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()
     def inicializador_titulos(self):
         # Titulos de los inputs
         self.canvas.create_text(61.0, 106.0, anchor="nw", text="Ingrese la información del nuevo usuario a agregar", fill="#a6a6a6", font=("Bold", 17))
@@ -505,6 +508,7 @@ class U_Modificar(tk.Toplevel):
         self.geometry("950x450")
         self.config(bg="#042344")
         self.resizable(False, False)
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
         self.grab_set()
 
         # Guardar los datos del usuario en un diccionario
@@ -568,7 +572,8 @@ class U_Modificar(tk.Toplevel):
         pass
 
     def cancelar(self, window):
-        window.destroy()
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()
 
 
 # class U_Modificar(tk.Toplevel):

@@ -165,9 +165,9 @@ class C_Listar(tk.Frame):
         register_window.config(bg="#042344")
         register_window.resizable(False, False)
         register_window.grab_set()
+        register_window.protocol("WM_DELETE_WINDOW", lambda:self.cancelar(register_window))
         self.register_window=register_window
-        # ESTO ME SIRVE PARA LA VENTANA DE LIBROS!!!!
-        #lienzo.create_rectangle(0, 0, 950, 74, fill="#2E59A7")
+        
         
         rectangulo_color = tk.Label(register_window, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)  # Posición del rectángulo dentro de la ventana
@@ -252,6 +252,7 @@ class C_Listar(tk.Frame):
         modify_window.config(bg="#042344")
         modify_window.resizable(False, False)
         modify_window.grab_set()
+        modify_window.protocol("WM_DELETE_WINDOW", lambda:self.cancelar(modify_window))
         self.modify_window=modify_window
         rectangulo_color = tk.Label(modify_window, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)
@@ -322,7 +323,8 @@ class C_Listar(tk.Frame):
         self.input_direccion.bind("<KeyRelease>", lambda event: clients_validations.validate_entries(self, event))
         
     def cancelar(self, window):
-        window.destroy()  # Esto cerrará la ventana de filtro
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()  # Esto cerrará la ventana de filtro
 
     def register_client(self):
         ID_Cedula= self.input_cedula.get() 

@@ -182,7 +182,7 @@ class L_Listar(tk.Frame):
         
         else:
             delete_selected(self)
-
+    
     def open_registrar_window(self):
         # Llamar directamente a la clase L_Registrar sin necesidad de seleccionar un elemento
         L_Registrar(self.parent)
@@ -428,7 +428,8 @@ class L_Listar(tk.Frame):
    
 
     def cancelar(self, window):
-        window.destroy()  # Esto cerrará la ventana de filtro
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()  
 
 from validations.books_validations import *
 
@@ -441,6 +442,7 @@ class L_Registrar(tk.Toplevel):
         self.canvas.pack(side="left", fill="both", expand=False)
         self.resizable(False, False)
         self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
        # validate_number = self.register(validat e_number_input)
         self.images = {}
         self.salas_types = ["1I", "2E", "3G"]
@@ -508,8 +510,11 @@ class L_Registrar(tk.Toplevel):
         self.inicializar_titulos()
         self.inicializar_campos_y_widgets()
         self.validacion_sala(None)
+    #def are_u_sure(self):
+    
     def cancelar(self, window):
-        window.destroy()  
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy() 
     def inicializar_titulos(self):
         
         self.canvas.create_rectangle(0, 0, 1142, 74, fill="#2E59A7")
@@ -814,6 +819,7 @@ class L_Modificar(tk.Toplevel):
         super().__init__( *args, **kwargs)
         self.title("Modificar")
         self.book_data = book_data
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
         
         self.grab_set()
         
@@ -1274,7 +1280,8 @@ class L_Modificar(tk.Toplevel):
         self.boton_modificar.place_forget()  # Ocultar el botón inicialmente
         print("Botón 'Modificar' creado y oculto inicialmente.")"""
     def cancelar(self, window):
-        window.destroy()  
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()  
     def mostrar_boton_modificar(self):
         self.boton_modificar.place(x=61.0, y=465.0, width=130.0, height=40.0)
         print("Botón 'Modificar' mostrado.")
