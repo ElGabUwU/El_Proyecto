@@ -249,7 +249,15 @@ class U_Listar(tk.Frame):
                 print("Error durante la conexión:", ex)
 
     def cancelar(self, window):
-        window.destroy()  # Esto cerrará la ventana de filtro
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()  # Esto cerrará la ventana de filtro
+
+    def clear_entries_modify_window(self):
+        self.nombre_entry.delete(0, tk.END)
+        self.apellido_entry.delete(0, tk.END)
+        self.id_cedula_entry.delete(0, tk.END)
+        self.nombre_usuario_entry.delete(0, tk.END)
+        self.id_entry.delete(0, tk.END)    
 
 class U_Registrar(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
@@ -262,6 +270,7 @@ class U_Registrar(tk.Toplevel):
         self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
         self.resizable(False, False)
         self.grab_set()
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
         self.canvas.create_rectangle(0, 0, 950, 74, fill="#2E59A7")
         """rectangulo_color = tk.Label(self, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)"""
@@ -286,6 +295,20 @@ class U_Registrar(tk.Toplevel):
             activebackground="#031A33",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         ).place(x=61.0, y=465.0, width=130.0, height=40.0)
+        
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+        self.boton_C = tk.Button(
+            self,
+            image=self.images['boton_c'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(self),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=250.0, y=465.0, width=130.0, height=40.0)
 
                 #REVISAR COMO SE SUBIERON LOS CARGOS A LA BD PARA HACER LAS VALIDACIONES 
         stylebox = ttk.Style()
@@ -342,7 +365,9 @@ class U_Registrar(tk.Toplevel):
         self.inicializador_titulos()
         # self.register_user()
         # self.validacion_sala(None)
-    
+    def cancelar(self, window):
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()
     def inicializador_titulos(self):
         # Titulos de los inputs
         self.canvas.create_text(61.0, 106.0, anchor="nw", text="Ingrese la información del nuevo usuario a agregar", fill="#a6a6a6", font=("Bold", 17))
@@ -350,8 +375,8 @@ class U_Registrar(tk.Toplevel):
         self.canvas.create_text(61.0, 152.0, anchor="nw", text="Cargo", fill="#a6a6a6", font=("Bold", 17))
 
         #fila 2
-        self.canvas.create_text(61.0, 252.0, anchor="nw", text="Nombre", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(318.0, 252.0, anchor="nw", text="Apellido", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 252.0, anchor="nw", text="Nombres", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(318.0, 252.0, anchor="nw", text="Apellidos", fill="#a6a6a6", font=("Bold", 17))
         self.canvas.create_text(575.0, 252.0, anchor="nw", text="Cedula", fill="#a6a6a6", font=("Bold", 17))
         
         #fila 3
@@ -481,9 +506,10 @@ class U_Modificar(tk.Toplevel):
         self.validate_number = self.register(validate_number_input)
         self.images = {}
         self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        self.geometry("950x550")
+        self.geometry("950x450")
         self.config(bg="#042344")
         self.resizable(False, False)
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
         self.grab_set()
         
         # Guardar los datos del usuario en un diccionario
@@ -507,6 +533,7 @@ class U_Modificar(tk.Toplevel):
         rectangulo_color.place(x=0, y=0)
 
         tk.Label(self, text="Modificación de Usuarios", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=225.0, y=20.0, width=450.0, height=35.0)
+
         tk.Label(self, text="Ingrese los datos a modificar", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=10.0, y=100.0, width=330.0, height=35.0)
 
         # Crear y colocar los widgets
@@ -558,7 +585,7 @@ class U_Modificar(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_M.place(x=530.0, y=480.0, width=130.0, height=40.0)
+        self.boton_M.place(x=530.0, y=380.0, width=130.0, height=40.0)
 
         self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
         self.boton_C = tk.Button(
@@ -572,7 +599,7 @@ class U_Modificar(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_C.place(x=270.0, y=480.0, width=130.0, height=40.0)
+        self.boton_C.place(x=270.0, y=380.0, width=130.0, height=40.0)
 
     def inicializador_titulos(self):
         # Titulos de los inputs
@@ -598,12 +625,12 @@ class U_Modificar(tk.Toplevel):
         # Aquí puedes manejar la validación al presionar una tecla
         pass
 
-    def apply_modify_users(self):
-        # Lógica para aplicar los cambios en la modificación del usuario
-        pass
 
-    def cancelar(self):
-        self.destroy()
+    def cancelar(self, window):
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()
+
+
 
     def modify_user(self):
         # Lógica para modificar el usuario

@@ -3,25 +3,6 @@ from mysql.connector import Error
 from db.conexion import establecer_conexion
 from tkinter import ttk, messagebox
 
-# Tabla Cliente
-# def lists_clients(self):
-#     conexion = establecer_conexion()
-#     if conexion:
-#         try:
-#             cursor = conexion.cursor()
-#             cursor.execute("SELECT ID_Cliente, Cedula_Cliente, Nombre, Apellido, Telefono, Direccion FROM cliente")
-#             resultados = cursor.fetchall()
-#             for row in self.book_table.get_children():
-#                 self.book_table.delete(row)
-#             for fila in resultados:
-#                 self.book_table.insert("", "end", values=tuple(fila))
-#         except Error as e:
-#             messagebox.showerror(message=f"Error durante la consulta: {e}", title="Error de Consulta")
-#         finally:
-#             if cursor:
-#                 cursor.close()
-#             if conexion.is_connected():
-#                 conexion.close()
 #OBTENCION DE DATOS PARA REPORTE DE PDF
 def obtener_datos_libro(libro_id):
     try:
@@ -57,9 +38,6 @@ def obtener_datos_libro(libro_id):
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
     return None
-
-
-
 
 def obtener_datos_cliente(cliente_id):
     try:

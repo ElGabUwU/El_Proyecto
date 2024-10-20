@@ -4,10 +4,9 @@ from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from PIL import Image, ImageTk
 from Library.librerias import *
-from books.backend.db_books import *
+from Books.backend.db_books import *
 import random
-import subprocess
-from books.backend.books_management import *
+from Books.backend.books_management import *
 from users.backend.user_management import *
 from loans.backend.loans_management import *
 from clients.backend.clients_management import *
@@ -99,30 +98,38 @@ class Menu(tk.Frame):
         
         self.L_menu_button = tk.Button(self, text="Libros",image=self.images["icono_libros"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:{self.frame_header.update_header_text("Libros"),mostrar_frame(app.L_frame_listar)}, anchor="w", padx=10)
         self.L_menu_button.place(x=0.0, y=0, width=213.0, height=58.0)
+        self.L_menu_button.bind("<Enter>", lambda event: self.on_enter(self.L_menu_button))
+        self.L_menu_button.bind("<Leave>", lambda event: self.on_leave(self.L_menu_button))
         
         self.Salir = tk.Button(self, text="Cerrar Sesión", image=self.images["logo_salir"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 20), relief="flat", padx=10, command=lambda: self.salir())
         self.Salir.place(x=1.0, y=600.0, width=213.0, height=58.0)
+        self.Salir.bind("<Enter>", lambda event: self.on_enter(self.Salir))
+        self.Salir.bind("<Leave>", lambda event: self.on_leave(self.Salir))
         
+        self.U_menu_button = tk.Button(self, text="Usuarios",image=self.images["icono_usuarios"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:{self.frame_header.update_header_text("Usuarios"), mostrar_frame(app.U_frame_listar)}, anchor="w", padx=10)
+        self.U_menu_button.bind("<Enter>", lambda event: self.on_enter(self.U_menu_button))
+        self.U_menu_button.bind("<Leave>", lambda event: self.on_leave(self.U_menu_button))
+        
+        self.P_menu_button = tk.Button(self, text="Prestamos ▾",image=self.images["icono_prestamos"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:self.show_menu(self.P_dropdown_menu,self.P_menu_button), anchor="w", padx=10)
+        self.P_menu_button.bind("<Enter>", lambda event: self.on_enter(self.P_menu_button))
+        self.P_menu_button.bind("<Leave>", lambda event: self.on_leave(self.P_menu_button))
+        
+        self.perfil_button = tk.Button(self, text="Mi Perfil",image=self.images["icono_perfil"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
+        self.perfil_button.bind("<Enter>", lambda event: self.on_enter(self.perfil_button))
+        self.perfil_button.bind("<Leave>", lambda event: self.on_leave(self.perfil_button))
         
         
         # Crear el botón que abrirá el menú desplegable
         if self.parent.id_rol == 1:
-            
-            self.P_menu_button = tk.Button(self, text="Prestamos ▾",image=self.images["icono_prestamos"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:self.show_menu(self.P_dropdown_menu,self.P_menu_button), anchor="w", padx=10)
             self.P_menu_button.place(x=0.0, y=58.0, width=213.0, height=58.0)
             
-            self.perfil_button = tk.Button(self, text="Mi Perfil",image=self.images["icono_perfil"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
             self.perfil_button.place(x=0.0, y=116.0, width=213.0, height=58.0)
             
         else: 
-            
-            self.U_menu_button = tk.Button(self, text="Usuarios",image=self.images["icono_usuarios"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:{self.frame_header.update_header_text("Usuarios"), mostrar_frame(app.U_frame_listar)}, anchor="w", padx=10)
             self.U_menu_button.place(x=0.0, y=58.0, width=213.0, height=58.0)
             
-            self.P_menu_button = tk.Button(self, text="Prestamos ▾",image=self.images["icono_prestamos"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:self.show_menu(self.P_dropdown_menu,self.P_menu_button), anchor="w", padx=10)
             self.P_menu_button.place(x=0.0, y=116.0, width=213.0, height=58.0)
             
-            self.perfil_button = tk.Button(self, text="Mi Perfil",image=self.images["icono_perfil"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
             self.perfil_button.place(x=0.0, y=174.0, width=213.0, height=58.0)
         
         
@@ -148,6 +155,11 @@ class Menu(tk.Frame):
         # Ajustar el padding de los elementos del menú
         self.P_dropdown_menu.entryconfig("Clientes", font=("Helvetica", 20), accelerator=" "*6)
 
+    def on_enter(self, button):
+        button['background'] = 'grey'
+
+    def on_leave(self, button):
+        button['background'] = '#041022'
     def show_menu(self,dropdown_menu,button):
         
         dropdown_menu.post(button.winfo_rootx(), button.winfo_rooty() + button.winfo_height())
@@ -265,9 +277,9 @@ class Perfil(tk.Frame):
         #seccion de informacion del usuario
         self.canvas.create_text(263.0, 370.0, anchor="nw", text="Información del Usuario", fill="#040F21", font=("Montserrat Regular", 18))
         
-        self.canvas.create_text(263.0, 418.0, anchor="nw", text=f"Nombre: {self.parent.nombre}", fill="#042344", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 418.0, anchor="nw", text=f"Nombres: {self.parent.nombre}", fill="#042344", font=("Montserrat Regular", 15))
         
-        self.canvas.create_text(263.0, 467.0, anchor="nw", text=f"Apellido: {self.parent.apellido}", fill="#042344", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 467.0, anchor="nw", text=f"Apellidos: {self.parent.apellido}", fill="#042344", font=("Montserrat Regular", 15))
 
         self.canvas.create_text(263.0, 516.0, anchor="nw", text=f"Cargo: {self.cargo}", fill="#042344", font=("Montserrat Regular", 15))
         

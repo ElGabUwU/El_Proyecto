@@ -76,7 +76,7 @@ def is_password(password, user):
 init(autoreset=True)
 # Conectar a la base de datos
 
-import mariadb
+#import mariadb
 
 def create_user(ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clave):
     print("CARGO:", ID_Cargo, "ID_Rol:", ID_Rol, "Nombre:", Nombre, "APELLIDO:", Apellido, "CEDULA:", Cedula)
@@ -166,7 +166,7 @@ def delete_selected_user(self):
     finally:
         if mariadb_conexion:
             mariadb_conexion.close()
-
+            
 
 def list_users_db(treeview, cargos):
     # Conexión a la base de datos y obtención de datos

@@ -9,12 +9,11 @@ from tkcalendar import Calendar
 from datetime import datetime, timedelta
 import random
 import string
-from backend.Filtrados_Prestamo import *
+from backend.loans_filters import *
 from db.conexion import establecer_conexion
-
-from tkinter import messagebox
 from util.Reporte_PDF import generar_pdf
 from loans.backend.models import Cliente, Libro
+from validations import loans_validations
 
 
 def validate_number_input(text):
@@ -40,8 +39,6 @@ class P_Listar(tk.Frame):
         #validate_number = self.register(validate_number_input)
         self.images = {}
 
-        #Marco listado prestamo-clientes
-        # self.left_frame2 = tk.Frame(self.canvas, bg="#FFFFFF")
         self.left_frame2 = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame2.pack(expand=True, side="right", fill="both")
         self.left_frame2.place(x=200,y=220, height=490, width=1180)
@@ -195,7 +192,7 @@ class P_Listar(tk.Frame):
             self.prestamo_table.column(col2, width=90, anchor="center")
         self.prestamo_table.pack(expand=True, fill="both", padx=40, pady=45)
 
-
+        self.prestamo_table.bind("<Double-1>", self.on_loans_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
         scrollbar_pt = ttk.Scrollbar(self.prestamo_table, orient="vertical", command=self.prestamo_table.yview)
         self.prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
@@ -209,8 +206,6 @@ class P_Listar(tk.Frame):
         selected_item = self.prestamo_table.item(selected_items[0], 'values')
         imprimir = ImprimirPrestamo(selected_item)
         imprimir.obtener_datos()
-
-
     
     def verificar_eliminar(self):
         if self.parent.id_rol == 1:
@@ -221,36 +216,39 @@ class P_Listar(tk.Frame):
             delete_selected_prestamo(self)
     
     def open_register_loan(self):
-        filter_window = tk.Toplevel(self)
-        filter_window.title("Registrar Préstamo")
-        filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        filter_window.geometry("1355x600")
-        filter_window.config(bg="#042344")
-        filter_window.resizable(False, False)
+        register_loan_window = tk.Toplevel(self)
+        register_loan_window.title("Registrar Préstamo")
+        register_loan_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        register_loan_window.geometry("1355x600")
+        register_loan_window.config(bg="#042344")
+        register_loan_window.resizable(False, False)
+        register_loan_window.grab_set()
+        register_loan_window.protocol("WM_DELETE_WINDOW", lambda:self.cancelar(register_loan_window))
+        self.register_loan_window=register_loan_window
 
         # Crear el marco izquierdo para el menú de navegación
-        self.left_frame_list = tk.Frame(filter_window, bg="#042344")
+        self.left_frame_list = tk.Frame(register_loan_window, bg="#042344")
         self.left_frame_list.place(x=170, y=160, height=400, width=1200)
         
-        
-        rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=3)
+        rectangulo_color = tk.Label(register_loan_window, bg="#2E59A7", width=200, height=3)
         rectangulo_color.place(x=0, y=0)  # Posición del rectángulo dentro de la ventana
-        tk.Label(filter_window, text="Tabla Prestamos",fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=505.0, y=8.0, width=450.0, height=35.0)
-        tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=600.0, y=70.0, width=160.0, height=35.0)
-        self.id_cliente = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        tk.Label(register_loan_window, text="Tabla Prestamos",fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=505.0, y=8.0, width=450.0, height=35.0)
+        tk.Label(register_loan_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=600.0, y=70.0, width=160.0, height=35.0)
+        self.id_cliente = tk.Entry(register_loan_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.id_cliente.place(x=630.0, y=100.0, width=190.0, height=35.0)
-        #self.input_cedula = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        tk.Label(filter_window, text="Fecha Registrar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=22.0, y=140.0, width=160.0, height=35.0)
-        self.fecha_registrar = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+
+        tk.Label(register_loan_window, text="Fecha Registrar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=22.0, y=140.0, width=160.0, height=35.0)
+        self.fecha_registrar = tk.Entry(register_loan_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.fecha_registrar.place(x=20.0, y=170.0, width=170.0, height=35.0)
         
-        tk.Label(filter_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=7.0, y=240.0, width=160.0, height=35.0)
-        self.fecha_limite = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        
+        tk.Label(register_loan_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=7.0, y=240.0, width=160.0, height=35.0)
+        self.fecha_limite = tk.Entry(register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.fecha_limite.place(x=20.0, y=270.0, width=170.0, height=35.0)
 
-        tk.Label(filter_window, text="Cantidad", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=15.0, y=340, width=105.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.input_cantidad = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.input_cantidad.place(x=20.0, y=370.0, width=170.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
+        # tk.Label(filter_window, text="Cantidad", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=15.0, y=340, width=105.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        # self.input_cantidad = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        # self.input_cantidad.place(x=20.0, y=370.0, width=170.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
 
         # Establecer las fechas automáticamente
         fecha_actual = datetime.now().strftime("%d/%m/%Y")
@@ -258,6 +256,9 @@ class P_Listar(tk.Frame):
 
         self.fecha_registrar.insert(0, fecha_actual)
         self.fecha_limite.insert(0, fecha_limite)
+        # Configurar los campos de entrada como solo lectura
+        self.fecha_registrar.config(state='readonly')
+        self.fecha_limite.config(state='readonly')
 
         # Aplica el estilo al Treeview listado de libros
         tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N° Registro", "Titulo", "Autor", "Editorial", "Año", "Edición", "N° Ejemplares", "N° Volúmenes")
@@ -294,7 +295,7 @@ class P_Listar(tk.Frame):
         self.images['boton_r'] = tk.PhotoImage(file=relative_to_assets("R_button_light_blue.png"))
 
         self.boton_R = tk.Button(
-            filter_window,
+            register_loan_window,
             image=self.images['boton_r'],
             borderwidth=0,
             highlightthickness=0,
@@ -307,9 +308,9 @@ class P_Listar(tk.Frame):
         self.boton_R.place(x=265.0, y=450.0, width=130.0, height=40.0)
         self.boton_R.place_forget()  # Ocultar el botón inicialmente
 
-        self.input_cantidad.bind("<KeyRelease>", self.validate_entries)
+        self.id_cliente.bind("<KeyRelease>", lambda event: loans_validations.validate_entries(self, event))
 
-        self.input_cantidad.bind("<KeyRelease>", self.validate_entries)
+        # self.input_cantidad.bind("<KeyRelease>", self.validate_entries)
 
     def boton_buscar(self,event=None):  
         busqueda = self.buscar.get()
@@ -388,22 +389,24 @@ class P_Listar(tk.Frame):
         filter_window.config(bg="#042344")
         
         filter_window.resizable(False, False)
+        filter_window.grab_set()
+        filter_window.protocol("WM_DELETE_WINDOW", lambda:self.cancelar(filter_window))
         rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)
         
-        tk.Label(filter_window, text="Tabla de Prestamos", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=250.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#.grid(row=4, column=5, padx=10, pady=5)
-        tk.Label(filter_window, text="Ingrese el ID de Prestamo, Cliente y Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=80.0, width=530.0, height=35.0)#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="ID Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=130.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
+        tk.Label(filter_window, text="Tabla de Prestamos", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=250.0, y=20.0, width=450.0, height=35.0)
+        tk.Label(filter_window, text="Ingrese el ID de Prestamo, Cliente y Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=80.0, width=530.0, height=35.0)
+        tk.Label(filter_window, text="ID Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=130.0, width=120.0, height=35.0)
         self.id_prestamos_entry = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.id_prestamos_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=5, column=1, padx=10, pady=5)
+        self.id_prestamos_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)
 
-        tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=460.0, y=130.0, width=185.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        tk.Label(filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=460.0, y=130.0, width=185.0, height=35.0)
         self.id_cliente_entry = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.id_cliente_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
+        self.id_cliente_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)
 
-        tk.Label(filter_window, text="ID Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=230.0, width=180.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
+        tk.Label(filter_window, text="ID Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=230.0, width=180.0, height=35.0)
         self.id_libro_cliente_entry = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.id_libro_cliente_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=7, column=1, padx=10, pady=5)
+        self.id_libro_cliente_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)
 
         
         self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("boton_filtrar.png"))
@@ -453,6 +456,8 @@ class P_Listar(tk.Frame):
         filter_window.geometry("950x550")
         filter_window.config(bg="#042344")
         filter_window.resizable(False, False)
+        filter_window.grab_set()
+        filter_window.protocol("WM_DELETE_WINDOW", lambda:self.cancelar(filter_window))
         rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)
         tk.Label(filter_window, text="Modificación De Préstamo", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=235.0, y=15.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#grid(row=0, column=5, padx=10, pady=5)
@@ -519,7 +524,7 @@ class P_Listar(tk.Frame):
             if respuesta:
                 if update_client_loans(id_prestamo, cantidad, fecha_limite):
                     messagebox.showinfo("Éxito", "Modificación éxitosa del prestamo del cliente")
-                    self.clear_entries_list()
+                    loans_validations.clear_entries_list(self)
                         #return True
                 else:
                     messagebox.showinfo("Fallido", "La modificación del prestamo no pudo ejecutarse.")
@@ -530,11 +535,11 @@ class P_Listar(tk.Frame):
                 messagebox.showinfo("Error", "Por favor, proporciona una ID válida.")
     
     def save_modifications(self):
-        fecha_registrar = self.format_date(self.fecha_registrar.get())
-        fecha_limite = self.format_date(self.fecha_limite.get())
-        Cantidad = int(self.input_cantidad.get())
-        ID_Prestamo = self.generate_alphanumeric_id()
-        ID_Libro_Prestamo = self.generate_id_libro_prestamo()
+        fecha_registrar = loans_validations.format_date(self.fecha_registrar.get())
+        fecha_limite = loans_validations.format_date(self.fecha_limite.get())
+        #Cantidad = int(self.input_cantidad.get())
+        ID_Prestamo = loans_validations.generate_alphanumeric_id()
+        ID_Libro_Prestamo = loans_validations.generate_id_libro_prestamo(self)
         ID_Cliente = self.id_cliente.get()
                 # Asegúrate de que ID_Libro esté definido
         if hasattr(self, 'ID_Libro'):
@@ -543,64 +548,33 @@ class P_Listar(tk.Frame):
             messagebox.showerror("Error", "Por favor, selecciona un libro de la lista.")
             return
             # Obtener ID_Usuario
-        ID_Usuario = 5
+        ID_Usuario = 1 or 2 or 3 or 4 or 5
         if ID_Usuario is None:
             messagebox.showerror("Error", "No se pudo obtener el ID de usuario.")
             return
         if create_loan(ID_Prestamo, fecha_registrar, fecha_limite):
-            if create_libro_prestamo(ID_Libro_Prestamo, ID_Prestamo, ID_Libro, Cantidad):
+            if create_libro_prestamo(ID_Libro_Prestamo, ID_Prestamo, ID_Libro):
                 if update_prestamo_with_cliente(ID_Prestamo, ID_Cliente, ID_Libro_Prestamo):
-                    if update_prestamo_and_libro(ID_Prestamo, ID_Cliente, ID_Libro, ID_Libro_Prestamo, Cantidad):
+                    if update_prestamo_and_libro(ID_Prestamo, ID_Cliente, ID_Libro, ID_Libro_Prestamo):
                             # Actualizar la tabla prestamo con ID_Usuario
                         if update_prestamo_with_usuario(ID_Prestamo, ID_Usuario):
-                            messagebox.showinfo("Éxito", 
+                             if update_cliente_with_prestamo(ID_Cliente, ID_Prestamo):
+                                messagebox.showinfo("Éxito", 
 f"""
 Registro éxitoso del préstamo. 
 ID Préstamo: {ID_Prestamo}
 ID Libro Préstamo: {ID_Libro_Prestamo}
 """)
-                        self.clear_entries_list()
+                        loans_validations.clear_entries_list(self)
             else:
                 messagebox.showerror("Error", "Préstamo no pudo ser creado.")    
     #Boton de filtrado del Menú Lista-Prestamos
     def apply_filters(self):
-        filter_books_one(self)
-        filter_books_two(self)
-        filter_books_three(self)
-
-    def clear_entries_list(self):
-        # elf.id_prestamo_entry.delete(0, tk.END)
-        self.input_cantidad.delete(0, tk.END)
-        # self.fecha_limite_entry.delete(0, tk.END)
-    
-    def validate_entries(self, event=None):
-        # Comprobar si todos los campos están llenos
-        if (self.input_cantidad.get()):
-            self.boton_R.place(x=40.0, y=450.0, width=130.0, height=40.0)  # Mostrar el botón
-        else:
-            self.boton_R.place_forget()  # Ocultar el botón si algún campo está vacío
-
-    def generate_alphanumeric_id(self, length=6):
-        characters = string.ascii_uppercase + string.digits
-        return ''.join(random.choices(characters, k=length))
-    
-    def format_date(self, date_str):
-        try:
-            # Convertir la fecha del formato DD/MM/YYYY al formato YYYY-MM-DD
-            formatted_date = datetime.strptime(date_str, "%d/%m/%Y").strftime("%Y-%m-%d")
-            return formatted_date
-        except ValueError as e:
-            print(f"Error al formatear la fecha: {e}")
-            return None
-
-    def generate_id_libro_prestamo(self):
-        while True:
-            new_id = random.randint(1000, 9999)
-            if not libro_prestamo_exists(new_id):
-                return new_id
+        filter_books(self)
             
     def cancelar(self, window):
-        window.destroy()  # Esto cerrará la ventana de filtro
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()  # Esto cerrará la ventana de filtro
 
     def on_treeview_select(self, event):
         # Obtener el elemento seleccionado
@@ -609,18 +583,120 @@ ID Libro Préstamo: {ID_Libro_Prestamo}
         item_values = self.book_table_list.item(selected_item, 'values')
         # Asumimos que el ID_Libro está en la primera columna
         self.ID_Libro = item_values[0]
+    
+    # def on_loans_double_click(self, event):
+    #     try:
+    #         selected_item = self.prestamo_table.selection()[0]
+    #         prestamo_valores = self.prestamo_table.item(selected_item, 'values')
 
-    # def format_n_registro(self, event):
-    #     # Obtener el texto actual del campo de entrada
-    #     text = self.n_registro_entry.get().replace(".", "")
-        
-    #     # Formatear el texto para insertar un punto después de las tres primeras cifras
-    #     if len(text)> 2:
-    #         formatted_text = text[:2] + "." + text[2:]
-    #     else:
-    #         formatted_text = text
+    #         self.prestamo_data = {
+    #             "ID Prestamo": prestamo_valores[0],
+    #             "ID Libro": prestamo_valores[1],
+    #             "ID Cliente": prestamo_valores[2],
+    #             "Nombre": prestamo_valores[3],
+    #             "ID Libro Prestamo": prestamo_valores[4],
+    #             "Titulo": prestamo_valores[5],
+    #             "Cantidad": prestamo_valores[6],
+    #             "F.Registro": prestamo_valores[7],
+    #             "F.Limite": prestamo_valores[8],
+    #             "Encargado": prestamo_valores[9]  # Asegúrate de que coincida con tu índice
+    #         }
 
+    #         mariadb_conexion = establecer_conexion()
+    #         if mariadb_conexion:
+    #             cursor = mariadb_conexion.cursor()
 
+    #             cursor.execute('''
+    #                 SELECT 
+    #                 p.ID_Prestamo,
+    #                 c.ID_Cliente,
+    #                 c.Nombre
+    #                 FROM cliente c
+    #                 JOIN 
+    #                     prestamo p ON p.ID_Cliente = c.ID_Cliente
+    #                 WHERE  c.ID_Cliente = %s AND c.Nombre = %s
+    #             ''', (self.prestamo_data["ID Cliente"], self.prestamo_data["Nombre"]))
+
+    #             ejemplares = cursor.fetchall()
+
+    #             if not ejemplares:
+    #                 messagebox.showinfo("Información", "No se encontraron registros coincidentes.")
+    #                 return
+
+    #             self.prestamo_table.selection_remove(self.prestamo_table.selection())
+
+    #             for ejemplar in ejemplares:
+    #                 for row in self.prestamo_table.get_children():
+    #                     if self.prestamo_table.item(row, 'values')[0] == str(ejemplar[0]):
+    #                         self.prestamo_table.selection_add(row)
+
+    #             mariadb_conexion.close()
+    #     except mariadb.Error as ex:
+    #         print("Error durante la conexión:", ex)
+    #         messagebox.showerror("Error", f"Error durante la conexión: {ex}")
+    #     except IndexError:
+    #         print("No se ha seleccionado ningún préstamo.")
+    #         messagebox.showerror("Error", "No se ha seleccionado ningún préstamo.")
+
+    def on_loans_double_click(self, event):
+        try:
+            selected_item = self.prestamo_table.selection()[0]
+            prestamo_valores = self.prestamo_table.item(selected_item, 'values')
+
+            self.prestamo_data = {
+                "ID Prestamo": prestamo_valores[0],
+                "ID Libro": prestamo_valores[1],
+                "ID Cliente": prestamo_valores[2],
+                "Nombre": prestamo_valores[3],
+                "ID Libro Prestamo": prestamo_valores[4],
+                "Titulo": prestamo_valores[5],
+                "Cantidad": prestamo_valores[6],
+                "F.Registro": prestamo_valores[7],
+                "F.Limite": prestamo_valores[8],
+                "Encargado": prestamo_valores[9]  # Asegúrate de que coincida con tu índice
+            }
+
+            # Convertir las fechas al formato YYYY-MM-DD
+            # self.prestamo_data["F.Registro"] = datetime.strptime(self.prestamo_data["F.Registro"], "%d/%m/%Y").strftime("%Y-%m-%d")
+            # self.prestamo_data["F.Limite"] = datetime.strptime(self.prestamo_data["F.Limite"], "%d/%m/%Y").strftime("%Y-%m-%d")
+
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+
+                cursor.execute('''
+                    SELECT 
+                    p.ID_Prestamo,
+                    c.ID_Cliente,
+                    c.Nombre,
+                    p.Fecha_Registro,
+                    p.Fecha_Limite
+                    FROM cliente c
+                    JOIN 
+                        prestamo p ON p.ID_Cliente = c.ID_Cliente
+                    WHERE  c.ID_Cliente = %s AND c.Nombre = %s AND p.Fecha_Registro = %s AND p.Fecha_Limite = %s
+                ''', (self.prestamo_data["ID Cliente"], self.prestamo_data["Nombre"], self.prestamo_data["F.Registro"], self.prestamo_data["F.Limite"]))
+
+                ejemplares = cursor.fetchall()
+
+                if not ejemplares:
+                    messagebox.showinfo("Información", "No se encontraron registros coincidentes.")
+                    return
+
+                self.prestamo_table.selection_remove(self.prestamo_table.selection())
+
+                for ejemplar in ejemplares:
+                    for row in self.prestamo_table.get_children():
+                        if self.prestamo_table.item(row, 'values')[0] == str(ejemplar[0]):
+                            self.prestamo_table.selection_add(row)
+
+                mariadb_conexion.close()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+            messagebox.showerror("Error", f"Error durante la conexión: {ex}")
+        except IndexError:
+            print("No se ha seleccionado ningún préstamo.")
+            messagebox.showerror("Error", "No se ha seleccionado ningún préstamo.")
 
 class ImprimirPrestamo:
     def __init__(self, selected_item):

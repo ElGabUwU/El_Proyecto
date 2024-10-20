@@ -232,66 +232,68 @@ def update_books(book_data, nuevos_valores):
         
 
 def delete_selected(self):
-        selected_items = self.book_table_list.selection()
-        if not selected_items:
-            messagebox.showwarning("Advertencia", "No se ha seleccionado ningún libro.")
-            return
+    selected_items = self.book_table_list.selection()
+    if not selected_items:
+        messagebox.showwarning("Advertencia", "No se ha seleccionado ningún libro.")
+        return
 
-        respuesta = messagebox.askyesno("Confirmación", "¿Está seguro de que desea eliminar el libro seleccionado?")
-        if not respuesta:
-            return
+    respuesta = messagebox.askyesno("Confirmación", "¿Está seguro de que desea eliminar el libro seleccionado?")
+    if not respuesta:
+        return
 
-        try:
-            mariadb_conexion = establecer_conexion()
-            if mariadb_conexion:
-                cursor = mariadb_conexion.cursor()
-                for item in selected_items:
-                    item_id = self.book_table_list.item(item, 'values')[0]
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            for item in selected_items:
+                item_id = self.book_table_list.item(item, 'values')[0]
 
-                    # Obtener los detalles del libro
+                # Obtener los detalles del libro
+                cursor.execute('''
+                    SELECT ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año, n_ejemplares, estado_libro
+                    FROM libro
+                    WHERE ID_Libro = %s
+                ''', (item_id,))
+                libro_detalles = cursor.fetchone()
+
+                if libro_detalles:
+                    ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año, n_ejemplares_actual, estado_libro = libro_detalles
+
+                    # Verificar si ya existen registros con la misma sala, categoría, asignatura, autor, editorial, título y año
                     cursor.execute('''
-                        SELECT ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año, n_ejemplares
+                        SELECT n_ejemplares
                         FROM libro
-                        WHERE ID_Libro = %s
-                    ''', (item_id,))
-                    libro_detalles = cursor.fetchone()
+                        WHERE ID_Sala = %s AND ID_Categoria = %s AND ID_Asignatura = %s AND autor = %s AND editorial = %s AND titulo = %s AND año = %s AND estado_libro = 'activo'
+                    ''', (ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año))
+                    resultado = cursor.fetchall()
 
-                    if libro_detalles:
-                        ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año, n_ejemplares_actual = libro_detalles
+                    if resultado:
+                        n_ejemplares_actual = max([row[0] for row in resultado])
+                        n_ejemplares_nuevo = n_ejemplares_actual - 1
 
-                        # Verificar si ya existen registros con la misma sala, categoría, asignatura, autor, editorial, título y año
-                        cursor.execute('''
-                            SELECT n_ejemplares
-                            FROM libro
-                            WHERE ID_Sala = %s AND ID_Categoria = %s AND ID_Asignatura = %s AND autor = %s AND editorial = %s AND titulo = %s AND año = %s
-                        ''', (ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año))
-                        resultado = cursor.fetchall()
+                        if n_ejemplares_nuevo > 0:
+                            cursor.execute('''
+                                UPDATE libro
+                                SET n_ejemplares = %s
+                                WHERE ID_Sala = %s AND ID_Categoria = %s AND ID_Asignatura = %s AND autor = %s AND editorial = %s AND titulo = %s AND año = %s AND estado_libro = 'activo'
+                            ''', (n_ejemplares_nuevo, ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año))
+                        else:
+                            cursor.execute('''
+                                UPDATE libro
+                                SET estado_libro = 'eliminado'
+                                WHERE ID_Sala = %s AND ID_Categoria = %s AND ID_Asignatura = %s AND autor = %s AND editorial = %s AND titulo = %s AND año = %s AND estado_libro = 'activo'
+                            ''', (ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año))
 
-                        if resultado:
-                            n_ejemplares_actual = max([row[0] for row in resultado])
-                            n_ejemplares_nuevo = n_ejemplares_actual - 1
+                    self.book_table_list.delete(item)
 
-                            if n_ejemplares_nuevo > 0:
-                                cursor.execute('''
-                                    UPDATE libro
-                                    SET n_ejemplares = %s
-                                    WHERE ID_Sala = %s AND ID_Categoria = %s AND ID_Asignatura = %s AND autor = %s AND editorial = %s AND titulo = %s AND año = %s
-                                ''', (n_ejemplares_nuevo, ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año))
-                            else:
-                                cursor.execute('''
-                                    DELETE FROM libro
-                                    WHERE ID_Sala = %s AND ID_Categoria = %s AND ID_Asignatura = %s AND autor = %s AND editorial = %s AND titulo = %s AND año = %s
-                                ''', (ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año))
+            mariadb_conexion.commit()
+            messagebox.showinfo("Éxito", "El libro ha sido eliminado correctamente.")
+        else:
+            messagebox.showerror("Error", "No se pudo establecer la conexión a la base de datos.")
+    except mariadb.Error as ex:
+        print("Error durante la conexión:", ex)
+        messagebox.showerror("Error", f"Error durante la conexión: {ex}")
+    finally:
+        if mariadb_conexion:
+            mariadb_conexion.close()
 
-                        self.book_table_list.delete(item)
-
-                mariadb_conexion.commit()
-                messagebox.showinfo("Éxito", "El libro ha sido eliminado correctamente.")
-            else:
-                messagebox.showerror("Error", "No se pudo establecer la conexión a la base de datos.")
-        except mariadb.Error as ex:
-            print("Error durante la conexión:", ex)
-            messagebox.showerror("Error", f"Error durante la conexión: {ex}")
-        finally:
-            if mariadb_conexion:
-                mariadb_conexion.close()
