@@ -3,7 +3,7 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
-from Books.backend.db_books import *
+from books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
@@ -1280,8 +1280,10 @@ class L_Modificar(tk.Toplevel):
         self.boton_modificar.place_forget()  # Ocultar el botón inicialmente
         print("Botón 'Modificar' creado y oculto inicialmente.")"""
     def cancelar(self, window):
-        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
-            window.destroy()  
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana? Todos los cambios no guardados en el libro se perderán.", parent=self):
+            window.destroy()
+
+
     def mostrar_boton_modificar(self):
         self.boton_modificar.place(x=61.0, y=465.0, width=130.0, height=40.0)
         print("Botón 'Modificar' mostrado.")
