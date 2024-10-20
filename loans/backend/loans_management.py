@@ -196,7 +196,7 @@ class P_Listar(tk.Frame):
         scrollbar_pt = ttk.Scrollbar(self.prestamo_table, orient="vertical", command=self.prestamo_table.yview)
         self.prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
-
+    
     def imprimir_seleccionado(self):
         selected_items = self.prestamo_table.selection()
         if not selected_items:
@@ -222,6 +222,8 @@ class P_Listar(tk.Frame):
         register_loan_window.geometry("1355x600")
         register_loan_window.config(bg="#042344")
         register_loan_window.resizable(False, False)
+        register_loan_window.grab_set()
+        register_loan_window.protocol("WM_DELETE_WINDOW", lambda:self.cancelar(register_loan_window))
         self.register_loan_window=register_loan_window
 
         # Crear el marco izquierdo para el menú de navegación
@@ -387,6 +389,8 @@ class P_Listar(tk.Frame):
         filter_window.config(bg="#042344")
         
         filter_window.resizable(False, False)
+        filter_window.grab_set()
+        filter_window.protocol("WM_DELETE_WINDOW", lambda:self.cancelar(filter_window))
         rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)
         
@@ -452,6 +456,8 @@ class P_Listar(tk.Frame):
         filter_window.geometry("950x550")
         filter_window.config(bg="#042344")
         filter_window.resizable(False, False)
+        filter_window.grab_set()
+        filter_window.protocol("WM_DELETE_WINDOW", lambda:self.cancelar(filter_window))
         rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)
         tk.Label(filter_window, text="Modificación De Préstamo", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=235.0, y=15.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#grid(row=0, column=5, padx=10, pady=5)
@@ -567,7 +573,8 @@ ID Libro Préstamo: {ID_Libro_Prestamo}
         filter_books(self)
             
     def cancelar(self, window):
-        window.destroy()  # Esto cerrará la ventana de filtro
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()  # Esto cerrará la ventana de filtro
 
     def on_treeview_select(self, event):
         # Obtener el elemento seleccionado

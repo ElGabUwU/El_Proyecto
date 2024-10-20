@@ -7,8 +7,8 @@ from Books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
-#import mariadb
 from db.conexion import establecer_conexion
+
 def validate_number_input(text):
         if text == "":
             return True
@@ -182,7 +182,6 @@ class L_Listar(tk.Frame):
         
         else:
             delete_selected(self)
-
     def open_registrar_window(self):
         # Llamar directamente a la clase L_Registrar sin necesidad de seleccionar un elemento
         L_Registrar(self.parent)
@@ -428,7 +427,8 @@ class L_Listar(tk.Frame):
    
 
     def cancelar(self, window):
-        window.destroy()  # Esto cerrará la ventana de filtro
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()  
 
 from validations.books_validations import *
 
@@ -441,6 +441,7 @@ class L_Registrar(tk.Toplevel):
         self.canvas.pack(side="left", fill="both", expand=False)
         self.resizable(False, False)
         self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
        # validate_number = self.register(validat e_number_input)
         self.images = {}
         self.salas_types = ["1I", "2E", "3G"]
@@ -488,13 +489,31 @@ class L_Registrar(tk.Toplevel):
                 activebackground="#031A33", # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
             ).place(x=61.0, y=465.0, width=130.0, height=40.0)
+        
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+        self.boton_C = tk.Button(
+            self,
+            image=self.images['boton_c'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(self),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=250.0, y=465.0, width=130.0, height=40.0)
           
             
         
         self.inicializar_titulos()
         self.inicializar_campos_y_widgets()
         self.validacion_sala(None)
-
+    #def are_u_sure(self):
+    
+    def cancelar(self, window):
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy() 
     def inicializar_titulos(self):
         
         self.canvas.create_rectangle(0, 0, 1142, 74, fill="#2E59A7")
@@ -799,8 +818,10 @@ class L_Modificar(tk.Toplevel):
         super().__init__( *args, **kwargs)
         self.title("Modificar")
         self.book_data = book_data
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
         
         self.grab_set()
+        
         """self.geometry("1366x768")
         longitudes = obtener_longitudes_min_max()
         if longitudes:
@@ -1056,6 +1077,7 @@ class L_Modificar(tk.Toplevel):
                 return "break"
             current_text = longitud_editorial(current_text)
             formatted_text = validar_y_formatear_texto(current_text)
+            formatted_text = current_text.title
         elif widget == self.ano_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
@@ -1207,7 +1229,7 @@ class L_Modificar(tk.Toplevel):
         )    
         print(f"Errores: {errores}")  # Agregar esta línea para depuración
         if errores:        
-            messagebox.showerror("Error", "\n".join("-",(errores),parent=self))
+            messagebox.showerror("Error al modificar", "Por favor, corrija los siguientes errores:\n\n" + "\n".join(f"- {msg}" for msg in errores),parent=self)
             return
         print("Datos recogidos:")    
         for key, value in nuevos_valores.items():        
@@ -1238,11 +1260,27 @@ class L_Modificar(tk.Toplevel):
             activebackground="#031A33",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
          )
+        
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+        self.boton_C = tk.Button(
+            self,
+            image=self.images['boton_c'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(self),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=250.0, y=465.0, width=130.0, height=40.0)
          # Asignar la posición del botón
         """self.boton_modificar.place(x=263.0, y=635.0, width=130.0, height=40.0)
         self.boton_modificar.place_forget()  # Ocultar el botón inicialmente
         print("Botón 'Modificar' creado y oculto inicialmente.")"""
-        
+    def cancelar(self, window):
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+            window.destroy()  
     def mostrar_boton_modificar(self):
         self.boton_modificar.place(x=61.0, y=465.0, width=130.0, height=40.0)
         print("Botón 'Modificar' mostrado.")
@@ -1265,56 +1303,3 @@ class L_Modificar(tk.Toplevel):
         self.registro_m.delete(0, tk.END)
         self.ano_m.delete(0, tk.END)
         
-        
-class L_Eliminar(tk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1366, height=768)
-        self.canvas.pack(side="left", fill="both", expand=False)
-        validate_number = self.register(validate_number_input)
-        self.images = {}
-
-        # Formulario para el eliminar
-        self.label_info = self.canvas.create_text(263.0, 106.0, anchor="nw", text="Ingrese la información del libro a Eliminar", fill="#a6a6a6", font=("Bold", 15))
-        
-        # Texto para el nombre
-        self.label_nombre = self.canvas.create_text(263.0, 152.0, anchor="nw", text="ID", fill="#a6a6a6", font=("Bold", 17))
-        
-        self.id_eliminar = tk.Entry(self, bd=0,bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.id_eliminar.place(x=263.0, y=182.0, width=237.0, height=38.0)
-
-        # Cargar y almacenar las imágenes
-        self.images['boton_Eliminar_f'] = tk.PhotoImage(file=relative_to_assets("Boton_eliminar.png"))
-        
-        # Cargar y almacenar la imagen del botón
-        self.button_e = tk.Button(
-            self,
-            image=self.images['boton_Eliminar_f'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: delete_book(self),
-            relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
-            activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
-        )
-        self.button_e.place(x=265.0, y=264.0, width=130.0, height=40.0)
-        
-        def delete_book(self):
-            ID_Libro=self.id_eliminar.get() if self.id_eliminar else None
-            if ID_Libro:
-                # Confirmación antes de eliminar
-                respuesta = messagebox.askyesno("Confirmar Eliminación", "¿Estás seguro de que deseas eliminar este libro?")
-                if respuesta:
-                    if delete_books(ID_Libro):
-                        messagebox.showinfo("Éxito", "Eliminación exitosa del libro.")
-                        self.clear_entries_delete()
-                    else:
-                        messagebox.showinfo("Falla en la Eliminación", "El libro no existe o ya fue eliminado.")
-                else:
-                    messagebox.showinfo("Cancelado", "Eliminación cancelada.")
-            else:
-                messagebox.showinfo("Error", "Por favor, proporciona un ID de libro válido.")
-        
-    def clear_entries_delete(self):
-        self.id_eliminar.delete(0, tk.END)
