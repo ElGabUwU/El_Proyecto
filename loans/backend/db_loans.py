@@ -2,8 +2,9 @@ import mysql.connector as mariadb
 from colorama import init, Fore, Back, Style
 from db.conexion import establecer_conexion
 from tkinter import messagebox
-import mysql.connector
 from mysql.connector import Error
+from validations.loans_validations import generate_alphanumeric_id
+from datetime import datetime
 
 init(autoreset=True)
 # Conectar a la base de datos
@@ -47,6 +48,7 @@ def modify_client_loans(id_cliente, new_cedula, nombre, apellido, telefono, dire
             cursor.close()
             mariadb_conexion.close()
 
+# Función para crear un préstamo
 def create_loan(ID_Prestamo, fecha_registrar, fecha_limite):
     try:
         mariadb_conexion = establecer_conexion()
@@ -63,6 +65,25 @@ def create_loan(ID_Prestamo, fecha_registrar, fecha_limite):
 
     finally:
         if mariadb_conexion:#.is_connected():
+            cursor.close()
+            mariadb_conexion.close()
+
+#Chequeador de ID Prestamo/Cliente en el mismo día con otro libro
+def check_existing_loan(ID_Cliente, fecha_registrar):
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            fecha_hoy = fecha_registrar.strftime('%Y-%m-%d')
+            sql_check_query = """SELECT ID_Prestamo FROM prestamo WHERE ID_Cliente = %s AND DATE(Fecha_Registro) = %s"""
+            cursor.execute(sql_check_query, (ID_Cliente, fecha_hoy))
+            result = cursor.fetchone()
+            return result[0] if result else None
+    except Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return None
+    finally:
+        if mariadb_conexion:
             cursor.close()
             mariadb_conexion.close()
 
@@ -126,7 +147,7 @@ def update_prestamo_with_usuario(ID_Prestamo, ID_Usuario):
             cursor.close()
             mariadb_conexion.close()
 
-def create_libro_prestamo(ID_Libro_Prestamo, ID_Prestamo, ID_Libro, Cantidad):
+def create_libro_prestamo(ID_Libro_Prestamo, ID_Prestamo, ID_Libro):
     try:
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:
@@ -135,8 +156,8 @@ def create_libro_prestamo(ID_Libro_Prestamo, ID_Prestamo, ID_Libro, Cantidad):
             cursor.execute('SELECT COUNT(*) FROM libros_prestamo WHERE ID_Libro_Prestamo = %s', (ID_Libro_Prestamo,))
             if cursor.fetchone()[0] == 0:
                 # Consulta SQL para insertar un nuevo registro en libros_prestamo
-                sql_insert_query = """INSERT INTO libros_prestamo (ID_Libro_Prestamo, ID_Prestamo, ID_Libro, Cantidad) VALUES (%s, %s, %s, %s)"""
-                cursor.execute(sql_insert_query, (ID_Libro_Prestamo, ID_Prestamo, ID_Libro, Cantidad))
+                sql_insert_query = """INSERT INTO libros_prestamo (ID_Libro_Prestamo, ID_Prestamo, ID_Libro) VALUES (%s, %s, %s)"""
+                cursor.execute(sql_insert_query, (ID_Libro_Prestamo, ID_Prestamo, ID_Libro))
                 mariadb_conexion.commit()
                 return True
             else:
@@ -152,7 +173,7 @@ def create_libro_prestamo(ID_Libro_Prestamo, ID_Prestamo, ID_Libro, Cantidad):
             cursor.close()
             mariadb_conexion.close()
 
-def update_prestamo_and_libro(ID_Prestamo, ID_Cliente, ID_Libro, ID_Libro_Prestamo, Cantidad):
+def update_prestamo_and_libro(ID_Prestamo, ID_Cliente, ID_Libro, ID_Libro_Prestamo):
     try:
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:
@@ -164,8 +185,8 @@ def update_prestamo_and_libro(ID_Prestamo, ID_Cliente, ID_Libro, ID_Libro_Presta
             cursor.execute("SELECT 1 FROM libros_prestamo WHERE ID_Libro_Prestamo = %s", (ID_Libro_Prestamo,))
             if cursor.fetchone() is None:
                 # Insertar en libros_prestamo si no existe
-                sql_insert_libro_prestamo = """INSERT INTO libros_prestamo (ID_Libro_Prestamo, ID_Prestamo, Cantidad) VALUES (%s, %s, %s)"""
-                cursor.execute(sql_insert_libro_prestamo, (ID_Libro_Prestamo, ID_Prestamo, Cantidad))
+                sql_insert_libro_prestamo = """INSERT INTO libros_prestamo (ID_Libro_Prestamo, ID_Prestamo) VALUES (%s, %s)"""
+                cursor.execute(sql_insert_libro_prestamo, (ID_Libro_Prestamo, ID_Prestamo))
             
             # Actualizar prestamo con ID_Cliente, ID_Libro y ID_Libro_Prestamo
             sql_update_prestamo = """UPDATE prestamo SET ID_Cliente = %s, ID_Libro = %s, ID_Libro_Prestamo = %s WHERE ID_Prestamo = %s"""
@@ -218,24 +239,6 @@ def read_client_loans():
             return resultados
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
-
-
-def libro_prestamo_exists(new_id):
-    try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            cursor = mariadb_conexion.cursor()
-            # Verificar si el ID_Libro_Prestamo existe en la tabla libros_prestamo
-            cursor.execute("SELECT 1 FROM libros_prestamo WHERE ID_Libro_Prestamo = %s", (new_id,))
-            result = cursor.fetchone()
-            return result is not None
-    except mariadb.Error as e:
-        print(f"Error al conectar a la base de datos: {e}")
-        return False
-    finally:
-        if mariadb_conexion:
-            cursor.close()
-            mariadb_conexion.close()
 
 # Actualizar un prestamo
 def update_client_loans(id_prestamo, cantidad, fecha_limite):

@@ -3,7 +3,7 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
-from books.backend.db_books import *
+from Books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
@@ -154,7 +154,7 @@ class L_Listar(tk.Frame):
 
         # Aplica el estilo al Treeview listado de libros
         tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición","N° Volúmenes", "N° Ejemplares" )
-        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview",selectmode="browse")
+        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview")
 
         # Set specific widths for "ID" and "Sala"
         self.book_table_list.column("ID", width=50, anchor="center")
@@ -172,7 +172,7 @@ class L_Listar(tk.Frame):
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
 
-        #self.book_table_list.bind("<Double-1>", self.on_book_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
+        self.book_table_list.bind("<Double-1>", self.on_book_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
         self.reading_books(self.book_table_list)
 
     def verificar_eliminar(self):
@@ -182,6 +182,7 @@ class L_Listar(tk.Frame):
         
         else:
             delete_selected(self)
+
     def open_registrar_window(self):
         # Llamar directamente a la clase L_Registrar sin necesidad de seleccionar un elemento
         L_Registrar(self.parent)
@@ -195,7 +196,6 @@ class L_Listar(tk.Frame):
          else:
              messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un libro para modificarlo.")
    
-
 
     def boton_buscar(self, event):
         busqueda= self.buscar.get()
@@ -275,10 +275,7 @@ class L_Listar(tk.Frame):
             print("No se ha seleccionado ningún libro.")
             messagebox.showerror("Error", "No se ha seleccionado ningún libro.")
 
-
-
-
-    def open_filter_window(self,parent):
+    def open_filter_window(self):
         filter_window = tk.Toplevel(self)
         filter_window.title("Filtrar")
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
@@ -395,43 +392,44 @@ class L_Listar(tk.Frame):
 
         self.book_table_list.tag_configure('match', background='green')
         self.book_table_list.tag_configure('nomatch', background='gray')
-    
-    def reading_books(self,book_table_list):
-                            try:
-                                mariadb_conexion = establecer_conexion()
-                                if mariadb_conexion:#.is_connected():
-                                    cursor = mariadb_conexion.cursor()
-                                    cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion,n_volumenes, n_ejemplares FROM libro')
-                                    resultados = cursor.fetchall() 
-                                    for row in book_table_list.get_children():
-                                        book_table_list.delete(row)
-                                         # Configurar las etiquetas para los colores
-                                    book_table_list.tag_configure('multiple', background='lightblue')
-                                    book_table_list.tag_configure('single', background='#E5E1D7')
-                                        
-                                        # Insertar los datos en el Treeview
-                                    for fila in resultados:
-                                        book_id = fila[0]
-                                        n_ejemplares = fila[11]
-                                        tag = 'multiple' if n_ejemplares > 1 else 'single'
-                                        parent = book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
-                                        # # Create and place the button
-                                        # button = tk.Button(self.book_table_list, text="Toggle Copies", command=lambda p=parent: self.toggle_copies(p))
-                                        # button.grid(row=0, column=0)
-                                                            
-                                        # if n_ejemplares > 1:
-                                        #     for i in range(1, n_ejemplares + 1):
-                                        #         # book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=("", "", "", "", "", "", "", "", "", "", "", "", ""), tags=('single',))
-                                        #         book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=tuple(fila), tags=('single',))
-                                    mariadb_conexion.close()
-                            except mariadb.Error as ex:
-                                    print("Error durante la conexión:", ex)
-                            except subprocess.CalledProcessError as e:
-                                print("Error al importar el archivo SQL:", e)
+
+    def reading_books(self, book_table_list):
+        try:
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+                cursor.execute('''
+                    SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares
+                    FROM libro
+                    WHERE estado_libro = 'activo'
+                ''')
+                resultados = cursor.fetchall()
+                
+                # Limpiar la tabla antes de insertar nuevos datos
+                for row in book_table_list.get_children():
+                    book_table_list.delete(row)
+                
+                # Configurar las etiquetas para los colores
+                book_table_list.tag_configure('multiple', background='lightblue')
+                book_table_list.tag_configure('single', background='#E5E1D7')
+                
+                # Insertar los datos en el Treeview
+                for fila in resultados:
+                    book_id = fila[0]
+                    n_ejemplares = fila[12]
+                    tag = 'multiple' if n_ejemplares > 1 else 'single'
+                    book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
+                
+                mariadb_conexion.close()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+        except subprocess.CalledProcessError as e:
+            print("Error al importar el archivo SQL:", e)
    
 
     def cancelar(self, window):
         window.destroy()  # Esto cerrará la ventana de filtro
+
 from validations.books_validations import *
 
 class L_Registrar(tk.Toplevel):

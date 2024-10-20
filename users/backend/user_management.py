@@ -112,7 +112,7 @@ class U_Listar(tk.Frame):
             image=self.images['boton_modificar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.open_modify_window(self),
+            command=lambda: self.open_modify_window(),
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -195,37 +195,37 @@ class U_Listar(tk.Frame):
         # Llamar directamente a la clase U_Registrar sin necesidad de seleccionar un elemento
             U_Registrar(self.parent)
 
-    def open_modify_window(self,parent):
+    def open_modify_window(self):
         filter_window = tk.Toplevel(self)
         filter_window.title("Modificar Usuario")
         filter_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
         filter_window.geometry("950x550")
         filter_window.config(bg="#042344")
         filter_window.resizable(False, False)
+        self.filter_window=filter_window
         rectangulo_color = tk.Label(filter_window, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)
-        tk.Label(filter_window, text="Modificación de Usuarios", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=225.0, y=20.0, width=450.0, height=35.0)#.pack(pady=20,expand=False)#grid(row=0, column=5, padx=10, pady=5)
-        tk.Label(filter_window, text="Ingrese los datos a modificar", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=10.0, y=90.0, width=330.0, height=35.0)#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=210.0, y=130.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#grid(row=1, column=0, padx=10, pady=5)
+        tk.Label(filter_window, text="Modificación de Usuarios", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=225.0, y=20.0, width=450.0, height=35.0)
+        tk.Label(filter_window, text="Ingrese los datos a modificar", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=10.0, y=90.0, width=330.0, height=35.0)
+        tk.Label(filter_window, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=210.0, y=130.0, width=120.0, height=35.0)
         self.id_cedula_entry = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.id_cedula_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=1, column=1, padx=10, pady=5)
+        self.id_cedula_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)
 
-        #tk.Label(filter_window, text="Ingrese el nuevo nombre de usuario", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="Nombre de Usuario", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=130.0, width=185.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=3, column=0, padx=10, pady=5)
+        tk.Label(filter_window, text="Nombre de Usuario", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=130.0, width=185.0, height=35.0)
         self.nombre_usuario_entry = tk.Entry(filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.nombre_usuario_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)#pack(expand=False)#.grid(row=3, column=1, padx=10, pady=5)
+        self.nombre_usuario_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)
 
-        #tk.Label(filter_window, text="Ingrese el nombre y apellido ", fg="#a6a6a6", bg="#2E59A7", font=("Bold", 17)).place()#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="Nombre", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=220.0, y=230.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=5, column=0, padx=10, pady=5)
+        tk.Label(filter_window, text="Nombre", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=220.0, y=230.0, width=120.0, height=35.0)
         self.nombre_entry = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.nombre_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=5, column=1, padx=10, pady=5)
-        tk.Label(filter_window, text="Apellido", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=230.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        self.nombre_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)
+        tk.Label(filter_window, text="Apellido", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=230.0, width=120.0, height=35.0)
         self.apellido_entry = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.apellido_entry.place(x=500.0, y=270.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
+        self.apellido_entry.place(x=500.0, y=270.0, width=190.0, height=35.0)
         tk.Label(filter_window, text="ID del usuario que será modificado", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=30.0, y=320.0, width=350.0, height=35.0)#.pack(pady=10, expand=False)
-        tk.Label(filter_window, text="ID", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=300.0, y=360.0, width=120.0, height=35.0)#.pack(pady=10,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        tk.Label(filter_window, text="ID", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=300.0, y=360.0, width=120.0, height=35.0)
         self.id_entry = tk.Entry(filter_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.id_entry.place(x=350.0, y=400.0, width=190.0, height=35.0)#.pack(expand=False)#.grid(row=6, column=1, padx=10, pady=5)
+        self.id_entry.place(x=350.0, y=400.0, width=190.0, height=35.0)
+        self.load_selected_user()
 
         self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
 
@@ -241,6 +241,7 @@ class U_Listar(tk.Frame):
             activeforeground="#FFFFFF"
         )
         self.boton_M.place(x=530.0, y=480.0, width=130.0, height=40.0)
+        # Cargar los datos del usuario seleccionado
         
         self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
 
@@ -256,6 +257,23 @@ class U_Listar(tk.Frame):
             activeforeground="#FFFFFF"
         )
         self.boton_C.place(x=270.0, y=480.0, width=130.0, height=40.0)
+
+    def load_selected_user(self):
+        selected_item = self.user_table_list.selection()
+        if selected_item:
+            item_values = self.user_table_list.item(selected_item, 'values')
+            self.id_cedula_entry.delete(0, tk.END)
+            self.id_cedula_entry.insert(0, item_values[1])
+            self.nombre_usuario_entry.delete(0, tk.END)
+            self.nombre_usuario_entry.insert(0, item_values[2])
+            self.nombre_entry.delete(0, tk.END)
+            self.nombre_entry.insert(0, item_values[3])
+            self.apellido_entry.delete(0, tk.END)
+            self.apellido_entry.insert(0, item_values[4])
+            self.id_entry.delete(0, tk.END)
+            self.id_entry.insert(0, item_values[0])
+        else:
+            messagebox.showwarning("Selección vacía", "Por favor, seleccione un usuario de la tabla.")
         
     def apply_modify_users(self):
             id_cedula= self.id_cedula_entry.get() #self.cota.get()
@@ -268,7 +286,8 @@ class U_Listar(tk.Frame):
                 if respuesta:
                     if update_user_list(id_cedula, name_user, nombre, apellido, id):
                         messagebox.showinfo("Éxito", "Modificación éxitosa del usuario")
-                            #return True
+                        self.clear_entries_modify_window()
+                        self.filter_window.destroy()
                     else:
                         messagebox.showinfo("Fallido", "No se pudo modificar al usuario.")
                             #return False
@@ -309,6 +328,13 @@ class U_Listar(tk.Frame):
 
     def cancelar(self, window):
         window.destroy()  # Esto cerrará la ventana de filtro
+
+    def clear_entries_modify_window(self):
+        self.nombre_entry.delete(0, tk.END)
+        self.apellido_entry.delete(0, tk.END)
+        self.id_cedula_entry.delete(0, tk.END)
+        self.nombre_usuario_entry.delete(0, tk.END)
+        self.id_entry.delete(0, tk.END)    
 
 class U_Registrar(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
@@ -433,6 +459,7 @@ class U_Registrar(tk.Toplevel):
             self.input_cedula.delete(0, tk.END)
             self.input_username.delete(0, tk.END)
             self.input_password.delete(0, tk.END)
+            self.destroy()
         else:
             messagebox.showinfo("Registro fallido", "Usuario no pudo registrarse.")
 
@@ -580,12 +607,8 @@ class U_Modificar(tk.Frame):
                 return 
             if update_user(cargo,nombre,apellido,cedula,username,password,id_user):
                 messagebox.showinfo("Éxito", "Modificación del libro éxitoso.")
-                self.cargo_combobox.set('')
-                self.input_nombre.delete(0, tk.END)
-                self.input_apellido.delete(0, tk.END)
-                self.input_cedula.delete(0, tk.END)
-                self.input_username.delete(0, tk.END)
-                self.input_password.delete(0, tk.END)
+                self.destroy()
+                self.clear_entries_modify()
             else:
                 messagebox.showinfo("Modificación fallida", "Libro no sufrio cambios.")
 
@@ -602,7 +625,15 @@ class U_Modificar(tk.Frame):
             activebackground="#031A33",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         ).place(x=265.0, y=565.0, width=130.0, height=40.0)
-        
+
+    def clear_entries_modify(self):
+        self.cargo_combobox.set('')
+        self.input_nombre.delete(0, tk.END)
+        self.input_apellido.delete(0, tk.END)
+        self.input_cedula.delete(0, tk.END)
+        self.input_username.delete(0, tk.END)
+        self.input_password.delete(0, tk.END)
+
 class U_Eliminar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)

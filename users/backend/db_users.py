@@ -165,6 +165,7 @@ def delete_selected_user(self):
     finally:
         if mariadb_conexion:
             mariadb_conexion.close()
+            
 def list_users_db(user_table_list):
     mariadb_conexion = establecer_conexion()
     try:

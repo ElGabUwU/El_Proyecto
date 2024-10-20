@@ -4,10 +4,9 @@ from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from PIL import Image, ImageTk
 from Library.librerias import *
-from books.backend.db_books import *
+from Books.backend.db_books import *
 import random
-import subprocess
-from books.backend.books_management import *
+from Books.backend.books_management import *
 from users.backend.user_management import *
 from loans.backend.loans_management import *
 from clients.backend.clients_management import *
@@ -168,9 +167,9 @@ class Menu(tk.Frame):
         from tkinter import ttk, messagebox
         from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
         sys.path.append(str(Path(__file__).resolve().parent))
-        from Login.backend.form_login import FormLogin
-        from Login.frontend.form_master import MasterPanel
-        from Login.frontend.from_login_designer import FormLoginDesigner
+        from users.backend.form_login import FormLogin
+        from users.frontend.form_master import MasterPanel
+        from users.frontend.from_login_designer import FormLoginDesigner
         import util.ventana as utl
         
         # Crear una instancia de MasterPanel y pasar el callback iniciar_starter
@@ -179,8 +178,8 @@ class Menu(tk.Frame):
         app.after(1500, master_panel.on_close)  # Esperar 1500 milisegundos antes de iniciar Starter
         master_panel.show()
     def iniciar_login(self):
-        from Login.backend.form_login import FormLogin, FormLoginDesigner
-        from Login.frontend.form_master import MasterPanel
+        from users.backend.form_login import FormLogin, FormLoginDesigner
+        from users.frontend.form_master import MasterPanel
         
         app = FormLogin()
         
