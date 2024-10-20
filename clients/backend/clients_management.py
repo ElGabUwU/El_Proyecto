@@ -113,7 +113,7 @@ class C_Listar(tk.Frame):
             image=self.images['boton_modificar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.open_modify_window(),
+            command=lambda: self.verify_selected_item(), #verificar que halla un elemento seleccionado antes de abrir la ventana emergente
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -176,11 +176,11 @@ class C_Listar(tk.Frame):
         self.input_cedula.place(x=33.0, y=130.0, width=190.0, height=35.0)
         #que es esto???
 
-        tk.Label(register_window, text="Nombre", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=238.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+        tk.Label(register_window, text="Nombres", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=243.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
         self.input_nombre = tk.Entry(register_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.input_nombre.place(x=263.0, y=130.0, width=190.0, height=35.0)
 
-        tk.Label(register_window, text="Apellido", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=469.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
+        tk.Label(register_window, text="Apellidos", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=474.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
         self.input_apellido = tk.Entry(register_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.input_apellido.place(x=493.0, y=130.0, width=190.0, height=35.0)
         
@@ -235,8 +235,15 @@ class C_Listar(tk.Frame):
 
         button_cancel = ttk.Button(filter_window, text="Cancelar", command=lambda: self.cancelar(filter_window), style="Custom.TButton")
         button_cancel.place(x=500.0, y=300.0, width=140.0, height=50.0)"""
-    
+    def verify_selected_item(self):
+        selected_item = self.clients_table_list_loans.selection()
+        if selected_item:
+            self.open_modify_window()
+        else:
+            messagebox.showwarning("Selección vacía", "Por favor, seleccione un cliente de la tabla.")
     def open_modify_window(self):
+        selected_item = self.clients_table_list_loans.selection()
+        
         modify_window = tk.Toplevel(self)
         modify_window.title("Modificar")
         modify_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
@@ -252,11 +259,12 @@ class C_Listar(tk.Frame):
         self.input_cedula.place(x=33.0, y=130.0, width=190.0, height=35.0)
         
 
-        tk.Label(modify_window, text="Nombre", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=238.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
+
+        tk.Label(modify_window, text="Nombres", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=243.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
         self.input_nombre = tk.Entry(modify_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.input_nombre.place(x=263.0, y=130.0, width=190.0, height=35.0)
 
-        tk.Label(modify_window, text="Apellido", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=469.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
+        tk.Label(modify_window, text="Apellidos", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=474.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
         self.input_apellido = tk.Entry(modify_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
         self.input_apellido.place(x=493.0, y=130.0, width=190.0, height=35.0)
         
@@ -346,8 +354,8 @@ class C_Listar(tk.Frame):
             self.input_direccion.delete(0, tk.END)
             self.input_direccion.insert(0, item_values[6])
             self.current_id_cliente = item_values[0]
-        else:
-            messagebox.showwarning("Selección vacía", "Por favor, seleccione un cliente de la tabla.")
+        """else:
+            messagebox.showwarning("Selección vacía", "Por favor, seleccione un cliente de la tabla.")"""
 
     def save_modifications(self):
         new_cedula = self.input_cedula.get()  # Si la cédula se puede modificar, obtén el nuevo valor

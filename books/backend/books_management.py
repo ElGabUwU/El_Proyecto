@@ -488,13 +488,28 @@ class L_Registrar(tk.Toplevel):
                 activebackground="#031A33", # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
             ).place(x=61.0, y=465.0, width=130.0, height=40.0)
+        
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+        self.boton_C = tk.Button(
+            self,
+            image=self.images['boton_c'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(self),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=250.0, y=465.0, width=130.0, height=40.0)
           
             
         
         self.inicializar_titulos()
         self.inicializar_campos_y_widgets()
         self.validacion_sala(None)
-
+    def cancelar(self, window):
+        window.destroy()  
     def inicializar_titulos(self):
         
         self.canvas.create_rectangle(0, 0, 1142, 74, fill="#2E59A7")
@@ -1239,11 +1254,26 @@ class L_Modificar(tk.Toplevel):
             activebackground="#031A33",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
          )
+        
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+        self.boton_C = tk.Button(
+            self,
+            image=self.images['boton_c'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(self),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=250.0, y=465.0, width=130.0, height=40.0)
          # Asignar la posición del botón
         """self.boton_modificar.place(x=263.0, y=635.0, width=130.0, height=40.0)
         self.boton_modificar.place_forget()  # Ocultar el botón inicialmente
         print("Botón 'Modificar' creado y oculto inicialmente.")"""
-        
+    def cancelar(self, window):
+        window.destroy()  
     def mostrar_boton_modificar(self):
         self.boton_modificar.place(x=61.0, y=465.0, width=130.0, height=40.0)
         print("Botón 'Modificar' mostrado.")

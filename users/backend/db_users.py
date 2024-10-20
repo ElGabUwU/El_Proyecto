@@ -76,7 +76,7 @@ def is_password(password, user):
 init(autoreset=True)
 # Conectar a la base de datos
 
-import mariadb
+#import mariadb
 
 def create_user(ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario, Clave):
     print("CARGO:", ID_Cargo, "ID_Rol:", ID_Rol, "Nombre:", Nombre, "APELLIDO:", Apellido, "CEDULA:", Cedula)

@@ -291,6 +291,20 @@ class U_Registrar(tk.Toplevel):
             activebackground="#031A33",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         ).place(x=61.0, y=465.0, width=130.0, height=40.0)
+        
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+        self.boton_C = tk.Button(
+            self,
+            image=self.images['boton_c'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(self),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=250.0, y=465.0, width=130.0, height=40.0)
 
                 #REVISAR COMO SE SUBIERON LOS CARGOS A LA BD PARA HACER LAS VALIDACIONES 
         stylebox = ttk.Style()
@@ -347,7 +361,8 @@ class U_Registrar(tk.Toplevel):
         self.inicializador_titulos()
         # self.register_user()
         # self.validacion_sala(None)
-    
+    def cancelar(self, window):
+        window.destroy()
     def inicializador_titulos(self):
         # Titulos de los inputs
         self.canvas.create_text(61.0, 106.0, anchor="nw", text="Ingrese la información del nuevo usuario a agregar", fill="#a6a6a6", font=("Bold", 17))
@@ -355,8 +370,8 @@ class U_Registrar(tk.Toplevel):
         self.canvas.create_text(61.0, 152.0, anchor="nw", text="Cargo", fill="#a6a6a6", font=("Bold", 17))
 
         #fila 2
-        self.canvas.create_text(61.0, 252.0, anchor="nw", text="Nombre", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(318.0, 252.0, anchor="nw", text="Apellido", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(61.0, 252.0, anchor="nw", text="Nombres", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(318.0, 252.0, anchor="nw", text="Apellidos", fill="#a6a6a6", font=("Bold", 17))
         self.canvas.create_text(575.0, 252.0, anchor="nw", text="Cedula", fill="#a6a6a6", font=("Bold", 17))
         
         #fila 3
@@ -487,7 +502,7 @@ class U_Modificar(tk.Toplevel):
         self.validate_number = self.register(validate_number_input)
         self.images = {}
         self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        self.geometry("950x550")
+        self.geometry("950x450")
         self.config(bg="#042344")
         self.resizable(False, False)
         self.grab_set()
@@ -502,22 +517,22 @@ class U_Modificar(tk.Toplevel):
         rectangulo_color = tk.Label(self, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)
         tk.Label(self, text="Modificación de Usuarios", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=225.0, y=20.0, width=450.0, height=35.0)
-        tk.Label(self, text="Ingrese los datos a modificar", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=10.0, y=100.0, width=330.0, height=35.0)
-        tk.Label(self, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=210.0, y=130.0, width=120.0, height=35.0)
+        tk.Label(self, text="Ingrese los datos a modificar", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=10.0, y=90.0, width=330.0, height=35.0)
+        tk.Label(self, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=210.0, y=150.0, width=120.0, height=35.0)
         self.id_cedula_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.id_cedula_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)
+        self.id_cedula_entry.place(x=240.0, y=190.0, width=190.0, height=35.0)
 
-        tk.Label(self, text="Nombre de Usuario", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=130.0, width=185.0, height=35.0)
+        tk.Label(self, text="Nombre de Usuario", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=493.0, y=150.0, width=185.0, height=35.0)
         self.nombre_usuario_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.nombre_usuario_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)
+        self.nombre_usuario_entry.place(x=500.0, y=190.0, width=190.0, height=35.0)
 
-        tk.Label(self, text="Nombre", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=220.0, y=230.0, width=120.0, height=35.0)
+        tk.Label(self, text="Nombres", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=220.0, y=250.0, width=120.0, height=35.0)
         self.nombre_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.nombre_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)
-
-        tk.Label(self, text="Apellido", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=500.0, y=230.0, width=120.0, height=35.0)
+        self.nombre_entry.place(x=240.0, y=290.0, width=190.0, height=35.0)
+        #esta mal la posicion!!!!!!!
+        tk.Label(self, text="Apellidos", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=482.0, y=250.0, width=120.0, height=35.0)
         self.apellido_entry = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.apellido_entry.place(x=500.0, y=270.0, width=190.0, height=35.0)
+        self.apellido_entry.place(x=500.0, y=290.0, width=190.0, height=35.0)
 
         
         self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
@@ -532,7 +547,7 @@ class U_Modificar(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_M.place(x=530.0, y=480.0, width=130.0, height=40.0)
+        self.boton_M.place(x=530.0, y=380.0, width=130.0, height=40.0)
 
         self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
         self.boton_C = tk.Button(
@@ -546,7 +561,7 @@ class U_Modificar(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_C.place(x=270.0, y=480.0, width=130.0, height=40.0)
+        self.boton_C.place(x=270.0, y=380.0, width=130.0, height=40.0)
 
     def apply_modify_users(self):
         # Implementa la lógica para aplicar los cambios

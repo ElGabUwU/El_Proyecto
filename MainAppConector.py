@@ -264,9 +264,9 @@ class Perfil(tk.Frame):
         #seccion de informacion del usuario
         self.canvas.create_text(263.0, 370.0, anchor="nw", text="Información del Usuario", fill="#040F21", font=("Montserrat Regular", 18))
         
-        self.canvas.create_text(263.0, 418.0, anchor="nw", text=f"Nombre: {self.parent.nombre}", fill="#042344", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 418.0, anchor="nw", text=f"Nombres: {self.parent.nombre}", fill="#042344", font=("Montserrat Regular", 15))
         
-        self.canvas.create_text(263.0, 467.0, anchor="nw", text=f"Apellido: {self.parent.apellido}", fill="#042344", font=("Montserrat Regular", 15))
+        self.canvas.create_text(263.0, 467.0, anchor="nw", text=f"Apellidos: {self.parent.apellido}", fill="#042344", font=("Montserrat Regular", 15))
 
         self.canvas.create_text(263.0, 516.0, anchor="nw", text=f"Cargo: {self.cargo}", fill="#042344", font=("Montserrat Regular", 15))
         
