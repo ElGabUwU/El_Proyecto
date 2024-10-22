@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from db.conexion import establecer_conexion
 #VALIDACION Y FORMATEO DE LO QUE INGRESA EL USUARIO
-import re
+
 
 # Validaciones para Título
 def longitud_titulo(texto, max_length=166):

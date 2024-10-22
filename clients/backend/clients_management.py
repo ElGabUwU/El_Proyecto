@@ -5,17 +5,18 @@ from tkinter import font
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from loans.backend.db_loans import *
 from Library.bd_prestamo_listado_Frames2 import *
-from tkcalendar import Calendar
-from datetime import datetime, timedelta
 import random
 import string
 from backend.loans_filters import *
 from db.conexion import establecer_conexion
 from tkinter import messagebox
-from util.Reporte_PDF import generar_pdf
-from loans.backend.models import Cliente, Libro
 from validations import clients_validations
-
+import re
+import tkinter as tk
+from tkinter import messagebox
+from clients.backend.db_clients import *
+from validations.clients_validations import capitalize_first_letter, limit_length
+from validations.clients_validations import *
 def validate_number_input(text):
         if text == "":
             return True
@@ -113,7 +114,7 @@ class C_Listar(tk.Frame):
             image=self.images['boton_modificar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.verify_selected_item(), #verificar que halla un elemento seleccionado antes de abrir la ventana emergente
+            command=lambda: self.open_modify_window(), #verificar que halla un elemento seleccionado antes de abrir la ventana emergente
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -216,173 +217,23 @@ class C_Listar(tk.Frame):
             image=self.images['boton_R'],
             borderwidth=0,
             highlightthickness=0,
-            command=self.register_client,
+            command=self.open_register_window,
             relief="flat",
             bg="#031A33",
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        
-        # Configurar eventos para validar entradas
-        self.input_cedula.bind("<KeyRelease>", lambda event: clients_validations.validate_entries(self, event))
-        self.input_nombre.bind("<KeyRelease>", lambda event: clients_validations.validate_entries(self, event))
-        self.input_apellido.bind("<KeyRelease>", lambda event: clients_validations.validate_entries(self, event))
-        self.input_telefono.bind("<KeyRelease>", lambda event: clients_validations.validate_entries(self, event))
-        self.input_direccion.bind("<KeyRelease>", lambda event: clients_validations.validate_entries(self, event))
+    def open_register_window(self):
+        C_Register(self)
 
-        # Crear un estilo personalizado
-        """style = ttk.Style()
-        style.configure("Custom.TButton", background="#2E59A7", foreground="#ffffff", font=("Bold", 22))
-
-        button_cancel = ttk.Button(filter_window, text="Cancelar", command=lambda: self.cancelar(filter_window), style="Custom.TButton")
-        button_cancel.place(x=500.0, y=300.0, width=140.0, height=50.0)"""
-    def verify_selected_item(self):
-        selected_item = self.clients_table_list_loans.selection()
-        if selected_item:
-            self.open_modify_window()
-        else:
-            messagebox.showwarning("Selección vacía", "Por favor, seleccione un cliente de la tabla.")
     def open_modify_window(self):
-        selected_item = self.clients_table_list_loans.selection()
-        
-        modify_window = tk.Toplevel(self)
-        modify_window.title("Modificar")
-        modify_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        modify_window.geometry("950x400")
-        modify_window.config(bg="#042344")
-        modify_window.resizable(False, False)
-        modify_window.grab_set()
-        modify_window.protocol("WM_DELETE_WINDOW", lambda:self.cancelar(modify_window))
-        self.modify_window=modify_window
-        rectangulo_color = tk.Label(modify_window, bg="#2E59A7", width=200, height=4)
-        rectangulo_color.place(x=0, y=0)
-        tk.Label(modify_window, text="Modificación de Clientes", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=270.0, y=20.0, width=420.0, height=35.0)
-        tk.Label(modify_window, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=3.0, y=100.0, width=120.0, height=35.0)
-        self.input_cedula = tk.Entry(modify_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.input_cedula.place(x=33.0, y=130.0, width=190.0, height=35.0)
-        
-
-
-        tk.Label(modify_window, text="Nombres", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=243.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.input_nombre = tk.Entry(modify_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.input_nombre.place(x=263.0, y=130.0, width=190.0, height=35.0)
-
-        tk.Label(modify_window, text="Apellidos", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=474.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
-        self.input_apellido = tk.Entry(modify_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.input_apellido.place(x=493.0, y=130.0, width=190.0, height=35.0)
-        
-        tk.Label(modify_window, text="Teléfono", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=700.0, y=100.0, width=120.0, height=35.0)
-        self.input_telefono = tk.Entry(modify_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.input_telefono.place(x=723.0, y=130.0, width=190.0, height=35.0)
-
-        tk.Label(modify_window, text="Dirección", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=14.0, y=200.0, width=120.0, height=35.0)
-        self.input_direccion = tk.Entry(modify_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.input_direccion.place(x=33.0, y=230.0, width=190.0, height=35.0)
-
-        self.modify_client()
-
-        # Cargar y almacenar las imágenes
-        self.images['boton_m'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
-
-        self.boton_R = tk.Button(
-            modify_window,
-            image=self.images['boton_m'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=self.save_modifications,
-            relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",
-            activeforeground="#FFFFFF"
-        )
-        #self.boton_R.place(x=265.0, y=450.0, width=130.0, height=40.0)
-        #self.boton_R.place_forget()  # Ocultar el botón inicialmente
-
-        
-        self.images['boton_C'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
-
-        self.boton_C = tk.Button(
-            modify_window,
-            image=self.images['boton_C'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda:self.cancelar(modify_window),
-            relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",
-            activeforeground="#FFFFFF"
-        )
-        self.boton_C.place(x=753.0, y=300.0, width=130.0, height=40.0)
-        
-        
-        # Vincular la validación a los eventos de los campos de entrada
-        self.input_cedula.bind("<KeyRelease>", lambda event: clients_validations.validate_entries(self, event))
-        self.input_nombre.bind("<KeyRelease>", lambda event: clients_validations.validate_entries(self, event))
-        self.input_apellido.bind("<KeyRelease>", lambda event: clients_validations.validate_entries(self, event))
-        self.input_telefono.bind("<KeyRelease>", lambda event: clients_validations.validate_entries(self, event))
-        self.input_direccion.bind("<KeyRelease>", lambda event: clients_validations.validate_entries(self, event))
-        
-    def cancelar(self, window):
-        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
-            window.destroy()  # Esto cerrará la ventana de filtro
-
-    def register_client(self):
-        ID_Cedula= self.input_cedula.get() 
-        nombre = self.input_nombre.get()
-        apellido = self.input_apellido.get()
-        telefono= str(self.input_telefono.get())
-        direccion=self.input_direccion.get()
-        if clients_validations.cedula_existe(self, ID_Cedula):
-            messagebox.showinfo("Error", "La cédula ya está registrada.")
-            self.clear_entries_register_loans()
-            return
-        if create_client_loans(ID_Cedula, nombre, apellido, telefono, direccion):
-            messagebox.showinfo("Éxito", "Registro éxitoso del cliente.")
-            self.clear_entries_register_loans()
-            self.register_window.destroy()
+        selected_items = self.clients_table_list_loans.selection()
+        if selected_items:
+            selected_item = selected_items[0]
+            item_values = self.clients_table_list_loans.item(selected_item, "values")
+            C_Modify(self, item_values)
         else:
-            messagebox.showinfo("Registro fallido", "Cliente no pudo ser registrado.")
-    
-    def modify_client(self):
-        selected_item = self.clients_table_list_loans.selection()
-        if selected_item:
-            item_values = self.clients_table_list_loans.item(selected_item, 'values')
-            self.input_cedula.delete(0, tk.END)
-            self.input_cedula.insert(0, item_values[2])
-            self.input_nombre.delete(0, tk.END)
-            self.input_nombre.insert(0, item_values[3])
-            self.input_apellido.delete(0, tk.END)
-            self.input_apellido.insert(0, item_values[4])
-            self.input_telefono.delete(0, tk.END)
-            self.input_telefono.insert(0, item_values[5])
-            self.input_direccion.delete(0, tk.END)
-            self.input_direccion.insert(0, item_values[6])
-            self.current_id_cliente = item_values[0]
-        """else:
-            messagebox.showwarning("Selección vacía", "Por favor, seleccione un cliente de la tabla.")"""
-
-    def save_modifications(self):
-        new_cedula = self.input_cedula.get()  # Si la cédula se puede modificar, obtén el nuevo valor
-        nombre = self.input_nombre.get()
-        apellido = self.input_apellido.get()
-        telefono = self.input_telefono.get()
-        direccion = self.input_direccion.get()
-        id_cliente = self.current_id_cliente
-    
-        if modify_client_loans(id_cliente, new_cedula, nombre, apellido, telefono, direccion):
-            messagebox.showinfo("Éxito", "Modificación exitosa del cliente.")
-            self.clear_entries_register_loans()
-            self.modify_window.destroy()
-        else:
-            messagebox.showerror("Error", "Cliente no pudo ser modificado.")
-        
-    def clear_entries_register_loans(self):
-        self.input_cedula.delete(0, tk.END)
-        self.input_nombre.delete(0, tk.END)
-        self.input_apellido.delete(0, tk.END)
-        self.input_telefono.delete(0, tk.END)
-        self.input_direccion.delete(0, tk.END)
-        #self.input_cantidad.delete(0, tk.END)
+            messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un cliente para modificarlo.")
 
     def boton_buscar(self, event):
         busqueda= self.buscar.get()
@@ -413,3 +264,572 @@ class C_Listar(tk.Frame):
                             messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
         except mariadb.Error as ex:
                 print("Error durante la conexión:", ex)
+
+class C_Modify(tk.Toplevel):
+    def __init__(self, parent, client_data, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.parent = parent
+        self.title("Modificar")
+        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        self.geometry("950x400")
+        self.config(bg="#042344")
+        self.resizable(False, False)
+        self.validate_number = self.register(validate_number_input)
+        self.grab_set()
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar())
+        self.images = {}
+        
+        # Guardar los datos del cliente en un diccionario
+        self.client_data = {
+            "ID": client_data[0],
+            "ID_Prestamo" : client_data[1],
+            "Cedula": client_data[2],
+            "Nombre": client_data[3], 
+            "Apellido": client_data[4],
+            "Telefono" :client_data[5],
+            "Direccion" : client_data[6]  
+        }
+        self.original_values_client = self.client_data.copy()
+        print(self.client_data,"\n",self.original_values_client)
+        
+        #Initialize input fields and other elements
+        self.create_widgets()
+        self.crear_boton_modificar()
+        self.crear_boton_modificar_inactivo()
+        self.crear_boton_restaurar()
+        self.crear_boton_cancelar()
+        self.insert_values_client()
+        
+
+
+            
+        
+    def create_widgets(self):
+        rectangulo_color = tk.Label(self, bg="#2E59A7", width=200, height=4)
+        rectangulo_color.place(x=0, y=0)
+        tk.Label(self, text="Modificación de Clientes", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=270.0, y=20.0, width=420.0, height=35.0)
+
+        tk.Label(self, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=3.0, y=100.0, width=120.0, height=35.0)
+        self.input_cedula = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(self.validate_number, "%P"))
+        self.input_cedula.place(x=33.0, y=130.0, width=190.0, height=35.0)
+        self.input_cedula.bind("<Return>", self.focus_next_widget)
+        self.input_cedula.bind("<KeyPress>", self.on_key_press_modify)
+        self.input_cedula.bind("<KeyRelease>", self.check_changes)
+
+        tk.Label(self, text="Nombres", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=243.0, y=100.0, width=120.0, height=35.0)
+        self.input_nombre = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_nombre.place(x=263.0, y=130.0, width=190.0, height=35.0)
+        self.input_nombre.bind("<Return>", self.focus_next_widget)
+        self.input_nombre.bind("<KeyPress>", self.on_key_press_modify)
+        self.input_nombre.bind("<KeyRelease>", self.check_changes)
+
+        tk.Label(self, text="Apellidos", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=474.0, y=100.0, width=120.0, height=35.0)
+        self.input_apellido = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_apellido.place(x=493.0, y=130.0, width=190.0, height=35.0)
+        self.input_apellido.bind("<Return>", self.focus_next_widget)
+        self.input_apellido.bind("<KeyPress>", self.on_key_press_modify)
+        self.input_apellido.bind("<KeyRelease>", self.check_changes)
+
+        tk.Label(self, text="Teléfono", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=700.0, y=100.0, width=120.0, height=35.0)
+        self.input_telefono = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(self.validate_number, "%P"))
+        self.input_telefono.place(x=723.0, y=130.0, width=190.0, height=35.0)
+        self.input_telefono.bind("<Return>", self.focus_next_widget)
+        self.input_telefono.bind("<KeyPress>", self.on_key_press_modify)
+        self.input_telefono.bind("<KeyRelease>", self.check_changes)
+
+        tk.Label(self, text="Dirección", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=14.0, y=200.0, width=120.0, height=35.0)
+        self.input_direccion = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_direccion.place(x=33.0, y=230.0, width=190.0, height=35.0)
+        self.input_direccion.bind("<Return>", self.focus_next_widget)
+        self.input_direccion.bind("<KeyPress>", self.on_key_press_modify)
+        self.input_direccion.bind("<KeyRelease>", self.check_changes)
+
+
+    def insert_values_client(self):
+        self.clear_entries_modify_client()
+        self.input_cedula.insert(0, self.original_values_client["Cedula"])
+        self.input_nombre.insert(0, self.original_values_client["Nombre"])
+        self.input_apellido.insert(0, self.original_values_client["Apellido"])
+        self.input_telefono.insert(0, self.original_values_client["Telefono"])
+        self.input_direccion.insert(0, self.original_values_client["Direccion"])
+        print("Valores del cliente insertados:", self.original_values_client)
+        self.check_changes()
+
+    def clear_entries_modify_client(self):
+        self.input_cedula.delete(0, tk.END)
+        self.input_nombre.delete(0, tk.END)
+        self.input_apellido.delete(0, tk.END)
+        self.input_telefono.delete(0, tk.END)
+        self.input_direccion.delete(0, tk.END)
+
+    def focus_next_widget(self, event):
+        event.widget.tk_focusNext().focus()
+        return "break"
+    
+    def on_key_press_modify(self, event):
+        widget = event.widget
+        current_text = widget.get()
+        
+        if widget == self.input_cedula:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = limit_length(new_text, 10)
+            formatted_text = new_text
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+        
+        elif widget == self.input_nombre or widget == self.input_apellido:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isalpha() and event.char != " ":
+                return "break"
+
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = limit_length(new_text, 30)
+            formatted_text = capitalize_first_letter(new_text)
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+        
+        elif widget == self.input_telefono:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = limit_length(new_text, 11)
+            formatted_text = new_text
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+        
+        elif widget == self.input_direccion:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not allow_permitted_characters(event.char):
+                return "break"
+
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = limit_length(new_text, 100)
+            formatted_text = new_text
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+
+
+    def check_changes(self, *args):
+        try:
+            # Obtener los valores actuales de los campos de cliente
+            current_values = {
+                "Nombre": self.input_nombre.get().strip(),
+                "Apellido": self.input_apellido.get().strip(),
+                "Cedula": self.input_cedula.get().strip(),
+                "Telefono": self.input_telefono.get().strip(),
+                "Direccion": self.input_direccion.get().strip(),
+            }
+
+            # Comparar valores clave por clave
+            differences = []
+            for key in current_values:
+                if current_values[key] != self.original_values_client[key]:
+                    differences.append(f"Diferencia en {key}: {current_values[key]} (actual) != {self.original_values_client[key]} (original)")
+
+            if differences:
+                for diff in differences:
+                    print(diff)
+                self.mostrar_boton_modificar()
+                print("Se detectaron cambios. Botón 'Modificar' mostrado.")
+            else:
+                self.ocultar_boton_modificar()
+                self.mostrar_boton_modificar_inactivo()
+                print("No se detectaron cambios. Botón 'Modificar' inactivo mostrado.")
+        except Exception as e:
+            print(f"Error en check_changes: {e}")
+    def modify_client(self):
+        nuevos_valores = {
+            "Nombre": self.input_nombre.get(),
+            "Apellido": self.input_apellido.get(),
+            "Cedula": self.input_cedula.get(),
+            "Telefono": self.input_telefono.get(),
+            "Direccion": self.input_direccion.get(),
+        }
+        
+        id_cliente = self.original_values_client["ID"]
+        print(f"ID CLIENTE: {id_cliente}")
+        
+        # Validar los campos incluyendo el ID del cliente
+        errores = validar_campos(
+            nombre=self.input_nombre.get(),
+            apellido=self.input_apellido.get(),
+            cedula=self.input_cedula.get(),
+            telefono=self.input_telefono.get(),
+            direccion=self.input_direccion.get(),
+            tipo_validacion="modificar",
+            client_id=id_cliente
+        )
+        
+        print(f"Errores: {errores}")  # Agregar esta línea para depuración
+        if errores:
+            messagebox.showerror("Error al modificar", "Por favor, corrija los siguientes errores:\n\n" + "\n".join(f"- {msg}" for msg in errores), parent=self)
+            return
+        
+        print("Datos recogidos:")
+        for key, value in nuevos_valores.items():
+            print(f"{key}: {value}")
+
+        # Actualizar el cliente con los nuevos valores
+        client_data = {"id": id_cliente}
+        if update_client(client_data, nuevos_valores):
+            messagebox.showinfo("Éxito", "Modificación del cliente exitosa.", parent=self)
+            self.clear_entries_modify_client()
+            self.destroy()
+        else:
+            messagebox.showinfo("Modificación fallida", "Cliente mantiene sus valores.", parent=self)
+
+
+    def crear_boton_modificar(self):
+        try:
+            self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
+            print("Imagen del botón 'Modificar' cargada correctamente.")
+        except Exception as e:
+            print(f"Error al cargar la imagen del botón 'Modificar': {e}")
+            return
+        self.boton_modificar = tk.Button(
+            self,
+            image=self.images["boton_R"],
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.modify_client,
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_modificar.place(x=33.0, y=280.0, width=130.0, height=40.0)
+        self.boton_modificar.place_forget()
+        print("Botón 'Modificar' creado y oculto inicialmente.")
+
+    def crear_boton_modificar_inactivo(self):
+        try:
+            self.images['boton_R_inactivo'] = tk.PhotoImage(file=relative_to_assets("M_button_grey.png"))
+            print("Imagen del botón 'Modificar' inactivo cargada correctamente.")
+        except Exception as e:
+            print(f"Error al cargar la imagen del botón 'Modificar' inactivo: {e}")
+            return
+        self.boton_modificar_inactivo = tk.Button(
+            self,
+            image=self.images["boton_R_inactivo"],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_modificar_inactivo.place(x=33.0, y=280.0, width=130.0, height=40.0)
+        self.boton_modificar_inactivo.place_forget()
+        print("Botón 'Modificar' inactivo creado y oculto inicialmente.")
+
+    def mostrar_boton_modificar(self):
+        self.boton_modificar.place(x=33.0, y=280.0, width=130.0, height=40.0)
+        self.boton_modificar_inactivo.place_forget()
+        print("Botón 'Modificar' mostrado.")
+
+    def mostrar_boton_modificar_inactivo(self):
+        self.boton_modificar_inactivo.place(x=33.0, y=280.0, width=130.0, height=40.0)
+        self.boton_modificar.place_forget()
+        print("Botón 'Modificar' inactivo mostrado.")
+
+    def ocultar_boton_modificar(self):
+        self.boton_modificar.place_forget()
+        self.boton_modificar_inactivo.place_forget()
+        print("Botón 'Modificar' oculto.")
+
+    def crear_boton_cancelar(self):
+        try:
+            self.images['boton_C'] = tk.PhotoImage(file=relative_to_assets("c_button_red1.png"))
+            print("Imagen del botón 'Cancelar' cargada correctamente.")
+        except Exception as e:
+            print(f"Error al cargar la imagen del botón 'Cancelar': {e}")
+            return
+        self.boton_C = tk.Button(
+            self,
+            image=self.images["boton_C"],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=178.0, y=280.0, width=130.0, height=40.0)
+        print("Botón 'Cancelar' creado.")
+
+    def crear_boton_restaurar(self):
+        try:
+            self.images['boton_r'] = tk.PhotoImage(file=relative_to_assets("rest_button_green.png"))
+            print("Imagen del botón 'Restaurar' cargada correctamente.")
+        except Exception as e:
+            print(f"Error al cargar la imagen del botón 'Restaurar': {e}")
+            return
+        self.boton_R = tk.Button(
+            self,
+            image=self.images['boton_r'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.insert_values_client(),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_R.place(x=323.0, y=280.0, width=130.0, height=40.0)
+        print("Botón 'Restaurar' creado.")
+
+
+    def cancelar(self):
+        if messagebox.askyesno(
+            "Advertencia",
+            "¿Estás seguro de que quieres cerrar esta ventana? Todos los cambios no guardados se perderán.",parent=self
+        ):
+            self.destroy()  # Asegúrate de que 'self' se refiere a la ventana que quieres cerrar
+
+
+
+class C_Register(tk.Toplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.parent = parent
+        self.title("Registro")
+        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        self.geometry("950x400")
+        self.config(bg="#042344")
+        self.resizable(False, False)
+        self.validate_number = self.register(validate_number_input)
+        self.grab_set()
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar())
+        self.images = {}
+        
+        
+        #Initialize input fields and other elements
+        self.create_widgets()
+        self.crear_boton_register()
+        self.crear_boton_cancelar()
+       
+        
+
+
+            
+        
+    def create_widgets(self):
+        rectangulo_color = tk.Label(self, bg="#2E59A7", width=200, height=4)
+        rectangulo_color.place(x=0, y=0)
+        tk.Label(self, text="Registro de Clientes", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=270.0, y=20.0, width=420.0, height=35.0)
+
+        tk.Label(self, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=3.0, y=100.0, width=120.0, height=35.0)
+        self.input_cedula = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(self.validate_number, "%P"))
+        self.input_cedula.place(x=33.0, y=130.0, width=190.0, height=35.0)
+        self.input_cedula.bind("<Return>", self.focus_next_widget)
+        self.input_cedula.bind("<KeyPress>", self.on_key_press_register)
+
+        tk.Label(self, text="Nombres", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=243.0, y=100.0, width=120.0, height=35.0)
+        self.input_nombre = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_nombre.place(x=263.0, y=130.0, width=190.0, height=35.0)
+        self.input_nombre.bind("<Return>", self.focus_next_widget)
+        self.input_nombre.bind("<KeyPress>", self.on_key_press_register)
+        
+
+        tk.Label(self, text="Apellidos", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=474.0, y=100.0, width=120.0, height=35.0)
+        self.input_apellido = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_apellido.place(x=493.0, y=130.0, width=190.0, height=35.0)
+        self.input_apellido.bind("<Return>", self.focus_next_widget)
+        self.input_apellido.bind("<KeyPress>", self.on_key_press_register)
+        
+
+        tk.Label(self, text="Teléfono", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=700.0, y=100.0, width=120.0, height=35.0)
+        self.input_telefono = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(self.validate_number, "%P"))
+        self.input_telefono.place(x=723.0, y=130.0, width=190.0, height=35.0)
+        self.input_telefono.bind("<Return>", self.focus_next_widget)
+        self.input_telefono.bind("<KeyPress>", self.on_key_press_register)
+        
+
+        tk.Label(self, text="Dirección", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=14.0, y=200.0, width=120.0, height=35.0)
+        self.input_direccion = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
+        self.input_direccion.place(x=33.0, y=230.0, width=190.0, height=35.0)
+        self.input_direccion.bind("<Return>",lambda event : self.register_client())
+        self.input_direccion.bind("<KeyPress>", self.on_key_press_register)
+        
+
+
+    
+
+    def clear_entries_register_client(self):
+        self.input_cedula.delete(0, tk.END)
+        self.input_nombre.delete(0, tk.END)
+        self.input_apellido.delete(0, tk.END)
+        self.input_telefono.delete(0, tk.END)
+        self.input_direccion.delete(0, tk.END)
+
+    def focus_next_widget(self, event):
+        event.widget.tk_focusNext().focus()
+        return "break"
+    
+    def on_key_press_register(self, event):
+        widget = event.widget
+        current_text = widget.get()
+        
+        if widget == self.input_cedula:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = limit_length(new_text, 10)
+            formatted_text = new_text
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+        
+        elif widget == self.input_nombre or widget == self.input_apellido:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isalpha() and event.char != " ":
+                return "break"
+
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = limit_length(new_text, 30)
+            formatted_text = capitalize_first_letter(new_text)
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+        
+        elif widget == self.input_telefono:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not event.char.isdigit():
+                return "break"
+
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = limit_length(new_text, 11)
+            formatted_text = new_text
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+        
+        elif widget == self.input_direccion:
+            if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
+                return
+            if not allow_permitted_characters(event.char):
+                return "break"
+
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = limit_length(new_text, 100)
+            formatted_text = new_text
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+
+    def register_client(self):
+        nombre = self.input_nombre.get()
+        apellido = self.input_apellido.get()
+        cedula = self.input_cedula.get()
+        telefono = self.input_telefono.get()
+        direccion = self.input_direccion.get()
+
+        print(f"nombre: {nombre}, apellido: {apellido}, cedula: {cedula}")
+
+        errores = validar_campos(
+            nombre=nombre,
+            apellido=apellido,
+            cedula=cedula,
+            telefono=telefono,
+            direccion=direccion,
+            tipo_validacion="registro",
+            client_id=None
+        )
+        print(f"Errores: {errores}")  # Agregar esta línea para depuración
+        if errores:
+            messagebox.showerror("Error en el registro", "Por favor, corrija los siguientes errores:\n\n" + "\n".join(f"- {msg}" for msg in errores), parent=self)
+            return
+        print(errores)
+        if register_client_in_db(cedula, nombre, apellido, telefono, direccion):
+            messagebox.showinfo("Éxito", "Registro exitoso del usuario.", parent=self)
+            self.clear_entries_register_client()
+        else:
+            messagebox.showinfo("Registro fallido", "El usuario no pudo registrarse.", parent=self)
+    
+
+    def crear_boton_register(self):
+        try:
+            self.images['boton_register'] = tk.PhotoImage(file=relative_to_assets("R_button_light_blue.png"))
+            print("Imagen del botón 'Restaurar' cargada correctamente.")
+        except Exception as e:
+            print(f"Error al cargar la imagen del botón 'Restaurar': {e}")
+            return
+        self.boton_R = tk.Button(
+            self,
+            image=self.images['boton_register'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.register_client(),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_R.place(x=33.0, y=280.0, width=130.0, height=40.0)
+        print("Botón 'Registrar' creado.")
+
+    def crear_boton_cancelar(self):
+        try:
+            self.images['boton_C'] = tk.PhotoImage(file=relative_to_assets("c_button_red1.png"))
+            print("Imagen del botón 'Cancelar' cargada correctamente.")
+        except Exception as e:
+            print(f"Error al cargar la imagen del botón 'Cancelar': {e}")
+            return
+        self.boton_C = tk.Button(
+            self,
+            image=self.images["boton_C"],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_C.place(x=178.0, y=280.0, width=130.0, height=40.0)
+        print("Botón 'Cancelar' creado.")
+
+
+
+    def cancelar(self):
+        if messagebox.askyesno(
+            "Advertencia",
+            "¿Estás seguro de que quieres cerrar esta ventana? Todos los datos no guardados del cliente se perderán.",parent=self
+        ):
+            self.destroy()  # Asegúrate de que 'self' se refiere a la ventana que quieres cerrar

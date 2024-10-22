@@ -10,44 +10,6 @@ init(autoreset=True)
 # Conectar a la base de datos
 mariadb_conexion = establecer_conexion()
 
-# Crear un nuevo cliente-prestamo
-def create_client_loans(ID_Cedula, nombre, apellido, telefono, direccion):
-    try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:#.is_connected():
-            cursor = mariadb_conexion.cursor()
-            # Consulta SQL para insertar un nuevo cliente
-            sql_insert_query = """INSERT INTO cliente (Cedula_Cliente, Nombre, Apellido, Telefono, Direccion) VALUES (%s, %s, %s, %s, %s)"""
-            cursor.execute(sql_insert_query, (ID_Cedula, nombre, apellido, telefono, direccion))
-            mariadb_conexion.commit()
-            ID_Cliente = cursor.lastrowid  # Obtener el ID del cliente recién creado
-            return ID_Cliente
-    except Error as e:
-        print(f"Error al conectar a la base de datos: {e}")
-        return None
-    finally:
-        if mariadb_conexion:#.is_connected():
-            cursor.close()
-            mariadb_conexion.close()
-
-def modify_client_loans(id_cliente, new_cedula, nombre, apellido, telefono, direccion):
-    try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            cursor = mariadb_conexion.cursor()
-            # Consulta SQL para actualizar un cliente existente
-            sql_update_query = """UPDATE cliente SET Cedula_Cliente = %s, Nombre = %s, Apellido = %s, Telefono = %s, Direccion = %s WHERE ID_Cliente = %s"""
-            cursor.execute(sql_update_query, (new_cedula, nombre, apellido, telefono, direccion, id_cliente))
-            mariadb_conexion.commit()
-            return cursor.rowcount  # Devuelve el número de filas afectadas
-    except Error as e:
-        print(f"Error al conectar a la base de datos: {e}")
-        return None
-    finally:
-        if mariadb_conexion:
-            cursor.close()
-            mariadb_conexion.close()
-
 # Función para crear un préstamo
 def create_loan(ID_Prestamo, fecha_registrar, fecha_limite):
     try:
@@ -67,6 +29,10 @@ def create_loan(ID_Prestamo, fecha_registrar, fecha_limite):
         if mariadb_conexion:#.is_connected():
             cursor.close()
             mariadb_conexion.close()
+
+
+
+
 
 #Chequeador de ID Prestamo/Cliente en el mismo día con otro libro
 def check_existing_loan(ID_Cliente, fecha_registrar):

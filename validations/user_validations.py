@@ -14,8 +14,6 @@ def capitalize_first_letter(text):
 
 # VALIDACION DE DATOS CAMPOS INGRESADOS DE FORMA INCORRECTA
 def validate_username(username):
-    if not username:
-        return False, "El campo de nombre de usuario es obligatorio."
     if len(username) < 6 or len(username) > 12:
         return False, "El nombre de usuario debe tener entre 6 y 11 caracteres. Asegúrate de que tu nombre de usuario tenga la longitud adecuada."
     if not re.match(r'^[A-Z][a-zA-Z0-9_]*$', username):
@@ -25,8 +23,6 @@ def validate_username(username):
     return True, ""
 
 def validate_password(password):
-    if not password:
-        return False, "El campo de la contraseña es obligatorio."
     if len(password) < 8:
         return False, "La contraseña debe tener al menos 8 caracteres. Asegúrate de que tu contraseña sea lo suficientemente larga."
     if not re.search(r'[A-Z]', password):
@@ -38,14 +34,21 @@ def validate_password(password):
     if not re.search(r'[\W_]', password):
         return False, "La contraseña debe contener al menos un carácter especial. Incluye al menos un carácter especial en tu contraseña."
     return True, ""
+def validate_credentials(username, password):
+    if not username and not password:
+        return False, "El campo de nombre de usuario y el campo de la contraseña son obligatorios."
+    return True, ""
+
 
 def validate_name(name):
     if not name:
         return False, "El campo del nombre es obligatorio."
     if len(name) < 3 or len(name) > 30:
-        return False, "El nombre debe tener como minimo 3 caracteres."
+        return False, "El nombre debe tener como mínimo 3 caracteres."
+    if re.search(r'^\s', name):
+        return False, "El nombre no puede comenzar con un espacio."
     if re.search(r'\s{2,}', name):
-        return False, "El nombre no puede contener más de un espacios consecutivos."
+        return False, "El nombre no puede contener más de un espacio consecutivo."
     if name[-1] == " ":
         return False, "El nombre no puede terminar en un espacio."
     return True, ""
@@ -55,11 +58,14 @@ def validate_apellido(apellido):
         return False, "El campo del apellido es obligatorio."
     if len(apellido) < 4 or len(apellido) > 30:
         return False, "El apellido debe tener entre 4 y 30 caracteres."
+    if re.search(r'^\s', apellido):
+        return False, "El apellido no puede comenzar con un espacio."
     if re.search(r'\s{2,}', apellido):
-        return False, "El apellido no puede contener más de dos espacios consecutivos."
+        return False, "El apellido no puede contener más de un espacio consecutivo."
     if apellido[-1] == " ":
         return False, "El apellido no puede terminar en un espacio."
     return True, ""
+
 
 def validate_cedula(cedula):
     if not cedula:
@@ -111,18 +117,25 @@ def is_cedula_unique_for_user(cedula, user_id):
         return False, "No se pudo establecer conexión con la base de datos."
 
 
+
 def validar_campos(user_name, password, tipo_validacion="login", nombre=None, apellido=None, cedula=None, cargo=None, verify_password=None, user_id=None):
     error_messages = []
-    
+
     def add_error(is_valid, message):
         if not is_valid:
             error_messages.append(message)
-    
+
     try:
-        # Validar nombre de usuario
-        is_valid, message = validate_username(user_name)
-        add_error(is_valid, message)
+        # Validar que ambos campos estén vacíos
+        if not user_name and not password:
+            is_valid, message = validate_credentials(user_name, password)
+            add_error(is_valid, message)
         
+        # Validar nombre de usuario solo si no hay errores previos
+        if not error_messages:
+            is_valid, message = validate_username(user_name)
+            add_error(is_valid, message)
+
         # Obtener usuario de la base de datos solo si los datos anteriores son válidos (para login)
         if tipo_validacion == "login" and not error_messages:
             user_db = get_user_by_username(user_name)
@@ -137,44 +150,35 @@ def validar_campos(user_name, password, tipo_validacion="login", nombre=None, ap
         
         # Validaciones adicionales para registro
         if tipo_validacion == "registro":
-            # Validar nombre
             is_valid, message = validate_name(nombre)
             add_error(is_valid, message)
             
-            # Validar apellido
             is_valid, message = validate_apellido(apellido)
             add_error(is_valid, message)
             
-            # Validar cédula
             is_valid, message = validate_cedula(cedula)
             add_error(is_valid, message)
             if is_valid:
                 cedula_ok, message = is_cedula_registered(cedula)
                 add_error(cedula_ok, message)
             
-            # Validar cargo
             if not cargo or len(cargo.strip()) == 0:
                 error_messages.append("El campo de cargo es obligatorio.")
             
-            # Validar contraseña
             is_valid, message = validate_password(password)
             add_error(is_valid, message)
             
-            # Validar que las contraseñas coinciden
             if password != verify_password:
                 error_messages.append("Las contraseñas no coinciden.")
         
         # Validaciones adicionales para modificar
         if tipo_validacion == "modificar":
-            # Validar nombre
             is_valid, message = validate_name(nombre)
             add_error(is_valid, message)
             
-            # Validar apellido
             is_valid, message = validate_apellido(apellido)
             add_error(is_valid, message)
             
-            # Validar cédula
             is_valid, message = validate_cedula(cedula)
             add_error(is_valid, message)
             if is_valid:
@@ -184,15 +188,13 @@ def validar_campos(user_name, password, tipo_validacion="login", nombre=None, ap
                     cedula_ok, message = is_cedula_registered(cedula)
                 add_error(cedula_ok, message)
             
-            # Validar cargo
             if not cargo or len(cargo.strip()) == 0:
                 error_messages.append("El campo de cargo es obligatorio.")
             
-            # Validar contraseña
             is_valid, message = validate_password(password)
             add_error(is_valid, message)
-    
+
     except Exception as e:
         error_messages.append(f"Error inesperado: {str(e)}")
-    
+
     return error_messages

@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 from db.conexion import establecer_conexion
-import re
+
 
 #VALIDACION Y FORMATEO DE LO QUE INGRESA EL USUARIO
 # Validaciones para Título
