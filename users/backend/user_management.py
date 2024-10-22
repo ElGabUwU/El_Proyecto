@@ -178,7 +178,7 @@ class U_Listar(tk.Frame):
 
         # Crear y configurar el Treeview
         columns = ("ID Usuario", "Cargo", "ID Rol", "Nombre", "Apellido", "C.I", "Nombre Usuario")
-        self.user_table_list = ttk.Treeview(self.user_frame_list, columns=columns, show='headings', style="Rounded.Treeview")
+        self.user_table_list = ttk.Treeview(self.user_frame_list, columns=columns, show='headings', style="Rounded.Treeview",selectmode="browse")
 
         for col in columns:
             self.user_table_list.heading(col, text=col)

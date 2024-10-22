@@ -313,7 +313,7 @@ class Starter(tk.Tk):
         #self.U_frame_modificar = U_Modificar()
         self.U_frame_listar = U_Listar(self)
         #self.U_frame_registrar = U_Registrar(self)
-        self.P_frame_eliminar = P_Eliminar(self)
+#        self.P_frame_eliminar = P_Eliminar(self)
         #self.P_frame_modificar = Pdificar(self)
         self.P_frame_listar = P_Listar(self)
         self.P_frame_registrar = C_Listar(self)#CLIENTES
@@ -375,8 +375,8 @@ class Starter(tk.Tk):
     def mostrar_frame(self, frame):
         frames = [
             self.frame_bienvenida, self.L_frame_listar, 
-            self.U_frame_listar, #self.U_frame_modificar
-            self.P_frame_eliminar, self.P_frame_listar, #self.U_frame_registrar,
+            self.U_frame_listar,
+            self.P_frame_listar, 
             self.P_frame_registrar, self.frame_perfil
         ]
         

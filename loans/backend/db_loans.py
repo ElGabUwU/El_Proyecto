@@ -244,10 +244,17 @@ def delete_client_loans(self):
     if not selected_clients:
         messagebox.showwarning("Selección vacía", "Por favor, seleccione un cliente de la tabla.")
         return
+    
+    respuesta = messagebox.askyesno("Confirmar Eliminación", "¿Estás seguro de que deseas eliminar los clientes seleccionados?")
+    if not respuesta:
+        messagebox.showinfo("Cancelado", "Eliminación cancelada.")
+        return
+
     try:
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:
             cursor = mariadb_conexion.cursor()
+            clients_deleted = False
             for cliente in selected_clients:
                 item_cliente = self.clients_table_list_loans.item(cliente, 'values')
                 item_client = item_cliente[0]
@@ -257,16 +264,19 @@ def delete_client_loans(self):
                 
                 # Eliminar la fila del Treeview
                 self.clients_table_list_loans.delete(cliente)
-            
-            mariadb_conexion.commit()
-            messagebox.showinfo("Éxito", "El cliente ha sido eliminado.")
-            print(f"Cliente con ID {item_client} eliminado.")
+                clients_deleted = True
+
+            if clients_deleted:
+                mariadb_conexion.commit()
+                messagebox.showinfo("Éxito", "El cliente ha sido eliminado.")
+                print(f"Cliente con ID {item_client} eliminado.")
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
         messagebox.showerror("Error", f"Error durante la conexión: {ex}")
     finally:
         if mariadb_conexion:
             mariadb_conexion.close()
+
 
 def reading_clients(client_table_list_loans):
     try:
@@ -292,27 +302,38 @@ def delete_selected_prestamo(self):
     if not selected_items:
         messagebox.showwarning("Selección vacía", "Por favor, seleccione un préstamo de la tabla.")
         return
+    
+    respuesta = messagebox.askyesno("Confirmar Eliminación", "¿Estás seguro de que deseas eliminar los préstamos seleccionados?")
+    if not respuesta:
+        messagebox.showinfo("Cancelado", "Eliminación cancelada.")
+        return
+
     try:
         mariadb_conexion = establecer_conexion()
         if mariadb_conexion:
             cursor = mariadb_conexion.cursor()
+            prestamos_deleted = False
             for item in selected_items:
                 item_values = self.prestamo_table.item(item, 'values')
                 item_id = item_values[0]
-                
+
                 # Marcar el registro como eliminado en lugar de eliminarlo
                 cursor.execute('UPDATE prestamo SET estado = "eliminado" WHERE ID_Prestamo = %s', (item_id,))
                 
                 # Eliminar la fila del Treeview
                 self.prestamo_table.delete(item)
-            
-            mariadb_conexion.commit()
-            messagebox.showinfo("Éxito", "El préstamo ha sido marcado como eliminado.")
+                prestamos_deleted = True
+
+            if prestamos_deleted:
+                mariadb_conexion.commit()
+                messagebox.showinfo("Éxito", "El préstamo ha sido marcado como eliminado.")
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
+        messagebox.showerror("Error", f"Error durante la conexión: {ex}")
     finally:
         if mariadb_conexion:
             mariadb_conexion.close()
+
 
 def save_books_to_db(self, book_ids, id_prestamo, cantidad):
             try:

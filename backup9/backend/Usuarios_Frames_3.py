@@ -390,7 +390,7 @@ class U_Listar(tk.Frame):
         )
         self.boton_M.place(x=530.0, y=480.0, width=130.0, height=40.0)
         
-        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("c_button_red1.png"))
 
         self.boton_C = tk.Button(
             filter_window,

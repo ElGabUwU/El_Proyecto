@@ -15,8 +15,16 @@ class FormLogin(FormLoginDesigner):
     def verificar(self, event=None):
         user_name = self.user.get()
         password = self.password.get()
+        
         # Validar campos y obtener mensajes de error
         error_messages = validar_campos(user_name, password, tipo_validacion="login")
+        
+        # Verificar si el nombre de usuario es válido y si el usuario existe
+        if not error_messages:
+            is_valid_username, user_db = get_user_by_username(user_name)
+            if not is_valid_username:
+                error_messages.append("Usuario no encontrado. Por favor, verifica tu nombre de usuario.")
+        
         # Mostrar todos los mensajes de error acumulados en viñetas
         if error_messages:
             messagebox.showerror(
@@ -28,13 +36,32 @@ class FormLogin(FormLoginDesigner):
                 if "nombre de usuario" in message or "Usuario no encontrado" in message:
                     self.user.delete(0, tk.END)
                     self.password.delete(0, tk.END)
-                elif "contraseña" in message or "Contraseña incorrecta.":
+                elif "contraseña" in message or "Contraseña incorrecta." in message:
                     self.password.delete(0, tk.END)
         else:
-            usuario = iniciar_sesion(user_name, password)
-            # Si todas las validaciones pasan, destruir la ventana y mostrar el panel principal
-            self.ventana.destroy()
-            self.mostrar_master_panel()
+            # Validar la contraseña solo si el nombre de usuario es válido
+            if not is_user(user_db):
+                error_messages.append("Usuario no encontrado. Por favor, verifica tu nombre de usuario.")
+            else:
+                is_valid, message = validate_password(password)
+                if not is_valid:
+                    error_messages.append(message)
+                elif not is_password(password, user_db):
+                    error_messages.append("Contraseña incorrecta.")
+            
+            # Mostrar mensajes de error relacionados con la contraseña, si los hay
+            if error_messages:
+                messagebox.showerror(
+                    message="Por favor, corrija los siguientes errores:\n\n" + "\n".join(f"- {msg}" for msg in error_messages),
+                    title="Error"
+                )
+                self.password.delete(0, tk.END)
+            else:
+                # Si todas las validaciones pasan, destruir la ventana y mostrar el panel principal
+                usuario = iniciar_sesion(user_name, password)
+                self.ventana.destroy()
+                self.mostrar_master_panel()
+
 
 
 

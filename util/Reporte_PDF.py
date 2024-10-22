@@ -7,7 +7,15 @@ import tkinter as tk
 from tkinter import messagebox
 
 def formatear_fecha(fecha):
-    return datetime.strptime(fecha, "%Y-%m-%d").strftime("%d/%m/%Y")
+    try:
+        return datetime.strptime(fecha, "%Y-%m-%d").strftime("%d/%m/%Y")
+    except ValueError:
+        try:
+            return datetime.strptime(fecha, "%d/%m/%Y").strftime("%d/%m/%Y")
+        except ValueError:
+            print(f"Error: El formato de la fecha '{fecha}' no es válido.")
+            return fecha
+
 def formatear_fecha_titulo(fecha):
     return datetime.strptime(fecha, "%Y-%m-%d").strftime("%d_%m_%Y")
 def obtener_nombre_archivo_unico(nombre_archivo_base):
@@ -119,13 +127,30 @@ class PDF(FPDF):
         self.agregar_datos_cliente(cliente)
         self.agregar_datos_libro(libro, fecha_registro, fecha_limite)
         self.agregar_firmas()
-def generar_pdf(cliente, libro, fecha_registro, fecha_limite, nombre_archivo_base):
+
+def generar_pdf(cliente, books_data, prestamos_data, nombre_archivo_base):
     pdf = PDF()
     pdf.alias_nb_pages()
-    pdf.add_page()
 
-    # Añadir datos al PDF
-    pdf.agregar_datos_al_pdf(cliente, libro, fecha_registro, fecha_limite)
+    for index, book_data in enumerate(books_data):
+        pdf.add_page()
+        prestamo = prestamos_data[index]
+        libro = Libro(
+            cota=book_data["Cota"],
+            categoria=book_data["ID_Categoria"],
+            sala=book_data["ID_Sala"],
+            asignatura=book_data["ID_Asignatura"],
+            numero_registro=book_data["n_registro"],
+            autor=book_data["autor"],
+            titulo=book_data["titulo"],
+            num_volumenes=book_data["n_volumenes"],
+            num_ejemplares=book_data["n_ejemplares"],
+            edicion=book_data["edicion"],
+            año=book_data["año"],
+            editorial=book_data["editorial"]
+        )
+        # Añadir datos al PDF
+        pdf.agregar_datos_al_pdf(cliente, libro, formatear_fecha(prestamo["fecha_r"]), formatear_fecha(prestamo["fecha_en"]))
 
     # Establecer metadatos del documento
     pdf.set_title("Reporte de Libro")
@@ -137,27 +162,80 @@ def generar_pdf(cliente, libro, fecha_registro, fecha_limite, nombre_archivo_bas
     # Crear ventana de diálogo para guardar el archivo
     root = tk.Tk()
     root.withdraw()  # Oculta la ventana principal de tkinter
-    nombre_archivo_base = f"Reporte_Prestamo_{cliente.nombre}_{cliente.apellido}_{formatear_fecha_titulo(fecha_registro)}"
-    
-    # Obtener la ruta de la carpeta Documentos del usuario
     carpeta_documentos = os.path.expanduser("~/Documents")
-    
+
     nombre_archivo_final = asksaveasfilename(
         defaultextension=".pdf",
         initialfile=f"{nombre_archivo_base}.pdf",
         filetypes=[("PDF files", "*.pdf")],
-        initialdir=carpeta_documentos  # Establecer la carpeta Documentos como directorio inicial
+        initialdir=carpeta_documentos
     )
-    
+
     if nombre_archivo_final:
-        # Guardar el PDF
         verificar_y_guardar_pdf(pdf, nombre_archivo_final)
-        # Mostrar mensaje de éxito
         messagebox.showinfo("Éxito", "El reporte ha sido creado de forma exitosa.")
     else:
         print("Guardado cancelado.")
+        root.destroy()
+
+
+# def generar_pdf(cliente, libro, fecha_registro, fecha_limite, nombre_archivo_base):
+#     pdf = PDF()
+#     pdf.alias_nb_pages()
+#     pdf.add_page()
+
+#     # Añadir datos al PDF
+#     pdf.agregar_datos_al_pdf(cliente, libro, fecha_registro, fecha_limite)
+
+#     # Establecer metadatos del documento
+#     pdf.set_title("Reporte de Libro")
+#     pdf.set_author(f"{cliente.nombre} {cliente.apellido}")
+#     pdf.set_creator("Aplicación de la Biblioteca Pública de Rubio")
+#     pdf.set_subject("Reporte de préstamo de libros")
+#     pdf.set_keywords("Reporte,Libro,Préstamo,Biblioteca")
+
+#     # Crear ventana de diálogo para guardar el archivo
+#     root = tk.Tk()
+#     root.withdraw()  # Oculta la ventana principal de tkinter
+#     nombre_archivo_base = f"Reporte_Prestamo_{cliente.nombre}_{cliente.apellido}_{formatear_fecha_titulo(fecha_registro)}"
     
-    root.destroy()
+#     # Obtener la ruta de la carpeta Documentos del usuario
+#     carpeta_documentos = os.path.expanduser("~/Documents")
+    
+#     nombre_archivo_final = asksaveasfilename(
+#         defaultextension=".pdf",
+#         initialfile=f"{nombre_archivo_base}.pdf",
+#         filetypes=[("PDF files", "*.pdf")],
+#         initialdir=carpeta_documentos  # Establecer la carpeta Documentos como directorio inicial
+#     )
+    
+#     if nombre_archivo_final:
+#         # Guardar el PDF
+#         verificar_y_guardar_pdf(pdf, nombre_archivo_final)
+#         # Mostrar mensaje de éxito
+#         messagebox.showinfo("Éxito", "El reporte ha sido creado de forma exitosa.")
+#     else:
+#         print("Guardado cancelado.")
+    
+#     root.destroy()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

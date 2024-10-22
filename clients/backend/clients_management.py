@@ -141,8 +141,14 @@ class C_Listar(tk.Frame):
                         borderwidth=0)
 
         columns = ("ID Cliente","ID Prestamo", "N° Cedula", "Nombre", "Apellido", "Teléfono", "Dirección")
-        self.clients_table_list_loans= ttk.Treeview(self.right_frame_list_loans, columns=columns, show='headings', selectmode='extended', style="Rounded.Treeview")
-        
+        # Crear el Treeview con selectmode
+        self.clients_table_list_loans = ttk.Treeview(
+            self.right_frame_list_loans, 
+            columns=columns, 
+            show='headings', 
+            selectmode='browse',  # Aquí agregas el selectmode
+            style="Rounded.Treeview"
+        )        
         self.clients_table_list_loans.column("ID Cliente", width=20, anchor="center")
         self.clients_table_list_loans.column("ID Prestamo", width=20, anchor="center")
 
@@ -158,71 +164,9 @@ class C_Listar(tk.Frame):
 
         reading_clients (self.clients_table_list_loans)
     
-    def open_register_window(self):
-        register_window = tk.Toplevel(self)
-        register_window.title("Registro")
-        register_window.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        register_window.geometry("950x400")
-        register_window.config(bg="#042344")
-        register_window.resizable(False, False)
-        register_window.grab_set()
-        register_window.protocol("WM_DELETE_WINDOW", lambda:self.cancelar(register_window))
-        self.register_window=register_window
-        
-        
-        rectangulo_color = tk.Label(register_window, bg="#2E59A7", width=200, height=4)
-        rectangulo_color.place(x=0, y=0)  # Posición del rectángulo dentro de la ventana
-        tk.Label(register_window, text="Registro de Clientes", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=270.0, y=13.0, width=400.0, height=40.0)
-        tk.Label(register_window, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=3.0, y=100.0, width=120.0, height=35.0)
-        self.input_cedula = tk.Entry(register_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.input_cedula.place(x=33.0, y=130.0, width=190.0, height=35.0)
-        #que es esto???
-
-        tk.Label(register_window, text="Nombres", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=243.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=6, column=0, padx=10, pady=5)
-        self.input_nombre = tk.Entry(register_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.input_nombre.place(x=263.0, y=130.0, width=190.0, height=35.0)
-
-        tk.Label(register_window, text="Apellidos", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=474.0, y=100.0, width=120.0, height=35.0)#.pack(pady=5,expand=False)#.grid(row=7, column=0, padx=10, pady=5)
-        self.input_apellido = tk.Entry(register_window,  bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.input_apellido.place(x=493.0, y=130.0, width=190.0, height=35.0)
-        
-        tk.Label(register_window, text="Teléfono", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=700.0, y=100.0, width=120.0, height=35.0)
-        self.input_telefono = tk.Entry(register_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.input_telefono.place(x=723.0, y=130.0, width=190.0, height=35.0)
-
-        tk.Label(register_window, text="Dirección", fg="#CCCED1", bg="#042344", font=("Montserrat Regular",15)).place(x=14.0, y=200.0, width=120.0, height=35.0)
-        self.input_direccion = tk.Entry(register_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.input_direccion.place(x=33.0, y=230.0, width=190.0, height=35.0)
-
-                # Cargar y almacenar las imágenes
+    
                 
-        self.images['boton_C'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
-
-        self.boton_C = tk.Button(
-            register_window,
-            image=self.images['boton_C'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda:self.cancelar(register_window),
-            relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",
-            activeforeground="#FFFFFF"
-        )
-        self.boton_C.place(x=753.0, y=300.0, width=130.0, height=40.0)
-        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_button_light_blue.png"))
-
-        self.boton_R = tk.Button(
-            register_window,
-            image=self.images['boton_R'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=self.open_register_window,
-            relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",
-            activeforeground="#FFFFFF"
-        )
+      
     def open_register_window(self):
         C_Register(self)
 

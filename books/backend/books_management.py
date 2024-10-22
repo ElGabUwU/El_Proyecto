@@ -154,7 +154,7 @@ class L_Listar(tk.Frame):
 
         # Aplica el estilo al Treeview listado de libros
         tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición","N° Volúmenes", "N° Ejemplares" )
-        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview")
+        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview",selectmode="browse")
 
         # Set specific widths for "ID" and "Sala"
         self.book_table_list.column("ID", width=50, anchor="center")
@@ -490,7 +490,7 @@ class L_Registrar(tk.Toplevel):
                 activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
             ).place(x=61.0, y=465.0, width=130.0, height=40.0)
         
-        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
+        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("c_button_red1.png"))
         self.boton_C = tk.Button(
             self,
             image=self.images['boton_c'],
