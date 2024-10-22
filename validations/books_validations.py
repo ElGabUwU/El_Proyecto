@@ -173,8 +173,8 @@ def validar_titulo(titulo):
 def validar_autor(autor):
     if not autor:
         return "El campo autor es obligatorio."
-    if len(autor) < 5:
-        return "La longitud del nombre del autor debe ser al menos de 5 caracteres."
+    if len(autor) < 3:
+        return "La longitud del nombre del autor debe ser al menos de 3 caracteres."
     if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', autor):
         return "El nombre del autor solo puede contener letras y espacios."
     # Evitar más de dos espacios consecutivos

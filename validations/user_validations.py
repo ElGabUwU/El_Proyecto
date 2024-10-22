@@ -42,8 +42,8 @@ def validate_password(password):
 def validate_name(name):
     if not name:
         return False, "El campo del nombre es obligatorio."
-    if len(name) < 4 or len(name) > 30:
-        return False, "El nombre debe tener entre 4 y 30 caracteres."
+    if len(name) < 3 or len(name) > 30:
+        return False, "El nombre debe tener como minimo 3 caracteres."
     if re.search(r'\s{2,}', name):
         return False, "El nombre no puede contener más de un espacios consecutivos."
     if name[-1] == " ":
@@ -61,7 +61,14 @@ def validate_apellido(apellido):
         return False, "El apellido no puede terminar en un espacio."
     return True, ""
 
-def cedula_existe(cedula):
+def validate_cedula(cedula):
+    if not cedula:
+        return False, "El campo de la cédula es obligatorio."
+    if len(cedula) < 7 or len(cedula) > 10:
+        return False, "La cédula debe tener entre 7 y 10 caracteres."
+    return True, ""
+
+def is_cedula_registered(cedula):
     mariadb_conexion = establecer_conexion()
     if mariadb_conexion:
         cursor = mariadb_conexion.cursor()
@@ -79,67 +86,113 @@ def cedula_existe(cedula):
     else:
         return False, "No se pudo establecer conexión con la base de datos."
 
-def validate_cedula(cedula):
-    if not cedula:
-        return False, "El campo de la cédula es obligatorio."
-    if len(cedula) < 7 or len(cedula) > 10:
-        return False, "La cédula debe tener entre 7 y 10 caracteres."
-    return True, ""
+def is_cedula_unique_for_user(cedula, user_id):
+    mariadb_conexion = establecer_conexion()
+    if mariadb_conexion:
+        cursor = mariadb_conexion.cursor()
+        try:
+            # Verificar si la cédula ingresada es diferente a la del usuario original
+            query = "SELECT Cedula FROM usuarios WHERE ID_Usuario = %s"
+            cursor.execute(query, (user_id,))
+            cedula_original = cursor.fetchone()
+
+            if cedula_original and cedula != cedula_original[0]:
+                # Verificar si la nueva cédula ya está registrada por otro usuario
+                query = "SELECT ID_Usuario FROM usuarios WHERE Cedula = %s AND ID_Usuario != %s"
+                cursor.execute(query, (cedula, user_id))
+                result = cursor.fetchone()
+                if result:
+                    return False, f"La cédula {cedula} ya está en uso por otro usuario."
+            return True, ""
+        finally:
+            cursor.close()
+            mariadb_conexion.close()
+    else:
+        return False, "No se pudo establecer conexión con la base de datos."
 
 
-def validar_campos(user_name, password, tipo_validacion="login", nombre=None, apellido=None, cedula=None, cargo=None, verify_password=None):
+def validar_campos(user_name, password, tipo_validacion="login", nombre=None, apellido=None, cedula=None, cargo=None, verify_password=None, user_id=None):
     error_messages = []
     
-    # Validar nombre de usuario
-    is_valid, message = validate_username(user_name)
-    if not is_valid:
-        error_messages.append(message)
+    def add_error(is_valid, message):
+        if not is_valid:
+            error_messages.append(message)
     
-    # Obtener usuario de la base de datos solo si los datos anteriores son válidos (para login)
-    if tipo_validacion == "login" and not error_messages:
-        user_db = get_user_by_username(user_name)
-        if not is_user(user_db):
-            error_messages.append("Usuario no encontrado. Por favor, verifica tu nombre de usuario.")
-        else:
-            # Validar contraseña solo si el usuario es válido
+    try:
+        # Validar nombre de usuario
+        is_valid, message = validate_username(user_name)
+        add_error(is_valid, message)
+        
+        # Obtener usuario de la base de datos solo si los datos anteriores son válidos (para login)
+        if tipo_validacion == "login" and not error_messages:
+            user_db = get_user_by_username(user_name)
+            if not is_user(user_db):
+                error_messages.append("Usuario no encontrado. Por favor, verifica tu nombre de usuario.")
+            else:
+                # Validar contraseña solo si el usuario es válido
+                is_valid, message = validate_password(password)
+                add_error(is_valid, message)
+                if is_valid and not is_password(password, user_db):
+                    error_messages.append("Contraseña incorrecta.")
+        
+        # Validaciones adicionales para registro
+        if tipo_validacion == "registro":
+            # Validar nombre
+            is_valid, message = validate_name(nombre)
+            add_error(is_valid, message)
+            
+            # Validar apellido
+            is_valid, message = validate_apellido(apellido)
+            add_error(is_valid, message)
+            
+            # Validar cédula
+            is_valid, message = validate_cedula(cedula)
+            add_error(is_valid, message)
+            if is_valid:
+                cedula_ok, message = is_cedula_registered(cedula)
+                add_error(cedula_ok, message)
+            
+            # Validar cargo
+            if not cargo or len(cargo.strip()) == 0:
+                error_messages.append("El campo de cargo es obligatorio.")
+            
+            # Validar contraseña
             is_valid, message = validate_password(password)
-            if not is_valid:
-                error_messages.append(message)
-            elif not is_password(password, user_db):
-                error_messages.append("Contraseña incorrecta.")
+            add_error(is_valid, message)
+            
+            # Validar que las contraseñas coinciden
+            if password != verify_password:
+                error_messages.append("Las contraseñas no coinciden.")
+        
+        # Validaciones adicionales para modificar
+        if tipo_validacion == "modificar":
+            # Validar nombre
+            is_valid, message = validate_name(nombre)
+            add_error(is_valid, message)
+            
+            # Validar apellido
+            is_valid, message = validate_apellido(apellido)
+            add_error(is_valid, message)
+            
+            # Validar cédula
+            is_valid, message = validate_cedula(cedula)
+            add_error(is_valid, message)
+            if is_valid:
+                if user_id:
+                    cedula_ok, message = is_cedula_unique_for_user(cedula, user_id)
+                else:
+                    cedula_ok, message = is_cedula_registered(cedula)
+                add_error(cedula_ok, message)
+            
+            # Validar cargo
+            if not cargo or len(cargo.strip()) == 0:
+                error_messages.append("El campo de cargo es obligatorio.")
+            
+            # Validar contraseña
+            is_valid, message = validate_password(password)
+            add_error(is_valid, message)
     
-    # Validaciones adicionales para registro
-    if tipo_validacion == "registro":
-        # Validar nombre
-        is_valid, message = validate_name(nombre)
-        if not is_valid:
-            error_messages.append(message)
-        
-        # Validar apellido
-        is_valid, message = validate_apellido(apellido)
-        if not is_valid:
-            error_messages.append(message)
-        
-        # Validar cédula
-        is_valid, message = validate_cedula(cedula)
-        if not is_valid:
-            error_messages.append(message)
-        else:
-            cedula_ok, message = cedula_existe(cedula)
-            if not cedula_ok:
-                error_messages.append(message)
-        
-        # Validar cargo
-        if not cargo or len(cargo.strip()) == 0:
-            error_messages.append("El campo de cargo es obligatorio.")
-        
-        # Validar contraseña (también necesaria para registro)
-        is_valid, message = validate_password(password)
-        if not is_valid:
-            error_messages.append(message)
-        
-        # Validar que las contraseñas coinciden
-        if password != verify_password:
-            error_messages.append("Las contraseñas no coinciden.")
+    except Exception as e:
+        error_messages.append(f"Error inesperado: {str(e)}")
     
     return error_messages

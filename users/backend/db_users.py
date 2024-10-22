@@ -121,8 +121,8 @@ def update_user(user_data, nuevos_valores):
                 SET ID_Cargo=%s, Nombre=%s, Apellido=%s, Cedula=%s, Nombre_Usuario=%s, Clave=%s
                 WHERE ID_Usuario=%s
             ''', (
-                nuevos_valores["cargo"], nuevos_valores["nombre"], nuevos_valores["apellido"],
-                nuevos_valores["cedula"], nuevos_valores["username"], nuevos_valores["password"], ID_Usuario
+                nuevos_valores["Cargo"], nuevos_valores["Nombre"], nuevos_valores["Apellido"],
+                nuevos_valores["Cedula"], nuevos_valores["Username"], nuevos_valores["Password"], ID_Usuario
             ))
             
             mariadb_conexion.commit()
@@ -130,7 +130,6 @@ def update_user(user_data, nuevos_valores):
             return True
     else:
         return False
-
 
 def delete_selected_user(self):
     from users.backend.db_users import usuario_actual
@@ -155,7 +154,9 @@ def delete_selected_user(self):
                 item_id = self.user_table_list.item(item, 'values')[0]
 
                 # Verificar si el usuario seleccionado es el usuario actual
-                if str(item_id) == str(usuario_actual.id_usuario):
+                if usuario_actual is None:
+                    print("Advertencia: No hay un usuario logueado actualmente se inicio el programa desde MainAppConnector.")
+                elif str(item_id) == str(usuario_actual.id_usuario):
                     messagebox.showwarning("Advertencia", "No puedes eliminar el usuario que está actualmente logueado.")
                     continue
 
@@ -175,6 +176,7 @@ def delete_selected_user(self):
     finally:
         if mariadb_conexion:
             mariadb_conexion.close()
+
 
 
 def list_users_db(treeview, cargos):

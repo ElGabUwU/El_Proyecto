@@ -400,7 +400,7 @@ class L_Listar(tk.Frame):
                 cursor.execute('''
                     SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares
                     FROM libro
-                    WHERE estado_libro = 'activo'
+                    
                 ''')
                 resultados = cursor.fetchall()
                 
@@ -512,8 +512,9 @@ class L_Registrar(tk.Toplevel):
     #def are_u_sure(self):
     
     def cancelar(self, window):
-        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
-            window.destroy() 
+        if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana? Perderás todos los datos del libro que estás registrando.", parent=self):
+            window.destroy()
+
     def inicializar_titulos(self):
         
         self.canvas.create_rectangle(0, 0, 1142, 74, fill="#2E59A7")
@@ -777,15 +778,15 @@ class L_Registrar(tk.Toplevel):
         if create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año):
             messagebox.showinfo("Éxito", "Registro del libro éxitoso.",parent=self)
             self.clear_entries_register()
-            self.destroy()
+            
         # else:
         #     messagebox.showinfo("Registro fallido", "Libro mantiene sus valores.",parent=self)
 
     
     def clear_entries_register(self):
-        self.combobox1.delete(0, tk.END)
-        #self.menu_actual.delete(0, tk.END)
-        self.combobox1.delete(0, tk.END)
+        self.combobox1.set("1I")
+        self.categoria_cb.set("No se ha seleccionado una categoría")
+        self.asignatura_cb.set("No se ha seleccionado una asignatura")
         self.cota.delete(0, tk.END)
         self.registro_m.delete(0, tk.END)
         self.edicion_m.delete(0, tk.END)
@@ -794,24 +795,10 @@ class L_Registrar(tk.Toplevel):
         self.autor_m.delete(0, tk.END)
         self.editorial_m.delete(0, tk.END)
         self.ano_m.delete(0, tk.END)
-        #self.ejemplares.delete(0, tk.END)
-    
-    def show_message(self, event):
-        if not self.message_shown:
-            messagebox.showinfo("Información", "En caso de ser varios ejemplares seguidos, puede digitar los datos de la siguiente forma: 11.498-11.500")
-            self.message_shown = True  # Marcar que el mensaje ya se mostró
 
-def contar_ejemplares(libros):
-    ejemplares_dict = {}
-    for libro in libros:
-        key = (libro[1], libro[2], libro[3], libro[4], libro[5], libro[6], libro[7], libro[8], libro[9], libro[10], libro[11], libro[12], libro[13])
-        if key in ejemplares_dict:
-            ejemplares_dict[key]['total'] += 1
-            if libro[14] == 'Sí':  # Suponiendo que el estado de préstamo está en la posición 14
-                ejemplares_dict[key]['prestamo'] += 1
-        else:
-            ejemplares_dict[key] = {'total': 1, 'prestamo': 1 if libro[14] == 'Sí' else 0}
-    return ejemplares_dict
+    
+
+
 
 class L_Modificar(tk.Toplevel):      
     def __init__(self,book_data, *args, **kwargs):
@@ -831,7 +818,7 @@ class L_Modificar(tk.Toplevel):
         #validate_volumenes = self.register(self.validar_numero_volumenes_edicion)
         
         self.images = {}
-        self.crear_boton_modificar()
+        
         
         self.salas_types = ["1I", "2E", "3G"]
         self.categoria_types_general=["Ciencias de la Computación, Información y Obras Generales", "Filosofía y Psicología", "Religión-Teología", "Ciencias Sociales","Lenguas",
@@ -859,7 +846,9 @@ class L_Modificar(tk.Toplevel):
         "Fábulas","Novelas Históricas","Sección de los más pequeños","Cuentos de Animales","Novelas de Aventuras",
         "Cuentos de Hadas y Fantasía","Cuentos Realistas","Poesías y Canciones Venezolanas","Cuentos de Aventuras",
         "Teatro","Teatro Venezolano","Fábulas Venezolanas","Mitos y Leyendas Venezolanas"]
-        
+
+
+
         # Convertir book_data en un diccionario manteniendo los índices originales
         self.book_data = {
             "ID": book_data[0],
@@ -888,13 +877,17 @@ class L_Modificar(tk.Toplevel):
         
         self.inicializar_titulos()
         self.inicializar_campos_y_widgets()
-        self.menu_actual = None
+        self.crear_boton_modificar()
+        self.crear_boton_modificar_inactivo()
+        self.crear_boton_restaurar()
+        self.crear_boton_cancelar()
+        self.insert_values_book()
+
         
         
       
         # Validar y actualizar comboboxes basados en los datos iniciales
         self.validacion_sala(None)
-        self.crear_boton_modificar()
 
     
     def inicializar_titulos(self):
@@ -939,50 +932,41 @@ class L_Modificar(tk.Toplevel):
         # Combobox para Sala
         self.combobox1 = ttk.Combobox(self, values=self.salas_types, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.combobox1.place(x=61.0, y=181.5)
-        self.combobox1.set(self.book_data["ID_Sala"])
         self.combobox1.bind("<<ComboboxSelected>>", self.validacion_sala)
         
         
         # Combobox para Categoría
         self.categoria_cb = ttk.Combobox(self, values=self.categoria_types_general, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.categoria_cb.place(x=318.0, y=181.5)
-        self.categoria_cb.set(self.book_data["ID_Categoria"])
         self.categoria_cb.bind("<<ComboboxSelected>>", self.check_changes)
 
         # Combobox para Asignatura
         self.asignatura_cb = ttk.Combobox(self, values=self.asignature_type_general, state="readonly", width=30, font=("Montserrat Medium", 10))
         self.asignatura_cb.place(x=575.0, y=181.5)
-        self.asignatura_cb.set(self.book_data["ID_Asignatura"])
         self.asignatura_cb.bind("<<ComboboxSelected>>", self.check_changes)
 
         # Crear y colocar los widgets
         # Primera fila
         self.cota = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
         self.cota.place(x=61.0, y=282.0, width=237.0, height=37.5)
-        self.cota.insert(0, self.book_data["Cota"])
         self.cota.bind("<Return>", self.focus_next_widget)
         self.cota.bind("<KeyPress>",self.on_key_press)
-
-
         self.cota.bind("<KeyRelease>", self.check_changes)
 
         self.registro_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.registro_m.place(x=318.0, y=282.0, width=237.0, height=38.0)
-        self.registro_m.insert(0, self.book_data["n_registro"])
         self.registro_m.bind("<Return>", self.focus_next_widget)
         self.registro_m.bind("<KeyPress>",self.on_key_press)
         self.registro_m.bind("<KeyRelease>", self.check_changes)
 
         self.edicion_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.edicion_m.place(x=575.0, y=282.0, width=237.0, height=37.5)
-        self.edicion_m.insert(0, self.book_data["Edicion"])
         self.edicion_m.bind("<Return>", self.focus_next_widget)
         self.edicion_m.bind("<KeyPress>",self.on_key_press)
         self.edicion_m.bind("<KeyRelease>", self.check_changes)
 
         self.volumen_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.volumen_m.place(x=846.0, y=282.0, width=237.0, height=37.5)
-        self.volumen_m.insert(0, self.book_data["Volumen"])
         self.volumen_m.bind("<Return>", self.focus_next_widget)
         self.volumen_m.bind("<KeyPress>",self.on_key_press)
         self.volumen_m.bind("<KeyRelease>", self.check_changes)
@@ -990,7 +974,6 @@ class L_Modificar(tk.Toplevel):
         # Segunda fila
         self.titulo_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid")
         self.titulo_m.place(x=61.0, y=382.0, width=237.0, height=37.5)
-        self.titulo_m.insert(0, self.book_data["Titulo"])
         self.titulo_m.bind("<Return>", self.focus_next_widget)
         self.titulo_m.bind("<KeyPress>", self.on_key_press)  
         self.titulo_m.bind("<KeyRelease>", self.check_changes)
@@ -999,26 +982,36 @@ class L_Modificar(tk.Toplevel):
 
         self.autor_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
         self.autor_m.place(x=318.0, y=382.0, width=237.0, height=37.5)
-        self.autor_m.insert(0, self.book_data["Autor"])
         self.autor_m.bind("<Return>", self.focus_next_widget)
         self.autor_m.bind("<KeyPress>", self.on_key_press)
         self.autor_m.bind("<KeyRelease>", self.check_changes)
 
         self.editorial_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key")
         self.editorial_m.place(x=575.0, y=382.0, width=237.0, height=37.5)
-        self.editorial_m.insert(0, self.book_data["Editorial"])
         self.editorial_m.bind("<Return>", self.focus_next_widget)
         self.editorial_m.bind("<KeyPress>", self.on_key_press)
         self.editorial_m.bind("<KeyRelease>", self.check_changes)
 
         self.ano_m = tk.Entry(self, bd=0, bg="#031A33", fg="#a6a6a6", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.ano_m.place(x=846.0, y=382.0, width=237.0, height=37.5)
-        self.ano_m.insert(0, self.book_data["Año"])
         self.ano_m.bind("<Return>", self.focus_next_widget)
         self.ano_m.bind("<KeyPress>",self.on_key_press)
         self.ano_m.bind("<KeyRelease>", self.check_changes)
     
-    
+    def insert_values_book(self):
+        self.clear_entries_modify()
+        self.combobox1.set(self.book_data["ID_Sala"])
+        self.categoria_cb.set(self.book_data["ID_Categoria"])
+        self.asignatura_cb.set(self.book_data["ID_Asignatura"])
+        self.cota.insert(0, self.book_data["Cota"])
+        self.registro_m.insert(0, self.book_data["n_registro"])
+        self.edicion_m.insert(0, self.book_data["Edicion"])
+        self.volumen_m.insert(0, self.book_data["Volumen"])
+        self.titulo_m.insert(0, self.book_data["Titulo"])
+        self.autor_m.insert(0, self.book_data["Autor"])
+        self.editorial_m.insert(0, self.book_data["Editorial"])
+        self.ano_m.insert(0, self.book_data["Año"])
+        self.check_changes()
     def on_key_press(self, event):
         widget = event.widget
         current_text = widget.get()
@@ -1077,7 +1070,6 @@ class L_Modificar(tk.Toplevel):
                 return "break"
             current_text = longitud_editorial(current_text)
             formatted_text = validar_y_formatear_texto(current_text)
-            formatted_text = current_text.title
         elif widget == self.ano_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
@@ -1183,10 +1175,10 @@ class L_Modificar(tk.Toplevel):
             print("Se detectaron cambios. Botón 'Modificar' mostrado.")
         else:
             self.ocultar_boton_modificar()
-            print("No se detectaron cambios. Botón 'Modificar' oculto.")
+            self.mostrar_boton_modificar_inactivo()
+            print("No se detectaron cambios. Botón 'Modificar' inactivo mostrado.")
      except Exception as e:
         print(f"Error en check_changes: {e}")
-
 
     def focus_next_widget(self, event):
         event.widget.tk_focusNext().focus()
@@ -1243,12 +1235,31 @@ class L_Modificar(tk.Toplevel):
         else:        
             messagebox.showinfo("Modificación fallida", "Libro mantiene sus valores.",parent=self)
 
+    def crear_boton_modificar_inactivo(self):
+        try:
+            self.images['boton_R_inactivo'] = tk.PhotoImage(file=relative_to_assets("M_button_grey.png"))
+            print("Imagen del botón 'Modificar' inactivo cargada correctamente.")
+        except Exception as e:
+            print(f"Error al cargar la imagen del botón 'Modificar' inactivo: {e}")
+            return
 
+        self.boton_modificar_inactivo = tk.Button(
+            self,
+            image=self.images["boton_R_inactivo"],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_modificar_inactivo.place(x=61.0, y=465.0, width=130.0, height=40.0)
+        self.boton_modificar_inactivo.place_forget()
+        print("Botón 'Modificar' inactivo creado y oculto inicialmente.")
 
     def crear_boton_modificar(self):
         self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
-         # Crear el botón
-         
+
         self.boton_modificar = tk.Button(
             self,
             image=self.images["boton_R"],
@@ -1257,39 +1268,70 @@ class L_Modificar(tk.Toplevel):
             command=self.modify_book,
             relief="flat",
             bg="#031A33",
-            activebackground="#031A33",  # Mismo color que el fondo del botón
-            activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
-         )
-        
-        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("L_cancelar.png"))
-        self.boton_C = tk.Button(
-            self,
-            image=self.images['boton_c'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: self.cancelar(self),
-            relief="flat",
-            bg="#031A33",
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_C.place(x=250.0, y=465.0, width=130.0, height=40.0)
-         # Asignar la posición del botón
-        """self.boton_modificar.place(x=263.0, y=635.0, width=130.0, height=40.0)
-        self.boton_modificar.place_forget()  # Ocultar el botón inicialmente
-        print("Botón 'Modificar' creado y oculto inicialmente.")"""
+        self.boton_modificar.place(x=61.0, y=465.0, width=130.0, height=40.0)
+        self.boton_modificar.place_forget()
+        print("Botón 'Modificar' creado y oculto inicialmente.")
+
+    def mostrar_boton_modificar(self):
+        self.boton_modificar.place(x=61.0, y=465.0, width=130.0, height=40.0)
+        self.boton_modificar_inactivo.place_forget()
+        print("Botón 'Modificar' mostrado.")
+
+    def mostrar_boton_modificar_inactivo(self):
+        self.boton_modificar_inactivo.place(x=61.0, y=465.0, width=130.0, height=40.0)
+        self.boton_modificar.place_forget()
+        print("Botón 'Modificar' inactivo mostrado.")
+
+    def ocultar_boton_modificar(self):
+        self.boton_modificar.place_forget()
+        self.boton_modificar_inactivo.place_forget()
+        print("Botón 'Modificar' oculto.")
+
+    
+    def crear_boton_restaurar(self):
+        try:
+            self.images['boton_r'] = tk.PhotoImage(file=relative_to_assets("rest_button_green.png"))
+            self.boton_R = tk.Button(
+                self,
+                image=self.images['boton_r'],
+                borderwidth=0,
+                highlightthickness=0,
+                command=lambda: self.insert_values_book(),
+                relief="flat",
+                bg="#031A33",
+                activebackground="#031A33",
+                activeforeground="#FFFFFF"
+            )
+            self.boton_R.place(x=220.0, y=465.0, width=130.0, height=40.0)
+        except Exception as e:
+            print(f"Error al cargar la imagen del botón 'Restaurar': {e}")
+
+    def crear_boton_cancelar(self):
+        try:
+            self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("c_button_red1.png"))
+            self.boton_C = tk.Button(
+                self,
+                image=self.images['boton_c'],
+                borderwidth=0,
+                highlightthickness=0,
+                command=lambda: self.cancelar(self),
+                relief="flat",
+                bg="#031A33",
+                activebackground="#031A33",
+                activeforeground="#FFFFFF"
+            )
+            self.boton_C.place(x=380.0, y=465.0, width=130.0, height=40.0)
+        except Exception as e:
+            print(f"Error al cargar la imagen del botón 'Cancelar': {e}")
+
     def cancelar(self, window):
         if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana? Todos los cambios no guardados en el libro se perderán.", parent=self):
             window.destroy()
 
 
-    def mostrar_boton_modificar(self):
-        self.boton_modificar.place(x=61.0, y=465.0, width=130.0, height=40.0)
-        print("Botón 'Modificar' mostrado.")
-
-    def ocultar_boton_modificar(self):
-        self.boton_modificar.place_forget()
-        print("Botón 'Modificar' oculto.")
 
     def clear_entries_modify(self):
         self.combobox1.delete(0, tk.END)

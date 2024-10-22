@@ -1,4 +1,3 @@
-
 import mysql.connector as mariadb
 #import mariadb
 from colorama import init, Fore, Back, Style
@@ -296,4 +295,3 @@ def delete_selected(self):
     finally:
         if mariadb_conexion:
             mariadb_conexion.close()
-
