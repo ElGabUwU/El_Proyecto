@@ -154,14 +154,12 @@ def delete_selected_user(self):
                 item_id = self.user_table_list.item(item, 'values')[0]
 
                 # Verificar si el usuario seleccionado es el usuario actual
-                if usuario_actual is None:
-                    print("Advertencia: No hay un usuario logueado actualmente se inicio el programa desde MainAppConnector.")
-                elif str(item_id) == str(usuario_actual.id_usuario):
+                if str(item_id) == str(usuario_actual.id_usuario):
                     messagebox.showwarning("Advertencia", "No puedes eliminar el usuario que está actualmente logueado.")
                     continue
 
-                # Borrar el registro directamente de la base de datos
-                cursor.execute('DELETE FROM usuarios WHERE ID_Usuario = %s', (item_id,))
+                # Actualizar el estado del usuario a 'eliminado'
+                cursor.execute('UPDATE usuarios SET estado_usuario = %s WHERE ID_Usuario = %s', ('eliminado', item_id))
 
                 # Eliminar la fila del Treeview
                 self.user_table_list.delete(item)
@@ -169,7 +167,7 @@ def delete_selected_user(self):
 
             if users_deleted:
                 mariadb_conexion.commit()
-                messagebox.showinfo("Éxito", "El usuario ha sido eliminado.")
+                messagebox.showinfo("Éxito", "El usuario ha sido marcado como eliminado.")
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
         messagebox.showerror("Error", f"Error durante la conexión: {ex}")
@@ -177,14 +175,12 @@ def delete_selected_user(self):
         if mariadb_conexion:
             mariadb_conexion.close()
 
-
-
 def list_users_db(treeview, cargos):
     # Conexión a la base de datos y obtención de datos
     mariadb_conexion = establecer_conexion()
     if mariadb_conexion:
         cursor = mariadb_conexion.cursor()
-        query = "SELECT * FROM usuarios"
+        query = "SELECT * FROM usuarios WHERE estado_usuario = 'activo'"
         cursor.execute(query)
         rows = cursor.fetchall()
         cursor.close()
@@ -200,7 +196,6 @@ def list_users_db(treeview, cargos):
             row = list(row)
             row[1] = cargos.get(row[1], "Desconocido")  # Supongamos que la columna 1 es la del cargo
             treeview.insert('', 'end', values=tuple(row))
-
 
 # Actualizar un prestamo
 def update_user_list(id_cedula, name_user, nombre, apellido, id):

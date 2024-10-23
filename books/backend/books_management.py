@@ -3,7 +3,7 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
-from books.backend.db_books import *
+from Books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
@@ -45,7 +45,7 @@ class L_Listar(tk.Frame):
 
         self.left_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
-        self.left_frame_list.place(x=215,y=205, height=480, width=1150)
+        self.left_frame_list.place(x=215,y=218, height=470, width=1135)
 
 
         """"self.cota = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="solid" , borderwidth=0.5)
@@ -58,10 +58,16 @@ class L_Listar(tk.Frame):
         # Crear textos en el canvas
 
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1110.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1240.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(845.0, 170.0, text="Registrar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1080.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(980.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
+
+        # Títulos para los Treeviews
+        bold_font = font.Font(family="Bold", size=15, weight="bold")
+        self.label_prestamos = tk.Label(self.canvas, text="Tabla Libros", bg="#FAFAFA", fg="#031A33", font=bold_font)
+        self.label_prestamos.place(x=665.0, y=180.0, width=225.0, height=35.0)
+
         # Para llamar a read_books cuando se presiona Enter
         self.buscar.bind("<Return>", self.boton_buscar)
 
@@ -80,7 +86,7 @@ class L_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=800.0, y=60.0, width=90.0, height=100.0)
+        self.button_e.place(x=915.0, y=60.0, width=130.0, height=100.0)
         
                     #Boton Cargar Libros
             # Cargar y almacenar las imágenes
@@ -98,7 +104,7 @@ class L_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
+        self.button_e.place(x=1015.0, y=60.0, width=130.0, height=100.0)
         
         
 
@@ -115,7 +121,7 @@ class L_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_dl.place(x=1195.0, y=60.0, width=90.0, height=100.0)
+        self.button_dl.place(x=1215.0, y=60.0, width=130.0, height=100.0)
 
         self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6_editar.png"))
             # Cargar y almacenar la imagen del botón
@@ -130,7 +136,7 @@ class L_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_dl.place(x=1065.0, y=60.0, width=90.0, height=100.0)
+        self.button_dl.place(x=1115.0, y=60.0, width=130.0, height=100.0)
 
         # Configurar estilo para Treeview
         style = ttk.Style()

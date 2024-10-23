@@ -42,7 +42,7 @@ class P_Listar(tk.Frame):
 
         self.left_frame2 = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame2.pack(expand=True, side="right", fill="both")
-        self.left_frame2.place(x=200,y=220, height=490, width=1180)
+        self.left_frame2.place(x=215,y=218, height=470, width=1135)
         
         self.right_frame = tk.Frame(self)
         self.right_frame.pack(side="right", expand=True, fill="both")
@@ -50,17 +50,17 @@ class P_Listar(tk.Frame):
         # Texto para el nombre
 
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1035.0, 200.0, text="Editar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1135.0, 200.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(735.0, 200.0, text="Imprimir", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(835.0, 200.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(935.0, 200.0, text="Agregar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1235.0, 200.0, text="Filtrar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1075.0, 170.0, text="Editar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1175.0, 170.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(775.0, 170.0, text="Imprimir", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(875.0, 170.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(975.0, 170.0, text="Agregar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1275.0, 170.0, text="Filtrar", fill="#031A33", font=("Bold", 17))
 
        # Títulos para los Treeviews
         bold_font = font.Font(family="Bold", size=15, weight="bold")
-        self.label_prestamos = tk.Label(self.left_frame2, text="Tabla Prestamos", bg="#FAFAFA", fg="#031A33", font=bold_font)
-        self.label_prestamos.place(x=445.0, y=4.0, width=237.0, height=35.0)
+        self.label_prestamos = tk.Label(self.canvas, text="Tabla Prestamos", bg="#FAFAFA", fg="#031A33", font=bold_font)
+        self.label_prestamos.place(x=665.0, y=185.0, width=237.0, height=35.0)
 
 
         self.buscar = tk.Entry(self, bg="#FAFAFA", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
@@ -80,7 +80,7 @@ class P_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=695.0, y=90.0, width=90.0, height=100.0)
+        self.button_e.place(x=730.0, y=60.0, width=90.0, height=100.0)
         # Cargar y almacenar las imágenes
         self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
         # Cargar y almacenar la imagen del botón
@@ -95,7 +95,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_c.place(x=890.0, y=90.0, width=90.0, height=100.0)
+        self.button_c.place(x=930.0, y=60.0, width=90.0, height=100.0)
 
         self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
         # Cargar y almacenar la imagen del botón
@@ -110,7 +110,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_c.place(x=790.0, y=90.0, width=90.0, height=100.0)
+        self.button_c.place(x=830.0, y=60.0, width=90.0, height=100.0)
 
         #Boton Filtrar
         # Cargar y almacenar las imágenes
@@ -127,7 +127,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_f.place(x=1190.0, y=90.0, width=90.0, height=100.0)
+        self.button_f.place(x=1230.0, y=60.0, width=90.0, height=100.0)
 
         #Boton Modificar
         # Cargar y almacenar las imágenes
@@ -144,7 +144,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
-        self.button_m.place(x=990.0, y=90.0, width=90.0, height=100.0)
+        self.button_m.place(x=1030.0, y=60.0, width=90.0, height=100.0)
 
         self.images['boton_Eliminar_f'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
         
@@ -160,7 +160,7 @@ class P_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         )
-        self.button_d.place(x=1090, y=90.0, width=90.0, height=100.0)
+        self.button_d.place(x=1130, y=60.0, width=90.0, height=100.0)
 
         # Crear un estilo específico para el Treeview listado de libros en esta ventana
         self.style = ttk.Style()
@@ -189,7 +189,7 @@ class P_Listar(tk.Frame):
         for col2 in columns2:
             self.prestamo_table.heading(col2, text=col2)
             self.prestamo_table.column(col2, width=90, anchor="center")
-        self.prestamo_table.pack(expand=True, fill="both", padx=40, pady=45)
+        self.prestamo_table.pack(expand=True, fill="both", padx=30, pady=5)
 
         self.prestamo_table.bind("<Double-1>", self.on_loans_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
         scrollbar_pt = ttk.Scrollbar(self.prestamo_table, orient="vertical", command=self.prestamo_table.yview)

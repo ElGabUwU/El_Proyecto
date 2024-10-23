@@ -4,21 +4,14 @@ from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from PIL import Image, ImageTk
 from Library.librerias import *
-from books.backend.db_books import *
+from Books.backend.db_books import *
 import random
-from books.backend.books_management import *
+from Books.backend.books_management import *
 from users.backend.user_management import *
 from loans.backend.loans_management import *
 from clients.backend.clients_management import *
 import tkinter as tk
 
-
-#self.U_nombre=usuario_actual.nombre_usuario
-
-#id_usuario,id_cargo,id_rol,nombre,apellido,cedula,U_nombre = None,None,None,None,None,None,None
-
-
-#relleno_menu
 
 
 class Bienvenida(tk.Frame):

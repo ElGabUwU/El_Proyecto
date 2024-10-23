@@ -38,18 +38,18 @@ class C_Listar(tk.Frame):
         validate_number = self.register(validate_number_input)
         self.images = {}
 
-        self.canvas.create_text(940.0, 180.0, text="Refrescar", fill="black", font=("Bold", 17))
-        self.canvas.create_text(1040.0, 180.0, text="Agregar", fill="black", font=("Bold", 17))
-        self.canvas.create_text(1140.0, 180.0, text="Editar", fill="black", font=("Bold", 17))
-        self.canvas.create_text(1240.0, 180.0, text="Eliminar", fill="black", font=("Bold", 17))
+        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1080.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
 
         self.right_frame_list_loans = tk.Frame(self.canvas, bg="#FAFAFA")
         self.right_frame_list_loans.pack(expand=True, side="right", fill="both") #padx=212, pady=150, ipady=80
-        self.right_frame_list_loans.place(x=195,y=239, height=460, width=1180)
+        self.right_frame_list_loans.place(x=215,y=218, height=470, width=1135)
 
         bold_font = font.Font(family="Bold", size=15, weight="bold")
         self.label_clientes = tk.Label(self.canvas, text="Tabla Clientes", bg="#FAFAFA", fg="black", font=bold_font)
-        self.label_clientes.place(x=655.0, y=205.0, width=237.0, height=38.0)
+        self.label_clientes.place(x=665.0, y=180.0, width=225.0, height=35.0)
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
@@ -72,7 +72,7 @@ class C_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=895.0, y=70.0, width=90.0, height=100.0)
+        self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
 
         
 
@@ -90,7 +90,7 @@ class C_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=995.0, y=70.0, width=90.0, height=100.0)
+        self.button_e.place(x=1035.0, y=60.0, width=90.0, height=100.0)
 
         self.images['boton_Eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
                     # Cargar y almacenar la imagen del botón
@@ -105,7 +105,7 @@ class C_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_dl.place(x=1195.0, y=70.0, width=90.0, height=100.0)
+        self.button_dl.place(x=1235.0, y=60.0, width=90.0, height=100.0)
 
         self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6_editar.png"))
             # Cargar y almacenar la imagen del botón
@@ -120,7 +120,7 @@ class C_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_dl.place(x=1095.0, y=70.0, width=90.0, height=100.0)
+        self.button_dl.place(x=1135.0, y=60.0, width=90.0, height=100.0)
 
         styletrees = ttk.Style()
         styletrees.configure("Rounded.Treeview", 

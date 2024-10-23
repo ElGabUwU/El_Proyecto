@@ -1,6 +1,7 @@
 import mysql.connector as mariadb
 from mysql.connector import Error
 from db.conexion import establecer_conexion
+from datetime import datetime, timedelta
 from tkinter import ttk, messagebox
 
 #OBTENCION DE DATOS PARA REPORTE DE PDF
@@ -105,7 +106,6 @@ def lists_clients_loans(self):
             c.Nombre AS Nombre_Cliente,
             lp.ID_Libro_Prestamo,
             l.titulo,
-            l.n_ejemplares,
             p.Fecha_Registro,
             p.Fecha_Limite,
             u.Nombre AS Nombre_Usuario
@@ -134,8 +134,24 @@ def lists_clients_loans(self):
         for row in self.prestamo_table.get_children():
             self.prestamo_table.delete(row)
 
+        prestamos_vencidos = []
+        hoy = datetime.now().date()
+
         for fila in resultados1:
-            self.prestamo_table.insert("", "end", values=tuple(fila))
+            fecha_limite = fila[7]
+            if fecha_limite <= hoy - timedelta(days=20):
+                tag = 'vencido'
+                prestamos_vencidos.append(fila)
+            else:
+                tag = 'activo'
+            self.prestamo_table.insert("", "end", values=tuple(fila), tags=(tag,))
+
+        # Configurar las etiquetas para los colores
+        self.prestamo_table.tag_configure('vencido', background='red')
+        self.prestamo_table.tag_configure('activo', background='white')
+
+        if prestamos_vencidos:
+            messagebox.showwarning("Préstamos Vencidos", "Hay préstamos que han pasado más de 20 días desde su fecha límite.")
 
     except mariadb.Error as ex:
         print(f"Error during query execution: {ex}")
