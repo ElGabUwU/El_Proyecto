@@ -561,7 +561,7 @@ class C_Register(tk.Toplevel):
         self.parent = parent
         self.title("Registro")
         self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        self.geometry("950x400")
+        self.geometry("950x380")
         self.config(bg="#042344")
         self.resizable(False, False)
         self.validate_number = self.register(validate_number_input)
@@ -583,7 +583,7 @@ class C_Register(tk.Toplevel):
     def create_widgets(self):
         rectangulo_color = tk.Label(self, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)
-        tk.Label(self, text="Registro de Clientes", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=270.0, y=20.0, width=420.0, height=35.0)
+        tk.Label(self, text="Registro de Clientes", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=270.0, y=15.0, width=400.0, height=40.0)
 
         tk.Label(self, text="Cedula", fg="#CCCED1", bg="#042344", font=("Montserrat Regular", 15)).place(x=3.0, y=100.0, width=120.0, height=35.0)
         self.input_cedula = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(self.validate_number, "%P"))
@@ -745,7 +745,7 @@ class C_Register(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_R.place(x=33.0, y=280.0, width=130.0, height=40.0)
+        self.boton_R.place(x=33.0, y=300.0, width=130.0, height=40.0)
         print("Botón 'Registrar' creado.")
 
     def crear_boton_cancelar(self):
@@ -766,7 +766,7 @@ class C_Register(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_C.place(x=178.0, y=280.0, width=130.0, height=40.0)
+        self.boton_C.place(x=225.0, y=300.0, width=130.0, height=40.0)
         print("Botón 'Cancelar' creado.")
 
 

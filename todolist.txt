@@ -1,0 +1,21 @@
+1. *Cambiar la longitud de los entries y comboboxes*: Debido a que el título es largo, deben tener una longitud de 166 caracteres. Tanto para modificar como para agregar, deben ser iguales en este aspecto de la estructura del frontend. Esto aplica específicamente en la sección de libros.
+
+2. *Modificar el mensaje de transición de inicio/cierre de sesión*: En el master panel, según lo que haga el usuario, debe decir "Iniciando sesión" o "Creando sesión". Además, agregar el logo de la app.
+
+3. *Ajustar los entries de modificar y agregar en clientes*: La dirección tiene una longitud de 100 caracteres. Para agregar y modificar, deben tener la misma estructura de frontend.
+
+? 4. *Ajustar los tamaños de los treeviews*: No todos son iguales. Podríamos usar el tamaño de la tabla de clientes, ya que es la más grande.
+
+5. *Ajustar el orden y posición de los botones de agregar, eliminar y refrescar*: En libros, están organizados de forma distinta y tienen mucha más distancia. Arreglar esas inconsistencias y ajustarlo al orden de refrescar, agregar, editar y eliminar. Además, ajustar la posición de los botones, ya que en algunos casos están al borde del treeview y en otros más hacia la izquierda.
+
+
+
+? 7. *Ajustar la barra de búsqueda*: Debe concordar con la posición del treeview.
+
+8. *Eliminar nombres de tablas si se decidió quitarlos*: Asegurarse de que todas las tablas sigan esta decisión.
+
+9. esto no es frontend XD *Organizar la información en la tabla de libros*: Basarse en el ID y la lógica que identifica a los ejemplares para evitar que estén lejos y facilitar su modificación o eliminación.
+
+???
+10. *Modificar interfaces sin dañar la funcionalidad de los botones*: Los botones ya están definidos, así que solo cambien sus coordenadas de ser necesario.
+
