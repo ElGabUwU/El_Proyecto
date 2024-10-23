@@ -60,8 +60,8 @@ class L_Listar(tk.Frame):
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1080.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(980.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1080.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
 
         # Títulos para los Treeviews
         bold_font = font.Font(family="Bold", size=15, weight="bold")
@@ -86,7 +86,7 @@ class L_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=915.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=1015.0, y=60.0, width=130.0, height=100.0)
         
                     #Boton Cargar Libros
             # Cargar y almacenar las imágenes
@@ -104,7 +104,7 @@ class L_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=1015.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=915.0, y=60.0, width=130.0, height=100.0)
         
         
 

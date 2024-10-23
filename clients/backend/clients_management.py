@@ -215,7 +215,7 @@ class C_Modify(tk.Toplevel):
         self.parent = parent
         self.title("Modificar")
         self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        self.geometry("950x400")
+        self.geometry("950x380")
         self.config(bg="#042344")
         self.resizable(False, False)
         self.validate_number = self.register(validate_number_input)
@@ -463,7 +463,7 @@ class C_Modify(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_modificar.place(x=33.0, y=280.0, width=130.0, height=40.0)
+        self.boton_modificar.place(x=33.0, y=300.0, width=130.0, height=40.0)
         self.boton_modificar.place_forget()
         print("Botón 'Modificar' creado y oculto inicialmente.")
 
@@ -484,17 +484,17 @@ class C_Modify(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_modificar_inactivo.place(x=33.0, y=280.0, width=130.0, height=40.0)
+        self.boton_modificar_inactivo.place(x=33.0, y=300.0, width=130.0, height=40.0)
         self.boton_modificar_inactivo.place_forget()
         print("Botón 'Modificar' inactivo creado y oculto inicialmente.")
 
     def mostrar_boton_modificar(self):
-        self.boton_modificar.place(x=33.0, y=280.0, width=130.0, height=40.0)
+        self.boton_modificar.place(x=33.0, y=300.0, width=130.0, height=40.0)
         self.boton_modificar_inactivo.place_forget()
         print("Botón 'Modificar' mostrado.")
 
     def mostrar_boton_modificar_inactivo(self):
-        self.boton_modificar_inactivo.place(x=33.0, y=280.0, width=130.0, height=40.0)
+        self.boton_modificar_inactivo.place(x=33.0, y=300.0, width=130.0, height=40.0)
         self.boton_modificar.place_forget()
         print("Botón 'Modificar' inactivo mostrado.")
 
@@ -521,7 +521,7 @@ class C_Modify(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_C.place(x=178.0, y=280.0, width=130.0, height=40.0)
+        self.boton_C.place(x=210.0, y=300.0, width=130.0, height=40.0)
         print("Botón 'Cancelar' creado.")
 
     def crear_boton_restaurar(self):
@@ -542,7 +542,7 @@ class C_Modify(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_R.place(x=323.0, y=280.0, width=130.0, height=40.0)
+        self.boton_R.place(x=380.0, y=300.0, width=130.0, height=40.0)
         print("Botón 'Restaurar' creado.")
 
 
