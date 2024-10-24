@@ -1,7 +1,9 @@
 from db.conexion import establecer_conexion
 import mysql.connector as mariadb
+import mariadb
 from colorama import init, Fore, Back, Style
 from tkinter import messagebox
+
 def get_user_by_username(username):
     conexion = establecer_conexion()
     if conexion:
@@ -12,7 +14,7 @@ def get_user_by_username(username):
             user = cursor.fetchone()
             return user
 
-        except Error as e:
+        except mariadb.Error as e:
             print(f"Error al realizar la consulta: {e}")
             return None
 

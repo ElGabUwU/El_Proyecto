@@ -3,12 +3,12 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
-from Books.backend.db_books import *
+from books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
 from db.conexion import establecer_conexion
-
+from util.utilidades import resource_path
 def validate_number_input(text):
         if text == "":
             return True
@@ -18,8 +18,7 @@ def validate_number_input(text):
         except ValueError:
             return False
 
-def relative_to_assets(path: str) -> str:
-    return f"./assets_2/{path}"
+
 
 class L_Listar(tk.Frame):
     
@@ -60,8 +59,8 @@ class L_Listar(tk.Frame):
         self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1080.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1080.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(980.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
 
         # Títulos para los Treeviews
         bold_font = font.Font(family="Bold", size=15, weight="bold")
@@ -72,7 +71,7 @@ class L_Listar(tk.Frame):
         self.buscar.bind("<Return>", self.boton_buscar)
 
             # Cargar y almacenar las imágenes
-        self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
+        self.images['boton_agregar'] = tk.PhotoImage(file=resource_path("assets_2/5_agregar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -86,11 +85,11 @@ class L_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=1015.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=915.0, y=60.0, width=130.0, height=100.0)
         
                     #Boton Cargar Libros
             # Cargar y almacenar las imágenes
-        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
+        self.images['boton_refrescar'] = tk.PhotoImage(file=resource_path("assets_2/16_refrescar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -104,11 +103,11 @@ class L_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=915.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=1015.0, y=60.0, width=130.0, height=100.0)
         
         
 
-        self.images['boton_Eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
+        self.images['boton_Eliminar'] = tk.PhotoImage(file=resource_path("assets_2/7_eliminar.png"))
                     # Cargar y almacenar la imagen del botón
         self.button_dl = tk.Button(
             self,
@@ -123,7 +122,7 @@ class L_Listar(tk.Frame):
             )
         self.button_dl.place(x=1215.0, y=60.0, width=130.0, height=100.0)
 
-        self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6_editar.png"))
+        self.images['boton_modificar'] = tk.PhotoImage(file=resource_path("assets_2/6_editar.png"))
             # Cargar y almacenar la imagen del botón
         self.button_dl = tk.Button(
             self,
@@ -446,7 +445,7 @@ class L_Registrar(tk.Toplevel):
         self.canvas = tk.Canvas(self, bg="#031A33", width=1142, height=530)
         self.canvas.pack(side="left", fill="both", expand=False)
         self.resizable(False, False)
-        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
         self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
        # validate_number = self.register(validat e_number_input)
         self.images = {}
@@ -478,7 +477,7 @@ class L_Registrar(tk.Toplevel):
         "Teatro","Teatro Venezolano","Fábulas Venezolanas","Mitos y Leyendas Venezolanas"]
         
         # Cargar y almacenar las imágenes
-        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_button_light_blue.png"))
+        self.images['boton_R'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
 
             # Crear el botón con la imagen inicial
 
@@ -496,7 +495,7 @@ class L_Registrar(tk.Toplevel):
                 activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
             ).place(x=61.0, y=465.0, width=130.0, height=40.0)
         
-        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("c_button_red1.png"))
+        self.images['boton_c'] = tk.PhotoImage(file=resource_path("assets_2/c_button_red1.png"))
         self.boton_C = tk.Button(
             self,
             image=self.images['boton_c'],
@@ -614,7 +613,7 @@ class L_Registrar(tk.Toplevel):
 
         self.ano_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
         self.ano_m.place(x=846.0, y=382.0, width=237.0, height=37.5)
-        self.ano_m.bind("<Return>", self.focus_next_widget)
+        self.ano_m.bind("<Return>",lambda event : self.register_book())
         self.ano_m.bind("<KeyPress>",self.on_key_press)
     
     def on_key_press(self, event):
@@ -878,7 +877,7 @@ class L_Modificar(tk.Toplevel):
         self.canvas = tk.Canvas(self, bg="#031A33", width=1142, height=530)
         self.canvas.pack(side="left", fill="both", expand=False)
         self.resizable(False, False)
-        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
         
         
         self.inicializar_titulos()
@@ -1243,7 +1242,7 @@ class L_Modificar(tk.Toplevel):
 
     def crear_boton_modificar_inactivo(self):
         try:
-            self.images['boton_R_inactivo'] = tk.PhotoImage(file=relative_to_assets("M_button_grey.png"))
+            self.images['boton_R_inactivo'] = tk.PhotoImage(file=resource_path("assets_2/M_button_grey.png"))
             print("Imagen del botón 'Modificar' inactivo cargada correctamente.")
         except Exception as e:
             print(f"Error al cargar la imagen del botón 'Modificar' inactivo: {e}")
@@ -1264,7 +1263,7 @@ class L_Modificar(tk.Toplevel):
         print("Botón 'Modificar' inactivo creado y oculto inicialmente.")
 
     def crear_boton_modificar(self):
-        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
+        self.images['boton_R'] = tk.PhotoImage(file=resource_path("assets_2/M_button_light_blue.png"))
 
         self.boton_modificar = tk.Button(
             self,
@@ -1299,7 +1298,7 @@ class L_Modificar(tk.Toplevel):
     
     def crear_boton_restaurar(self):
         try:
-            self.images['boton_r'] = tk.PhotoImage(file=relative_to_assets("rest_button_green.png"))
+            self.images['boton_r'] = tk.PhotoImage(file=resource_path("assets_2/rest_button_green.png"))
             self.boton_R = tk.Button(
                 self,
                 image=self.images['boton_r'],
@@ -1317,7 +1316,7 @@ class L_Modificar(tk.Toplevel):
 
     def crear_boton_cancelar(self):
         try:
-            self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("c_button_red1.png"))
+            self.images['boton_c'] = tk.PhotoImage(file=resource_path("assets_2/c_button_red1.png"))
             self.boton_C = tk.Button(
                 self,
                 image=self.images['boton_c'],

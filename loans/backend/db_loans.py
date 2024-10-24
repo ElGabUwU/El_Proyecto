@@ -207,7 +207,7 @@ def read_client_loans():
         print("Error durante la conexión:", ex)
 
 # Actualizar un prestamo
-def update_client_loans(id_prestamo, cantidad, fecha_limite):
+def update_client_loans(id_prestamo, fecha_limite):
     mariadb_conexion = establecer_conexion()
     if mariadb_conexion:
         cursor = mariadb_conexion.cursor()
@@ -228,14 +228,14 @@ def update_client_loans(id_prestamo, cantidad, fecha_limite):
             ''', (fecha_limite, id_prestamo))
         
         # Actualizar la cantidad de libros prestados
-        cursor.execute('''
-            UPDATE libros_prestamo
-            SET Cantidad = %s
-            WHERE ID_Prestamo = %s
-        ''', (cantidad, id_prestamo))
-        print("Actualización éxitosa.")
-        mariadb_conexion.commit()
-        mariadb_conexion.close()
+        # cursor.execute('''
+        #     UPDATE libros_prestamo
+        #     SET Cantidad = %s
+        #     WHERE ID_Prestamo = %s
+        # ''', (id_prestamo))
+        # print("Actualización éxitosa.")
+        # mariadb_conexion.commit()
+        # mariadb_conexion.close()
         return True
 
 # Eliminar cliente

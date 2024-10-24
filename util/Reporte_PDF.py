@@ -5,7 +5,7 @@ import filecmp#Libreria para comparar archivos
 from tkinter.filedialog import asksaveasfilename
 import tkinter as tk
 from tkinter import messagebox
-
+from util.utilidades import resource_path
 def formatear_fecha(fecha):
     try:
         return datetime.strptime(fecha, "%Y-%m-%d").strftime("%d/%m/%Y")
@@ -50,7 +50,7 @@ def verificar_y_guardar_pdf(pdf, nombre_archivo_base):
 from loans.backend.models import Cliente, Libro
 class PDF(FPDF):
     def header(self):
-        self.image('assets_2/logo-biblioteca-red-2.png', x=10, y=10, w=35, h=15)
+        self.image(resource_path('assets_2/logo-biblioteca-red-2.png'), x=10, y=10, w=35, h=15)
         self.set_font('Arial', 'B', 20)
         self.cell(w=0, h=15, txt='Reporte de Préstamo de Libros', border=0, ln=1, align='C', fill=0)
         self.ln(5)

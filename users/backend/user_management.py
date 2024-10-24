@@ -10,7 +10,7 @@ import random
 from db.conexion import establecer_conexion
 from validations.user_validations import *
 from users.backend.db_users import *
-
+from util.utilidades import resource_path
 def validate_number_input(text):
         if text == "":
             return True
@@ -20,8 +20,7 @@ def validate_number_input(text):
         except ValueError:
             return False
 
-def relative_to_assets(path: str) -> str:
-    return f"./assets_2/{path}"
+
 
 class U_Listar(tk.Frame):
     def __init__(self, parent):
@@ -92,7 +91,7 @@ class U_Listar(tk.Frame):
         list_users_db(self.user_table_list,self.cargos)
             
             # Cargar y almacenar las imágenes
-        self.images['boton_cargar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
+        self.images['boton_cargar'] = tk.PhotoImage(file=resource_path("assets_2/16_refrescar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -109,7 +108,7 @@ class U_Listar(tk.Frame):
         self.button_e.place(x=915.0, y=60.0, width=130.0, height=100.0)
 
                     # Cargar y almacenar las imágenes
-        self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
+        self.images['boton_agregar'] = tk.PhotoImage(file=resource_path("assets_2/5_agregar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -126,7 +125,7 @@ class U_Listar(tk.Frame):
         self.button_e.place(x=1015.0, y=60.0, width=130.0, height=100.0)
 
             # Cargar y almacenar las imágenes
-        self.images['boton_eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
+        self.images['boton_eliminar'] = tk.PhotoImage(file=resource_path("assets_2/7_eliminar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -142,7 +141,7 @@ class U_Listar(tk.Frame):
             )
         self.button_e.place(x=1215.0, y=60.0, width=130.0, height=100.0)
 
-        self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6_editar.png"))
+        self.images['boton_modificar'] = tk.PhotoImage(file=resource_path("assets_2/6_editar.png"))
                     # Cargar y almacenar la imagen del botón
         self.button_m = tk.Button(
             self,
@@ -274,7 +273,7 @@ class U_Registrar(tk.Toplevel):
         self.canvas.pack(side="left", fill="both", expand=False)
         self.validate_number = self.register(validate_number_input)
         self.images = {}
-        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
         self.resizable(False, False)
         self.grab_set()
         self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
@@ -287,7 +286,7 @@ class U_Registrar(tk.Toplevel):
             2: "Asistente Bibliotecario"
         }
         # Cargar y almacenar las imágenes
-        self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("R_button_light_blue.png"))
+        self.images['boton_R'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
 
         # Crear el botón
         boton_R = self.images['boton_R']
@@ -303,7 +302,7 @@ class U_Registrar(tk.Toplevel):
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         ).place(x=61.0, y=465.0, width=130.0, height=40.0)
         
-        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("c_button_red1.png"))
+        self.images['boton_c'] = tk.PhotoImage(file=resource_path("assets_2/c_button_red1.png"))
         self.boton_C = tk.Button(
             self,
             image=self.images['boton_c'],
@@ -513,7 +512,7 @@ class U_Modificar(tk.Toplevel):
         self.parent = parent
         self.validate_number = self.register(validate_number_input)
         self.images = {}
-        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
         self.geometry("863x530") 
         self.config(bg="#042344")
         self.resizable(False, False)
@@ -725,7 +724,7 @@ class U_Modificar(tk.Toplevel):
         
     def crear_boton_modificar_inactivo(self):
         try:
-            self.images['boton_R_inactivo'] = tk.PhotoImage(file=relative_to_assets("M_button_grey.png"))
+            self.images['boton_R_inactivo'] = tk.PhotoImage(file=resource_path("assets_2/M_button_grey.png"))
             print("Imagen del botón 'Modificar' inactivo cargada correctamente.")
         except Exception as e:
             print(f"Error al cargar la imagen del botón 'Modificar' inactivo: {e}")
@@ -747,7 +746,7 @@ class U_Modificar(tk.Toplevel):
 
     def crear_boton_modificar(self):
         try:
-            self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
+            self.images['boton_R'] = tk.PhotoImage(file=resource_path("assets_2/M_button_light_blue.png"))
             print("Imagen del botón 'Modificar' cargada correctamente.")
         except Exception as e:
             print(f"Error al cargar la imagen del botón 'Modificar': {e}")
@@ -784,7 +783,7 @@ class U_Modificar(tk.Toplevel):
         print("Botón 'Modificar' oculto.")
 
     def crear_boton_restaurar(self):
-        self.images['boton_r'] = tk.PhotoImage(file=relative_to_assets("rest_button_green.png"))
+        self.images['boton_r'] = tk.PhotoImage(file=resource_path("assets_2/rest_button_green.png"))
          
         self.boton_R = tk.Button(
             self,
@@ -800,7 +799,7 @@ class U_Modificar(tk.Toplevel):
         self.boton_R.place(x=220.0, y=465.0, width=130.0, height=40.0)
 
     def crear_boton_cancelar(self):
-        self.images['boton_c'] = tk.PhotoImage(file=relative_to_assets("c_button_red1.png"))
+        self.images['boton_c'] = tk.PhotoImage(file=resource_path("assets_2/c_button_red1.png"))
  
         self.boton_C = tk.Button(
             self,

@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter.font import BOLD
-import util.ventana as utl
+import util.utilidades as utl
 from users.frontend.from_login_designer import FormLoginDesigner
 from users.frontend.form_master import MasterPanel
 from users.backend.db_users import get_user_by_username, is_user, is_password , iniciar_sesion, Usuario
@@ -21,9 +21,10 @@ class FormLogin(FormLoginDesigner):
         
         # Verificar si el nombre de usuario es válido y si el usuario existe
         if not error_messages:
-            is_valid_username, user_db = get_user_by_username(user_name)
-            if not is_valid_username:
-                error_messages.append("Usuario no encontrado. Por favor, verifica tu nombre de usuario.")
+                    user_db = get_user_by_username(user_name)
+                    is_valid_username = user_db
+                    if not is_valid_username:
+                        error_messages.append("Usuario no encontrado. Por favor, verifica tu nombre de usuario.")
         
         # Mostrar todos los mensajes de error acumulados en viñetas
         if error_messages:
@@ -61,12 +62,6 @@ class FormLogin(FormLoginDesigner):
                 usuario = iniciar_sesion(user_name, password)
                 self.ventana.destroy()
                 self.mostrar_master_panel()
-
-
-
-
-
-                               
 
     def mostrar_master_panel(self):
         # Crear una instancia de MasterPanel y pasar el callback iniciar_starter

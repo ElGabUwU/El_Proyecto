@@ -7,7 +7,7 @@ def limit_length(text, max_length):
 
 def allow_permitted_characters(text):
     # Permitir solo letras, números y guiones bajos
-    return re.sub(r'[^a-zA-Z0-9_$]', '', text)
+    return re.sub(r'[^a-zA-Z0-9_]', '', text)
 
 def capitalize_first_letter(text):
     return text.title()
@@ -17,10 +17,11 @@ def validate_username(username):
     if len(username) < 6 or len(username) > 12:
         return False, "El nombre de usuario debe tener entre 6 y 11 caracteres. Asegúrate de que tu nombre de usuario tenga la longitud adecuada."
     if not re.match(r'^[A-Z][a-zA-Z0-9_]*$', username):
-        return False, "El nombre de usuario debe comenzar con una letra mayúscula y solo puede contener letras, números, signo de dolar y guiones bajos. Asegúrate de que tu nombre de usuario cumpla con este formato."
-    if re.search(r'[_$]{2}', username):
-        return False, "El nombre de usuario no puede contener dos caracteres permitidos de forma consecutiva. Asegúrate de que tu nombre de usuario no tenga '__' o '$$'."
+        return False, "El nombre de usuario debe comenzar con una letra mayúscula y solo puede contener letras, números y guiones bajos. Asegúrate de que tu nombre de usuario cumpla con este formato."
+    if re.search(r'[_]{2}', username):
+        return False, "El nombre de usuario no puede contener dos guiones bajos consecutivos. Asegúrate de que tu nombre de usuario no tenga '__'."
     return True, ""
+
 
 def validate_password(password):
     if len(password) < 8:

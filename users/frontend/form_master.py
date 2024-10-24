@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter.font import BOLD
-import util.ventana as utl  
-
+import util.utilidades as utl  
+from util.utilidades import leer_imagen,resource_path
 class MasterPanel:
     def __init__(self, on_close_callback):
         self.ventana = tk.Tk()
@@ -12,7 +12,8 @@ class MasterPanel:
         self.ventana.config(bg="#6bb16b")
         self.ventana.wm_resizable(width=0, height=0)
 
-        logo = utl.leer_imagen("./assets_2/Logo-user-blanco.png", (200, 200))
+        logo_path = resource_path("assets_2/Logo-user-blanco.png")
+        logo = leer_imagen(logo_path, (200, 200))
         self.logo_label = tk.Label(self.ventana, image=logo, bg="#041022")
         self.logo_label.image = logo  # Guardar una referencia para evitar que la imagen sea recolectada por el garbage collector
         self.logo_label.place(x=0, y=0, relwidth=1, relheight=1)

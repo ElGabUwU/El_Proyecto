@@ -4,15 +4,15 @@ from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from PIL import Image, ImageTk
 from Library.librerias import *
-from Books.backend.db_books import *
+from books.backend.db_books import *
 import random
-from Books.backend.books_management import *
+from books.backend.books_management import *
 from users.backend.user_management import *
 from loans.backend.loans_management import *
 from clients.backend.clients_management import *
 import tkinter as tk
-
-
+import os
+from util.utilidades import resource_path
 
 class Bienvenida(tk.Frame):
     def __init__(self, parent):
@@ -28,7 +28,7 @@ class Bienvenida(tk.Frame):
                 fill="#040F21",
                 font=("Inter", 64 * -1)
             )
-        self.images["bienvenida"] = tk.PhotoImage(file=relative_to_assets("logo-biblioteca-red-2.png"))
+        self.images["bienvenida"] = tk.PhotoImage(file=resource_path("assets_2/logo-biblioteca-red-2.png"))
         self.images["bienvenida"]= self.images["bienvenida"].subsample(2, 2)
         self.canvas.create_image(760.0, 360.0, image=self.images["bienvenida"])
         
@@ -53,27 +53,27 @@ class Menu(tk.Frame):
          
         #iconos
         
-        imagen_salir = Image.open("assets_2/icono_libros.png")
+        imagen_salir = Image.open(resource_path("assets_2/icono_libros.png"))
         nueva_imagen = imagen_salir.resize((30, 30), Image.Resampling.LANCZOS)
 
         self.images["icono_libros"] = ImageTk.PhotoImage(nueva_imagen)
         
-        imagen_salir = Image.open("assets_2/icono_usuarios.png")
+        imagen_salir = Image.open(resource_path("assets_2/icono_usuarios.png"))
         nueva_imagen = imagen_salir.resize((30, 30), Image.Resampling.LANCZOS)
 
         self.images["icono_usuarios"] = ImageTk.PhotoImage(nueva_imagen)
         
-        imagen_salir = Image.open("assets_2/icono_prestamos.png")
+        imagen_salir = Image.open(resource_path("assets_2/icono_prestamos.png"))
         nueva_imagen = imagen_salir.resize((25, 25), Image.Resampling.LANCZOS)
 
         self.images["icono_prestamos"] = ImageTk.PhotoImage(nueva_imagen)
         
-        imagen_salir = Image.open("assets_2/icono_perfil.png")
+        imagen_salir = Image.open(resource_path("assets_2/icono_perfil.png"))
         nueva_imagen = imagen_salir.resize((30, 30), Image.Resampling.LANCZOS)
 
         self.images["icono_perfil"] = ImageTk.PhotoImage(nueva_imagen)
         
-        imagen_salir = Image.open("assets_2/logo_salir.png")
+        imagen_salir = Image.open(resource_path("assets_2/logo_salir.png"))
         nueva_imagen = imagen_salir.resize((20, 20), Image.Resampling.LANCZOS)
 
         self.images["logo_salir"] = ImageTk.PhotoImage(nueva_imagen)
@@ -169,7 +169,7 @@ class Menu(tk.Frame):
         from users.backend.form_login import FormLogin
         from users.frontend.form_master import MasterPanel
         from users.frontend.from_login_designer import FormLoginDesigner
-        import util.ventana as utl
+        import util.utilidades as utl
         
         # Crear una instancia de MasterPanel y pasar el callback iniciar_starter
         master_panel = MasterPanel(on_close_callback=self.iniciar_login)
@@ -195,7 +195,7 @@ class Header(tk.Frame):
         self.canvas.pack(side="left", fill="both", expand= False)
         
         self.canvas.place(x=0.0, y=0.0, width=1366.0, height=60.0)
-        self.images["logo_header"] = tk.PhotoImage(file=relative_to_assets("logo_header.png"))
+        self.images["logo_header"] = tk.PhotoImage(file=resource_path("assets_2/logo_header.png"))
         self.canvas.create_image(185.0, 26.0, image=self.images["logo_header"])
         
         
@@ -293,21 +293,18 @@ class Starter(tk.Tk):
         super().__init__()
         self.geometry("1366x768")
         self.title("Arcanum Library")
-        self.iconbitmap(relative_to_assets('logo_biblioteca.ico')) 
+        # Usar ruta relativa para el icono
+        icon_path = resource_path('assets_2/logo_biblioteca.ico')
+        if os.path.exists(icon_path):
+            self.iconbitmap(icon_path)
+        else:
+            print(f"Archivo no encontrado: {icon_path}")
         self.U_nombre = self.id_usuario = self.id_cargo = self.id_rol = self.nombre = self.apellido = self.cedula = None
         self.agarrar_datos()
         print("funciono?")
         print(self.U_nombre)
-        #self.L_frame_eliminar = L_Eliminar(self)
-        #self.L_frame_modificar = L_Modificar(self)
         self.L_frame_listar = L_Listar(self)
-        #self.L_frame_registrar = L_Registrar(self)
-        #self.U_frame_eliminar = U_Eliminar(self)
-        #self.U_frame_modificar = U_Modificar()
         self.U_frame_listar = U_Listar(self)
-        #self.U_frame_registrar = U_Registrar(self)
-#        self.P_frame_eliminar = P_Eliminar(self)
-        #self.P_frame_modificar = Pdificar(self)
         self.P_frame_listar = P_Listar(self)
         self.P_frame_registrar = C_Listar(self)#CLIENTES
         self.frame_perfil = Perfil(self)

@@ -17,6 +17,7 @@ from tkinter import messagebox
 from clients.backend.db_clients import *
 from validations.clients_validations import capitalize_first_letter, limit_length
 from validations.clients_validations import *
+from util.utilidades import resource_path
 def validate_number_input(text):
         if text == "":
             return True
@@ -26,8 +27,6 @@ def validate_number_input(text):
         except ValueError:
             return False
 
-def relative_to_assets(path: str) -> str:
-    return f"./assets_2/{path}"
 
 class C_Listar(tk.Frame):
     def __init__(self, parent):
@@ -58,7 +57,7 @@ class C_Listar(tk.Frame):
         self.buscar.bind("<Return>", self.boton_buscar)
 
         # Cargar y almacenar las imágenes
-        self.images['boton_refrescar'] = tk.PhotoImage(file=relative_to_assets("16_refrescar.png"))
+        self.images['boton_refrescar'] = tk.PhotoImage(file=resource_path("assets_2/16_refrescar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -76,7 +75,7 @@ class C_Listar(tk.Frame):
 
         
 
-        self.images['boton_agregar'] = tk.PhotoImage(file=relative_to_assets("5_agregar.png"))
+        self.images['boton_agregar'] = tk.PhotoImage(file=resource_path("assets_2/5_agregar.png"))
             
             # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -92,7 +91,7 @@ class C_Listar(tk.Frame):
             )
         self.button_e.place(x=1035.0, y=60.0, width=90.0, height=100.0)
 
-        self.images['boton_Eliminar'] = tk.PhotoImage(file=relative_to_assets("7_eliminar.png"))
+        self.images['boton_Eliminar'] = tk.PhotoImage(file=resource_path("assets_2/7_eliminar.png"))
                     # Cargar y almacenar la imagen del botón
         self.button_dl = tk.Button(
             self,
@@ -107,7 +106,7 @@ class C_Listar(tk.Frame):
             )
         self.button_dl.place(x=1235.0, y=60.0, width=90.0, height=100.0)
 
-        self.images['boton_modificar'] = tk.PhotoImage(file=relative_to_assets("6_editar.png"))
+        self.images['boton_modificar'] = tk.PhotoImage(file=resource_path("assets_2/6_editar.png"))
             # Cargar y almacenar la imagen del botón
         self.button_dl = tk.Button(
             self,
@@ -214,8 +213,8 @@ class C_Modify(tk.Toplevel):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.title("Modificar")
-        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
-        self.geometry("950x380")
+        self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
+        self.geometry("950x400")
         self.config(bg="#042344")
         self.resizable(False, False)
         self.validate_number = self.register(validate_number_input)
@@ -447,7 +446,7 @@ class C_Modify(tk.Toplevel):
 
     def crear_boton_modificar(self):
         try:
-            self.images['boton_R'] = tk.PhotoImage(file=relative_to_assets("M_button_light_blue.png"))
+            self.images['boton_R'] = tk.PhotoImage(file=resource_path("assets_2/M_button_light_blue.png"))
             print("Imagen del botón 'Modificar' cargada correctamente.")
         except Exception as e:
             print(f"Error al cargar la imagen del botón 'Modificar': {e}")
@@ -463,13 +462,13 @@ class C_Modify(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_modificar.place(x=33.0, y=300.0, width=130.0, height=40.0)
+        self.boton_modificar.place(x=33.0, y=280.0, width=130.0, height=40.0)
         self.boton_modificar.place_forget()
         print("Botón 'Modificar' creado y oculto inicialmente.")
 
     def crear_boton_modificar_inactivo(self):
         try:
-            self.images['boton_R_inactivo'] = tk.PhotoImage(file=relative_to_assets("M_button_grey.png"))
+            self.images['boton_R_inactivo'] = tk.PhotoImage(file=resource_path("assets_2/M_button_grey.png"))
             print("Imagen del botón 'Modificar' inactivo cargada correctamente.")
         except Exception as e:
             print(f"Error al cargar la imagen del botón 'Modificar' inactivo: {e}")
@@ -484,17 +483,17 @@ class C_Modify(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_modificar_inactivo.place(x=33.0, y=300.0, width=130.0, height=40.0)
+        self.boton_modificar_inactivo.place(x=33.0, y=280.0, width=130.0, height=40.0)
         self.boton_modificar_inactivo.place_forget()
         print("Botón 'Modificar' inactivo creado y oculto inicialmente.")
 
     def mostrar_boton_modificar(self):
-        self.boton_modificar.place(x=33.0, y=300.0, width=130.0, height=40.0)
+        self.boton_modificar.place(x=33.0, y=280.0, width=130.0, height=40.0)
         self.boton_modificar_inactivo.place_forget()
         print("Botón 'Modificar' mostrado.")
 
     def mostrar_boton_modificar_inactivo(self):
-        self.boton_modificar_inactivo.place(x=33.0, y=300.0, width=130.0, height=40.0)
+        self.boton_modificar_inactivo.place(x=33.0, y=280.0, width=130.0, height=40.0)
         self.boton_modificar.place_forget()
         print("Botón 'Modificar' inactivo mostrado.")
 
@@ -505,7 +504,7 @@ class C_Modify(tk.Toplevel):
 
     def crear_boton_cancelar(self):
         try:
-            self.images['boton_C'] = tk.PhotoImage(file=relative_to_assets("c_button_red1.png"))
+            self.images['boton_C'] = tk.PhotoImage(file=resource_path("assets_2/c_button_red1.png"))
             print("Imagen del botón 'Cancelar' cargada correctamente.")
         except Exception as e:
             print(f"Error al cargar la imagen del botón 'Cancelar': {e}")
@@ -521,12 +520,12 @@ class C_Modify(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_C.place(x=210.0, y=300.0, width=130.0, height=40.0)
+        self.boton_C.place(x=178.0, y=280.0, width=130.0, height=40.0)
         print("Botón 'Cancelar' creado.")
 
     def crear_boton_restaurar(self):
         try:
-            self.images['boton_r'] = tk.PhotoImage(file=relative_to_assets("rest_button_green.png"))
+            self.images['boton_r'] = tk.PhotoImage(file=resource_path("assets_2/rest_button_green.png"))
             print("Imagen del botón 'Restaurar' cargada correctamente.")
         except Exception as e:
             print(f"Error al cargar la imagen del botón 'Restaurar': {e}")
@@ -542,7 +541,7 @@ class C_Modify(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_R.place(x=380.0, y=300.0, width=130.0, height=40.0)
+        self.boton_R.place(x=323.0, y=280.0, width=130.0, height=40.0)
         print("Botón 'Restaurar' creado.")
 
 
@@ -560,7 +559,7 @@ class C_Register(tk.Toplevel):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.title("Registro")
-        self.iconbitmap(relative_to_assets('logo_biblioteca.ico'))
+        self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
         self.geometry("950x380")
         self.config(bg="#042344")
         self.resizable(False, False)
@@ -729,7 +728,7 @@ class C_Register(tk.Toplevel):
 
     def crear_boton_register(self):
         try:
-            self.images['boton_register'] = tk.PhotoImage(file=relative_to_assets("R_button_light_blue.png"))
+            self.images['boton_register'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
             print("Imagen del botón 'Restaurar' cargada correctamente.")
         except Exception as e:
             print(f"Error al cargar la imagen del botón 'Restaurar': {e}")
@@ -750,7 +749,7 @@ class C_Register(tk.Toplevel):
 
     def crear_boton_cancelar(self):
         try:
-            self.images['boton_C'] = tk.PhotoImage(file=relative_to_assets("c_button_red1.png"))
+            self.images['boton_C'] = tk.PhotoImage(file=resource_path("assets_2/c_button_red1.png"))
             print("Imagen del botón 'Cancelar' cargada correctamente.")
         except Exception as e:
             print(f"Error al cargar la imagen del botón 'Cancelar': {e}")
