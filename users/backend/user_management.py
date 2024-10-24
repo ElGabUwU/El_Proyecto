@@ -41,7 +41,7 @@ class U_Listar(tk.Frame):
         self.user_frame_list.place(x=215,y=218, height=470, width=1135)
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(245.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1080.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
@@ -53,7 +53,7 @@ class U_Listar(tk.Frame):
         self.label_prestamos.place(x=665.0, y=180.0, width=225.0, height=35.0)
         
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
+        self.buscar.place(x=245.0, y=130.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
 
         style = ttk.Style()

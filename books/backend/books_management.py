@@ -3,7 +3,7 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
-from books.backend.db_books import *
+from Books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
@@ -51,12 +51,12 @@ class L_Listar(tk.Frame):
         self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)"""
         
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
+        self.buscar.place(x=245.0, y=130.0, width=267.0, height=48.0)
 
 
         # Crear textos en el canvas
 
-        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(245.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
@@ -404,8 +404,7 @@ class L_Listar(tk.Frame):
                 cursor = mariadb_conexion.cursor()
                 cursor.execute('''
                     SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares
-                    FROM libro
-                    
+                    FROM libro WHERE estado_libro='activo'
                 ''')
                 resultados = cursor.fetchall()
                 

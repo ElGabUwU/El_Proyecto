@@ -47,7 +47,7 @@ class P_Listar(tk.Frame):
         
         # Texto para el nombre
 
-        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(245.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1075.0, 170.0, text="Editar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1175.0, 170.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(775.0, 170.0, text="Imprimir", fill="#031A33", font=("Bold", 17))
@@ -62,7 +62,7 @@ class P_Listar(tk.Frame):
 
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
+        self.buscar.place(x=245.0, y=130.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
         self.images['boton_imprimir'] = tk.PhotoImage(file=resource_path("assets_2/Logo_Imprimir.png"))
         
@@ -343,35 +343,34 @@ class P_Listar(tk.Frame):
                 mariadb_conexion.close()
     
     def reading_books(self,book_table_list):
-                            try:
-                                mariadb_conexion = establecer_conexion()
-                                if mariadb_conexion:#.is_connected():
-                                    cursor = mariadb_conexion.cursor()
-                                    cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes FROM libro')
-                                    resultados = cursor.fetchall() 
-                                    for row in book_table_list.get_children():
-                                        book_table_list.delete(row)
-                                         # Configurar las etiquetas para los colores
-                                    book_table_list.tag_configure('multiple', background='lightblue')
-                                    book_table_list.tag_configure('single', background='#E5E1D7')
-                                        
-                                        # Insertar los datos en el Treeview
-                                    for fila in resultados:
-                                        book_id = fila[0]
-                                        n_ejemplares = fila[11]
-                                        tag = 'multiple' if n_ejemplares > 1 else 'single'
-                                        parent = book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
-                                        # # Create and place the button
-                                        # button = tk.Button(self.book_table_list, text="Toggle Copies", command=lambda p=parent: self.toggle_copies(p))
-                                        # button.grid(row=0, column=0)
-                                                            
-                                        if n_ejemplares > 1:
-                                            for i in range(1, n_ejemplares + 1):
-                                                # book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=("", "", "", "", "", "", "", "", "", "", "", "", ""), tags=('single',))
-                                                book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=tuple(fila), tags=('single',))
-                                    mariadb_conexion.close()
-                            except mariadb.Error as ex:
-                                    print("Error durante la conexión:", ex)
+                                try:
+                                    mariadb_conexion = establecer_conexion()
+                                    if mariadb_conexion:#.is_connected():
+                                        cursor = mariadb_conexion.cursor()
+                                        cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes FROM libro')
+                                        resultados = cursor.fetchall() 
+                                        for row in book_table_list.get_children():
+                                            book_table_list.delete(row)
+                                            # Configurar las etiquetas para los colores
+                                        book_table_list.tag_configure('multiple', background='lightblue')
+                                        book_table_list.tag_configure('single', background='#E5E1D7')
+
+                                            # Insert new data into the Treeview
+                                        for fila in resultados:
+                                            book_table_list.insert("", "end", values=tuple(fila))
+                                        # for fila in resultados:
+                                        #     book_id = fila[0]
+                                            # n_ejemplares = fila[11]
+                                            # tag = 'multiple' if n_ejemplares > 1 else 'single'
+                                            # parent = book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
+                                                                
+                                            # if n_ejemplares > 1:
+                                            #     for i in range(1, n_ejemplares + 1):
+                                            #         # book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=("", "", "", "", "", "", "", "", "", "", "", "", ""), tags=('single',))
+                                            #         book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=tuple(fila), tags=('single',))
+                                        mariadb_conexion.close()
+                                except mariadb.Error as ex:
+                                        print("Error durante la conexión:", ex)
 
     
     
