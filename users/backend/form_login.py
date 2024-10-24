@@ -65,7 +65,7 @@ class FormLogin(FormLoginDesigner):
 
     def mostrar_master_panel(self):
         # Crear una instancia de MasterPanel y pasar el callback iniciar_starter
-        master_panel = MasterPanel(on_close_callback=self.iniciar_starter)
+        master_panel = MasterPanel(on_close_callback=self.iniciar_starter,mensaje="Iniciando Sesión...")
         
         self.ventana.after(1500, master_panel.on_close)  # Esperar 1500 milisegundos antes de iniciar Starter
         master_panel.show()

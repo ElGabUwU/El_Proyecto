@@ -61,10 +61,10 @@ class P_Listar(tk.Frame):
         self.label_prestamos.place(x=665.0, y=185.0, width=237.0, height=35.0)
 
 
-        self.buscar = tk.Entry(self, bg="#FAFAFA", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
+        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
         self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
-        self.images['boton_imprimir'] = tk.PhotoImage(file=resource_path("assets_2/4_imprimir.png"))
+        self.images['boton_imprimir'] = tk.PhotoImage(file=resource_path("assets_2/Logo_Imprimir.png"))
         
         # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(

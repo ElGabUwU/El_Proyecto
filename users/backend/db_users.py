@@ -1,6 +1,6 @@
 from db.conexion import establecer_conexion
 import mysql.connector as mariadb
-import mariadb
+#import mariadb
 from colorama import init, Fore, Back, Style
 from tkinter import messagebox
 

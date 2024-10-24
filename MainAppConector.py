@@ -172,7 +172,7 @@ class Menu(tk.Frame):
         import util.utilidades as utl
         
         # Crear una instancia de MasterPanel y pasar el callback iniciar_starter
-        master_panel = MasterPanel(on_close_callback=self.iniciar_login)
+        master_panel = MasterPanel(on_close_callback=self.iniciar_login,mensaje="Cerrando Sesión...")
         
         app.after(1500, master_panel.on_close)  # Esperar 1500 milisegundos antes de iniciar Starter
         master_panel.show()
