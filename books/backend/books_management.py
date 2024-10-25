@@ -199,38 +199,65 @@ class L_Listar(tk.Frame):
              L_Modificar(item_values)
          else:
              messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un libro para modificarlo.")
+    
+    def boton_buscar(self, event):
+        busqueda = self.buscar.get()
+        try:
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+                cursor.execute("""SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota,
+                                n_registro, titulo, autor, editorial, año, edicion FROM libro WHERE 
+                                ID_Libro=%s OR ID_Sala=%s OR ID_Categoria=%s OR 
+                                ID_Asignatura=%s OR Cota=%s OR n_registro=%s OR 
+                                titulo=%s OR autor=%s OR editorial=%s OR 
+                                año=%s OR edicion=%s""", 
+                            (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+                resultados = cursor.fetchall()
+
+                self.book_table_list.delete(*self.book_table_list.get_children())
+                for fila in resultados:
+                    if busqueda in map(str, fila):  # Convertir cada elemento de la fila a string para la comparación
+                        self.book_table_list.insert("", "end", values=tuple(fila))
+
+                if resultados:
+                    messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+                else:
+                    messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
    
 
-    def boton_buscar(self, event):
-        busqueda= self.buscar.get()
-        try:
-             mariadb_conexion = establecer_conexion()
-             if mariadb_conexion:#.is_connected():
-                        cursor = mariadb_conexion.cursor()
-                        cursor.execute("""SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota,
-                                        n_registro, titulo, autor, editorial, año, edicion FROM libro WHERE 
-                                        ID_Libro=%s OR ID_Sala=%s OR ID_Categoria=%s OR 
-                                        ID_Asignatura=%s OR Cota=%s OR n_registro=%s OR 
-                                        titulo=%s OR autor=%s OR editorial=%s OR 
-                                        año=%s OR edicion=%s""", 
-                           (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
-                        resultados = cursor.fetchall() 
+    # def boton_buscar(self, event):
+    #     busqueda= self.buscar.get()
+    #     try:
+    #          mariadb_conexion = establecer_conexion()
+    #          if mariadb_conexion:#.is_connected():
+    #                     cursor = mariadb_conexion.cursor()
+    #                     cursor.execute("""SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota,
+    #                                     n_registro, titulo, autor, editorial, año, edicion FROM libro WHERE 
+    #                                     ID_Libro=%s OR ID_Sala=%s OR ID_Categoria=%s OR 
+    #                                     ID_Asignatura=%s OR Cota=%s OR n_registro=%s OR 
+    #                                     titulo=%s OR autor=%s OR editorial=%s OR 
+    #                                     año=%s OR edicion=%s""", 
+    #                        (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+    #                     resultados = cursor.fetchall() 
 
-                        self.book_table_list.delete(*self.book_table_list.get_children())
-                        for fila in resultados:
-                            self.book_table_list.insert("", "end", values=tuple(fila))
-                            if busqueda in fila:
-                                self.book_table_list.item(self.book_table_list.get_children()[-1], tags='match')
-                            else:
-                                self.book_table_list.item(self.book_table_list.get_children()[-1], tags='nomatch')
-                        self.book_table_list.tag_configure('match', background='green')
-                        self.book_table_list.tag_configure('nomatch', background='gray')
-                        if resultados:
-                            messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
-                        else:
-                            messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
-        except mariadb.Error as ex:
-                print("Error durante la conexión:", ex)
+    #                     self.book_table_list.delete(*self.book_table_list.get_children())
+    #                     for fila in resultados:
+    #                         self.book_table_list.insert("", "end", values=tuple(fila))
+    #                         if busqueda in fila:
+    #                             self.book_table_list.item(self.book_table_list.get_children()[-1], tags='match')
+    #                         else:
+    #                             self.book_table_list.item(self.book_table_list.get_children()[-1], tags='nomatch')
+    #                     self.book_table_list.tag_configure('match', background='green')
+    #                     self.book_table_list.tag_configure('nomatch', background='gray')
+    #                     if resultados:
+    #                         messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+    #                     else:
+    #                         messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+    #     except mariadb.Error as ex:
+    #             print("Error durante la conexión:", ex)
         
     def on_book_double_click(self, event):
         try:

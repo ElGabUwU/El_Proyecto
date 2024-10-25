@@ -304,43 +304,78 @@ class P_Listar(tk.Frame):
         Register_Loans(self,loans_validations)
 
 
-    def boton_buscar(self,event=None):  
+    def boton_buscar(self, event=None):  
         busqueda = self.buscar.get()
         try:
-             mariadb_conexion = establecer_conexion()
-             if mariadb_conexion:
-                        cursor = mariadb_conexion.cursor()
-                        self.prestamo_table.delete(*self.prestamo_table.get_children())
-                         # Ejecutar y procesar la primera consulta
-                        cursor.execute("""SELECT prestamo.ID_Prestamo, cliente.ID_Cliente, cliente.Nombre, 
-                        libro.ID_Libro, libro.titulo, libro.n_ejemplares, prestamo.Fecha_Registro, 
-                        prestamo.Fecha_Limite, prestamo.ID_Usuario
-                        FROM prestamo 
-                        JOIN cliente ON prestamo.ID_Cliente = cliente.ID_Cliente 
-                        JOIN libro ON prestamo.ID_Libro = libro.ID_Libro 
-                        WHERE cliente.ID_Cliente=%s OR cliente.Nombre=%s OR cliente.Apellido=%s 
-                                OR libro.ID_Libro=%s OR libro.titulo=%s 
-                                OR prestamo.ID_Prestamo=%s OR prestamo.ID_Usuario=%s""", 
-                        (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
-                        resultados_prestamo = cursor.fetchall() 
-                        for fila in resultados_prestamo:
-                            if busqueda in fila:
-                                 if self.prestamo_table.get_children():
-                                     self.prestamo_table.item(self.prestamo_table.get_children()[-1], tags='match')
-                            else:
-                                if self.prestamo_table.get_children():
-                                    self.prestamo_table.item(self.prestamo_table.get_children()[-1], tags='nomatch')
-                        self.prestamo_table.tag_configure('match', background='green')
-                        self.prestamo_table.tag_configure('nomatch', background='gray')
-                        if resultados_prestamo:
-                            messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
-                        else:
-                            messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+                self.prestamo_table.delete(*self.prestamo_table.get_children())
+                # Ejecutar y procesar la consulta
+                cursor.execute("""SELECT prestamo.ID_Prestamo, cliente.ID_Cliente, cliente.Nombre, 
+                                libro.ID_Libro, libro.titulo, libro.n_ejemplares, prestamo.Fecha_Registro, 
+                                prestamo.Fecha_Limite, prestamo.ID_Usuario
+                                FROM prestamo 
+                                JOIN cliente ON prestamo.ID_Cliente = cliente.ID_Cliente 
+                                JOIN libro ON prestamo.ID_Libro = libro.ID_Libro 
+                                WHERE cliente.ID_Cliente=%s OR cliente.Nombre=%s OR cliente.Apellido=%s 
+                                        OR libro.ID_Libro=%s OR libro.titulo=%s 
+                                        OR prestamo.ID_Prestamo=%s OR prestamo.ID_Usuario=%s""", 
+                            (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+                resultados_prestamo = cursor.fetchall()
+                
+                for fila in resultados_prestamo:
+                    if busqueda in map(str, fila):  # Convertir cada elemento de la fila a string para la comparación
+                        self.prestamo_table.insert("", "end", values=tuple(fila))
+
+                if resultados_prestamo:
+                    messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+                else:
+                    messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
         finally:
             if mariadb_conexion:
                 mariadb_conexion.close()
+
+
+    # def boton_buscar(self,event=None):  
+    #     busqueda = self.buscar.get()
+    #     try:
+    #          mariadb_conexion = establecer_conexion()
+    #          if mariadb_conexion:
+    #                     cursor = mariadb_conexion.cursor()
+    #                     self.prestamo_table.delete(*self.prestamo_table.get_children())
+    #                      # Ejecutar y procesar la primera consulta
+    #                     cursor.execute("""SELECT prestamo.ID_Prestamo, cliente.ID_Cliente, cliente.Nombre, 
+    #                     libro.ID_Libro, libro.titulo, libro.n_ejemplares, prestamo.Fecha_Registro, 
+    #                     prestamo.Fecha_Limite, prestamo.ID_Usuario
+    #                     FROM prestamo 
+    #                     JOIN cliente ON prestamo.ID_Cliente = cliente.ID_Cliente 
+    #                     JOIN libro ON prestamo.ID_Libro = libro.ID_Libro 
+    #                     WHERE cliente.ID_Cliente=%s OR cliente.Nombre=%s OR cliente.Apellido=%s 
+    #                             OR libro.ID_Libro=%s OR libro.titulo=%s 
+    #                             OR prestamo.ID_Prestamo=%s OR prestamo.ID_Usuario=%s""", 
+    #                     (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+    #                     resultados_prestamo = cursor.fetchall() 
+    #                     for fila in resultados_prestamo:
+    #                         if busqueda in fila:
+    #                              if self.prestamo_table.get_children():
+    #                                  self.prestamo_table.item(self.prestamo_table.get_children()[-1], tags='match')
+    #                         else:
+    #                             if self.prestamo_table.get_children():
+    #                                 self.prestamo_table.item(self.prestamo_table.get_children()[-1], tags='nomatch')
+    #                     self.prestamo_table.tag_configure('match', background='green')
+    #                     self.prestamo_table.tag_configure('nomatch', background='gray')
+    #                     if resultados_prestamo:
+    #                         messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+    #                     else:
+    #                         messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+    #     except mariadb.Error as ex:
+    #         print("Error durante la conexión:", ex)
+    #     finally:
+    #         if mariadb_conexion:
+    #             mariadb_conexion.close()
     
     def reading_books(self,book_table_list):
                                 try:
@@ -732,25 +767,27 @@ class ModifyLoans(P_Listar):
 
     def apply_filters_modify(self):
         id_prestamo = self.id_prestamo_entry.get()
-        #cantidad = self.cantidad_entry.get()
         fecha_limite = self.fecha_limite_entry.get()
-        try:
-            fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%d')
-        except ValueError:
-            messagebox.showinfo("Error", "Por favor, proporciona una fecha válida en el formato YYYY-MM-DD.",parent=self.modify_loan_window)
-            return
+        
+        if fecha_limite:
+            try:
+                fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%d')
+            except ValueError:
+                messagebox.showinfo("Error", "Por favor, proporciona una fecha válida en el formato YYYY-MM-DD.", parent=self.modify_loan_window)
+                return
+        
         if id_prestamo:
             respuesta = messagebox.askyesno("Confirmar modificación", "¿Desea modificar?")
             if respuesta:
                 if update_client_loans(id_prestamo, fecha_limite):
-                    messagebox.showinfo("Éxito", "Modificación éxitosa del prestamo del cliente",parent=self.modify_loan_window)
+                    messagebox.showinfo("Éxito", "Modificación exitosa del préstamo del cliente", parent=self.modify_loan_window)
                     self.loans_validations.clear_entries_list(self)
                 else:
-                    messagebox.showinfo("Fallido", "La modificación del prestamo no pudo ejecutarse.",parent=self.modify_loan_window)
+                    messagebox.showinfo("Fallido", "La modificación del préstamo no pudo ejecutarse.", parent=self.modify_loan_window)
             else:
-                messagebox.showinfo("Cancelado", "Modificación cancelada.",parent=self.modify_loan_window)
+                messagebox.showinfo("Cancelado", "Modificación cancelada.", parent=self.modify_loan_window)
         else:
-            messagebox.showinfo("Error", "Por favor, proporciona una ID válida.",parent=self.modify_loan_window)
+            messagebox.showinfo("Error", "Por favor, proporciona una ID válida.", parent=self.modify_loan_window)
 
 class FilterLoansWindow:
     def __init__(self, parent ,prestamo_table):

@@ -212,8 +212,7 @@ def update_client_loans(id_prestamo, fecha_limite):
     if mariadb_conexion:
         cursor = mariadb_conexion.cursor()
         cursor.execute("SELECT ID_Prestamo FROM prestamo WHERE ID_Prestamo = %s", (id_prestamo,))
-        busqueda=()
-        busqueda=cursor.fetchone()
+        busqueda = cursor.fetchone()
         print(busqueda)
         if busqueda is None:
             mariadb_conexion.close()
@@ -226,17 +225,15 @@ def update_client_loans(id_prestamo, fecha_limite):
                 SET Fecha_Limite = %s
                 WHERE ID_Prestamo = %s
             ''', (fecha_limite, id_prestamo))
-        
-        # Actualizar la cantidad de libros prestados
-        # cursor.execute('''
-        #     UPDATE libros_prestamo
-        #     SET Cantidad = %s
-        #     WHERE ID_Prestamo = %s
-        # ''', (id_prestamo))
-        # print("Actualización éxitosa.")
-        # mariadb_conexion.commit()
-        # mariadb_conexion.close()
-        return True
+            
+            # Confirmar la transacción
+            mariadb_conexion.commit()
+            print("Actualización exitosa.")
+            mariadb_conexion.close()
+            return True
+    else:
+        print("No se pudo establecer la conexión con la base de datos.")
+        return False
 
 # Eliminar cliente
 def delete_client_loans(self):

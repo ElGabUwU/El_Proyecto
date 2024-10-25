@@ -213,43 +213,71 @@ class U_Listar(tk.Frame):
             U_Modificar(self, item_values)
         else:
             messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un usuario para modificarlo.")
-
-            
     
 
     def boton_buscar(self, event):
-        busqueda= self.buscar.get()
+        busqueda = self.buscar.get()
         try:
-             mariadb_conexion = establecer_conexion()
-             if mariadb_conexion:#.is_connected():
-                        cursor = mariadb_conexion.cursor()
-                        cursor.execute("""SELECT ID_Usuario, ID_Cargo, ID_Rol, Nombre, Apellido,
-                                        Cedula, Nombre_Usuario FROM usuarios WHERE 
-                                        ID_Usuario=%s OR ID_Cargo=%s OR ID_Rol=%s OR 
-                                        Nombre=%s OR Apellido=%s OR Cedula=%s OR 
-                                        Nombre_Usuario=%s""", 
-                           (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
-                        resultados = cursor.fetchall() 
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+                cursor.execute("""SELECT ID_Usuario, ID_Cargo, ID_Rol, Nombre, Apellido,
+                                Cedula, Nombre_Usuario FROM usuarios WHERE 
+                                ID_Usuario=%s OR ID_Cargo=%s OR ID_Rol=%s OR 
+                                Nombre=%s OR Apellido=%s OR Cedula=%s OR 
+                                Nombre_Usuario=%s""", 
+                            (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+                resultados = cursor.fetchall()
 
-                        self.user_table_list.delete(*self.user_table_list.get_children())
-                        for fila in resultados:
-                            self.user_table_list.insert("", "end", values=tuple(fila))
-                            if busqueda in fila:
-                                self.user_table_list.item(self.user_table_list.get_children()[-1], tags='match')
-                            else:
-                                self.user_table_list.item(self.user_table_list.get_children()[-1], tags='nomatch')
-                        self.user_table_list.tag_configure('match', background='green')
-                        self.user_table_list.tag_configure('nomatch', background='gray')
-                        if resultados:
-                            messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
-                        else:
-                            messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+                self.user_table_list.delete(*self.user_table_list.get_children())
+                for fila in resultados:
+                    if busqueda in map(str, fila):  # Convertir cada elemento de la fila a string para la comparación
+                        self.user_table_list.insert("", "end", values=tuple(fila))
+
+                if resultados:
+                    messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+                else:
+                    messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
         except mariadb.Error as ex:
-                print("Error durante la conexión:", ex)
+            print("Error durante la conexión:", ex)
 
     def cancelar(self, window):
         if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
             window.destroy()  # Esto cerrará la ventana de filtro
+
+    # def boton_buscar(self, event):
+    #     busqueda= self.buscar.get()
+    #     try:
+    #          mariadb_conexion = establecer_conexion()
+    #          if mariadb_conexion:#.is_connected():
+    #                     cursor = mariadb_conexion.cursor()
+    #                     cursor.execute("""SELECT ID_Usuario, ID_Cargo, ID_Rol, Nombre, Apellido,
+    #                                     Cedula, Nombre_Usuario FROM usuarios WHERE 
+    #                                     ID_Usuario=%s OR ID_Cargo=%s OR ID_Rol=%s OR 
+    #                                     Nombre=%s OR Apellido=%s OR Cedula=%s OR 
+    #                                     Nombre_Usuario=%s""", 
+    #                        (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+    #                     resultados = cursor.fetchall() 
+
+    #                     self.user_table_list.delete(*self.user_table_list.get_children())
+    #                     for fila in resultados:
+    #                         self.user_table_list.insert("", "end", values=tuple(fila))
+    #                         if busqueda in fila:
+    #                             self.user_table_list.item(self.user_table_list.get_children()[-1], tags='match')
+    #                         else:
+    #                             self.user_table_list.item(self.user_table_list.get_children()[-1], tags='nomatch')
+    #                     self.user_table_list.tag_configure('match', background='green')
+    #                     self.user_table_list.tag_configure('nomatch', background='gray')
+    #                     if resultados:
+    #                         messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+    #                     else:
+    #                         messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+    #     except mariadb.Error as ex:
+    #             print("Error durante la conexión:", ex)
+
+    # def cancelar(self, window):
+    #     if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
+    #         window.destroy()  # Esto cerrará la ventana de filtro
 
     # def clear_entries_modify_window(self):
     #     self.nombre_entry.delete(0, tk.END)
