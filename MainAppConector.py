@@ -4,9 +4,9 @@ from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from PIL import Image, ImageTk
 from Library.librerias import *
-from Books.backend.db_books import *
+from books.backend.db_books import *
 import random
-from Books.backend.books_management import *
+from books.backend.books_management import *
 from users.backend.user_management import *
 from loans.backend.loans_management import *
 from clients.backend.clients_management import *

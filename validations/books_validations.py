@@ -125,47 +125,40 @@ def validar_cota(cota):
     if not re.match(r'^[a-zA-Z0-9.]+$', cota):
         return "La cota solo puede contener letras, números y puntos."
     return None
+
+import re
+
 def validar_titulo(titulo):
     if not titulo:
         return "El campo título es obligatorio."
+    if titulo[0] == " ":
+        return "El título no puede comenzar con un espacio."
     if len(titulo) < 4:
         return "La longitud del título debe ser al menos de 4 caracteres."
-    # Evitar más de un punto consecutivo
     if ".." in titulo:
         return "El título no puede contener más de un punto consecutivo."
-    # Evitar más de un signo de exclamación consecutivo
     if "!!" in titulo or "¡¡" in titulo:
         return "El título no puede contener más de un signo de exclamación consecutivo."
-    # Evitar más de un signo de interrogación consecutivo
     if "??" in titulo or "¿¿" in titulo:
         return "El título no puede contener más de un signo de interrogación consecutivo."
-    # Evitar más de un guion consecutivo
     if "--" in titulo:
         return "El título no puede contener más de un guion consecutivo."
-    # Evitar más de una coma consecutiva
     if ",," in titulo:
         return "El título no puede contener más de una coma consecutiva."
-    # Evitar más de un punto y coma consecutivo
     if ";;" in titulo:
         return "El título no puede contener más de un punto y coma consecutivo."
-    # Evitar más de un signo de dos puntos consecutivo
     if "::" in titulo:
         return "El título no puede contener más de un signo de dos puntos consecutivo."
-    # Asegurar que los signos de interrogación y exclamación están correctamente abiertos y cerrados
     if titulo.count("¿") != titulo.count("?"):
         return "El título debe tener un número igual de signos de apertura y cierre de interrogación."
     if titulo.count("¡") != titulo.count("!"):
         return "El título debe tener un número igual de signos de apertura y cierre de exclamación."
-    # Asegurar que los signos de puntuación están en el orden correcto
     if re.search(r'[^¿?!¡][?!¡¿]', titulo):
         return "El título tiene signos de puntuación en el orden incorrecto."
-    # Asegurar que los signos de interrogación y exclamación abren y cierran correctamente
     if re.search(r'¿[^?]*$', titulo) or re.search(r'¡[^!]*$', titulo):
         return "El título tiene un signo de apertura sin su correspondiente cierre."
-    # Evitar más de dos espacios consecutivos
     if re.search(r'\s{2,}', titulo):
-        return "El título no puede contener más de dos espacios consecutivos."
-    # No permitir espacios al final
+        return "El título no puede contener más de un espacio consecutivo."
     if titulo[-1] == " ":
         return "El título no puede terminar en un espacio."
     return None  # Título válido
@@ -173,14 +166,14 @@ def validar_titulo(titulo):
 def validar_autor(autor):
     if not autor:
         return "El campo autor es obligatorio."
+    if autor[0] == " ":
+        return "El nombre del autor no puede comenzar con un espacio."
     if len(autor) < 3:
         return "La longitud del nombre del autor debe ser al menos de 3 caracteres."
     if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', autor):
         return "El nombre del autor solo puede contener letras y espacios."
-    # Evitar más de dos espacios consecutivos
     if re.search(r'\s{2,}', autor):
-        return "El nombre del autor no puede contener más de dos espacios consecutivos."
-    # No permitir espacios al final
+        return "El nombre del autor no puede contener más de un espacio consecutivo."
     if autor[-1] == " ":
         return "El nombre del autor no puede terminar en un espacio."
     return None
@@ -188,17 +181,18 @@ def validar_autor(autor):
 def validar_editorial(editorial):
     if not editorial:
         return "El campo editorial es obligatorio."
+    if editorial[0] == " ":
+        return "El nombre de la editorial no puede comenzar con un espacio."
     if len(editorial) < 3:
         return "La longitud del nombre de la editorial debe ser al menos de 3 caracteres."
     if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', editorial):
         return "El nombre de la editorial solo puede contener letras y espacios."
-    # Evitar más de dos espacios consecutivos
     if re.search(r'\s{2,}', editorial):
-        return "El nombre de la editorial no puede contener más de dos espacios consecutivos."
-    # No permitir espacios al final
+        return "El nombre de la editorial no puede contener más de un espacio consecutivo."
     if editorial[-1] == " ":
         return "El nombre de la editorial no puede terminar en un espacio."
     return None
+
 
 def validar_n_registro(n_registro):
     if not n_registro:

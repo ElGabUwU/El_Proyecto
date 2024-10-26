@@ -3,7 +3,7 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
-from Books.backend.db_books import *
+from books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
@@ -799,8 +799,8 @@ class L_Registrar(tk.Toplevel):
         )
         print(f"Errores: {errores}")  # Agregar esta línea para depuración
 
-        if errores:
-            messagebox.showerror("Error", "\n".join(errores),parent=self)
+        if errores:        
+            messagebox.showerror("Error al registrar", "Por favor, corrija los siguientes errores:\n\n" + "\n".join(f"- {msg}" for msg in errores),parent=self)
             return
 
         # Depuración de los valores que se van a pasar a create_books
@@ -1184,9 +1184,9 @@ class L_Modificar(tk.Toplevel):
             "ID_Asignatura": self.asignatura_cb.get().strip(),
             "Cota": self.cota.get().strip(),
             "n_registro": self.registro_m.get().strip(),
-            "Titulo": self.titulo_m.get().strip(),
-            "Autor": self.autor_m.get().strip(),
-            "Editorial": self.editorial_m.get().strip(),
+            "Titulo": self.titulo_m.get(),
+            "Autor": self.autor_m.get(),
+            "Editorial": self.editorial_m.get(),
             "Año": self.ano_m.get().strip(),
             "Edicion": self.edicion_m.get().strip(),
             "Volumen": self.volumen_m.get().strip(),
