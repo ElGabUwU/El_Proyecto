@@ -85,7 +85,7 @@ def is_cedula_registered(cedula):
     if mariadb_conexion:
         cursor = mariadb_conexion.cursor()
         try:
-            query = "SELECT COUNT(*) FROM cliente WHERE Cedula_Cliente = %s"
+            query = "SELECT COUNT(*) FROM cliente WHERE Cedula = %s"
             cursor.execute(query, (cedula,))
             result = cursor.fetchone()
             if result[0] > 0:
@@ -104,13 +104,13 @@ def is_cedula_unique_for_client(cedula, client_id):
         cursor = mariadb_conexion.cursor()
         try:
             # Verificar si la cédula ingresada es diferente a la del cliente original
-            query = "SELECT Cedula_Cliente FROM cliente WHERE ID_Cliente = %s"
+            query = "SELECT Cedula FROM cliente WHERE ID_Cliente = %s"
             cursor.execute(query, (client_id,))
             cedula_original = cursor.fetchone()
 
             if cedula_original and cedula != cedula_original[0]:
                 # Verificar si la nueva cédula ya está registrada por otro cliente
-                query = "SELECT ID_Cliente FROM cliente WHERE Cedula_Cliente = %s AND ID_Cliente != %s"
+                query = "SELECT ID_Cliente FROM cliente WHERE Cedula = %s AND ID_Cliente != %s"
                 cursor.execute(query, (cedula, client_id))
                 result = cursor.fetchone()
                 if result:

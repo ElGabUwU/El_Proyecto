@@ -51,9 +51,9 @@ class C_Listar(tk.Frame):
         self.label_clientes.place(x=665.0, y=180.0, width=225.0, height=35.0)
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.buscar.place(x=265.0, y=130.0, width=267.0, height=48.0)
+        self.buscar.place(x=245.0, y=130.0, width=267.0, height=48.0)
         
-        self.label_nombre = self.canvas.create_text(265.0, 100.0, anchor="nw", text="Buscar", fill="black", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(245.0, 100.0, anchor="nw", text="Buscar", fill="black", font=("Bold", 17))
         self.buscar.bind("<Return>", self.boton_buscar)
 
         # Cargar y almacenar las imágenes
@@ -139,7 +139,7 @@ class C_Listar(tk.Frame):
                         foreground="#000000",
                         borderwidth=0)
 
-        columns = ("ID Cliente","ID Prestamo", "N° Cedula", "Nombre", "Apellido", "Teléfono", "Dirección")
+        columns = ("Cedula", "Nombre", "Apellido", "Teléfono", "Dirección")
         # Crear el Treeview con selectmode
         self.clients_table_list_loans = ttk.Treeview(
             self.right_frame_list_loans, 
@@ -148,13 +148,11 @@ class C_Listar(tk.Frame):
             selectmode='browse',  # Aquí agregas el selectmode
             style="Rounded.Treeview"
         )        
-        self.clients_table_list_loans.column("ID Cliente", width=20, anchor="center")
-        self.clients_table_list_loans.column("ID Prestamo", width=20, anchor="center")
-
+        self.clients_table_list_loans.column("Cedula", width=20, anchor="center")
+        # self.clients_table_list_loans.column("ID Prestamo", width=20, anchor="center")
         for col in columns:
-            if col not in ("ID Cliente", "ID Prestamo"):
-                self.clients_table_list_loans.column(col, width=85, anchor="center")
             self.clients_table_list_loans.heading(col, text=col)
+            self.clients_table_list_loans.column(col, width=85, anchor="center")
         self.clients_table_list_loans.pack(expand=True, fill="both", padx=30, pady=5)
 
         scrollbar_pt = ttk.Scrollbar(self.clients_table_list_loans, orient="vertical", command=self.clients_table_list_loans.yview)
@@ -163,9 +161,6 @@ class C_Listar(tk.Frame):
 
         reading_clients (self.clients_table_list_loans)
     
-    
-                
-      
     def open_register_window(self):
         C_Register(self)
 
@@ -179,34 +174,28 @@ class C_Listar(tk.Frame):
             messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un cliente para modificarlo.")
 
     def boton_buscar(self, event):
-        busqueda= self.buscar.get()
+        busqueda = self.buscar.get()
         try:
-             mariadb_conexion = establecer_conexion()
-             if mariadb_conexion:#.is_connected():
-                        cursor = mariadb_conexion.cursor()
-                        cursor.execute("""SELECT ID_Cliente, ID_Prestamo, Cedula_Cliente, Nombre, Apellido,
-                                        Telefono, Direccion FROM cliente WHERE 
-                                        ID_Cliente=%s OR ID_Prestamo=%s OR Cedula_Cliente=%s OR 
-                                        Nombre=%s OR Apellido=%s OR Telefono=%s OR 
-                                        Direccion=%s""", 
-                           (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
-                        resultados = cursor.fetchall() 
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+                cursor.execute("""SELECT Cedula FROM cliente WHERE Cedula=%s""", 
+                            (busqueda,))
+                resultados = cursor.fetchall()
+                self.clients_table_list_loans.delete(*self.clients_table_list_loans.get_children())
+                for fila in resultados:
+                    if busqueda in map(str, fila):  # Convertir cada elemento de la fila a string para la comparación
+                        self.clients_table_list_loans.insert("", "end", values=tuple(fila))
 
-                        self.clients_table_list_loans.delete(*self.clients_table_list_loans.get_children())
-                        for fila in resultados:
-                            self.clients_table_list_loans.insert("", "end", values=tuple(fila))
-                            if busqueda in fila:
-                                self.clients_table_list_loans.item(self.clients_table_list_loans.get_children()[-1], tags='match')
-                            else:
-                                self.clients_table_list_loans.item(self.clients_table_list_loans.get_children()[-1], tags='nomatch')
-                        self.clients_table_list_loans.tag_configure('match', background='green')
-                        self.clients_table_list_loans.tag_configure('nomatch', background='gray')
-                        if resultados:
-                            messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
-                        else:
-                            messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+                if resultados:
+                    messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+                else:
+                    messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
         except mariadb.Error as ex:
-                print("Error durante la conexión:", ex)
+            print("Error durante la conexión:", ex)
+        finally:
+            if mariadb_conexion:
+                mariadb_conexion.close()
 
 class C_Modify(tk.Toplevel):
     def __init__(self, parent, client_data, *args, **kwargs):
@@ -224,13 +213,11 @@ class C_Modify(tk.Toplevel):
         
         # Guardar los datos del cliente en un diccionario
         self.client_data = {
-            "ID": client_data[0],
-            "ID_Prestamo" : client_data[1],
-            "Cedula": client_data[2],
-            "Nombre": client_data[3], 
-            "Apellido": client_data[4],
-            "Telefono" :client_data[5],
-            "Direccion" : client_data[6]  
+            "Cedula": client_data[0],
+            "Nombre": client_data[1], 
+            "Apellido": client_data[2],
+            "Telefono" :client_data[3],
+            "Direccion" : client_data[4]  
         }
         self.original_values_client = self.client_data.copy()
         print(self.client_data,"\n",self.original_values_client)
@@ -402,6 +389,7 @@ class C_Modify(tk.Toplevel):
                 print("No se detectaron cambios. Botón 'Modificar' inactivo mostrado.")
         except Exception as e:
             print(f"Error en check_changes: {e}")
+            
     def modify_client(self):
         nuevos_valores = {
             "Nombre": self.input_nombre.get(),
@@ -411,8 +399,8 @@ class C_Modify(tk.Toplevel):
             "Direccion": self.input_direccion.get(),
         }
         
-        id_cliente = self.original_values_client["ID"]
-        print(f"ID CLIENTE: {id_cliente}")
+        cedula = self.original_values_client["Cedula"]
+        print(f"Cedula: {cedula}")
         
         # Validar los campos incluyendo el ID del cliente
         errores = validar_campos(
@@ -422,7 +410,7 @@ class C_Modify(tk.Toplevel):
             telefono=self.input_telefono.get(),
             direccion=self.input_direccion.get(),
             tipo_validacion="modificar",
-            client_id=id_cliente
+            #client_id=id_cliente
         )
         
         print(f"Errores: {errores}")  # Agregar esta línea para depuración
@@ -435,7 +423,7 @@ class C_Modify(tk.Toplevel):
             print(f"{key}: {value}")
 
         # Actualizar el cliente con los nuevos valores
-        client_data = {"id": id_cliente}
+        client_data = {"cedula": cedula}
         if update_client(client_data, nuevos_valores):
             messagebox.showinfo("Éxito", "Modificación del cliente exitosa.", parent=self)
             self.clear_entries_modify_client()
@@ -720,10 +708,10 @@ class C_Register(tk.Toplevel):
             return
         print(errores)
         if register_client_in_db(cedula, nombre, apellido, telefono, direccion):
-            messagebox.showinfo("Éxito", "Registro exitoso del usuario.", parent=self)
+            messagebox.showinfo("Éxito", "Registro exitoso del cliente.", parent=self)
             self.clear_entries_register_client()
         else:
-            messagebox.showinfo("Registro fallido", "El usuario no pudo registrarse.", parent=self)
+            messagebox.showinfo("Registro fallido", "El cliente no pudo registrarse.", parent=self)
     
 
     def crear_boton_register(self):
