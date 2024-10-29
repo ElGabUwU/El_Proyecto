@@ -3,7 +3,7 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
-from books.backend.db_books import *
+from Books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
@@ -137,49 +137,101 @@ class L_Listar(tk.Frame):
             )
         self.button_dl.place(x=1115.0, y=60.0, width=130.0, height=100.0)
 
-        # Configurar estilo para Treeview
+        # Datos y paginación
+        self.data = []
+        self.page_size = 19
+        self.current_page = 0
+
+        self.setup_treeview()
+        self.reading_books()
+        self.display_page()
+
+    def setup_treeview(self):
         style = ttk.Style()
-        style.configure("Rounded.Treeview", 
-                        borderwidth=2, 
-                        relief="groove", 
-                        bordercolor="blue", 
-                        lightcolor="lightblue", 
+        style.configure("Rounded.Treeview",
+                        borderwidth=2,
+                        relief="groove",
+                        bordercolor="blue",
+                        lightcolor="lightblue",
                         darkcolor="darkblue",
                         rowheight=30,
-                        background="#FFFFFF", 
+                        background="#FFFFFF",
                         fieldbackground="#f0f0f0")
-
-        # Configurar estilo para las cabeceras
-        style.configure("Rounded.Treeview.Heading", 
-                        font=('Helvetica', 10, 'bold'), 
-                        background="#2E59A7", 
+        style.configure("Rounded.Treeview.Heading",
+                        font=('Helvetica', 10, 'bold'),
+                        background="#2E59A7",
                         foreground="#000000",
                         borderwidth=0)
-
-
-        # Aplica el estilo al Treeview listado de libros
-        tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición","N° Volúmenes", "N° Ejemplares" )
-        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview",selectmode="browse")
-
-        # Set specific widths for "ID" and "Sala"
+        columns = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición", "N° Volúmenes", "N° Ejemplares")
+        self.book_table_list = ttk.Treeview(self.left_frame_list, columns=columns, show='headings', style="Rounded.Treeview", selectmode="browse")
         self.book_table_list.column("ID", width=50, anchor="center")
         self.book_table_list.column("Sala", width=50, anchor="center")
-
-        # Set larger widths for the other columns
-        for col in tree:
+        for col in columns:
             if col not in ("ID", "Sala"):
                 self.book_table_list.column(col, width=85, anchor="center")
             self.book_table_list.heading(col, text=col)
-
         self.book_table_list.pack(expand=True, fill="both", padx=30, pady=5)
-
         scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
+        self.book_table_list.bind("<Double-1>", self.on_book_double_click)
 
-        self.book_table_list.bind("<Double-1>", self.on_book_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
-        self.reading_books(self.book_table_list)
+        prev_button = tk.Button(
+            self.left_frame_list,
+            text="< Anterior",
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            font=("Montserrat Regular", 15),
+            bg="#FAFAFA",
+            fg="#006ac2",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.previous_page
+            )
+        prev_button.pack(side=tk.LEFT, padx=10, pady=10)
+        next_button = tk.Button(
+            self.left_frame_list,
+            text="Siguiente >",
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            font=("Montserrat Regular", 15),
+            bg="#FAFAFA",
+            fg="#006ac2",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",
+            command=self.next_page)
+        next_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        # Etiqueta para mostrar la página actual
+        self.page_label = tk.Label(self.left_frame_list, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33",font=("Montserrat Regular", 13))
+        self.page_label.pack(side=tk.BOTTOM, pady=15)
+    def get_data_page(self, offset, limit):
+        return self.data[offset:offset + limit]
 
+    def display_page(self):
+        for row in self.book_table_list.get_children():
+            self.book_table_list.delete(row)
+        page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
+        for fila in page_data:
+            n_ejemplares = fila[12]
+            tag = 'multiple' if n_ejemplares > 1 else 'single'
+            self.book_table_list.insert("", "end", values=fila, tags=(tag,))
+        self.book_table_list.tag_configure('multiple', background='lightblue')
+        self.book_table_list.tag_configure('single', background='#E5E1D7')
+        self.update_page_label()
+
+    def next_page(self):
+        if (self.current_page + 1) * self.page_size < len(self.data):
+            self.current_page += 1
+            self.display_page()
+
+    def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.display_page()
+    def update_page_label(self):
+        self.page_label.config(text=f"Página {self.current_page + 1}")
     def verificar_eliminar(self):
         if self.parent.id_rol == 1:
             print("Sin permisos suficientes para eliminar!")
@@ -423,8 +475,25 @@ class L_Listar(tk.Frame):
 
         self.book_table_list.tag_configure('match', background='green')
         self.book_table_list.tag_configure('nomatch', background='gray')
-
-    def reading_books(self, book_table_list):
+    def reading_books(self):
+        try:
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+                cursor.execute('''
+                    SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares
+                    FROM libro WHERE estado_libro='activo'
+                ''')
+                self.data = cursor.fetchall()
+                mariadb_conexion.close()
+                self.display_page()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+        except subprocess.CalledProcessError as e:
+            print("Error al importar el archivo SQL:", e)
+            
+            #CARGAR LIBROS FUNCION ANTIGUA!
+    """def reading_books(self, book_table_list):
         try:
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
@@ -449,12 +518,13 @@ class L_Listar(tk.Frame):
                     n_ejemplares = fila[12]
                     tag = 'multiple' if n_ejemplares > 1 else 'single'
                     book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
+                    
                 
                 mariadb_conexion.close()
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
         except subprocess.CalledProcessError as e:
-            print("Error al importar el archivo SQL:", e)
+            print("Error al importar el archivo SQL:", e)"""
    
 
     def cancelar(self, window):

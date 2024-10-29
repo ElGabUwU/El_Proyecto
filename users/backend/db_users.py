@@ -177,7 +177,7 @@ def delete_selected_user(self):
         if mariadb_conexion:
             mariadb_conexion.close()
 
-def list_users_db(treeview, cargos, roles):
+"""def list_users_db(treeview, cargos, roles):
     # Conexión a la base de datos y obtención de datos
     mariadb_conexion = establecer_conexion()
     if mariadb_conexion:
@@ -198,7 +198,7 @@ def list_users_db(treeview, cargos, roles):
             row = list(row)
             row[1] = cargos.get(row[1], "Desconocido")  # Supongamos que la columna 1 es la del cargo
             row[2] = roles.get(row[2], "Desconocido")  # Supongamos que la columna 2 es la del rol
-            treeview.insert('', 'end', values=tuple(row))
+            treeview.insert('', 'end', values=tuple(row))"""
 
 
 

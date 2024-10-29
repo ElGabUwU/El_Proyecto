@@ -15,8 +15,8 @@ def clear_entries_list(self):
 #Función que valida si los campos han sido rellanados    
 def validate_entries(instance, event=None):
         # Comprobar si todos los campos están llenos
-        if (instance.id_cliente.get()):
-            instance.boton_R.place(x=40.0, y=450.0, width=130.0, height=40.0)  # Mostrar el botón
+        if (instance.cedula.get()):
+            instance.boton_R.place(x=35.0, y=495.0, width=130.0, height=40.0)  # Mostrar el botón
         else:
             instance.boton_R.place_forget()  # Ocultar el botón si algún campo está vacío
 

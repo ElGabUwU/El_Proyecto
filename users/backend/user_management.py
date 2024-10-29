@@ -34,6 +34,15 @@ class U_Listar(tk.Frame):
             1: "Encargado de Servicio",
             2: "Asistente Bibliotecario"
         }
+        self.roles = {
+            1: "Admin",
+            2: "Super Admin"
+        }
+        
+        self.data = []
+        self.page_size = 15
+        self.current_page = 0
+        
         # Crear el marco izquierdo para el menú de navegación
 
         self.user_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
@@ -47,48 +56,9 @@ class U_Listar(tk.Frame):
         self.canvas.create_text(1080.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
         
-               # Títulos para los Treeviews
-        bold_font = font.Font(family="Bold", size=15, weight="bold")
-        self.label_prestamos = tk.Label(self.canvas, text="Tabla Usuarios", bg="#FAFAFA", fg="#031A33", font=bold_font)
-        self.label_prestamos.place(x=665.0, y=180.0, width=225.0, height=35.0)
+    
         
-        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.buscar.place(x=245.0, y=130.0, width=267.0, height=48.0)
-        self.buscar.bind("<Return>", self.boton_buscar)
-
-        style = ttk.Style()
-        style.theme_use('clam')
-        style.configure("Rounded.Treeview", 
-                        background="#E5E1D7",
-                        foreground="black",
-                        rowheight=30,
-                        fieldbackground="#f0f0f0",
-                        bordercolor="blue",
-                        lightcolor="lightblue",
-                        darkcolor="darkblue")
-        style.map('Rounded.Treeview', 
-                background=[('selected', '#347083')])
-
-        style.configure("Rounded.Treeview.Heading", 
-                        font=('Helvetica', 10, 'bold'), 
-                        background="#2E59A7", 
-                        foreground="#000000",
-                        borderwidth=0)
-
-
-
-        columns = ("ID Usuario", "Cargo", "ID Rol", "Nombre", "Apellido", "C.I", "Nombre Usuario")
-        self.user_table_list= ttk.Treeview(self.user_frame_list, columns=columns, show='headings', style="Rounded.Treeview",selectmode="browse")
-        for col in columns:
-            self.user_table_list.heading(col, text=col)
-            self.user_table_list.column(col, width=90, anchor="center")
-        self.user_table_list.pack(expand=True, fill="both", padx=30, pady=5)
-
-        scrollbar_pt = ttk.Scrollbar(self.user_table_list, orient="vertical", command=self.user_table_list.yview)
-        self.user_table_list.configure(yscrollcommand=scrollbar_pt.set)
-        scrollbar_pt.pack(side="right", fill="y")
         
-        list_users_db(self.user_table_list,self.cargos)
             
             # Cargar y almacenar las imágenes
         self.images['boton_cargar'] = tk.PhotoImage(file=resource_path("assets_2/16_refrescar.png"))
@@ -155,49 +125,108 @@ class U_Listar(tk.Frame):
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo  
             )
         self.button_m.place(x=1115.0, y=60.0, width=130.0, height=100.0)
+        """
+        prev_button = tk.Button(self.user_frame_list, text="< Anterior", borderwidth=0, highlightthickness=0, relief="flat", font=("Montserrat Regular", 15), bg="#FAFAFA", fg="#006ac2", activebackground="#FAFAFA", activeforeground="#006ac2", command=self.previous_page)
+        prev_button.pack(side=tk.LEFT, padx=10, pady=10)
 
+        next_button = tk.Button(self.user_frame_list, text="Siguiente >", borderwidth=0, highlightthickness=0, relief="flat", font=("Montserrat Regular", 15), bg="#FAFAFA", fg="#006ac2", activebackground="#FAFAFA", activeforeground="#006ac2", command=self.next_page)
+        next_button.pack(side=tk.RIGHT, padx=10, pady=10)
 
-    def refresh_frame(self):
-        # Eliminar todos los widgets del frame
-        for widget in self.user_frame_list.winfo_children():
-            widget.destroy()
-
-        # Estilo del Treeview
+        self.page_label = tk.Label(self.user_frame_list, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33", font=("Montserrat Regular", 13))
+        self.page_label.pack(side=tk.BOTTOM, pady=15)"""
+              
+        self.setup_treeview()
+        #self.load_users()
+        
+        self.display_page()
+        self.refresh_frame()
+         
+        
+        
+    def setup_treeview(self):
         style = ttk.Style()
-        style.configure("Rounded.Treeview",
-                        borderwidth=2,
-                        relief="groove",
+        style.configure("Rounded.Treeview", 
+                        background="#E5E1D7",
+                        foreground="black",
+                        rowheight=30,
+                        fieldbackground="#f0f0f0",
                         bordercolor="blue",
                         lightcolor="lightblue",
-                        darkcolor="darkblue",
-                        rowheight=30,
-                        background="#E5E1D7",
-                        fieldbackground="#f0f0f0")
-
-        # Estilo para las cabeceras
+                        darkcolor="darkblue")
+        style.map('Rounded.Treeview', background=[('selected', '#347083')])
         style.configure("Rounded.Treeview.Heading",
                         font=('Helvetica', 10, 'bold'),
                         background="#2E59A7",
                         foreground="#000000",
                         borderwidth=0)
-
-        # Crear y configurar el Treeview
         columns = ("ID Usuario", "Cargo", "ID Rol", "Nombre", "Apellido", "C.I", "Nombre Usuario")
-        self.user_table_list = ttk.Treeview(self.user_frame_list, columns=columns, show='headings', style="Rounded.Treeview",selectmode="browse")
-
+        self.user_table_list = ttk.Treeview(self.user_frame_list, columns=columns, show='headings', style="Rounded.Treeview", selectmode="browse")
         for col in columns:
             self.user_table_list.heading(col, text=col)
             self.user_table_list.column(col, width=90, anchor="center")
-
         self.user_table_list.pack(expand=True, fill="both", padx=30, pady=5)
-
-        # Scrollbar
         scrollbar_pt = ttk.Scrollbar(self.user_table_list, orient="vertical", command=self.user_table_list.yview)
         self.user_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
 
-        # Recargar los datos desde la base de datos
-        list_users_db(self.user_table_list, self.cargos)
+        # Botones de navegación
+        prev_button = tk.Button(self.user_frame_list, text="< Anterior", borderwidth=0, highlightthickness=0, relief="flat", font=("Montserrat Regular", 15), bg="#FAFAFA", fg="#006ac2", activebackground="#FAFAFA", activeforeground="#006ac2", command=self.previous_page)
+        prev_button.pack(side=tk.LEFT, padx=10, pady=10)
+        
+        next_button = tk.Button(self.user_frame_list, text="Siguiente >", borderwidth=0, highlightthickness=0, relief="flat", font=("Montserrat Regular", 15), bg="#FAFAFA", fg="#006ac2", activebackground="#FAFAFA", activeforeground="#006ac2", command=self.next_page)
+        next_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        
+        # Etiqueta para mostrar la página actual
+        self.page_label = tk.Label(self.user_frame_list, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33", font=("Montserrat Regular", 13))
+        self.page_label.pack(side=tk.BOTTOM, pady=15)
+        #list_users_db(self.user_table_list,self.cargos,self.roles)       
+        
+        
+    def get_data_page(self, offset, limit):
+        return self.data[offset:offset + limit]
+
+    def display_page(self):
+        for row in self.user_table_list.get_children():
+            self.user_table_list.delete(row)
+        page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
+        for fila in page_data:
+            self.user_table_list.insert("", "end", values=fila)
+        self.update_page_label()
+
+    def next_page(self):
+        if (self.current_page + 1) * self.page_size < len(self.data):
+            self.current_page += 1
+            self.display_page()
+
+    def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.display_page()
+
+    def update_page_label(self):
+        self.page_label.config(text=f"Página {self.current_page + 1}")
+    def list_users_db(self, treeview, cargos, roles):
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            query = "SELECT * FROM usuarios WHERE estado_usuario = 'activo'"
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            cursor.close()
+            mariadb_conexion.close()
+            
+            # Almacenar los datos en self.data en lugar de insertarlos directamente en el Treeview
+            self.data = []
+            for row in rows:
+                row = list(row)
+                row[1] = cargos.get(row[1], "Desconocido")
+                row[2] = roles.get(row[2], "Desconocido")
+                self.data.append(tuple(row))
+
+            # Mostrar la primera página de datos
+            self.display_page()
+    def refresh_frame(self):
+        self.list_users_db(self.user_table_list, self.cargos,self.roles)
 
 
     
@@ -312,6 +341,10 @@ class U_Registrar(tk.Toplevel):
         self.cargos = {
             1: "Encargado de Servicio",
             2: "Asistente Bibliotecario"
+        }
+        self.roles = {
+            1: "Admin",
+            2: "Super Admin"
         }
         # Cargar y almacenar las imágenes
         self.images['boton_R'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
@@ -549,6 +582,10 @@ class U_Modificar(tk.Toplevel):
         self.cargos = {
             1: "Encargado de Servicio",
             2: "Asistente Bibliotecario"
+        }
+        self.roles = {
+            1: "Admin",
+            2: "Super Admin"
         }
         # Guardar los datos del usuario en un diccionario
         self.user_data = {
