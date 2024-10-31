@@ -1,4 +1,4 @@
-import mariadb
+#import mariadb
 
 #FUNCIONES MODULARIZADAS PARA CREATE_LOANS
 def insert_new_loan(cursor, ID_Prestamo, fecha_registrar, fecha_limite):
