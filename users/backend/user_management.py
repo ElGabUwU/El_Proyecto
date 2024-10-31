@@ -34,6 +34,10 @@ class U_Listar(tk.Frame):
             1: "Encargado de Servicio",
             2: "Asistente Bibliotecario"
         }
+        self.roles = {
+            1: "Admin",
+            2: "SuperAdmin"
+        }
         # Crear el marco izquierdo para el menú de navegación
 
         self.user_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
@@ -88,7 +92,7 @@ class U_Listar(tk.Frame):
         self.user_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
         
-        list_users_db(self.user_table_list,self.cargos)
+        list_users_db(self.user_table_list,self.cargos, self.roles)
             
             # Cargar y almacenar las imágenes
         self.images['boton_cargar'] = tk.PhotoImage(file=resource_path("assets_2/16_refrescar.png"))
@@ -197,7 +201,7 @@ class U_Listar(tk.Frame):
         scrollbar_pt.pack(side="right", fill="y")
 
         # Recargar los datos desde la base de datos
-        list_users_db(self.user_table_list, self.cargos)
+        list_users_db(self.user_table_list, self.cargos, self.roles)
 
 
     

@@ -7,10 +7,20 @@ import random
 import string
 
 #Función que limpia los entrys una vez cumplido el proceso de registro de prestamo
-def clear_entries_list(self):
+def clear_entries_list_register(self):
+    try:
         self.cedula.delete(0, tk.END)
-        #self.input_cantidad.delete(0, tk.END)
+    except AttributeError as e:
+        print(f"Error al limpiar los campos: {e}")
+
+def clear_entries_list(self):
+    try:
+        self.cedula_entry.delete(0, tk.END)
         self.fecha_limite_entry.delete(0, tk.END)
+        # Si tienes otros campos que necesitas limpiar, asegúrate de que existan y estén correctamente referenciados
+        # self.input_cantidad.delete(0, tk.END)
+    except AttributeError as e:
+        print(f"Error al limpiar los campos: {e}")
 
 #Función que valida si los campos han sido rellanados    
 def validate_entries(instance, event=None):
@@ -70,6 +80,31 @@ def libro_prestamo_exists(new_id):
             mariadb_conexion.close()
 
 #Función que consigue la ID del cliente basado en la cédula
+# def get_cliente_id_by_cp(cp):
+#     try:
+#         mariadb_conexion = establecer_conexion()
+#         if not mariadb_conexion:
+#             print("Failed to establish connection.")
+#             return None
+
+#         cursor = mariadb_conexion.cursor()
+#         query = "SELECT ID_CP FROM cliente_prestamo WHERE ID_CP = %s"
+#         cursor.execute(query, (cp,))
+#         result = cursor.fetchone()
+
+#         if result:
+#             return result[0]
+#         else:
+#             return None
+#     except mariadb.Error as ex:
+#         print(f"Error during query execution: {ex}")
+#         return None
+#     finally:
+#         if mariadb_conexion is not None:
+#             cursor.close()
+#             mariadb_conexion.close()
+#             print("Connection closed.")
+
 def get_cliente_id_by_cedula(cedula):
     try:
         mariadb_conexion = establecer_conexion()
@@ -91,6 +126,7 @@ def get_cliente_id_by_cedula(cedula):
         return None
     finally:
         if mariadb_conexion is not None:
+            cursor.close()
             mariadb_conexion.close()
             print("Connection closed.")
 
@@ -120,31 +156,6 @@ def is_cedula_registered(cedula):
             mariadb_conexion.close()
     else:
         return False, "No se pudo establecer conexión con la base de datos."
-    
-#Función que valida si la cedula es única o está registrada a otro
-# def is_cedula_unique_for_client(cedula, client_id):
-#     mariadb_conexion = establecer_conexion()
-#     if mariadb_conexion:
-#         cursor = mariadb_conexion.cursor()
-#         try:
-#             # Verificar si la cédula ingresada es diferente a la del cliente original
-#             query = "SELECT Cedula FROM cliente WHERE ID_Cliente = %s"
-#             cursor.execute(query, (client_id,))
-#             cedula_original = cursor.fetchone()
-
-#             if cedula_original and cedula != cedula_original[0]:
-#                 # Verificar si la nueva cédula ya está registrada por otro cliente
-#                 query = "SELECT ID_Cliente FROM cliente WHERE Cedula = %s AND ID_Cliente != %s"
-#                 cursor.execute(query, (cedula, client_id))
-#                 result = cursor.fetchone()
-#                 if result:
-#                     return False, f"La cédula {cedula} ya está en uso por otro cliente."
-#             return True, ""
-#         finally:
-#             cursor.close()
-#             mariadb_conexion.close()
-#     else:
-#         return False, "No se pudo establecer conexión con la base de datos."
     
 #Función que verifica la fecha_limite
 def validate_fecha_limite(fecha_limite):

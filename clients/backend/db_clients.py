@@ -34,7 +34,7 @@ def update_client(client_data, nuevos_valores):
     else:
         return False
 
-# Crear un nuevo cliente-prestamo
+# Crear un nuevo cliente
 def register_client_in_db(cedula, nombre, apellido, telefono, direccion):
     try:
         mariadb_conexion = establecer_conexion()
