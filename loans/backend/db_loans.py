@@ -238,16 +238,14 @@ def reading_clients(client_table_list_loans):
             cursor = mariadb_conexion.cursor()
             cursor.execute('SELECT Cedula, Nombre, Apellido, Telefono, Direccion, ID_Cliente FROM cliente WHERE estado_cliente != "eliminado"')
             resultados = cursor.fetchall()
-            
-            # Clear existing rows in the Treeview
-            for row in client_table_list_loans.get_children():
-                client_table_list_loans.delete(row)
-            
-            # Insert new data into the Treeview
-            for fila in resultados:
-                client_table_list_loans.insert("", "end", values=tuple(fila))
+            cursor.close()
+            mariadb_conexion.close()
+            return resultados
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
+        return []
+
+
 
 # Eliminar prestamo del cliente
 def delete_selected_prestamo(self):
