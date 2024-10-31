@@ -50,11 +50,11 @@ class C_Listar(tk.Frame):
         self.label_clientes = tk.Label(self.canvas, text="Tabla Clientes", bg="#FAFAFA", fg="black", font=bold_font)
         self.label_clientes.place(x=665.0, y=180.0, width=225.0, height=35.0)
 
-        self.label_nombre = self.canvas.create_text(245.0, 100.0, anchor="nw", text="Buscar", fill="black", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar", fill="black", font=("Bold", 17))
 
         
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2, validate="key", validatecommand=(self.validate_number, "%P"))
-        self.buscar.place(x=245.0, y=130.0, width=267.0, height=48.0)
+        self.buscar.place(x=245.0, y=112.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
         self.buscar.bind("<KeyPress>", self.key_on_press_search)
 
