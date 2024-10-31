@@ -3,7 +3,7 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
-from books.backend.db_books import *
+from Books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
@@ -30,6 +30,23 @@ class L_Listar(tk.Frame):
         self.images = {}
         self.book_data = {}  # Inicializar como un diccionario
         
+        stylebox = ttk.Style()
+        stylebox.theme_use('clam')
+        stylebox.configure("TCombobox",
+                            fieldbackground="#2E59A7",
+                            background="#2E59A7",
+                            bordercolor="#041022",
+                            arrowcolor="#ffffff",
+                            padding="9")
+
+        self.campo_mapeo = {
+        "Cota": "Cota",
+        "N.registro": "n_registro",
+        "Título": "titulo",
+        "Autor": "autor"
+        }
+        # Añadir un Combobox para seleccionar el campo de búsqueda
+        
         
         stylebotn = ttk.Style()
         stylebotn.configure("Rounded.TEntry", 
@@ -51,12 +68,19 @@ class L_Listar(tk.Frame):
         self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)"""
         
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.buscar.place(x=245.0, y=130.0, width=267.0, height=48.0)
+        self.buscar.place(x=245.0, y=112.0, width=267.0, height=48.0)
+        
+
+
+        self.campo_busqueda = ttk.Combobox(self, values=list(self.campo_mapeo.keys()), state="readonly", width=13, font=("Montserrat Medium", 13))
+        self.campo_busqueda.place(x=535.0, y=112,height=48)
+        self.campo_busqueda.set("Cota")  # Valor por defecto
+        
 
 
         # Crear textos en el canvas
-
-        self.label_nombre = self.canvas.create_text(245.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(535.0, 89.0, anchor="nw", text="Filtrado de Busqueda", fill="#040F21", font=("Bold", 12))
+        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
@@ -97,7 +121,7 @@ class L_Listar(tk.Frame):
                 image=self.images['boton_refrescar'],
                 borderwidth=0,
                 highlightthickness=0,
-                command=lambda: self.reading_books(self.book_table_list),
+                command=lambda: self.reading_books(),
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -254,30 +278,27 @@ class L_Listar(tk.Frame):
     
     def boton_buscar(self, event):
         busqueda = self.buscar.get()
+        campo_seleccionado = self.campo_busqueda.get()  # Obtener el campo seleccionado
+        campo_real = self.campo_mapeo[campo_seleccionado]  # Traducir al nombre real de la columna
         try:
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
-                cursor.execute("""SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota,
-                                n_registro, titulo, autor, editorial, año, edicion FROM libro WHERE 
-                                ID_Libro=%s OR ID_Sala=%s OR ID_Categoria=%s OR 
-                                ID_Asignatura=%s OR Cota=%s OR n_registro=%s OR 
-                                titulo=%s OR autor=%s OR editorial=%s OR 
-                                año=%s OR edicion=%s""", 
-                            (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+                query = f"SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion FROM libro WHERE {campo_real}=%s"
+                cursor.execute(query, (busqueda,))
                 resultados = cursor.fetchall()
-
                 self.book_table_list.delete(*self.book_table_list.get_children())
                 for fila in resultados:
-                    if busqueda in map(str, fila):  # Convertir cada elemento de la fila a string para la comparación
+                    if busqueda in map(str, fila):
                         self.book_table_list.insert("", "end", values=tuple(fila))
-
                 if resultados:
-                    messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+                    messagebox.showinfo("Búsqueda Éxitosa", "Resultados en pantalla.")
                 else:
-                    messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+                    messagebox.showinfo("Búsqueda Fallida", "No se encontraron resultados.")
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
+
+
    
 
     # def boton_buscar(self, event):
