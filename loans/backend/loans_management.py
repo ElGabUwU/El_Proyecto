@@ -337,8 +337,8 @@ class P_Listar(tk.Frame):
         finally:
             if mariadb_conexion:
                 mariadb_conexion.close()
-    
-    def reading_books(self,book_table_list):
+    #FUNCION OPTIMIZADA Y MOVIDA a la clase Register_Loans a peticion de bing ya que alla es donde se usa, no aqui
+    """def reading_books(self,book_table_list):
                                 try:
                                     mariadb_conexion = establecer_conexion()
                                     if mariadb_conexion:#.is_connected():
@@ -356,7 +356,7 @@ class P_Listar(tk.Frame):
                                             book_table_list.insert("", "end", values=tuple(fila))
                                         mariadb_conexion.close()
                                 except mariadb.Error as ex:
-                                        print("Error durante la conexión:", ex)
+                                        print("Error durante la conexión:", ex)"""
 
     
     
@@ -521,6 +521,11 @@ class Register_Loans(P_Listar):
         self.loans_validations = loans_validations
         self.register_loan_window = tk.Toplevel(parent)
         self.validate_number = self.register(validate_number_input)
+        # Datos y paginación
+        self.data = []
+        self.page_size = 19
+        self.current_page = 0
+        
         self.setup_window()
 
     def setup_window(self):
@@ -534,12 +539,12 @@ class Register_Loans(P_Listar):
         
         # Crear el marco izquierdo para el menú de navegación
         self.left_frame_list = tk.Frame(self.register_loan_window, bg="#042344")
-        self.left_frame_list.place(x=170, y=160, height=400, width=1200)
+        self.left_frame_list.place(x=170, y=160, height=430, width=1200)
         
         rectangulo_color = tk.Label(self.register_loan_window, bg="#2E59A7", width=200, height=3)
         rectangulo_color.place(x=0, y=0)
         tk.Label(self.register_loan_window, text="Tabla Prestamos", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=505.0, y=8.0, width=450.0, height=35.0)
-        tk.Label(self.register_loan_window, text="Cedula del Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=630.0, y=70.0, width=175.0, height=35.0)
+        tk.Label(self.register_loan_window, text="Cedula del Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=628.0, y=70.0, width=185.0, height=35.0)
         self.cedula = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat",validate="key", validatecommand=(self.validate_number, "%P"))
         self.cedula.place(x=630.0, y=100.0, width=190.0, height=35.0)
         tk.Label(self.register_loan_window, text="Fecha Registrar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=22.0, y=140.0, width=160.0, height=35.0)
@@ -557,10 +562,9 @@ class Register_Loans(P_Listar):
         self.fecha_registrar.config(state='readonly')
         self.fecha_limite.config(state='readonly')
 
-        # Aplica el estilo al Treeview listado de libros
+        # Configurar el Treeview
         tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N° Registro", "Titulo", "Autor", "Editorial", "Año", "Edición", "N° Ejemplares", "N° Volúmenes")
         self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview")
-        
         self.book_table_list.column("ID", width=40, anchor="center")
         self.book_table_list.column("Sala", width=40, anchor="center")
         self.book_table_list.column("Cota", width=30, anchor="center")
@@ -570,19 +574,54 @@ class Register_Loans(P_Listar):
         self.book_table_list.column("Edición", width=30, anchor="center")
         self.book_table_list.column("N° Ejemplares", width=70, anchor="center")
         self.book_table_list.column("N° Volúmenes", width=70, anchor="center")
-
         for col in tree:
             if col not in ("ID", "Sala", "Cota", "N° Registro", "Titulo", "Año", "N° Ejemplares", "N° Volúmenes"):
                 self.book_table_list.column(col, width=95, anchor="center")
             self.book_table_list.heading(col, text=col)
-        
         self.book_table_list.pack(expand=True, fill="both", padx=30, pady=5)
+        
         scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
-
         self.book_table_list.bind('<<TreeviewSelect>>', self.on_treeview_select)
-        self.reading_books(self.book_table_list)
+        
+        # Botones de navegación
+        prev_button = tk.Button(
+            self.left_frame_list,
+            text="< Anterior",
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            font=("Montserrat Regular", 15),
+            bg="#042344",
+            fg="#006ac2",
+            activebackground="#042344",
+            activeforeground="#006ac2",
+            command=self.previous_page
+        )
+        prev_button.pack(side=tk.LEFT, padx=25, pady=10)
+        
+        next_button = tk.Button(
+            self.left_frame_list,
+            text="Siguiente >",
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            font=("Montserrat Regular", 15),
+            bg="#042344",
+            fg="#006ac2",
+            activebackground="#042344",
+            activeforeground="#006ac2",
+            command=self.next_page
+        )
+        next_button.pack(side=tk.RIGHT, padx=25, pady=10)
+
+        # Etiqueta para mostrar la página actual
+        # Define self.page_label antes de llamar a reading_books
+        self.page_label = tk.Label(self.left_frame_list, text=f"Página {self.current_page + 1}", bg="#042344", fg="White", font=("Montserrat Regular", 13))
+        self.page_label.pack(side=tk.BOTTOM, pady=15)
+        # Llama a reading_books después de definir self.page_label
+        self.reading_books()
         
         self.images = {}
         self.images['boton_r'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
@@ -597,13 +636,52 @@ class Register_Loans(P_Listar):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_R.place(x=24.0, y=500.0, width=130.0, height=40.0)
+        self.boton_R.place(x=24.0, y=800.0, width=130.0, height=40.0) #irrelevante por la funcion que lo hace aparecer luego
+        self.boton_R.place_forget()
+        self.cedula.bind("<KeyRelease>", lambda event: self.loans_validations.validate_entries(self, event))
+        #self.cedula.bind("<Return>", lambda event: self.save_modifications())
+    def reading_books(self):
+        try:
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+                cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes FROM libro')
+                self.data = cursor.fetchall()  # Almacena los datos en self.data
+                mariadb_conexion.close()
+                self.display_page()  # Llama a display_page() para mostrar los datos paginados
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
 
+    def get_data_page(self, offset, limit):
+        return self.data[offset:offset + limit]
 
-        self.cedula.bind("<Return>", lambda event: self.save_modifications())
+    def display_page(self):
+        for row in self.book_table_list.get_children():
+            self.book_table_list.delete(row)
+        page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
+        for fila in page_data:
+            n_ejemplares = fila[11]
+            tag = 'multiple' if n_ejemplares > 1 else 'single'
+            parent = self.book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
+            if n_ejemplares > 1:
+                for i in range(1, n_ejemplares + 1):
+                    self.book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=tuple(fila), tags=('single',))
+        self.book_table_list.tag_configure('multiple', background='lightblue')
+        self.book_table_list.tag_configure('single', background='#E5E1D7')
+        self.update_page_label()
 
+    def next_page(self):
+        if (self.current_page + 1) * self.page_size < len(self.data):
+            self.current_page += 1
+            self.display_page()
 
-    #Función donde se almacenan los procesos del prestamos
+    def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.display_page()
+
+    def update_page_label(self):
+        self.page_label.config(text=f"Página {self.current_page + 1}")
     def save_modifications(self):
         fecha_registrar = loans_validations.format_date(self.fecha_registrar.get())
         fecha_limite = loans_validations.format_date(self.fecha_limite.get())
