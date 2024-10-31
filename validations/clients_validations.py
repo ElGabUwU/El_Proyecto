@@ -58,6 +58,7 @@ def validate_name(name):
         return False, "El nombre no puede terminar en un espacio."
     return True, ""
 
+
 def validate_apellido(apellido):
     if not apellido:
         return False, "El campo del apellido es obligatorio."
@@ -73,6 +74,7 @@ def validate_apellido(apellido):
 
 
 
+
 def validate_cedula(cedula):
     if not cedula:
         return False, "El campo de la cédula es obligatorio."
@@ -80,6 +82,31 @@ def validate_cedula(cedula):
         return False, "La cédula debe tener entre 7 y 10 caracteres."
     return True, ""
 
+
+def get_cliente_id_by_cedula(cedula):
+    try:
+        mariadb_conexion = establecer_conexion()
+        if not mariadb_conexion:
+            print("Failed to establish connection.")
+            return None
+
+        cursor = mariadb_conexion.cursor()
+        query = "SELECT ID_Cliente FROM cliente WHERE Cedula = %s"
+        cursor.execute(query, (cedula,))
+        result = cursor.fetchone()
+
+        if result:
+            return result[0]
+        else:
+            return None
+    except mariadb.Error as ex:
+        print(f"Error during query execution: {ex}")
+        return None
+    finally:
+        if mariadb_conexion is not None:
+            cursor.close()
+            mariadb_conexion.close()
+            print("Connection closed.")
 def is_cedula_registered(cedula):
     mariadb_conexion = establecer_conexion()
     if mariadb_conexion:
@@ -129,16 +156,14 @@ def validate_direccion(direccion):
         return False, "La dirección debe tener al menos 10 caracteres."
     if len(direccion) > 100:
         return False, "La dirección no debe exceder los 100 caracteres."
+    if re.search(r'^\s', direccion):
+        return False, "La dirección no puede comenzar con un espacio."
     if re.search(r'\s{2,}', direccion):
         return False, "La dirección no puede contener más de un espacio consecutivo."
     if direccion[-1] == " ":
         return False, "La dirección no puede terminar en un espacio."
     if re.search(r'[,.#-]{2,}', direccion):
         return False, "La dirección no puede contener signos repetidos consecutivos como comas, puntos, guiones o signos de número."
-    
-    # Permitir solo caracteres válidos en una dirección
-    #direccion = re.sub(r'[^a-zA-Z0-9\s,.-#]', '', direccion)
-    
     return True, ""
 
 def validate_phone_number(phone_number):
