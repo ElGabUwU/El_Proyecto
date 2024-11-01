@@ -159,12 +159,31 @@ class C_Listar(tk.Frame):
         scrollbar_pt = ttk.Scrollbar(self.clients_table_list_loans, orient="vertical", command=self.clients_table_list_loans.yview)
         self.clients_table_list_loans.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
-
-        prev_button = tk.Button(self.right_frame_list_loans, text="< Anterior", borderwidth=0, highlightthickness=0, relief="flat", font=("Montserrat Regular", 15), bg="#FAFAFA", fg="#006ac2", activebackground="#FAFAFA", activeforeground="#006ac2", command=self.previous_page)
-        prev_button.pack(side=tk.LEFT, padx=10, pady=10)
+        self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguiente.png"))
+        self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/atras.png"))
+        prev_button = tk.Button(
+            self.right_frame_list_loans,
+            image=self.images['boton_anterior'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.previous_page)
+        prev_button.pack(side=tk.LEFT, padx=25, pady=0)
         
-        next_button = tk.Button(self.right_frame_list_loans, text="Siguiente >", borderwidth=0, highlightthickness=0, relief="flat", font=("Montserrat Regular", 15), bg="#FAFAFA", fg="#006ac2", activebackground="#FAFAFA", activeforeground="#006ac2", command=self.next_page)
-        next_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        next_button = tk.Button(
+            self.right_frame_list_loans, 
+            image=self.images['boton_siguiente'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.next_page)
+        next_button.pack(side=tk.RIGHT, padx=25, pady=0)
         
         self.page_label = tk.Label(self.right_frame_list_loans, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33", font=("Montserrat Regular", 13))
         self.page_label.pack(side=tk.BOTTOM, pady=15)
@@ -194,7 +213,9 @@ class C_Listar(tk.Frame):
             self.display_page()
 
     def update_page_label(self):
-        self.page_label.config(text=f"Página {self.current_page + 1}")
+        total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
+        self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
+
     
     def load_clients(self):
         self.data = reading_clients(self.clients_table_list_loans)

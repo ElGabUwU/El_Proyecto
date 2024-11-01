@@ -207,34 +207,32 @@ class L_Listar(tk.Frame):
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
         self.book_table_list.bind("<Double-1>", self.on_book_double_click)
-
+        self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguiente.png"))
+        self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/atras.png"))
+        
         prev_button = tk.Button(
             self.left_frame_list,
-            text="< Anterior",
+            image=self.images['boton_anterior'],
             borderwidth=0,
             highlightthickness=0,
             relief="flat",
-            font=("Montserrat Regular", 15),
             bg="#FAFAFA",
-            fg="#006ac2",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#006ac2",   # Color del texto cuando el botón está activo
             command=self.previous_page
             )
-        prev_button.pack(side=tk.LEFT, padx=10, pady=10)
+        prev_button.pack(side=tk.LEFT, padx=25, pady=0)
         next_button = tk.Button(
             self.left_frame_list,
-            text="Siguiente >",
+            image=self.images['boton_siguiente'],
             borderwidth=0,
             highlightthickness=0,
             relief="flat",
-            font=("Montserrat Regular", 15),
             bg="#FAFAFA",
-            fg="#006ac2",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#006ac2",
             command=self.next_page)
-        next_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        next_button.pack(side=tk.RIGHT, padx=25, pady=0)
         # Etiqueta para mostrar la página actual
         self.page_label = tk.Label(self.left_frame_list, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33",font=("Montserrat Regular", 13))
         self.page_label.pack(side=tk.BOTTOM, pady=15)
@@ -274,7 +272,9 @@ class L_Listar(tk.Frame):
         if is_search:
             self.page_label.config(text=f"Página {self.search_current_page + 1}")
         else:
-            self.page_label.config(text=f"Página {self.current_page + 1}")
+            total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
+            self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
+
 
 
     def verificar_eliminar(self):

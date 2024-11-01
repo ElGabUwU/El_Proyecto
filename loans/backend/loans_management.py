@@ -195,6 +195,8 @@ class P_Listar(tk.Frame):
         self.cliente_prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
         self.lists_clients_loans()
+        
+        
 
     def lists_clients_loans(self):
         try:
@@ -536,7 +538,7 @@ class Register_Loans(P_Listar):
         self.register_loan_window.resizable(False, False)
         self.register_loan_window.grab_set()
         self.register_loan_window.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self.register_loan_window))
-        
+        self.images = {}          
         # Crear el marco izquierdo para el menú de navegación
         self.left_frame_list = tk.Frame(self.register_loan_window, bg="#042344")
         self.left_frame_list.place(x=170, y=160, height=430, width=1200)
@@ -584,37 +586,34 @@ class Register_Loans(P_Listar):
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
         self.book_table_list.bind('<<TreeviewSelect>>', self.on_treeview_select)
-        
+        self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguie-inver.png"))
+        self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/anteri-inver.png"))
         # Botones de navegación
         prev_button = tk.Button(
             self.left_frame_list,
-            text="< Anterior",
+            image=self.images['boton_anterior'],
             borderwidth=0,
             highlightthickness=0,
             relief="flat",
-            font=("Montserrat Regular", 15),
             bg="#042344",
-            fg="#006ac2",
             activebackground="#042344",
             activeforeground="#006ac2",
             command=self.previous_page
         )
-        prev_button.pack(side=tk.LEFT, padx=25, pady=10)
+        prev_button.pack(side=tk.LEFT, padx=25, pady=0)
         
         next_button = tk.Button(
             self.left_frame_list,
-            text="Siguiente >",
+            image=self.images['boton_siguiente'],
             borderwidth=0,
             highlightthickness=0,
             relief="flat",
-            font=("Montserrat Regular", 15),
             bg="#042344",
-            fg="#006ac2",
             activebackground="#042344",
             activeforeground="#006ac2",
             command=self.next_page
         )
-        next_button.pack(side=tk.RIGHT, padx=25, pady=10)
+        next_button.pack(side=tk.RIGHT, padx=27, pady=0)
 
         # Etiqueta para mostrar la página actual
         # Define self.page_label antes de llamar a reading_books
@@ -623,7 +622,7 @@ class Register_Loans(P_Listar):
         # Llama a reading_books después de definir self.page_label
         self.reading_books()
         
-        self.images = {}
+        
         self.images['boton_r'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
         self.boton_R = tk.Button(
             self.register_loan_window,
@@ -681,7 +680,9 @@ class Register_Loans(P_Listar):
             self.display_page()
 
     def update_page_label(self):
-        self.page_label.config(text=f"Página {self.current_page + 1}")
+        total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
+        self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
+        
     def save_modifications(self):
         fecha_registrar = loans_validations.format_date(self.fecha_registrar.get())
         fecha_limite = loans_validations.format_date(self.fecha_limite.get())
