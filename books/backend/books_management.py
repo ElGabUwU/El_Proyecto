@@ -7,6 +7,7 @@ from Books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
+import unidecode
 from db.conexion import establecer_conexion
 from util.utilidades import resource_path
 def validate_number_input(text):
@@ -30,6 +31,23 @@ class L_Listar(tk.Frame):
         self.images = {}
         self.book_data = {}  # Inicializar como un diccionario
         
+        stylebox = ttk.Style()
+        stylebox.theme_use('clam')
+        stylebox.configure("TCombobox",
+                            fieldbackground="#2E59A7",
+                            background="#2E59A7",
+                            bordercolor="#041022",
+                            arrowcolor="#ffffff",
+                            padding="9")
+
+        self.campo_mapeo = {
+        "Cota": "Cota",
+        "N.registro": "n_registro",
+        "Título": "titulo",
+        "Autor": "autor"
+        }
+        # Añadir un Combobox para seleccionar el campo de búsqueda
+        
         
         stylebotn = ttk.Style()
         stylebotn.configure("Rounded.TEntry", 
@@ -51,12 +69,19 @@ class L_Listar(tk.Frame):
         self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)"""
         
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.buscar.place(x=245.0, y=130.0, width=267.0, height=48.0)
+        self.buscar.place(x=245.0, y=112.0, width=267.0, height=48.0)
+        
+
+
+        self.campo_busqueda = ttk.Combobox(self, values=list(self.campo_mapeo.keys()), state="readonly", width=13, font=("Montserrat Medium", 13))
+        self.campo_busqueda.place(x=535.0, y=112,height=48)
+        self.campo_busqueda.set("Cota")  # Valor por defecto
+        
 
 
         # Crear textos en el canvas
-
-        self.label_nombre = self.canvas.create_text(245.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(535.0, 89.0, anchor="nw", text="Filtrado de Busqueda", fill="#040F21", font=("Bold", 12))
+        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
@@ -97,7 +122,7 @@ class L_Listar(tk.Frame):
                 image=self.images['boton_refrescar'],
                 borderwidth=0,
                 highlightthickness=0,
-                command=lambda: self.reading_books(self.book_table_list),
+                command=lambda: self.reading_books(),
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -145,6 +170,13 @@ class L_Listar(tk.Frame):
         self.setup_treeview()
         self.reading_books()
         self.display_page()
+        self.search_data = []  # Almacenar resultados de búsqueda
+        
+        self.search_page_size = 19
+        self.search_current_page = 0
+        self.is_search_active = False
+
+
 
     def setup_treeview(self):
         style = ttk.Style()
@@ -175,34 +207,32 @@ class L_Listar(tk.Frame):
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
         self.book_table_list.bind("<Double-1>", self.on_book_double_click)
-
+        self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguiente.png"))
+        self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/atras.png"))
+        
         prev_button = tk.Button(
             self.left_frame_list,
-            text="< Anterior",
+            image=self.images['boton_anterior'],
             borderwidth=0,
             highlightthickness=0,
             relief="flat",
-            font=("Montserrat Regular", 15),
             bg="#FAFAFA",
-            fg="#006ac2",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#006ac2",   # Color del texto cuando el botón está activo
             command=self.previous_page
             )
-        prev_button.pack(side=tk.LEFT, padx=10, pady=10)
+        prev_button.pack(side=tk.LEFT, padx=25, pady=0)
         next_button = tk.Button(
             self.left_frame_list,
-            text="Siguiente >",
+            image=self.images['boton_siguiente'],
             borderwidth=0,
             highlightthickness=0,
             relief="flat",
-            font=("Montserrat Regular", 15),
             bg="#FAFAFA",
-            fg="#006ac2",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#006ac2",
             command=self.next_page)
-        next_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        next_button.pack(side=tk.RIGHT, padx=25, pady=0)
         # Etiqueta para mostrar la página actual
         self.page_label = tk.Label(self.left_frame_list, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33",font=("Montserrat Regular", 13))
         self.page_label.pack(side=tk.BOTTOM, pady=15)
@@ -222,16 +252,31 @@ class L_Listar(tk.Frame):
         self.update_page_label()
 
     def next_page(self):
-        if (self.current_page + 1) * self.page_size < len(self.data):
-            self.current_page += 1
-            self.display_page()
+        if self.is_search_active:
+            self.next_search_page()
+        else:
+            if (self.current_page + 1) * self.page_size < len(self.data):
+                self.current_page += 1
+                self.display_page()
 
     def previous_page(self):
-        if self.current_page > 0:
-            self.current_page -= 1
-            self.display_page()
-    def update_page_label(self):
-        self.page_label.config(text=f"Página {self.current_page + 1}")
+        if self.is_search_active:
+            self.previous_search_page()
+        else:
+            if self.current_page > 0:
+                self.current_page -= 1
+                self.display_page()
+
+
+    def update_page_label(self, is_search=False):
+        if is_search:
+            self.page_label.config(text=f"Página {self.search_current_page + 1}")
+        else:
+            total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
+            self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
+
+
+
     def verificar_eliminar(self):
         if self.parent.id_rol == 1:
             print("Sin permisos suficientes para eliminar!")
@@ -252,32 +297,61 @@ class L_Listar(tk.Frame):
          else:
              messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un libro para modificarlo.")
     
+    
+
+    
+
     def boton_buscar(self, event):
-        busqueda = self.buscar.get()
+        busqueda = self.buscar.get().strip()
+        campo_seleccionado = self.campo_busqueda.get()  # Obtener el campo seleccionado
+        campo_real = self.campo_mapeo[campo_seleccionado]  # Traducir al nombre real de la columna
+        
+        # Convertir la búsqueda a minúsculas y eliminar tildes
+        busqueda_normalizada = unidecode.unidecode(busqueda).lower()
+        
         try:
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
-                cursor.execute("""SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota,
-                                n_registro, titulo, autor, editorial, año, edicion FROM libro WHERE 
-                                ID_Libro=%s OR ID_Sala=%s OR ID_Categoria=%s OR 
-                                ID_Asignatura=%s OR Cota=%s OR n_registro=%s OR 
-                                titulo=%s OR autor=%s OR editorial=%s OR 
-                                año=%s OR edicion=%s""", 
-                            (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
-                resultados = cursor.fetchall()
-
-                self.book_table_list.delete(*self.book_table_list.get_children())
-                for fila in resultados:
-                    if busqueda in map(str, fila):  # Convertir cada elemento de la fila a string para la comparación
-                        self.book_table_list.insert("", "end", values=tuple(fila))
-
-                if resultados:
-                    messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
-                else:
-                    messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+                query = f"SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares FROM libro WHERE LOWER({campo_real}) LIKE %s"
+                cursor.execute(query, (f'%{busqueda_normalizada}%',))
+                self.search_data = cursor.fetchall()
+                mariadb_conexion.close()
+                self.search_current_page = 0  # Resetear la página a la primera página
+                self.is_search_active = True
+                self.display_search_page()
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
+
+    def get_search_data_page(self, offset, limit):
+        return self.search_data[offset:offset + limit]
+
+    def display_search_page(self):
+        for row in self.book_table_list.get_children():
+            self.book_table_list.delete(row)
+        page_data = self.get_search_data_page(self.search_current_page * self.search_page_size, self.search_page_size)
+        for fila in page_data:
+            n_ejemplares = fila[12]
+            tag = 'multiple' if n_ejemplares > 1 else 'single'
+            self.book_table_list.insert("", "end", values=fila, tags=(tag,))
+        self.book_table_list.tag_configure('multiple', background='lightblue')
+        self.book_table_list.tag_configure('single', background='#E5E1D7')
+        self.update_page_label(is_search=True)
+
+    def next_search_page(self):
+        if (self.search_current_page + 1) * self.search_page_size < len(self.search_data):
+            self.search_current_page += 1
+            self.display_search_page()
+
+    def previous_search_page(self):
+        if self.search_current_page > 0:
+            self.search_current_page -= 1
+            self.display_search_page()
+
+
+
+
+
    
 
     # def boton_buscar(self, event):
@@ -486,11 +560,14 @@ class L_Listar(tk.Frame):
                 ''')
                 self.data = cursor.fetchall()
                 mariadb_conexion.close()
+                self.current_page = 0  # Resetear a la primera página
+                self.is_search_active = False  # Asegurar que estamos en modo normal
                 self.display_page()
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
         except subprocess.CalledProcessError as e:
             print("Error al importar el archivo SQL:", e)
+
             
             #CARGAR LIBROS FUNCION ANTIGUA!
     """def reading_books(self, book_table_list):

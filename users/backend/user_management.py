@@ -28,7 +28,7 @@ class U_Listar(tk.Frame):
         self.parent=parent
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
-        validate_number = self.register(validate_number_input)
+        self.validate_number = self.register(validate_number_input)
         self.images = {}
         self.cargos = {
             1: "Encargado de Servicio",
@@ -48,14 +48,23 @@ class U_Listar(tk.Frame):
         self.user_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
         self.user_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
         self.user_frame_list.place(x=215,y=218, height=470, width=1135)
+        # Títulos para los Treeviews
+        bold_font = font.Font(family="Bold", size=15, weight="bold")
+        self.label_prestamos = tk.Label(self.canvas, text="Tabla Usuarios", bg="#FAFAFA", fg="#031A33", font=bold_font)
+        self.label_prestamos.place(x=665.0, y=180.0, width=225.0, height=35.0)
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.label_nombre = self.canvas.create_text(245.0, 100.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar por cédula", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1080.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
-        
+        # Configurar el Entry con validación
+        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2, validate="key", validatecommand=(self.validate_number, "%P"))
+        self.buscar.insert(0, "Ingrese cédula")
+        self.buscar.place(x=245.0, y=112.0, width=267.0, height=48.0)
+        self.buscar.bind("<Return>", self.boton_buscar)
+        self.buscar.bind("<KeyPress>",self.key_on_press_search)
     
         
         
@@ -141,7 +150,7 @@ class U_Listar(tk.Frame):
         self.display_page()
         self.refresh_frame()
          
-        
+     
         
     def setup_treeview(self):
         style = ttk.Style()
@@ -168,20 +177,58 @@ class U_Listar(tk.Frame):
         scrollbar_pt = ttk.Scrollbar(self.user_table_list, orient="vertical", command=self.user_table_list.yview)
         self.user_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
-
+        self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguiente.png"))
+        self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/atras.png"))
         # Botones de navegación
-        prev_button = tk.Button(self.user_frame_list, text="< Anterior", borderwidth=0, highlightthickness=0, relief="flat", font=("Montserrat Regular", 15), bg="#FAFAFA", fg="#006ac2", activebackground="#FAFAFA", activeforeground="#006ac2", command=self.previous_page)
-        prev_button.pack(side=tk.LEFT, padx=10, pady=10)
+        prev_button = tk.Button(
+            self.user_frame_list, 
+            image=self.images['boton_anterior'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.previous_page)
+        prev_button.pack(side=tk.LEFT, padx=25, pady=0)
         
-        next_button = tk.Button(self.user_frame_list, text="Siguiente >", borderwidth=0, highlightthickness=0, relief="flat", font=("Montserrat Regular", 15), bg="#FAFAFA", fg="#006ac2", activebackground="#FAFAFA", activeforeground="#006ac2", command=self.next_page)
-        next_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        next_button = tk.Button(
+            self.user_frame_list, 
+            image=self.images['boton_siguiente'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.next_page)
+        next_button.pack(side=tk.RIGHT, padx=25, pady=0)
         
         # Etiqueta para mostrar la página actual
         self.page_label = tk.Label(self.user_frame_list, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33", font=("Montserrat Regular", 13))
         self.page_label.pack(side=tk.BOTTOM, pady=15)
         #list_users_db(self.user_table_list,self.cargos,self.roles)       
         
-        
+    def list_users_db(self, treeview, cargos, roles):
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            query = "SELECT * FROM usuarios WHERE estado_usuario = 'activo'"
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            cursor.close()
+            mariadb_conexion.close()
+            
+            # Almacenar los datos en self.data en lugar de insertarlos directamente en el Treeview
+            self.data = []
+            for row in rows:
+                row = list(row)
+                row[1] = cargos.get(row[1], "Desconocido")
+                row[2] = roles.get(row[2], "Desconocido")
+                self.data.append(tuple(row))
+
+            # Mostrar la primera página de datos
+            self.display_page()
     def get_data_page(self, offset, limit):
         return self.data[offset:offset + limit]
 
@@ -204,27 +251,11 @@ class U_Listar(tk.Frame):
             self.display_page()
 
     def update_page_label(self):
-        self.page_label.config(text=f"Página {self.current_page + 1}")
-    def list_users_db(self, treeview, cargos, roles):
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            cursor = mariadb_conexion.cursor()
-            query = "SELECT * FROM usuarios WHERE estado_usuario = 'activo'"
-            cursor.execute(query)
-            rows = cursor.fetchall()
-            cursor.close()
-            mariadb_conexion.close()
-            
-            # Almacenar los datos en self.data en lugar de insertarlos directamente en el Treeview
-            self.data = []
-            for row in rows:
-                row = list(row)
-                row[1] = cargos.get(row[1], "Desconocido")
-                row[2] = roles.get(row[2], "Desconocido")
-                self.data.append(tuple(row))
-
-            # Mostrar la primera página de datos
-            self.display_page()
+        
+        total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
+        self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
+        
+        
     def refresh_frame(self):
         self.list_users_db(self.user_table_list, self.cargos,self.roles)
 
@@ -242,33 +273,56 @@ class U_Listar(tk.Frame):
             U_Modificar(self, item_values)
         else:
             messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un usuario para modificarlo.")
-    
 
+    def convertir_cargo_rol(self, cargo, rol):
+        cargo_nombre = self.cargos.get(cargo, "Desconocido")
+        rol_nombre = self.roles.get(rol, "Desconocido")
+        return cargo_nombre, rol_nombre
+
+
+    def key_on_press_search(self, event):
+        current_text = self.buscar.get()
+        limited_text = limit_length(current_text, 10)
+        self.buscar.delete(0, 'end')
+        self.buscar.insert(0, limited_text)
     def boton_buscar(self, event):
         busqueda = self.buscar.get()
+        
         try:
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
-                cursor.execute("""SELECT ID_Usuario, ID_Cargo, ID_Rol, Nombre, Apellido,
-                                Cedula, Nombre_Usuario FROM usuarios WHERE 
-                                ID_Usuario=%s OR ID_Cargo=%s OR ID_Rol=%s OR 
-                                Nombre=%s OR Apellido=%s OR Cedula=%s OR 
-                                Nombre_Usuario=%s""", 
-                            (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+                # Realizar la búsqueda exacta solo para la cédula
+                cursor.execute("""
+                    SELECT ID_Usuario, ID_Cargo, ID_Rol, Nombre, Apellido, Cedula, Nombre_Usuario 
+                    FROM usuarios 
+                    WHERE Cedula = %s
+                """, (busqueda,))
                 resultados = cursor.fetchall()
 
-                self.user_table_list.delete(*self.user_table_list.get_children())
-                for fila in resultados:
-                    if busqueda in map(str, fila):  # Convertir cada elemento de la fila a string para la comparación
-                        self.user_table_list.insert("", "end", values=tuple(fila))
+                # Limpiar la tabla antes de insertar nuevos resultados
+                for item in self.user_table_list.get_children():
+                    self.user_table_list.delete(item)
 
                 if resultados:
-                    messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+                    # Insertar los nuevos resultados con la conversión de cargo y rol
+                    for fila in resultados:
+                        id_usuario, id_cargo, id_rol, nombre, apellido, cedula, nombre_usuario = fila
+                        cargo, rol = self.convertir_cargo_rol(id_cargo, id_rol)
+                        self.user_table_list.insert("", "end", values=(id_usuario, cargo, rol, nombre, apellido, cedula, nombre_usuario))
+
+                
+                    self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
+                    messagebox.showinfo("Búsqueda Exitosa", "Resultados en pantalla.")
                 else:
-                    messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+                    self.refresh_frame()
+                    #self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
+                    messagebox.showinfo("Búsqueda Fallida", "No se encontraron coincidencias.")
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
+
+
+
 
     def cancelar(self, window):
         if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?"):
