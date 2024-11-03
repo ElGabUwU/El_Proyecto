@@ -79,31 +79,36 @@ def libro_prestamo_exists(new_id):
             cursor.close()
             mariadb_conexion.close()
 
-#Función que consigue la ID del cliente basado en la cédula
-# def get_cliente_id_by_cp(cp):
-#     try:
-#         mariadb_conexion = establecer_conexion()
-#         if not mariadb_conexion:
-#             print("Failed to establish connection.")
-#             return None
-
+#Función que consigue la ID_CP del cliente basado en el ID_Cliente
+# def get_id_cp_by_cliente_id(id_cliente):
+#     mariadb_conexion = establecer_conexion()
+#     if mariadb_conexion:
 #         cursor = mariadb_conexion.cursor()
-#         query = "SELECT ID_CP FROM cliente_prestamo WHERE ID_CP = %s"
-#         cursor.execute(query, (cp,))
-#         result = cursor.fetchone()
-
-#         if result:
-#             return result[0]
-#         else:
+#         try:
+#             # Ordenar por la fecha de ingreso y limitar a un solo resultado
+#             cursor.execute("""
+#                 SELECT ID_CP 
+#                 FROM cliente_prestamo 
+#                 WHERE ID_Cliente = %s 
+#                 ORDER BY Fecha_Creacion DESC 
+#                 LIMIT 1
+#             """, (id_cliente,))
+#             resultado = cursor.fetchone()
+#             print(f"Resultado: {resultado}")
+#             if resultado:
+#                 return resultado[0]
+#             else:
+#                 return None
+#         except mariadb.Error as ex:
+#             print(f"Error durante la ejecución de la consulta: {ex}")
 #             return None
-#     except mariadb.Error as ex:
-#         print(f"Error during query execution: {ex}")
-#         return None
-#     finally:
-#         if mariadb_conexion is not None:
+#         finally:
 #             cursor.close()
 #             mariadb_conexion.close()
-#             print("Connection closed.")
+#     else:
+#         print("No se pudo establecer la conexión con la base de datos.")
+#         return None
+
 
 def get_cliente_id_by_cedula(cedula):
     try:
@@ -116,7 +121,7 @@ def get_cliente_id_by_cedula(cedula):
         query = "SELECT ID_Cliente FROM cliente WHERE Cedula = %s"
         cursor.execute(query, (cedula,))
         result = cursor.fetchone()
-
+        print(f"SU resultado: {result}")
         if result:
             return result[0]
         else:
@@ -129,6 +134,8 @@ def get_cliente_id_by_cedula(cedula):
             cursor.close()
             mariadb_conexion.close()
             print("Connection closed.")
+
+
 
 #Función que valida el numero de cedula
 def validate_cedula(cedula):

@@ -30,7 +30,6 @@ def get_new_id_cp(cursor, ID_Cliente, ID_Prestamo):
 
 
 
-
 #FUNCIONES MODULARIZADA PARA UPDATED_ALL_TABLES
 def iniciar_transaccion(conexion):
     conexion.start_transaction()
