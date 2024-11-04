@@ -337,7 +337,7 @@ class Starter(tk.Tk):
         
         
     def agarrar_datos(self):
-        from users.backend.db_users import Usuario,usuario_actual
+        from users.backend.db_users import Usuario, usuario_actual
         if usuario_actual:
             print("usuario logueado!!!!!")
             print(f"ID Usuario: {usuario_actual.id_usuario}")
@@ -347,17 +347,19 @@ class Starter(tk.Tk):
             print(f"Apellido: {usuario_actual.apellido}")
             print(f"Cédula: {usuario_actual.cedula}")
             print(f"Nombre de Usuario: {usuario_actual.nombre_usuario}")
-            #global id_usuario,id_cargo,id_rol,nombre,apellido,cedula,U_nombre
-            self.U_nombre=usuario_actual.nombre_usuario
-            self.id_usuario=usuario_actual.id_usuario
-            self.id_cargo=usuario_actual.id_cargo
-            self.id_rol=usuario_actual.id_rol
-            self.nombre=usuario_actual.nombre
-            self.apellido=usuario_actual.apellido
-            self.cedula=usuario_actual.cedula
+            
+            # Asignar los datos del usuario logueado a los atributos de la clase
+            self.U_nombre = usuario_actual.nombre_usuario
+            self.id_usuario = usuario_actual.id_usuario
+            self.id_cargo = usuario_actual.id_cargo
+            self.id_rol = usuario_actual.id_rol
+            self.nombre = usuario_actual.nombre
+            self.apellido = usuario_actual.apellido
+            self.cedula = usuario_actual.cedula
             print(self.U_nombre)
         else:
             print("No hay usuario logueado")
+
     
         
     

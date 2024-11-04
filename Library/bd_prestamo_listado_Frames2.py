@@ -4,70 +4,7 @@ from db.conexion import establecer_conexion
 from datetime import datetime, timedelta
 from tkinter import ttk, messagebox
 
-#OBTENCION DE DATOS PARA REPORTE DE PDF
-def obtener_datos_libro(libro_id):
-    try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            cursor = mariadb_conexion.cursor()
-            cursor.execute('''
-                SELECT ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares
-                FROM libro
-                WHERE ID_Libro = %s
-            ''', (libro_id,))
-            resultado_libro = cursor.fetchone()
-            if resultado_libro:
-                book_data = {
-                    "ID_Sala": resultado_libro[0],
-                    "ID_Categoria": resultado_libro[1],
-                    "ID_Asignatura": resultado_libro[2],
-                    "Cota": resultado_libro[3],
-                    "n_registro": resultado_libro[4],
-                    "edicion": resultado_libro[5],
-                    "n_volumenes": resultado_libro[6],
-                    "titulo": resultado_libro[7],
-                    "autor": resultado_libro[8],
-                    "editorial": resultado_libro[9],
-                    "año": resultado_libro[10],
-                    "n_ejemplares": resultado_libro[11]
-                }
-                print("Book Data:", book_data)
-                return book_data
-            else:
-                print("No se encontró información del libro.")
-            mariadb_conexion.close()
-    except mariadb.Error as ex:
-        print("Error durante la conexión:", ex)
-    return None
 
-def obtener_datos_cliente(cliente_id):
-    try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            cursor = mariadb_conexion.cursor()
-            cursor.execute('''
-                SELECT Cedula_Cliente, Nombre, Apellido, Telefono, Direccion
-                FROM cliente
-                WHERE ID_Cliente = %s
-            ''', (cliente_id,))
-            resultado_cliente = cursor.fetchone()
-            print(f"Resultado Cliente: {resultado_cliente}")  # Depuración
-            if resultado_cliente:
-                user_data = {
-                    "Cedula": resultado_cliente[0],
-                    "Nombre": resultado_cliente[1],
-                    "Apellido": resultado_cliente[2],
-                    "Telefono": resultado_cliente[3],
-                    "Direccion": resultado_cliente[4]
-                }
-                print("User Data:", user_data)  # Depuración
-                return user_data
-            else:
-                print("No se encontró información del cliente.")
-            mariadb_conexion.close()
-    except mariadb.Error as ex:
-        print("Error durante la conexión:", ex)
-    return None
 
 # Tabla Libros Prestamos
 def lists_books_loans(self):

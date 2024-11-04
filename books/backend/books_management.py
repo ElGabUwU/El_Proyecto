@@ -97,7 +97,7 @@ class L_Listar(tk.Frame):
                 image=self.images['boton_refrescar'],
                 borderwidth=0,
                 highlightthickness=0,
-                command=lambda: self.reading_books(self.book_table_list),
+                command=lambda: self.reading_books(),
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -326,10 +326,9 @@ class L_Listar(tk.Frame):
                 "Titulo": libro_valores[6],
                 "Autor": libro_valores[7],
                 "Editorial": libro_valores[8],
-                "Año": libro_valores[9],
-                "Edicion": libro_valores[10],
-                "n_volumenes": libro_valores[11],
-                "n_ejemplares": libro_valores[12]  # Asegúrate de que coincida con tu índice
+                "Edicion": libro_valores[9],
+                "n_volumenes": libro_valores[10],
+                "n_ejemplares": libro_valores[11]  # Asegúrate de que coincida con tu índice
             }
 
             mariadb_conexion = establecer_conexion()
@@ -339,8 +338,8 @@ class L_Listar(tk.Frame):
                 cursor.execute('''
                     SELECT ID_Libro
                     FROM libro
-                    WHERE autor = %s AND editorial = %s AND titulo = %s AND año = %s
-                ''', (self.book_data["Autor"], self.book_data["Editorial"], self.book_data["Titulo"], self.book_data["Año"]))
+                    WHERE autor = %s AND editorial = %s AND titulo = %s
+                ''', (self.book_data["Autor"], self.book_data["Editorial"], self.book_data["Titulo"]))
 
                 ejemplares = cursor.fetchall()
 

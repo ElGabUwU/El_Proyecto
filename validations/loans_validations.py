@@ -79,56 +79,8 @@ def libro_prestamo_exists(new_id):
             cursor.close()
             mariadb_conexion.close()
 
-#Función que consigue la ID del cliente basado en la cédula
-# def get_cliente_id_by_cp(cp):
-#     try:
-#         mariadb_conexion = establecer_conexion()
-#         if not mariadb_conexion:
-#             print("Failed to establish connection.")
-#             return None
 
-#         cursor = mariadb_conexion.cursor()
-#         query = "SELECT ID_CP FROM cliente_prestamo WHERE ID_CP = %s"
-#         cursor.execute(query, (cp,))
-#         result = cursor.fetchone()
 
-#         if result:
-#             return result[0]
-#         else:
-#             return None
-#     except mariadb.Error as ex:
-#         print(f"Error during query execution: {ex}")
-#         return None
-#     finally:
-#         if mariadb_conexion is not None:
-#             cursor.close()
-#             mariadb_conexion.close()
-#             print("Connection closed.")
-
-def get_cliente_id_by_cedula(cedula):
-    try:
-        mariadb_conexion = establecer_conexion()
-        if not mariadb_conexion:
-            print("Failed to establish connection.")
-            return None
-
-        cursor = mariadb_conexion.cursor()
-        query = "SELECT ID_Cliente FROM cliente WHERE Cedula = %s"
-        cursor.execute(query, (cedula,))
-        result = cursor.fetchone()
-
-        if result:
-            return result[0]
-        else:
-            return None
-    except mariadb.Error as ex:
-        print(f"Error during query execution: {ex}")
-        return None
-    finally:
-        if mariadb_conexion is not None:
-            cursor.close()
-            mariadb_conexion.close()
-            print("Connection closed.")
 
 #Función que valida el numero de cedula
 def validate_cedula(cedula):

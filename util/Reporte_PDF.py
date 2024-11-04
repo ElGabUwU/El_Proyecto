@@ -74,6 +74,13 @@ class PDF(FPDF):
         self.cell(w=150, h=10, txt=f"Dirección: {cliente.direccion}", border=1, align="L", fill=0)
         self.multi_cell(w=0, h=10, txt=f"Teléfono: {cliente.telefono}", border=1, align="L", fill=0)
 
+    def agregar_datos_encargado(self, encargado):
+        self.set_font("Arial", "", 9)
+        self.cell(w=0, h=10, txt="DATOS DEL ENCARGADO", border=1, ln=1, align="C", fill=0)
+        self.cell(w=150, h=10, txt=f"Apellidos y Nombres: {encargado.apellido} {encargado.nombre}", border=1, align="L", fill=0)
+        self.cell(w=0, h=10, txt=f"C.I.: {encargado.cedula}", border=1, align="L", ln=1, fill=0)
+        self.cell(w=0, h=10, txt=f"Cargo: {encargado.cargo}", border=1, align="L", ln=1, fill=0)
+
     def agregar_datos_libro(self, libro, fecha_registro, fecha_limite):
         
         self.set_font("Arial", "", 9)
@@ -128,152 +135,53 @@ class PDF(FPDF):
         self.agregar_datos_libro(libro, fecha_registro, fecha_limite)
         self.agregar_firmas()
 
-def generar_pdf(cliente, books_data, prestamos_data, nombre_archivo_base):
+def generate_pdf(clientes, books_data, prestamos_data, nombre_archivo_base, parent):
     pdf = PDF()
     pdf.alias_nb_pages()
-
-    for index, book_data in enumerate(books_data):
+    for index, libro in enumerate(books_data):
         pdf.add_page()
         prestamo = prestamos_data[index]
-        libro = Libro(
-            cota=book_data["Cota"],
-            categoria=book_data["ID_Categoria"],
-            sala=book_data["ID_Sala"],
-            asignatura=book_data["ID_Asignatura"],
-            numero_registro=book_data["n_registro"],
-            autor=book_data["autor"],
-            titulo=book_data["titulo"],
-            num_volumenes=book_data["n_volumenes"],
-            num_ejemplares=book_data["n_ejemplares"],
-            edicion=book_data["edicion"],
-            año=book_data["año"],
-            editorial=book_data["editorial"]
-        )
-        # Añadir datos al PDF
-        pdf.agregar_datos_al_pdf(cliente, libro, formatear_fecha(prestamo["fecha_r"]), formatear_fecha(prestamo["fecha_en"]))
-
+        cliente = clientes.get(prestamo["Cedula"])
+        if cliente:
+            # Añadir datos al PDF
+            pdf.agregar_datos_al_pdf(cliente, libro, prestamo["fecha_r"], prestamo["fecha_en"])
     # Establecer metadatos del documento
     pdf.set_title("Reporte de Libro")
-    pdf.set_author(f"{cliente.nombre} {cliente.apellido}")
+    pdf.set_author("Aplicación de la Biblioteca Pública de Rubio")
     pdf.set_creator("Aplicación de la Biblioteca Pública de Rubio")
     pdf.set_subject("Reporte de préstamo de libros")
     pdf.set_keywords("Reporte,Libro,Préstamo,Biblioteca")
-
     # Crear ventana de diálogo para guardar el archivo
     root = tk.Tk()
     root.withdraw()  # Oculta la ventana principal de tkinter
     carpeta_documentos = os.path.expanduser("~/Documents")
-
     nombre_archivo_final = asksaveasfilename(
         defaultextension=".pdf",
         initialfile=f"{nombre_archivo_base}.pdf",
         filetypes=[("PDF files", "*.pdf")],
-        initialdir=carpeta_documentos
+        initialdir=carpeta_documentos,
+        parent=parent  # Pasar la ventana de generar reporte como parent
     )
-
     if nombre_archivo_final:
         verificar_y_guardar_pdf(pdf, nombre_archivo_final)
-        messagebox.showinfo("Éxito", "El reporte ha sido creado de forma exitosa.")
+        return True
     else:
         print("Guardado cancelado.")
         root.destroy()
+        return False
 
+def generate_report_by_day(clientes, books_data, prestamos_data, parent):
+    fecha_actual = datetime.now().strftime("%d-%m-%Y")
+    nombre_archivo_base = f"Reporte_Prestamos_{fecha_actual}"
+    return generate_pdf(clientes, books_data, prestamos_data, nombre_archivo_base, parent)
 
-# def generar_pdf(cliente, libro, fecha_registro, fecha_limite, nombre_archivo_base):
-#     pdf = PDF()
-#     pdf.alias_nb_pages()
-#     pdf.add_page()
-
-#     # Añadir datos al PDF
-#     pdf.agregar_datos_al_pdf(cliente, libro, fecha_registro, fecha_limite)
-
-#     # Establecer metadatos del documento
-#     pdf.set_title("Reporte de Libro")
-#     pdf.set_author(f"{cliente.nombre} {cliente.apellido}")
-#     pdf.set_creator("Aplicación de la Biblioteca Pública de Rubio")
-#     pdf.set_subject("Reporte de préstamo de libros")
-#     pdf.set_keywords("Reporte,Libro,Préstamo,Biblioteca")
-
-#     # Crear ventana de diálogo para guardar el archivo
-#     root = tk.Tk()
-#     root.withdraw()  # Oculta la ventana principal de tkinter
-#     nombre_archivo_base = f"Reporte_Prestamo_{cliente.nombre}_{cliente.apellido}_{formatear_fecha_titulo(fecha_registro)}"
-    
-#     # Obtener la ruta de la carpeta Documentos del usuario
-#     carpeta_documentos = os.path.expanduser("~/Documents")
-    
-#     nombre_archivo_final = asksaveasfilename(
-#         defaultextension=".pdf",
-#         initialfile=f"{nombre_archivo_base}.pdf",
-#         filetypes=[("PDF files", "*.pdf")],
-#         initialdir=carpeta_documentos  # Establecer la carpeta Documentos como directorio inicial
-#     )
-    
-#     if nombre_archivo_final:
-#         # Guardar el PDF
-#         verificar_y_guardar_pdf(pdf, nombre_archivo_final)
-#         # Mostrar mensaje de éxito
-#         messagebox.showinfo("Éxito", "El reporte ha sido creado de forma exitosa.")
-#     else:
-#         print("Guardado cancelado.")
-    
-#     root.destroy()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Instanciación de la clase PDF
-# pdf = PDF()
-# pdf.alias_nb_pages()
-# pdf.set_font('Arial', '', 12)
-# pdf.add_page()
-
-# Crear instancia del cliente
-#cliente = Cliente("Keyner Ivan Lizarazo Diaz", "04263757236", "30905297", "Las Margaritas Via Delicias")
-
-# Crear instancias de libros ficticios
-#libro1 = Libro("12345", "Ficción", "Sala A", "Literatura", "001", "Gabriel García Márquez", "Cien Años de Soledad", "1", "3", "Primera", "1967", "Editorial Sudamericana")
-#libro2 = Libro("D221", "Fantasia", "General","Literatura", 123.323, "Brayan Diaz", "Historias Medievales",2, 2, 12, 1998, "Libertadores" )
-#libros_prestamos1 = [libro1,libro2]
-#libros_prestamos2 = [libro2,libro1]
-# Fecha de registro y fecha límite
-#fecha_registro = datetime.now().strftime("%d/%m/%Y")
-# fecha_limite = (datetime.now() + timedelta(days=20)).strftime("%d/%m/%Y")
-
-# # Añadir páginas y datos para los libros en la lista
-# for indice, libro in enumerate(libros_prestamos2):
-#     if indice > 0:  # Añadir una nueva página solo después de la primera iteración
-#         pdf.add_page()
-#     pdf.agregar_datos_al_pdf(cliente, libro, fecha_registro, fecha_limite)
-
-
-# fecha_actual = datetime.now().strftime("%d_%m_%Y")#Aqui se usa un guion bajo para evitar errores con caracteres espéciales en el nombre del documento
-# nombre_corregido = cliente.nombre.replace(" ","_")#De esta forma se remplazan los espacios en blanco para evitar errores al crear el archivo
-# nombre_archivo_base= f"Reporte_de_prestamo_{nombre_corregido}_{fecha_actual}"
-
-# #Establecer metadatos del documento
-# pdf.set_title("Reporte de Libro")
-# pdf.set_author(self.cliente["Nombre"])#Esto debe ser modificado a futuro en base al usuario que haga el reporte
-# pdf.set_creator("Aplicación de la Biblioteca Pública de Rubio")
-# pdf.set_subject("Reporte de préstamo de libros")
-# pdf.set_keywords("Reporte,Libro,Préstamo,Biblioteca")#Estas palabras clave pueden ser usadas por los motores de búsqueda y los lectores de PDF para indexar y encontrar el documento más fácilmente.
-
-# nombre_archivo = obtener_nombre_archivo_unico(nombre_archivo_base)
-# verificar_y_guardar_pdf(pdf,nombre_archivo_base)
+def generate_report_by_month(clientes, books_data, prestamos_data, parent):
+    meses = {
+        1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio",
+        7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
+    }
+    fecha_actual = datetime.now()
+    mes_actual = meses[fecha_actual.month]
+    año_actual = fecha_actual.year
+    nombre_archivo_base = f"Reporte_Prestamos_{mes_actual}_{año_actual}"
+    return generate_pdf(clientes, books_data, prestamos_data, nombre_archivo_base, parent)
