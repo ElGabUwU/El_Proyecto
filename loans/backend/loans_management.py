@@ -38,6 +38,10 @@ class P_Listar(tk.Frame):
         #validate_number = self.register(validate_number_input)
         self.images = {}
         
+        self.data = []
+        self.page_size = 19
+        self.current_page = 0
+        self.warned_about_overdue = False
 
         self.left_frame2 = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame2.pack(expand=True, side="right", fill="both")
@@ -160,49 +164,107 @@ class P_Listar(tk.Frame):
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         )
         self.button_d.place(x=1230.0, y=60.0, width=90.0, height=100.0)
-
-        # Crear un estilo específico para el Treeview listado de libros en esta ventana
+        self.setup_treeview()
+        #self.lists_clients_loans()
+        self.display_page()
+        
+    def setup_treeview(self):
         self.style = ttk.Style()
         self.style.theme_use('clam')
         self.style.configure("RegisterLoanTreeview", 
-                             background="#E5E1D7", 
-                             foreground="black", 
-                             rowheight=30, 
-                             fieldbackground="#f0f0f0", 
-                             bordercolor="blue", 
-                             lightcolor="lightblue", 
-                             darkcolor="darkblue")
+                            background="#E5E1D7", 
+                            foreground="black", 
+                            rowheight=30, 
+                            fieldbackground="#f0f0f0", 
+                            bordercolor="blue", 
+                            lightcolor="lightblue", 
+                            darkcolor="darkblue")
         self.style.map('RegisterLoanTreeview', 
-                       background=[('selected', '#347083')])
+                    background=[('selected', '#347083')])
         self.style.configure("RegisterLoanTreeview.Heading", 
-                             font=('Helvetica', 10, 'bold'), 
-                             background="#2E59A7", 
-                             foreground="#000000", 
-                             borderwidth=0)
+                            font=('Helvetica', 10, 'bold'), 
+                            background="#2E59A7", 
+                            foreground="#000000", 
+                            borderwidth=0)
 
-
-
-        #Columnas Prestamo
-        columns2 = ("Cedula", "Cliente", "Nombre del Libro", "N° Registro", "F.Registro", "F.Limite", "Encargado", "ID_Prestamo")
+        columns2 = ("Cedula", "Cliente", "Nombre del Libro", "N° Registro", "F.Registro", "F.Limite", "Encargado")
         self.cliente_prestamo_table = ttk.Treeview(self.left_frame2, columns=columns2, show='headings', style="Rounded.Treeview", selectmode="browse")
-
+        
         for col2 in columns2:
             self.cliente_prestamo_table.heading(col2, text=col2)
             if col2 == "ID_Prestamo":
                 self.cliente_prestamo_table.column(col2, width=0, stretch=False)  # Ocultar la columna
             else:
                 self.cliente_prestamo_table.column(col2, width=90, anchor="center")
-
+                
         self.cliente_prestamo_table.pack(expand=True, fill="both", padx=30, pady=5)
-
-        self.cliente_prestamo_table.bind("<Double-1>", self.on_loans_double_click)  # SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
+        self.cliente_prestamo_table.bind("<Double-1>", self.on_loans_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
         scrollbar_pt = ttk.Scrollbar(self.cliente_prestamo_table, orient="vertical", command=self.cliente_prestamo_table.yview)
         self.cliente_prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
+        self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguiente.png"))
+        self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/atras.png"))
+        prev_button = tk.Button(
+            self.left_frame2,
+            image=self.images['boton_anterior'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.previous_page)
+        prev_button.pack(side=tk.LEFT, padx=25, pady=0)
+        
+        next_button = tk.Button(
+            self.left_frame2, 
+            image=self.images['boton_siguiente'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.next_page)
+        next_button.pack(side=tk.RIGHT, padx=25, pady=0)
+        self.page_label = tk.Label(self.left_frame2, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33", font=("Montserrat Regular", 13))
+        self.page_label.pack(side=tk.BOTTOM, pady=15)
+        
         self.lists_clients_loans()
         
         
 
+
+    def get_data_page(self, offset, limit):
+        return self.data[offset:offset + limit]
+    def update_page_label(self):
+        total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
+        self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
+
+    def display_page(self):
+        for row in self.cliente_prestamo_table.get_children():
+            self.cliente_prestamo_table.delete(row)
+        page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
+        hoy = datetime.now().date()
+        for fila in page_data:
+            fecha_limite = datetime.strptime(fila[4], '%d-%m-%Y').strftime('%d-%m-%Y')
+            fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
+            tag = 'vencido' if fecha_limite <= hoy - timedelta(days=3) else 'activo'
+            self.cliente_prestamo_table.insert("", "end", values=fila, tags=(tag,))
+        self.cliente_prestamo_table.tag_configure('vencido', background='red')
+        self.cliente_prestamo_table.tag_configure('activo', background='white')
+        self.update_page_label()
+
+
+    def next_page(self):
+        if (self.current_page + 1) * self.page_size < len(self.data):
+            self.current_page += 1
+            self.display_page()
+
+    def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.display_page()
 
     def lists_clients_loans(self):
         try:
@@ -212,7 +274,6 @@ class P_Listar(tk.Frame):
                 return
 
             cursor = mariadb_conexion.cursor()
-
             query1 = '''
             SELECT
                 c.Cedula,
@@ -239,37 +300,16 @@ class P_Listar(tk.Frame):
             '''
 
             cursor.execute(query1)
-            resultados1 = cursor.fetchall()
-
-            # Debugging: Print the results
-            print("Query executed successfully. Results:")
-            for resultado in resultados1:
-                print(resultado)
-
-            for row in self.cliente_prestamo_table.get_children():
-                self.cliente_prestamo_table.delete(row)
-
-            prestamos_vencidos = []
-            hoy = datetime.now().date()
-
-            for fila in resultados1:
-                # Ajustar el formato de la fecha para DD-MM-YYYY
-                fecha_limite = datetime.strptime(fila[4], '%d-%m-%Y').strftime('%d-%m-%Y')
-                fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
-                if fecha_limite <= hoy - timedelta(days=3):
-                    tag = 'vencido'
-                    prestamos_vencidos.append(fila)
-                else:
-                    tag = 'activo'
-                self.cliente_prestamo_table.insert("", "end", values=tuple(fila), tags=(tag,))
-
-            # Configurar las etiquetas para los colores
-            self.cliente_prestamo_table.tag_configure('vencido', background='red')
-            self.cliente_prestamo_table.tag_configure('activo', background='white')
-
-            if prestamos_vencidos:
+            self.data = cursor.fetchall()
+            mariadb_conexion.close()
+            self.current_page = 0  # Resetear a la primera página
+            self.display_page()
+            
+            # Mostrar mensaje si hay préstamos vencidos
+            prestamos_vencidos = [fila for fila in self.data if datetime.strptime(fila[4], '%d-%m-%Y').date() <= datetime.now().date() - timedelta(days=3)]
+            if prestamos_vencidos and not self.warned_about_overdue:
                 messagebox.showwarning("Préstamos Vencidos", "Hay préstamos que han pasado más de 3 días desde su fecha límite.")
-
+                self.warned_about_overdue = True  # Establecer la bandera para evitar mensajes duplicados
         except mariadb.Error as ex:
             print(f"Error during query execution: {ex}")
         finally:
@@ -665,14 +705,14 @@ class Register_Loans(P_Listar):
                 cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes FROM libro')
                 self.data = cursor.fetchall()  # Almacena los datos en self.data
                 mariadb_conexion.close()
-                self.display_page()  # Llama a display_page() para mostrar los datos paginados
+                self.display_page2()  # Llama a display_page() para mostrar los datos paginados
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
 
     def get_data_page(self, offset, limit):
         return self.data[offset:offset + limit]
 
-    def display_page(self):
+    def display_page2(self):
         for row in self.book_table_list.get_children():
             self.book_table_list.delete(row)
         page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
@@ -690,12 +730,12 @@ class Register_Loans(P_Listar):
     def next_page(self):
         if (self.current_page + 1) * self.page_size < len(self.data):
             self.current_page += 1
-            self.display_page()
+            self.display_page2()
 
     def previous_page(self):
         if self.current_page > 0:
             self.current_page -= 1
-            self.display_page()
+            self.display_page2()
 
     def update_page_label(self):
         total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
