@@ -178,30 +178,30 @@ def delete_selected_user(self):
     finally:
         if mariadb_conexion:
             mariadb_conexion.close()
+            
+#NO ME ESTA FUNCIONANDO LA FUNCION DESDE ESTE ARCHVO
+"""
+def list_users_db(self, treeview, cargos, roles):
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            query = "SELECT * FROM usuarios WHERE estado_usuario = 'activo'"
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            cursor.close()
+            mariadb_conexion.close()
+            
+            # Almacenar los datos en self.data en lugar de insertarlos directamente en el Treeview
+            self.data = []
+            for row in rows:
+                row = list(row)
+                row[1] = cargos.get(row[1], "Desconocido")
+                row[2] = roles.get(row[2], "Desconocido")
+                self.data.append(tuple(row))
 
-def list_users_db(treeview, cargos, roles):
-    # Conexión a la base de datos y obtención de datos
-    mariadb_conexion = establecer_conexion()
-    if mariadb_conexion:
-        cursor = mariadb_conexion.cursor()
-        query = "SELECT * FROM usuarios WHERE estado_usuario = 'activo'"
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        cursor.close()
-        mariadb_conexion.close()
-        
-        # Limpiar el Treeview
-        for item in treeview.get_children():
-            treeview.delete(item)
-
-        # Insertar datos en el Treeview
-        for row in rows:
-            # Reemplazar el ID de cargo con su nombre correspondiente
-            row = list(row)
-            row[1] = cargos.get(row[1], "Desconocido")  # Supongamos que la columna 1 es la del cargo
-            row[2] = roles.get(row[2], "Desconocido")  # Supongamos que la columna 2 es la del rol
-            treeview.insert('', 'end', values=tuple(row))
-
+            # Mostrar la primera página de datos
+            self.display_page()
+"""
 
 
 # Actualizar un prestamo

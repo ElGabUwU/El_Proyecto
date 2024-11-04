@@ -82,6 +82,8 @@ def libro_prestamo_exists(new_id):
 
 
 
+
+
 #Función que valida el numero de cedula
 def validate_cedula(cedula):
     if not cedula:

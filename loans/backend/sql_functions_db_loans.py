@@ -1,4 +1,4 @@
-import mariadb
+#import mariadb
 
 #FUNCIONES MODULARIZADAS PARA CREATE_LOANS
 def insert_new_loan(cursor, ID_Prestamo, fecha_registrar, fecha_limite):
@@ -26,7 +26,6 @@ def get_new_id_cp(cursor, ID_Cliente, ID_Prestamo):
     result = cursor.fetchone()
     print(f"3) get_new_id_cp: {result}")
     return result
-
 
 
 

@@ -50,7 +50,7 @@ class P_Listar(tk.Frame):
         
         # Texto para el nombre
 
-        self.label_nombre = self.canvas.create_text(245.0, 100.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1175.0, 170.0, text="Editar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(875.0, 170.0, text="Imprimir", fill="#031A33", font=("Bold", 17))
@@ -65,7 +65,7 @@ class P_Listar(tk.Frame):
 
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.buscar.place(x=245.0, y=130.0, width=267.0, height=48.0)
+        self.buscar.place(x=245.0, y=112.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
         self.images['boton_imprimir'] = tk.PhotoImage(file=resource_path("assets_2/Logo_Imprimir.png"))
         
@@ -122,7 +122,7 @@ class P_Listar(tk.Frame):
             image=self.images['boton_modificar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.open_modify_loans_window(),
+            command=lambda: self.update_selected_loan_due_date(),
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -145,41 +145,107 @@ class P_Listar(tk.Frame):
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         )
         self.button_d.place(x=1230.0, y=60.0, width=90.0, height=100.0)
-
-        # Crear un estilo específico para el Treeview listado de libros en esta ventana
+        self.setup_treeview()
+        #self.lists_clients_loans()
+        self.display_page()
+        
+    def setup_treeview(self):
         self.style = ttk.Style()
         self.style.theme_use('clam')
         self.style.configure("RegisterLoanTreeview", 
-                             background="#E5E1D7", 
-                             foreground="black", 
-                             rowheight=30, 
-                             fieldbackground="#f0f0f0", 
-                             bordercolor="blue", 
-                             lightcolor="lightblue", 
-                             darkcolor="darkblue")
+                            background="#E5E1D7", 
+                            foreground="black", 
+                            rowheight=30, 
+                            fieldbackground="#f0f0f0", 
+                            bordercolor="blue", 
+                            lightcolor="lightblue", 
+                            darkcolor="darkblue")
         self.style.map('RegisterLoanTreeview', 
-                       background=[('selected', '#347083')])
+                    background=[('selected', '#347083')])
         self.style.configure("RegisterLoanTreeview.Heading", 
-                             font=('Helvetica', 10, 'bold'), 
-                             background="#2E59A7", 
-                             foreground="#000000", 
-                             borderwidth=0)
+                            font=('Helvetica', 10, 'bold'), 
+                            background="#2E59A7", 
+                            foreground="#000000", 
+                            borderwidth=0)
 
-
-
-        #Columnas Prestamo
-        columns2 = ("Cedula", "Cliente", "Nombre del Libro","N° Registro", "F.Registro", "F.Limite", "Encargado")
-        self.cliente_prestamo_table = ttk.Treeview(self.left_frame2, columns=columns2, show='headings', style="Rounded.Treeview",selectmode="browse")
+        columns2 = ("Cedula", "Cliente", "Nombre del Libro", "N° Registro", "F.Registro", "F.Limite", "Encargado")
+        self.cliente_prestamo_table = ttk.Treeview(self.left_frame2, columns=columns2, show='headings', style="Rounded.Treeview", selectmode="browse")
+        
         for col2 in columns2:
             self.cliente_prestamo_table.heading(col2, text=col2)
-            self.cliente_prestamo_table.column(col2, width=90, anchor="center")
+            if col2 == "ID_Prestamo":
+                self.cliente_prestamo_table.column(col2, width=0, stretch=False)  # Ocultar la columna
+            else:
+                self.cliente_prestamo_table.column(col2, width=90, anchor="center")
+                
         self.cliente_prestamo_table.pack(expand=True, fill="both", padx=30, pady=5)
-
-        self.cliente_prestamo_table.bind("<Double-1>", self.on_loans_double_click_same_month)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
+        self.cliente_prestamo_table.bind("<Double-1>", self.on_loans_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
         scrollbar_pt = ttk.Scrollbar(self.cliente_prestamo_table, orient="vertical", command=self.cliente_prestamo_table.yview)
         self.cliente_prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
-        load_active_loans(self)
+        self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguiente.png"))
+        self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/atras.png"))
+        prev_button = tk.Button(
+            self.left_frame2,
+            image=self.images['boton_anterior'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.previous_page)
+        prev_button.pack(side=tk.LEFT, padx=25, pady=0)
+        
+        next_button = tk.Button(
+            self.left_frame2, 
+            image=self.images['boton_siguiente'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.next_page)
+        next_button.pack(side=tk.RIGHT, padx=25, pady=0)
+        self.page_label = tk.Label(self.left_frame2, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33", font=("Montserrat Regular", 13))
+        self.page_label.pack(side=tk.BOTTOM, pady=15)
+        
+        self.lists_clients_loans()
+        
+        
+
+
+    def get_data_page(self, offset, limit):
+        return self.data[offset:offset + limit]
+    def update_page_label(self):
+        total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
+        self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
+
+    def display_page(self):
+        for row in self.cliente_prestamo_table.get_children():
+            self.cliente_prestamo_table.delete(row)
+        page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
+        hoy = datetime.now().date()
+        for fila in page_data:
+            fecha_limite = datetime.strptime(fila[4], '%d-%m-%Y').strftime('%d-%m-%Y')
+            fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
+            tag = 'vencido' if fecha_limite <= hoy - timedelta(days=3) else 'activo'
+            self.cliente_prestamo_table.insert("", "end", values=fila, tags=(tag,))
+        self.cliente_prestamo_table.tag_configure('vencido', background='red')
+        self.cliente_prestamo_table.tag_configure('activo', background='white')
+        self.update_page_label()
+
+
+    def next_page(self):
+        if (self.current_page + 1) * self.page_size < len(self.data):
+            self.current_page += 1
+            self.display_page()
+
+    def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.display_page()
 
 
         
@@ -188,7 +254,6 @@ class P_Listar(tk.Frame):
         if self.parent.id_rol == 1:
             print("Sin permisos suficientes para eliminar!")
             messagebox.showinfo("AVISO", "Sin permisos suficientes para eliminar!")
-        
         else:
             delete_selected_prestamo(self)
     
@@ -230,16 +295,16 @@ class P_Listar(tk.Frame):
 
 
 
-    def open_modify_loans_window(self):
-        selected_client= self.cliente_prestamo_table.selection()
-        if selected_client:
-            selected_client = selected_client[0]
-            client_values = self.cliente_prestamo_table.item(selected_client, "values")
-            cedula = client_values[0]  # Asumiendo que la cédula es el primer valor en la tupla
-            fecha_limite = client_values[4]  # Asumiendo que la fecha límite es el quinto valor en la tupla
-            ModifyLoans(self, cedula, fecha_limite, loans_validations)
-        else:
-            messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un cliente para modificar el préstamo.")
+    # def open_modify_loans_window(self):
+    #     selected_client= self.cliente_prestamo_table.selection()
+    #     if selected_client:
+    #         selected_client = selected_client[0]
+    #         client_values = self.cliente_prestamo_table.item(selected_client, "values")
+    #         #cedula = client_values[0]  # Asumiendo que la cédula es el primer valor en la tupla
+    #         fecha_limite = client_values[4]  # Asumiendo que la fecha límite es el quinto valor en la tupla
+    #         ModifyLoans(self, fecha_limite, loans_validations)
+    #     else:
+    #         messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un cliente para modificar el préstamo.")
 
 
 
@@ -722,7 +787,7 @@ class Register_Loans(P_Listar):
         self.register_loan_window.resizable(False, False)
         self.register_loan_window.grab_set()
         self.register_loan_window.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self.register_loan_window))
-        
+        self.images = {}          
         # Crear el marco izquierdo para el menú de navegación
         self.left_frame_list = tk.Frame(self.register_loan_window, bg="#042344")
         self.left_frame_list.place(x=170, y=160, height=430, width=1200)
@@ -770,37 +835,34 @@ class Register_Loans(P_Listar):
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
         self.book_table_list.bind('<<TreeviewSelect>>', self.on_treeview_select)
-        
+        self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguie-inver.png"))
+        self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/anteri-inver.png"))
         # Botones de navegación
         prev_button = tk.Button(
             self.left_frame_list,
-            text="< Anterior",
+            image=self.images['boton_anterior'],
             borderwidth=0,
             highlightthickness=0,
             relief="flat",
-            font=("Montserrat Regular", 15),
             bg="#042344",
-            fg="#006ac2",
             activebackground="#042344",
             activeforeground="#006ac2",
             command=self.previous_page
         )
-        prev_button.pack(side=tk.LEFT, padx=25, pady=10)
+        prev_button.pack(side=tk.LEFT, padx=25, pady=0)
         
         next_button = tk.Button(
             self.left_frame_list,
-            text="Siguiente >",
+            image=self.images['boton_siguiente'],
             borderwidth=0,
             highlightthickness=0,
             relief="flat",
-            font=("Montserrat Regular", 15),
             bg="#042344",
-            fg="#006ac2",
             activebackground="#042344",
             activeforeground="#006ac2",
             command=self.next_page
         )
-        next_button.pack(side=tk.RIGHT, padx=25, pady=10)
+        next_button.pack(side=tk.RIGHT, padx=27, pady=0)
 
         # Etiqueta para mostrar la página actual
         # Define self.page_label antes de llamar a reading_books
@@ -809,7 +871,7 @@ class Register_Loans(P_Listar):
         # Llama a reading_books después de definir self.page_label
         reading_books(self)
         
-        self.images = {}
+        
         self.images['boton_r'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
         self.boton_R = tk.Button(
             self.register_loan_window,
@@ -830,7 +892,7 @@ class Register_Loans(P_Listar):
     def get_data_page(self, offset, limit):
         return self.data[offset:offset + limit]
 
-    def display_page(self):
+    def display_page2(self):
         for row in self.book_table_list.get_children():
             self.book_table_list.delete(row)
         page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
@@ -848,16 +910,17 @@ class Register_Loans(P_Listar):
     def next_page(self):
         if (self.current_page + 1) * self.page_size < len(self.data):
             self.current_page += 1
-            self.display_page()
+            self.display_page2()
 
     def previous_page(self):
         if self.current_page > 0:
             self.current_page -= 1
-            self.display_page()
+            self.display_page2()
 
     def update_page_label(self):
-        self.page_label.config(text=f"Página {self.current_page + 1}")
-    
+        total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
+        self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
+        
     def save_modifications(self):
         from users.backend.db_users import obtener_id_usuario_actual
 
@@ -919,121 +982,120 @@ class Register_Loans(P_Listar):
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime, timedelta
+# class ModifyLoans(P_Listar):
+#     def __init__(self, parent, cedula, fecha_limite, loans_validations):
+#         super().__init__(parent)  # Llamar al constructor de la clase base
+#         self.parent = parent
+#         self.loans_validations = loans_validations
+#         self.modify_loan_window = tk.Toplevel(parent)
+#         self.setup_window()
 
-class ModifyLoans(P_Listar):
-    def __init__(self, parent, cedula, fecha_limite, loans_validations):
-        super().__init__(parent)  # Llamar al constructor de la clase base
-        self.parent = parent
-        self.loans_validations = loans_validations
-        self.modify_loan_window = tk.Toplevel(parent)
-        self.setup_window()
+#         #Establecer la cédula y la fecha límite en los campos de entrada
+#         self.cedula_entry.insert(0, cedula)
+#         self.fecha_limite_entry.insert(0, fecha_limite)
 
-        #Establecer la cédula y la fecha límite en los campos de entrada
-        self.cedula_entry.insert(0, cedula)
-        self.fecha_limite_entry.insert(0, fecha_limite)
+#     def setup_window(self):
+#         self.modify_loan_window.title("Renovación Préstamo")
+#         self.modify_loan_window.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
+#         self.modify_loan_window.geometry("950x550")
+#         self.modify_loan_window.config(bg="#042344")
+#         self.modify_loan_window.resizable(False, False)
+#         self.modify_loan_window.grab_set()
+#         self.modify_loan_window.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self.modify_loan_window, "modificar"))
 
-    def setup_window(self):
-        self.modify_loan_window.title("Renovación Préstamo")
-        self.modify_loan_window.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
-        self.modify_loan_window.geometry("950x550")
-        self.modify_loan_window.config(bg="#042344")
-        self.modify_loan_window.resizable(False, False)
-        self.modify_loan_window.grab_set()
-        self.modify_loan_window.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self.modify_loan_window, "modificar"))
-
-        rectangulo_color = tk.Label(self.modify_loan_window, bg="#2E59A7", width=200, height=4)
-        rectangulo_color.place(x=0, y=0)
-        tk.Label(self.modify_loan_window, text="Modificación De Préstamo", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=235.0, y=15.0, width=450.0, height=35.0)
-        tk.Label(self.modify_loan_window, text="Ingrese los datos a modificar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=80.0, width=330.0, height=35.0)
-        tk.Label(self.modify_loan_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=360.0, y=140.0, width=130.0, height=35.0)
-        self.fecha_limite_entry = tk.Entry(self.modify_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.fecha_limite_entry.place(x=365.0, y=180.0, width=190.0, height=35.0)
-        # tk.Label(self.modify_loan_window, text="Cantidad", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=439.0, y=140.0, width=185.0, height=35.0)
-        # self.cantidad_entry = tk.Entry(self.modify_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        # self.cantidad_entry.place(x=490.0, y=180.0, width=190.0, height=35.0)
-        tk.Label(self.modify_loan_window, text="Ingrese la cedula del cliente para modificar el prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=35.0, y=255.0, width=540.0, height=35.0)
-        tk.Label(self.modify_loan_window, text="Cedula", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=335.0, y=315.0, width=120.0, height=35.0)
-        self.cedula_entry = tk.Entry(self.modify_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.cedula_entry.place(x=365.0, y=355.0, width=190.0, height=35.0)
+#         rectangulo_color = tk.Label(self.modify_loan_window, bg="#2E59A7", width=200, height=4)
+#         rectangulo_color.place(x=0, y=0)
+#         tk.Label(self.modify_loan_window, text="Modificación De Préstamo", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=235.0, y=15.0, width=450.0, height=35.0)
+#         tk.Label(self.modify_loan_window, text="Ingrese los datos a modificar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=80.0, width=330.0, height=35.0)
+#         tk.Label(self.modify_loan_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=360.0, y=140.0, width=130.0, height=35.0)
+#         self.fecha_limite_entry = tk.Entry(self.modify_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+#         self.fecha_limite_entry.place(x=365.0, y=180.0, width=190.0, height=35.0)
+#         # tk.Label(self.modify_loan_window, text="Cantidad", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=439.0, y=140.0, width=185.0, height=35.0)
+#         # self.cantidad_entry = tk.Entry(self.modify_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+#         # self.cantidad_entry.place(x=490.0, y=180.0, width=190.0, height=35.0)
+#         tk.Label(self.modify_loan_window, text="Ingrese la cedula del cliente para modificar el prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=35.0, y=255.0, width=540.0, height=35.0)
+#         tk.Label(self.modify_loan_window, text="Cedula", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=335.0, y=315.0, width=120.0, height=35.0)
+#         self.cedula_entry = tk.Entry(self.modify_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+#         self.cedula_entry.place(x=365.0, y=355.0, width=190.0, height=35.0)
         
-        # Botones
-        self.images = {}
-        self.images['boton_m'] = tk.PhotoImage(file=resource_path("assets_2/M_button_light_blue.png"))
-        self.boton_M = tk.Button(
-            self.modify_loan_window,
-            image=self.images['boton_m'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=self.apply_filters_modify,
-            relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",
-            activeforeground="#FFFFFF"
-        )
-        self.boton_M.place(x=530.0, y=450.0, width=130.0, height=40.0)
+#         # Botones
+#         self.images = {}
+#         self.images['boton_m'] = tk.PhotoImage(file=resource_path("assets_2/M_button_light_blue.png"))
+#         self.boton_M = tk.Button(
+#             self.modify_loan_window,
+#             image=self.images['boton_m'],
+#             borderwidth=0,
+#             highlightthickness=0,
+#             command=self.apply_filters_modify,
+#             relief="flat",
+#             bg="#031A33",
+#             activebackground="#031A33",
+#             activeforeground="#FFFFFF"
+#         )
+#         self.boton_M.place(x=530.0, y=450.0, width=130.0, height=40.0)
         
-        self.images['boton_c'] = tk.PhotoImage(file=resource_path("assets_2/c_button_red1.png"))
-        self.boton_C = tk.Button(
-            self.modify_loan_window,
-            image=self.images['boton_c'],
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: self.cancelar(self.modify_loan_window, "modificar"),
-            relief="flat",
-            bg="#031A33",
-            activebackground="#031A33",
-            activeforeground="#FFFFFF"
-        )
-        self.boton_C.place(x=270.0, y=450.0, width=130.0, height=40.0)
+#         self.images['boton_c'] = tk.PhotoImage(file=resource_path("assets_2/c_button_red1.png"))
+#         self.boton_C = tk.Button(
+#             self.modify_loan_window,
+#             image=self.images['boton_c'],
+#             borderwidth=0,
+#             highlightthickness=0,
+#             command=lambda: self.cancelar(self.modify_loan_window, "modificar"),
+#             relief="flat",
+#             bg="#031A33",
+#             activebackground="#031A33",
+#             activeforeground="#FFFFFF"
+#         )
+#         self.boton_C.place(x=270.0, y=450.0, width=130.0, height=40.0)
 
 
-    def cancelar(self, window, ventana_llamante):
-        if ventana_llamante == "modificar":
-            if messagebox.askyesno(
-                    "Advertencia",
-                    "¿Seguro que quieres cerrar esta ventana? Perderás todos los cambios no guardados en el préstamo.",
-                    parent=self.modify_loan_window):
-                window.destroy()
-        else:
-            pass
+#     def cancelar(self, window, ventana_llamante):
+#         if ventana_llamante == "modificar":
+#             if messagebox.askyesno(
+#                     "Advertencia",
+#                     "¿Seguro que quieres cerrar esta ventana? Perderás todos los cambios no guardados en el préstamo.",
+#                     parent=self.modify_loan_window):
+#                 window.destroy()
+#         else:
+#             pass
 
-    def apply_filters_modify(self):
-        cedula = self.cedula_entry.get()
-        fecha_limite = self.fecha_limite_entry.get()
-        print(f"cedula:{cedula}, fecha_limite:{fecha_limite}")
+#     def apply_filters_modify(self):
+#         cedula = self.cedula_entry.get()
+#         fecha_limite = self.fecha_limite_entry.get()
+#         print(f"cedula:{cedula}, fecha_limite:{fecha_limite}")
         
-        errores = validar_campos(
-            cedula=cedula,
-            fecha_limite=fecha_limite,
-            tipo_validacion="modificar",
-            #client_id=None
-        )
-        print(f"Errores: {errores}")  # Agregar esta línea para depuración
-        if errores:
-            messagebox.showerror("Error al modificar", "Por favor, corrija los siguientes errores:\n\n" + "\n".join(f"- {msg}" for msg in errores), parent=self)
-            return
+#         errores = validar_campos(
+#             cedula=cedula,
+#             fecha_limite=fecha_limite,
+#             tipo_validacion="modificar",
+#             #client_id=None
+#         )
+#         print(f"Errores: {errores}")  # Agregar esta línea para depuración
+#         if errores:
+#             messagebox.showerror("Error al modificar", "Por favor, corrija los siguientes errores:\n\n" + "\n".join(f"- {msg}" for msg in errores), parent=self)
+#             return
         
-        if fecha_limite:
-            is_valid, message = validate_fecha_limite(fecha_limite)
-            if not is_valid:
-                messagebox.showinfo("Error", message, parent=self.modify_loan_window)
-                return
-            try:
-                fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y')
-            except ValueError:
-                messagebox.showinfo("Error", "Por favor, proporciona una fecha válida en el formato DD-MM-YYYY.", parent=self.modify_loan_window)
-                return
+#         if fecha_limite:
+#             is_valid, message = validate_fecha_limite(fecha_limite)
+#             if not is_valid:
+#                 messagebox.showinfo("Error", message, parent=self.modify_loan_window)
+#                 return
+#             try:
+#                 fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y')
+#             except ValueError:
+#                 messagebox.showinfo("Error", "Por favor, proporciona una fecha válida en el formato DD-MM-YYYY.", parent=self.modify_loan_window)
+#                 return
         
-        if cedula:
-            respuesta = messagebox.askyesno("Confirmar modificación", "¿Desea modificar?")
-            if respuesta:
-                if update_client_loans(cedula, fecha_limite):
-                    messagebox.showinfo("Éxito", "Modificación exitosa del préstamo del cliente", parent=self.modify_loan_window)
-                    loans_validations.clear_entries_list(self)
-                else:
-                    messagebox.showinfo("Fallido", "La modificación del préstamo no pudo ejecutarse.", parent=self.modify_loan_window)
-            else:
-                messagebox.showinfo("Cancelado", "Modificación cancelada.", parent=self.modify_loan_window)
-        else:
-            messagebox.showinfo("Error", "Por favor, proporciona una cédula válida.", parent=self.modify_loan_window)
+#         if cedula:
+#             respuesta = messagebox.askyesno("Confirmar modificación", "¿Desea modificar?")
+#             if respuesta:
+#                 if update_client_loans(cedula, fecha_limite):
+#                     messagebox.showinfo("Éxito", "Modificación exitosa del préstamo del cliente", parent=self.modify_loan_window)
+#                     loans_validations.clear_entries_list(self)
+#                 else:
+#                     messagebox.showinfo("Fallido", "La modificación del préstamo no pudo ejecutarse.", parent=self.modify_loan_window)
+#             else:
+#                 messagebox.showinfo("Cancelado", "Modificación cancelada.", parent=self.modify_loan_window)
+#         else:
+#             messagebox.showinfo("Error", "Por favor, proporciona una cédula válida.", parent=self.modify_loan_window)
 

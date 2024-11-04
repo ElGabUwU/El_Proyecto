@@ -36,6 +36,9 @@ class C_Listar(tk.Frame):
         self.parent=parent
         self.validate_number = self.register(validate_number_input)
         self.images = {}
+        
+        
+
 
         self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
         self.canvas.create_text(1080.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
@@ -50,11 +53,11 @@ class C_Listar(tk.Frame):
         self.label_clientes = tk.Label(self.canvas, text="Tabla Clientes", bg="#FAFAFA", fg="black", font=bold_font)
         self.label_clientes.place(x=665.0, y=180.0, width=225.0, height=35.0)
 
-        self.label_nombre = self.canvas.create_text(245.0, 100.0, anchor="nw", text="Buscar", fill="black", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar", fill="black", font=("Bold", 17))
 
         
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2, validate="key", validatecommand=(self.validate_number, "%P"))
-        self.buscar.place(x=245.0, y=130.0, width=267.0, height=48.0)
+        self.buscar.place(x=245.0, y=112.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
         self.buscar.bind("<KeyPress>", self.key_on_press_search)
 
@@ -122,49 +125,107 @@ class C_Listar(tk.Frame):
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
         self.button_dl.place(x=1135.0, y=60.0, width=90.0, height=100.0)
+        
+        self.data = []
+        self.page_size = 19
+        self.current_page = 0
+        self.setup_treeview()
+        self.load_clients()
+        self.display_page()
 
+    def setup_treeview(self):
         styletrees = ttk.Style()
-        styletrees.configure("Rounded.Treeview", 
-                        borderwidth=2, 
-                        relief="groove", 
-                        bordercolor="blue", 
-                        lightcolor="lightblue", 
-                        darkcolor="darkblue",
-                        rowheight=30,
-                        background="#E5E1D7", 
-                        fieldbackground="#f0f0f0")
-
-        # Configurar estilo para las cabeceras
-        styletrees.configure("Rounded.Treeview.Heading", 
-                        font=('Helvetica', 10, 'bold'), 
-                        background="#2E59A7", 
-                        foreground="#000000",
-                        borderwidth=0)
-
+        styletrees.configure("Rounded.Treeview",
+                            borderwidth=2,
+                            relief="groove",
+                            bordercolor="blue",
+                            lightcolor="lightblue",
+                            darkcolor="darkblue",
+                            rowheight=30,
+                            background="#E5E1D7",
+                            fieldbackground="#f0f0f0")
+        styletrees.configure("Rounded.Treeview.Heading",
+                            font=('Helvetica', 10, 'bold'),
+                            background="#2E59A7",
+                            foreground="#000000",
+                            borderwidth=0)
         columns = ("Cedula", "Nombre", "Apellido", "Teléfono", "Dirección")
-        # Crear el Treeview con selectmode
-        self.clients_table_list_loans = ttk.Treeview(
-            self.right_frame_list_loans, 
-            columns=columns, 
-            show='headings', 
-            selectmode='browse',  # Aquí agregas el selectmode
-            style="Rounded.Treeview"
-        )        
+        self.clients_table_list_loans = ttk.Treeview(self.right_frame_list_loans, columns=columns, show='headings', style="Rounded.Treeview", selectmode="browse")
         self.clients_table_list_loans.column("Cedula", width=20, anchor="center")
-        # self.clients_table_list_loans.column("ID Prestamo", width=20, anchor="center")
         for col in columns:
             self.clients_table_list_loans.heading(col, text=col)
             self.clients_table_list_loans.column(col, width=85, anchor="center")
         self.clients_table_list_loans.pack(expand=True, fill="both", padx=30, pady=5)
-
         scrollbar_pt = ttk.Scrollbar(self.clients_table_list_loans, orient="vertical", command=self.clients_table_list_loans.yview)
         self.clients_table_list_loans.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
+        self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguiente.png"))
+        self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/atras.png"))
+        prev_button = tk.Button(
+            self.right_frame_list_loans,
+            image=self.images['boton_anterior'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.previous_page)
+        prev_button.pack(side=tk.LEFT, padx=25, pady=0)
+        
+        next_button = tk.Button(
+            self.right_frame_list_loans, 
+            image=self.images['boton_siguiente'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.next_page)
+        next_button.pack(side=tk.RIGHT, padx=25, pady=0)
+        
+        self.page_label = tk.Label(self.right_frame_list_loans, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33", font=("Montserrat Regular", 13))
+        self.page_label.pack(side=tk.BOTTOM, pady=15)
 
-        self.refresh_frame_clients()
+
+        #self.refresh_frame_clients()
+        
+    def get_data_page(self, offset, limit):
+        return self.data[offset:offset + limit]
+
+    def display_page(self):
+        for row in self.clients_table_list_loans.get_children():
+            self.clients_table_list_loans.delete(row)
+        page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
+        for fila in page_data:
+            self.clients_table_list_loans.insert("", "end", values=fila)
+        self.update_page_label()
+
+    def next_page(self):
+        if (self.current_page + 1) * self.page_size < len(self.data):
+            self.current_page += 1
+            self.display_page()
+
+    def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.display_page()
+
+    def update_page_label(self):
+        total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
+        self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
+
+    
+    def load_clients(self):
+        self.data = reading_clients(self.clients_table_list_loans)
+        self.current_page = 0  # Resetear a la primera página
+        self.display_page()
+
 
     def refresh_frame_clients(self):
-        reading_clients(self.clients_table_list_loans)
+        self.load_clients()
+
     
     def open_register_window(self):
         C_Register(self)
