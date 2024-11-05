@@ -19,7 +19,7 @@ from validations.loans_validations import *
 from loans.backend.db_loans import get_cliente_id_by_cedula,get_libro_id_by_registro
 from loans.backend.db_loans import reading_books,load_active_loans, es_novela
 from util.ventana import centrar_ventana
-
+from validations.clients_validations import limit_length
 def validate_number_input(text):
         if text == "":
             return True
@@ -51,15 +51,15 @@ class P_Listar(tk.Frame):
         self.page_size = 19
         self.current_page = 0
         self.warned_about_overdue = False
+        self.validate_number = self.register(validate_number_input)
         # Texto para el nombre
 
         self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1175.0, 170.0, text="Renovar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(875.0, 170.0, text="Imprimir", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(975.0, 170.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1075.0, 170.0, text="Agregar", fill="#031A33", font=("Bold", 17))
-        # self.canvas.create_text(1275.0, 170.0, text="Filtrar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(975.0, 170.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(840.0, 170.0, text="Generar PDF", fill="#031A33", font=("Bold", 17))
 
        # Títulos para los Treeviews
         bold_font = font.Font(family="Bold", size=15, weight="bold")
@@ -67,10 +67,11 @@ class P_Listar(tk.Frame):
         self.label_prestamos.place(x=665.0, y=185.0, width=237.0, height=35.0)
 
 
-        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
+        self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2,validate="key", validatecommand=(self.validate_number, "%P"))
         self.buscar.place(x=245.0, y=112.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
-        self.images['boton_imprimir'] = tk.PhotoImage(file=resource_path("assets_2/Logo_Imprimir.png"))
+        self.buscar.bind("<KeyPress>",self.key_on_press_search)
+        self.images['boton_imprimir'] = tk.PhotoImage(file=resource_path("assets_2/pdf-2.png"))#Logo_Imprimir
         
         # Cargar y almacenar la imagen del botón
         self.button_e = tk.Button(
@@ -84,7 +85,7 @@ class P_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=830.0, y=60.0, width=90.0, height=100.0)
+        self.button_e.place(x=800.0, y=60.0, width=90.0, height=100.0)
         # Cargar y almacenar las imágenes
         self.images['boton_agregar'] = tk.PhotoImage(file=resource_path("assets_2/5_agregar.png"))
         # Cargar y almacenar la imagen del botón
@@ -118,11 +119,11 @@ class P_Listar(tk.Frame):
 
         #Boton Modificar
         # Cargar y almacenar las imágenes
-        self.images['boton_modificar'] = tk.PhotoImage(file=resource_path("assets_2/6_editar.png"))
+        self.images['boton_renovar'] = tk.PhotoImage(file=resource_path("assets_2/renovar_12.png"))
         # Cargar y almacenar la imagen del botón
         self.button_m = tk.Button(
             self,
-            image=self.images['boton_modificar'],
+            image=self.images['boton_renovar'],
             borderwidth=0,
             highlightthickness=0,
             command=lambda: self.update_selected_loan_due_date(),
@@ -271,38 +272,90 @@ class P_Listar(tk.Frame):
     def open_register_loan(self):
             Register_Loans(self, loans_validations)#loans_validations#client_values
 
+    def key_on_press_search(self, event):
+        current_text = self.buscar.get()
+        limited_text = limit_length(current_text, 10)
+        self.buscar.delete(0, 'end')
+        self.buscar.insert(0, limited_text)
+
     def boton_buscar(self, event=None):  
-        busqueda = self.buscar.get()
+        busqueda = self.buscar.get().strip()
+        
+        if not busqueda:
+            messagebox.showinfo("Búsqueda Fallida de Préstamos", "No se ingresó ningún término de búsqueda. Por favor, ingrese una cédula para buscar.")
+            return
+        
         try:
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
-                self.cliente_prestamo_table.delete(*self.cliente_prestamo_table.get_children())
-                # Ejecutar y procesar la consulta
-                cursor.execute("""SELECT c.Cedula, c.Nombre AS Nombre_Cliente, l.titulo AS Nombre_Libro, p.Fecha_Registro, p.Fecha_Limite, u.Nombre AS Nombre_Usuario
-                                FROM cliente_prestamo cp 
-                                JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente 
-                                JOIN libro l ON cp.ID_Libro = l.ID_Libro
-                                JOIN prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
-                                JOIN usuarios u ON cp.ID_Usuario = u.ID_Usuario 
-                                WHERE c.Cedula=%s OR c.Nombre=%s OR l.titulo=%s 
-                                OR p.Fecha_Registro=%s OR p.Fecha_Limite=%s OR u.Nombre=%s""", 
-                            (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+                query = """
+                    SELECT c.Cedula, c.Nombre AS Nombre_Cliente, l.titulo AS Nombre_Libro, l.n_registro AS N_Registro, p.Fecha_Registro, p.Fecha_Limite, u.Nombre AS Nombre_Usuario, cp.ID_Prestamo
+                    FROM cliente_prestamo cp 
+                    JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente 
+                    JOIN libro l ON cp.ID_Libro = l.ID_Libro
+                    JOIN prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
+                    JOIN usuarios u ON cp.ID_Usuario = u.ID_Usuario 
+                    WHERE (c.Cedula=%s OR c.Nombre=%s OR l.titulo=%s OR p.Fecha_Registro=%s OR p.Fecha_Limite=%s OR u.Nombre=%s)
+                    AND cp.estado_cliente_prestamo = 'activo'
+                """
+                cursor.execute(query, (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
                 resultados_prestamo = cursor.fetchall()
-                
-                for fila in resultados_prestamo:
-                    if busqueda in map(str, fila):  # Convertir cada elemento de la fila a string para la comparación
-                        self.cliente_prestamo_table.insert("", "end", values=tuple(fila))
 
                 if resultados_prestamo:
-                    messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
+                    # Limpiar la tabla antes de insertar nuevos resultados
+                    self.cliente_prestamo_table.delete(*self.cliente_prestamo_table.get_children())
+                    
+                    hoy = datetime.now().date()
+
+                    prestamos_vencidos = 0
+
+                    # Insertar los nuevos resultados
+                    for fila in resultados_prestamo:
+                        # Ajustar el formato de la fecha para DD-MM-YYYY
+                        try:
+                            fecha_limite = datetime.strptime(fila[5], '%d-%m-%Y').date()
+                        except ValueError:
+                            fecha_limite = datetime.strptime(fila[5], '%Y-%m-%d').date()
+
+                        if fecha_limite <= hoy:
+                            tag = 'vencido'
+                            prestamos_vencidos += 1
+                        else:
+                            tag = 'activo'
+                        self.cliente_prestamo_table.insert("", "end", values=tuple(fila), tags=(tag,))
+
+                    # Configurar las etiquetas para los colores
+                    self.cliente_prestamo_table.tag_configure('vencido', background='#FF4C4C')
+                    self.cliente_prestamo_table.tag_configure('activo', background='white')
+
+                    self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
+                    total_prestamos = len(resultados_prestamo)
+                    if prestamos_vencidos > 0:
+                        messagebox.showinfo("Búsqueda Exitosa de Préstamos", f"""
+                        Búsqueda exitosa de préstamos:
+                        - Total de Préstamos: {total_prestamos}
+                        - Préstamos Vencidos: {prestamos_vencidos}
+
+                        Por favor, contacte al cliente para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de clientes para obtener más información sobre los datos del cliente.
+                        """)
+                    else:
+                        messagebox.showinfo("Búsqueda Exitosa de Préstamos", f"""
+                        Búsqueda exitosa de préstamos:
+                        - Total de Préstamos: {total_prestamos}
+                        - Préstamos Vencidos: {prestamos_vencidos}
+                        """)
                 else:
-                    messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
+                    self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
+                    messagebox.showinfo("Búsqueda Fallida de Préstamos", f"No se encontraron préstamos asociados a la cédula '{busqueda}'. Por favor, verifique la cédula ingresada.")
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
         finally:
             if mariadb_conexion:
                 mariadb_conexion.close()
+
+
+
 
 
 
@@ -790,8 +843,14 @@ class Register_Loans():
         self.boton_R.place(x=24.0, y=800.0, width=130.0, height=40.0) #irrelevante por la funcion que lo hace aparecer luego
         self.boton_R.place_forget()
         self.cedula.bind("<KeyRelease>", lambda event: self.loans_validations.validate_entries(self, event))
+        self.cedula.bind("<KeyPress>",self.key_on_press_search)
         #self.cedula.bind("<Return>", lambda event: self.save_modifications())
         self.mostrar_mensaje_prestamos_vencidos()
+    def key_on_press_search(self, event):
+        current_text = self.cedula.get()
+        limited_text = limit_length(current_text, 10)
+        self.cedula.delete(0, 'end')
+        self.cedula.insert(0, limited_text)
     def reading_books(self):
         try:
             mariadb_conexion = establecer_conexion()
@@ -873,6 +932,20 @@ class Register_Loans():
             messagebox.showerror("Error", "Por favor, selecciona un libro de la lista.", parent=self.register_loan_window)
             return
 
+        # Obtener la información del libro
+        datos_libro = obtener_datos_libro(ID_Libro)
+        if not datos_libro:
+            messagebox.showerror("Error", "No se pudo obtener la información del libro.", parent=self.register_loan_window)
+            return
+
+        n_registro = datos_libro["n_registro"]
+
+        # Validar si el libro ya está prestado
+        error_libro_prestado = validar_libro_no_prestado(n_registro)
+        if error_libro_prestado:
+            messagebox.showerror("Error de Préstamo", error_libro_prestado, parent=self.register_loan_window)
+            return
+
         # Obtener ID del Cliente
         ID_Cliente = get_cliente_id_by_cedula(Cedula)
         if ID_Cliente is None:
@@ -916,6 +989,8 @@ class Register_Loans():
                 messagebox.showerror("Error", "No se pudo actualizar las tablas. Puede que no haya ejemplares disponibles.", parent=self.register_loan_window)
         else:
             messagebox.showerror("Error", "Préstamo no pudo ser creado.", parent=self.register_loan_window)
+
+
 
 
     def cancelar(self, window):

@@ -53,7 +53,7 @@ class C_Listar(tk.Frame):
         self.label_clientes = tk.Label(self.canvas, text="Tabla Clientes", bg="#FAFAFA", fg="black", font=bold_font)
         self.label_clientes.place(x=665.0, y=180.0, width=225.0, height=35.0)
 
-        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar", fill="black", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar por cédula", fill="black", font=("Bold", 17))
 
         
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2, validate="key", validatecommand=(self.validate_number, "%P"))
@@ -245,8 +245,14 @@ class C_Listar(tk.Frame):
         limited_text = limit_length(current_text, 10)
         self.buscar.delete(0, 'end')
         self.buscar.insert(0, limited_text)
+
     def boton_buscar(self, event):
-        busqueda = self.buscar.get()
+        busqueda = self.buscar.get().strip()
+        
+        if not busqueda:
+            messagebox.showinfo("Búsqueda Fallida", "No se ingresó ningún término de búsqueda. Por favor, ingrese una cédula para buscar.")
+            return
+        
         try:
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
@@ -259,20 +265,21 @@ class C_Listar(tk.Frame):
                 """, (busqueda,))
                 resultados = cursor.fetchall()
 
-                # Limpiar la tabla antes de insertar nuevos resultados
-                self.clients_table_list_loans.delete(*self.clients_table_list_loans.get_children())
-
                 if resultados:
+                    # Limpiar la tabla antes de insertar nuevos resultados
+                    self.clients_table_list_loans.delete(*self.clients_table_list_loans.get_children())
+                    
                     # Insertar los nuevos resultados
                     for fila in resultados:
                         self.clients_table_list_loans.insert("", "end", values=tuple(fila))
 
                     self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
-                    messagebox.showinfo("Búsqueda Exitosa", "Resultados en pantalla.")
+                    # Usar la opción seleccionada para el mensaje de éxito
+                    messagebox.showinfo("Búsqueda Exitosa de Cliente", f"Cliente encontrado: {resultados[0][1]} {resultados[0][2]}.")
                 else:
-                    self.refresh_frame_clients()
                     self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
-                    messagebox.showinfo("Búsqueda Fallida", "No se encontraron resultados.")
+                    # Usar la opción seleccionada para el mensaje de fallo
+                    messagebox.showinfo("Búsqueda Fallida de Cliente", f"No se encontró ningún cliente con la cédula '{busqueda}'. Por favor, verifique la cédula ingresada.")
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
         finally:

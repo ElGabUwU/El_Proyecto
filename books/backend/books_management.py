@@ -40,12 +40,16 @@ class L_Listar(tk.Frame):
                             arrowcolor="#ffffff",
                             padding="9")
 
-        self.campo_mapeo = {
-        "Cota": "Cota",
-        "N.registro": "n_registro",
-        "Título": "titulo",
-        "Autor": "autor"
+        self.filter_options = {
+            "Cota": "Cota",
+            "N.registro": "n_registro",
+            "Título": "titulo",
+            "Autor": "autor",
+            "Categoría": "ID_Categoria",
+            "Asignatura": "ID_Asignatura"
         }
+
+
         # Añadir un Combobox para seleccionar el campo de búsqueda
         
 
@@ -53,7 +57,7 @@ class L_Listar(tk.Frame):
         stylebotn.configure("Rounded.TEntry", 
                             fieldbackground="#031A33", 
                             foreground="#a6a6a6", 
-                            borderwidth=0.5, 
+                            borderwidth=2, 
                             relief="solid", 
                             padding=5)
         stylebotn.map("Rounded.TEntry",
@@ -73,7 +77,7 @@ class L_Listar(tk.Frame):
         
 
 
-        self.campo_busqueda = ttk.Combobox(self, values=list(self.campo_mapeo.keys()), state="readonly", width=13, font=("Montserrat Medium", 13))
+        self.campo_busqueda = ttk.Combobox(self, values=list(self.filter_options.keys()), state="readonly", width=13, font=("Montserrat Medium", 13))
         self.campo_busqueda.place(x=535.0, y=112,height=48)
         self.campo_busqueda.set("Cota")  # Valor por defecto
         
@@ -298,14 +302,14 @@ class L_Listar(tk.Frame):
          else:
              messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un libro para modificarlo.")
     
-    
-
-    
-
     def boton_buscar(self, event):
         busqueda = self.buscar.get().strip()
         campo_seleccionado = self.campo_busqueda.get()  # Obtener el campo seleccionado
-        campo_real = self.campo_mapeo[campo_seleccionado]  # Traducir al nombre real de la columna
+        campo_real = self.filter_options[campo_seleccionado]  # Traducir al nombre real de la columna
+        
+        if not busqueda:
+            messagebox.showinfo("Búsqueda Fallida de Libro", f"No se ingresó ningún término de búsqueda. Por favor, ingrese un término para buscar en el campo '{campo_seleccionado}'.")
+            return
         
         # Convertir la búsqueda a minúsculas y eliminar tildes
         busqueda_normalizada = unidecode.unidecode(busqueda).lower()
@@ -314,15 +318,36 @@ class L_Listar(tk.Frame):
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
-                query = f"SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares FROM libro WHERE LOWER({campo_real}) LIKE %s"
+                query = f"""
+                    SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares 
+                    FROM libro 
+                    WHERE LOWER({campo_real}) LIKE %s
+                """
                 cursor.execute(query, (f'%{busqueda_normalizada}%',))
-                self.search_data = cursor.fetchall()
-                mariadb_conexion.close()
-                self.search_current_page = 0  # Resetear la página a la primera página
-                self.is_search_active = True
-                self.display_search_page()
+                resultados = cursor.fetchall()
+
+                # Limpiar la tabla antes de insertar nuevos resultados
+                self.book_table_list.delete(*self.book_table_list.get_children())
+
+                if resultados:
+                    # Insertar los nuevos resultados
+                    for fila in resultados:
+                        self.book_table_list.insert("", "end", values=tuple(fila))
+
+                    self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
+                    messagebox.showinfo("Búsqueda Exitosa de Libro", f"Se encontraron {len(resultados)} resultados para '{busqueda}' en el campo '{campo_seleccionado}'.")
+                else:
+                    self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
+                    messagebox.showinfo("Búsqueda Fallida de Libro", f"No se encontraron resultados para '{busqueda}' en el campo '{campo_seleccionado}'.")
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
+        finally:
+            if mariadb_conexion:
+                mariadb_conexion.close()
+
+
+
+
 
     def get_search_data_page(self, offset, limit):
         return self.search_data[offset:offset + limit]
@@ -942,8 +967,12 @@ class L_Registrar(tk.Toplevel):
             n_volumenes,
             edicion,
             año,
+            ID_Sala,  # Pasar la sala seleccionada para la validación de cota
             None  # No hay ID de libro para registro
         )
+
+  
+
         print(f"Errores: {errores}")  # Agregar esta línea para depuración
 
         if errores:        
@@ -1379,11 +1408,12 @@ class L_Modificar(tk.Toplevel):
         }
 
         # 
-        # Obtener el ID del libro desde los valores originales    
+        # Obtener el ID del libro desde los valores originales     
         id_libro = self.original_values["ID"]    
         print(f"ID del libro: {id_libro}")
 
-        # Validar los campos incluyendo el ID del libro    
+
+        # Validar los campos incluyendo el ID del libro y la sala seleccionada    
         errores = validar_campos(
             self.categoria_cb.get(),        
             self.asignatura_cb.get(),
@@ -1395,8 +1425,10 @@ class L_Modificar(tk.Toplevel):
             self.volumen_m.get(),        
             self.edicion_m.get(),        
             self.ano_m.get(),
-            id_libro              # Pasar el ID del libro aquí    
-        )    
+            self.combobox1.get(),  # Pasar la sala seleccionada aquí
+            id_libro            # Pasar el ID del libro aquí    
+        )
+
         print(f"Errores: {errores}")  # Agregar esta línea para depuración
         if errores:        
             messagebox.showerror("Error al modificar", "Por favor, corrija los siguientes errores:\n\n" + "\n".join(f"- {msg}" for msg in errores),parent=self)

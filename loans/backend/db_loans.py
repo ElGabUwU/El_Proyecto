@@ -165,7 +165,8 @@ def obtener_prestamos_vencidos():
                     contador_prestamos_vencidos += 1
                     print(f"Préstamo: {prestamo_cliente}")
 
-            prestamos_vencidos.append((id_cliente, contador_prestamos_vencidos))
+            if contador_prestamos_vencidos > 0:
+                prestamos_vencidos.append((id_cliente, contador_prestamos_vencidos))
 
         # Depuración: Mostrar cuántos préstamos vencidos tiene cada cliente
         for prestamo in prestamos_vencidos:
@@ -482,14 +483,14 @@ def delete_selected_prestamo(self):
                     continue
                 autor, editorial, titulo = libro_data
 
-                # Verificar el estado actual del préstamo
+                # Verificar si el préstamo ya está marcado como eliminado
                 cursor.execute('SELECT estado_cliente_prestamo FROM cliente_prestamo WHERE ID_CP = %s', (item_id,))
-                estado_actual = cursor.fetchone()
-                if estado_actual and estado_actual[0] == "eliminado":
-                    print(f"El préstamo con ID_CP={item_id} ya está eliminado.")
+                estado_prestamo = cursor.fetchone()
+                if estado_prestamo and estado_prestamo[0] == "eliminado":
+                    print(f"El préstamo con ID_CP={item_id} ya está marcado como eliminado.")
                     continue
 
-                # Marcar el registro como eliminado
+                # Marcar el registro como eliminado en lugar de eliminarlo
                 cursor.execute('UPDATE cliente_prestamo SET estado_cliente_prestamo = "eliminado" WHERE ID_CP = %s', (item_id,))
                 
                 # Verificar si la actualización fue exitosa
@@ -520,6 +521,7 @@ def delete_selected_prestamo(self):
     finally:
         if mariadb_conexion:
             mariadb_conexion.close()
+
 
 #Trae todos los valores de los libros necesarios para el treeview de registrar prestamo
 def reading_books(self):
