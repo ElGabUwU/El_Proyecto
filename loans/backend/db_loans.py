@@ -359,7 +359,14 @@ def delete_selected_prestamo(self):
                 item_values = self.cliente_prestamo_table.item(item, 'values')
                 item_id = item_values[8]
 
-                # Marcar el registro como eliminado en lugar de eliminarlo
+                # Verificar el estado actual del préstamo
+                cursor.execute('SELECT estado_cliente_prestamo FROM cliente_prestamo WHERE ID_CP = %s', (item_id,))
+                estado_actual = cursor.fetchone()
+                if estado_actual and estado_actual[0] == "eliminado":
+                    print(f"El préstamo con ID_CP={item_id} ya está eliminado.")
+                    continue
+
+                # Marcar el registro como eliminado
                 cursor.execute('UPDATE cliente_prestamo SET estado_cliente_prestamo = "eliminado" WHERE ID_CP = %s', (item_id,))
                 
                 # Verificar si la actualización fue exitosa

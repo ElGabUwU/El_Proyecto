@@ -583,7 +583,7 @@ class Register_Loans(P_Listar):
         self.fecha_limite.config(state='readonly')
 
         # Configurar el Treeview
-        tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N° Registro", "Titulo", "Autor", "Editorial", "Año", "Edición", "N° Ejemplares", "N° Volúmenes")
+        tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N° Registro", "Titulo", "Autor", "Editorial", "Año", "Edición", "N° Volúmenes", "N° Ejemplares")
         self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview")
         self.book_table_list.column("ID", width=40, anchor="center")
         self.book_table_list.column("Sala", width=40, anchor="center")
@@ -662,7 +662,7 @@ class Register_Loans(P_Listar):
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
-                cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes FROM libro')
+                cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares, FROM libro')
                 self.data = cursor.fetchall()  # Almacena los datos en self.data
                 mariadb_conexion.close()
                 self.display_page()  # Llama a display_page() para mostrar los datos paginados
