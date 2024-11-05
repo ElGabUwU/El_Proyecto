@@ -11,11 +11,14 @@ import random
 import string
 from backend.loans_filters import *
 from db.conexion import establecer_conexion
-from util.Reporte_PDF import generar_pdf,formatear_fecha,formatear_fecha_titulo
+from util.Reporte_PDF import generate_report_by_day,generate_report_by_month
 from loans.backend.models import Cliente, Libro
 from validations import loans_validations
 from util.utilidades import resource_path
 from validations.loans_validations import *
+from loans.backend.db_loans import get_cliente_id_by_cedula,get_libro_id_by_registro
+from loans.backend.db_loans import reading_books,load_active_loans, es_novela
+from util.ventana import centrar_ventana
 
 def validate_number_input(text):
         if text == "":
@@ -37,19 +40,21 @@ class P_Listar(tk.Frame):
         self.parent = parent
         #validate_number = self.register(validate_number_input)
         self.images = {}
-        
-
+        self.id_usuario =self.parent.id_usuario
         self.left_frame2 = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame2.pack(expand=True, side="right", fill="both")
         self.left_frame2.place(x=215,y=218, height=470, width=1135)
-        
+        self.id_usuario = self.parent.id_usuario
         self.right_frame = tk.Frame(self)
         self.right_frame.pack(side="right", expand=True, fill="both")
-        
+        self.data = []
+        self.page_size = 19
+        self.current_page = 0
+        self.warned_about_overdue = False
         # Texto para el nombre
 
         self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1175.0, 170.0, text="Editar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1175.0, 170.0, text="Renovar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(875.0, 170.0, text="Imprimir", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(975.0, 170.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
@@ -73,7 +78,7 @@ class P_Listar(tk.Frame):
                 image=self.images['boton_imprimir'],
                 borderwidth=0,
                 highlightthickness=0,
-                command=lambda: self.imprimir_seleccionado(),
+                command=lambda: self.show_report_window(),
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -103,30 +108,13 @@ class P_Listar(tk.Frame):
             image=self.images['boton_refrescar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.lists_clients_loans(), #or lists_clients(self),
+            command=lambda: load_active_loans(self),
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
         )
         self.button_c.place(x=930.0, y=60.0, width=90.0, height=100.0)
-
-        #Boton Filtrar
-        # Cargar y almacenar las imágenes
-        # self.images['boton_filtrar_f'] = tk.PhotoImage(file=resource_path("assets_2/14_filtrar.png"))
-        # # Cargar y almacenar la imagen del botón
-        # self.button_f = tk.Button(
-        #     self,
-        #     image=self.images['boton_filtrar_f'],
-        #     borderwidth=0,
-        #     highlightthickness=0,
-        #     command=lambda: self.open_filter_loans_window(),
-        #     relief="flat",
-        #     bg="#FAFAFA",
-        #     activebackground="#FAFAFA",  # Mismo color que el fondo del botón
-        #     activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
-        # )
-        # self.button_f.place(x=1230.0, y=60.0, width=90.0, height=100.0)
 
         #Boton Modificar
         # Cargar y almacenar las imágenes
@@ -160,148 +148,118 @@ class P_Listar(tk.Frame):
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         )
         self.button_d.place(x=1230.0, y=60.0, width=90.0, height=100.0)
+        self.setup_treeview()
+        load_active_loans(self)
 
-        # Crear un estilo específico para el Treeview listado de libros en esta ventana
+        
+        self.display_page()
+        
+        
+    def setup_treeview(self):
         self.style = ttk.Style()
         self.style.theme_use('clam')
         self.style.configure("RegisterLoanTreeview", 
-                             background="#E5E1D7", 
-                             foreground="black", 
-                             rowheight=30, 
-                             fieldbackground="#f0f0f0", 
-                             bordercolor="blue", 
-                             lightcolor="lightblue", 
-                             darkcolor="darkblue")
+                            background="#E5E1D7", 
+                            foreground="black", 
+                            rowheight=30, 
+                            fieldbackground="#f0f0f0", 
+                            bordercolor="blue", 
+                            lightcolor="lightblue", 
+                            darkcolor="darkblue")
         self.style.map('RegisterLoanTreeview', 
-                       background=[('selected', '#347083')])
+                    background=[('selected', '#347083')])
         self.style.configure("RegisterLoanTreeview.Heading", 
-                             font=('Helvetica', 10, 'bold'), 
-                             background="#2E59A7", 
-                             foreground="#000000", 
-                             borderwidth=0)
+                            font=('Helvetica', 10, 'bold'), 
+                            background="#2E59A7", 
+                            foreground="#000000", 
+                            borderwidth=0)
 
-
-
-        #Columnas Prestamo
-        columns2 = ("Cedula", "Cliente", "Nombre del Libro", "N° Registro", "F.Registro", "F.Limite", "Encargado", "ID_Prestamo")
+        columns2 = ("Cedula", "Cliente", "Nombre del Libro", "N° Registro", "F.Registro", "F.Limite", "Encargado")
         self.cliente_prestamo_table = ttk.Treeview(self.left_frame2, columns=columns2, show='headings', style="Rounded.Treeview", selectmode="browse")
-
+        
         for col2 in columns2:
             self.cliente_prestamo_table.heading(col2, text=col2)
             if col2 == "ID_Prestamo":
                 self.cliente_prestamo_table.column(col2, width=0, stretch=False)  # Ocultar la columna
             else:
                 self.cliente_prestamo_table.column(col2, width=90, anchor="center")
-
+                
         self.cliente_prestamo_table.pack(expand=True, fill="both", padx=30, pady=5)
-
-        self.cliente_prestamo_table.bind("<Double-1>", self.on_loans_double_click)  # SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
         scrollbar_pt = ttk.Scrollbar(self.cliente_prestamo_table, orient="vertical", command=self.cliente_prestamo_table.yview)
         self.cliente_prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
-        self.lists_clients_loans()
+        self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguiente.png"))
+        self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/atras.png"))
+        prev_button = tk.Button(
+            self.left_frame2,
+            image=self.images['boton_anterior'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.previous_page)
+        prev_button.pack(side=tk.LEFT, padx=25, pady=0)
+        
+        next_button = tk.Button(
+            self.left_frame2, 
+            image=self.images['boton_siguiente'],
+            borderwidth=0,
+            highlightthickness=0,
+            relief="flat",
+            bg="#FAFAFA",
+            activebackground="#FAFAFA",  # Mismo color que el fondo del botón
+            activeforeground="#006ac2",   # Color del texto cuando el botón está activo
+            command=self.next_page)
+        next_button.pack(side=tk.RIGHT, padx=25, pady=0)
+        self.page_label = tk.Label(self.left_frame2, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33", font=("Montserrat Regular", 13))
+        self.page_label.pack(side=tk.BOTTOM, pady=15)
+        
+        
         
         
 
 
-    def lists_clients_loans(self):
-        try:
-            mariadb_conexion = establecer_conexion()
-            if not mariadb_conexion:
-                print("Failed to establish connection.")
-                return
+    def get_data_page(self, offset, limit):
+        return self.data[offset:offset + limit]
+    def update_page_label(self):
+        total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
+        self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
 
-            cursor = mariadb_conexion.cursor()
-
-            query1 = '''
-            SELECT
-                c.Cedula,
-                c.Nombre AS Nombre_Cliente,
-                l.titulo AS Nombre_Libro,
-                l.n_registro AS N_Registro,
-                p.Fecha_Registro,
-                p.Fecha_Limite,
-                u.Nombre AS Nombre_Usuario,
-                p.ID_Prestamo,
-                cp.ID_CP
-            FROM 
-                cliente_prestamo cp
-            JOIN
-                prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
-            JOIN 
-                cliente c ON cp.ID_Cliente = c.ID_Cliente
-            JOIN
-                libro l ON cp.ID_Libro = l.ID_Libro
-            JOIN 
-                usuarios u ON cp.ID_Usuario = u.ID_Usuario
-            WHERE 
-                cp.estado_cliente_prestamo = 'activo';
-            '''
-
-            cursor.execute(query1)
-            resultados1 = cursor.fetchall()
-
-            # Debugging: Print the results
-            print("Query executed successfully. Results:")
-            for resultado in resultados1:
-                print(resultado)
-
+    def display_page(self):
+        page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
+        hoy = datetime.now().date()
+        for fila in page_data:
+            # Verificar si la fila ya existe en la tabla
+            exists = False
             for row in self.cliente_prestamo_table.get_children():
-                self.cliente_prestamo_table.delete(row)
+                if self.cliente_prestamo_table.item(row, 'values') == fila:
+                    exists = True
+                    break
+            if not exists:
+                # fecha_limite = datetime.strptime(fila[4], '%d-%m-%Y').strftime('%d-%m-%Y')
+                # fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
+                # tag = 'vencido' if fecha_limite <= hoy - timedelta(days=3) else 'activo'
+                self.cliente_prestamo_table.insert("", "end", values=fila)  # , tags=(tag,))
+        # self.cliente_prestamo_table.tag_configure('vencido', background='red')
+        # self.cliente_prestamo_table.tag_configure('activo', background='white')
+        self.update_page_label()
 
-            prestamos_vencidos = []
-            hoy = datetime.now().date()
 
-            for fila in resultados1:
-                # Ajustar el formato de la fecha para DD-MM-YYYY
-                fecha_limite = datetime.strptime(fila[4], '%d-%m-%Y').strftime('%d-%m-%Y')
-                fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
-                if fecha_limite <= hoy - timedelta(days=3):
-                    tag = 'vencido'
-                    prestamos_vencidos.append(fila)
-                else:
-                    tag = 'activo'
-                self.cliente_prestamo_table.insert("", "end", values=tuple(fila), tags=(tag,))
 
-            # Configurar las etiquetas para los colores
-            self.cliente_prestamo_table.tag_configure('vencido', background='red')
-            self.cliente_prestamo_table.tag_configure('activo', background='white')
+    def next_page(self):
+        if (self.current_page + 1) * self.page_size < len(self.data):
+            self.current_page += 1
+            self.display_page()
 
-            if prestamos_vencidos:
-                messagebox.showwarning("Préstamos Vencidos", "Hay préstamos que han pasado más de 3 días desde su fecha límite.")
+    def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.display_page()
 
-        except mariadb.Error as ex:
-            print(f"Error during query execution: {ex}")
-        finally:
-            if mariadb_conexion is not None:
-                mariadb_conexion.close()
-                print("Connection closed.")
 
-    def imprimir_seleccionado(self):
-        selected_items = self.cliente_prestamo_table.selection()
-        if not selected_items:
-            messagebox.showwarning("Advertencia", "No se ha seleccionado ningún préstamo.")
-            return
-
-        prestamos_data = []
-        for item in selected_items:
-            prestamo_valores = self.cliente_prestamo_table.item(item, 'values')
-            prestamo_data = {
-                "ID Prestamo": prestamo_valores[0],
-                "ID Libro": prestamo_valores[1],
-                "ID Cliente": prestamo_valores[2],
-                "Nombre": prestamo_valores[3],
-                "ID Libro Prestamo": prestamo_valores[4],
-                "Titulo": prestamo_valores[5],
-                "F.Registro": prestamo_valores[6],
-                "F.Limite": prestamo_valores[7],
-                "Encargado": prestamo_valores[8]
-            }
-            prestamos_data.append(prestamo_data)
-
-        if prestamos_data:
-            imprimir = ImprimirPrestamo(prestamos_data)
-            imprimir.obtener_datos()
+        
         
     def verificar_eliminar(self):
         if self.parent.id_rol == 1:
@@ -345,57 +303,35 @@ class P_Listar(tk.Frame):
         finally:
             if mariadb_conexion:
                 mariadb_conexion.close()
-    #FUNCION OPTIMIZADA Y MOVIDA a la clase Register_Loans a peticion de bing ya que alla es donde se usa, no aqui
-    """def reading_books(self,book_table_list):
-                                try:
-                                    mariadb_conexion = establecer_conexion()
-                                    if mariadb_conexion:#.is_connected():
-                                        cursor = mariadb_conexion.cursor()
-                                        cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes FROM libro')
-                                        resultados = cursor.fetchall() 
-                                        for row in book_table_list.get_children():
-                                            book_table_list.delete(row)
-                                            # Configurar las etiquetas para los colores
-                                        book_table_list.tag_configure('multiple', background='lightblue')
-                                        book_table_list.tag_configure('single', background='#E5E1D7')
 
-                                            # Insert new data into the Treeview
-                                        for fila in resultados:
-                                            book_table_list.insert("", "end", values=tuple(fila))
-                                        mariadb_conexion.close()
-                                except mariadb.Error as ex:
-                                        print("Error durante la conexión:", ex)"""
+
 
     
     def update_selected_loan_due_date(self):
         selected_client = self.cliente_prestamo_table.selection()
         if selected_client:
             selected_client = selected_client[0]  # Obtener el primer elemento seleccionado
-            client_values = self.cliente_prestamo_table.item(selected_client, "values")
+            client_values = self.cliente_prestamo_table.item(selected_client, 'values')
             id_prestamo = client_values[7]  # Asumiendo que ID_Prestamo es el octavo valor en la tupla
-            if update_loan_due_date(id_prestamo):
-                messagebox.showinfo("Éxito", "La fecha límite del préstamo se ha actualizado correctamente.")
-            else:
-                messagebox.showerror("Error", "No se pudo actualizar la fecha límite del préstamo.")
+            print(f"Préstamo seleccionado: {client_values}")
+
+            # Mostrar mensaje de confirmación
+            mensaje_confirmacion = f"""¿Está seguro de que desea renovar el préstamo?
+            
+    Detalles del Préstamo:
+    - Título del Libro: {client_values[2]}
+    - Fecha de Registro: {client_values[4]}
+    - Fecha Límite Actual: {client_values[5]}
+    - Nombre del Cliente: {client_values[1]}
+    - Cédula del Cliente: {client_values[0]}"""
+
+            if messagebox.askyesno("Confirmar Renovación", mensaje_confirmacion):
+                if renew_loan_due_date(id_prestamo):
+                    messagebox.showinfo("Éxito", "La fecha límite del préstamo se ha actualizado correctamente.")
+                else:
+                    messagebox.showerror("Error", "No se pudo actualizar la fecha límite del préstamo.")
         else:
             messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un cliente para modificar el préstamo.")
-
-    # def open_filter_loans_window(self):
-    #     FilterLoansWindow(self, self.cliente_prestamo_table)
-
-
-    # def open_modify_loans_window(self):
-    #     selected_client= self.cliente_prestamo_table.selection()
-    #     if selected_client:
-    #         selected_client = selected_client[0]
-    #         client_values = self.cliente_prestamo_table.item(selected_client, "values")
-    #         #cedula = client_values[0]  # Asumiendo que la cédula es el primer valor en la tupla
-    #         fecha_limite = client_values[4]  # Asumiendo que la fecha límite es el quinto valor en la tupla
-    #         ModifyLoans(self, fecha_limite, loans_validations)
-    #     else:
-    #         messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un cliente para modificar el préstamo.")
-
-
 
 
 
@@ -407,93 +343,243 @@ class P_Listar(tk.Frame):
         # Asumimos que el ID_Libro está en la primera columna
         self.ID_Libro = item_values[0]
     
-    def on_loans_double_click(self, event):
+
+
+    def mostrar_mensaje_prestamos_vencidos(self):
+        prestamos_vencidos = obtener_prestamos_vencidos()
+        if prestamos_vencidos:
+            mensaje_vencidos = "Hay préstamos vencidos asociados a los siguientes clientes:\n\n"
+            for prestamo in prestamos_vencidos:
+                id_cliente = prestamo[0]
+                datos_cliente = obtener_datos_cliente(id_cliente)
+                if datos_cliente:
+                    mensaje_vencidos += f"Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}\nCédula: {datos_cliente['Cedula']}\nTeléfono: {datos_cliente['Telefono']}\nPréstamos Vencidos: {prestamo[1]}\n\n"           
+            mensaje_vencidos += "Por favor, contacte a los clientes para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de préstamos para obtener más información sobre los libros prestados."
+            messagebox.showwarning("Préstamos Vencidos", mensaje_vencidos)
+
+
+
+
+
+    def show_report_window(self):
+        GenerarReportePDF(self)
+
+
+
+class GenerarReportePDF(tk.Toplevel):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.parent = parent
+        self.client_data = {}
+        self.books_data = []
+        self.prestamos_data = []
+        self.create_report_window()
+    def cancelar(self, window):
+        window.destroy()
+    def create_report_window(self):
+        # Definir las dimensiones de la ventana y centrarla antes de mostrarla
+        self.geometry("463x330")
+        centrar_ventana(self, 463, 330)
+        
+        self.canvas = tk.Canvas(self, bg="#031A33", width=463, height=330)
+        self.canvas.pack(side="left", fill="both", expand=False)
+        self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
+        self.resizable(False, False)
+        self.grab_set()
+        self.images = {}
+        self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
+        self.canvas.create_rectangle(0, 0, 570, 74, fill="#2E59A7")
+        self.canvas.create_text(55.0, 21.0, anchor="nw", text="Generar Reporte PDF", fill="#ffffff", font=("Montserrat Medium", 28))
+
+
+        # Diccionario para el combobox
+        self.report_options = {"Reporte del Día Actual": "Reporte del Día Actual", "Reporte del Mes Actual": "Reporte del Mes Actual"}
+
+        # Estilo del combobox
+        stylebox = ttk.Style()
+        stylebox.theme_use('clam')
+        stylebox.configure("TCombobox",
+                           fieldbackground="#2E59A7",  # Fondo del campo de entrada
+                           background="#2E59A7",  # Fondo del desplegable
+                           bordercolor="#041022",  # Color del borde
+                           arrowcolor="#ffffff",  # Color de la flecha
+                           padding="9",  # Padding para agrandar la altura del select
+                           )
+
+        # Crear el título del combobox
+        tk.Label(self, text="Seleccionar Tipo de Reporte:", bg="#031A33", fg="#ffffff", font=("Montserrat Medium", 12)).place(x=61.0, y=110.0)
+        
+        # Crear el combobox
+        self.report_combobox = ttk.Combobox(self, values=list(self.report_options.values()), state="readonly", width=30, font=("Bold", 10), style="TCombobox")
+        self.report_combobox.place(x=61.0, y=151.5)
+        self.report_combobox.set("Reporte del Día Actual")  # Establece el valor inicial a "Reporte del Día Actual"
+
+        # Botón para generar el reporte
+        self.images['boton_generar'] = tk.PhotoImage(file=resource_path("assets_2/G_boton.png"))
+        boton_generar = self.images['boton_generar']
+        tk.Button(
+            self,
+            image=boton_generar,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.generate_report(),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",  # Mismo color que el fondo del botón
+            activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
+        ).place(x=61.0, y=265.0, width=130.0, height=40.0)
+
+        # Botón para cancelar
+        self.images['boton_cancelar'] = tk.PhotoImage(file=resource_path("assets_2/c_button_red1.png"))
+        self.boton_cancelar = tk.Button(
+            self,
+            image=self.images['boton_cancelar'],
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.cancelar(self),
+            relief="flat",
+            bg="#031A33",
+            activebackground="#031A33",
+            activeforeground="#FFFFFF"
+        )
+        self.boton_cancelar.place(x=250.0, y=265.0, width=130.0, height=40.0)
+
+    def get_loans_by_day(self):
+        prestamos_data = []
         try:
-            selected_item = self.cliente_prestamo_table.selection()[0]
-            prestamo_valores = self.cliente_prestamo_table.item(selected_item, 'values')
-            self.prestamo_data = {
-                "ID Prestamo": prestamo_valores[0],
-                "ID Libro": prestamo_valores[1],
-                "ID Cliente": prestamo_valores[2],
-                "Nombre": prestamo_valores[3],
-                "ID Libro Prestamo": prestamo_valores[4],
-                "Titulo": prestamo_valores[5],
-                "F.Registro": prestamo_valores[6],
-                "F.Limite": prestamo_valores[7],
-                "Encargado": prestamo_valores[8]
-            }
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
                 cursor.execute('''
-                    SELECT 
-                        p.ID_Prestamo
-                    FROM prestamo p
-                    JOIN cliente c ON p.ID_Cliente = c.ID_Cliente
-                    WHERE p.ID_Cliente = %s AND c.Nombre = %s
-                ''', (self.prestamo_data["ID Cliente"], self.prestamo_data["Nombre"]))
-                ejemplares = cursor.fetchall()
-                # Depuración: Mostrar cuántos préstamos coincidentes se encontraron
-                print(f"Préstamos encontrados: {len(ejemplares)}")
-                if not ejemplares:
-                    print("No se encontraron registros coincidentes.")
-                    return
-                self.cliente_prestamo_table.selection_remove(self.cliente_prestamo_table.selection())
-                for ejemplar in ejemplares:
-                    for row in self.cliente_prestamo_table.get_children():
-                        if self.cliente_prestamo_table.item(row, 'values')[0] == str(ejemplar[0]):
-                            self.cliente_prestamo_table.selection_add(row)
+                    SELECT
+                        c.Cedula,
+                        c.Nombre AS Nombre_Cliente,
+                        l.titulo AS Nombre_Libro,
+                        l.n_registro AS N_Registro,
+                        p.Fecha_Registro,
+                        p.Fecha_Limite,
+                        u.Nombre AS Nombre_Usuario,
+                        cp.ID_CP
+                    FROM 
+                        cliente_prestamo cp
+                    JOIN
+                        prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
+                    JOIN 
+                        cliente c ON cp.ID_Cliente = c.ID_Cliente
+                    JOIN
+                        libro l ON cp.ID_Libro = l.ID_Libro
+                    JOIN 
+                        usuarios u ON cp.ID_Usuario = u.ID_Usuario
+                    WHERE 
+                        DATE(STR_TO_DATE(p.Fecha_Registro, '%d-%m-%Y')) = CURDATE() AND cp.estado_cliente_prestamo = 'activo'
+                ''')
+                resultados = cursor.fetchall()
+                for resultado in resultados:
+                    prestamos_data.append({
+                        "Cedula": resultado[0],
+                        "Nombre_Cliente": resultado[1],
+                        "Nombre_Libro": resultado[2],
+                        "N_Registro": resultado[3],
+                        "Fecha_Registro": resultado[4],
+                        "Fecha_Limite": resultado[5],
+                        "Nombre_Usuario": resultado[6],
+                        "ID_CP": resultado[7]
+                    })
                 mariadb_conexion.close()
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
-            messagebox.showerror("Error", f"Error durante la conexión: {ex}")
-        except IndexError:
-            print("No se ha seleccionado ningún préstamo.")
-            messagebox.showerror("Error", "No se ha seleccionado ningún préstamo.")
+        print(f"Préstamos del Día Actual: {prestamos_data}")
+        return prestamos_data
 
 
-   
-class ImprimirPrestamo:
-    def __init__(self, selected_items):
-        self.selected_items = selected_items
-        self.user_data = {}
-        self.books_data = []
-        self.prestamos_data = self.selected_items.copy()
-
-    def obtener_datos(self):
-        cliente_id = self.prestamos_data[0]["ID Cliente"]
-        print(f"Cliente ID: {cliente_id}")
-
+    def get_loans_by_month(self):
+        prestamos_data = []
         try:
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
                 cursor.execute('''
-                    SELECT Cedula_Cliente, Nombre, Apellido, Telefono, Direccion
-                    FROM cliente
-                    WHERE ID_Cliente = %s
-                ''', (cliente_id,))
-                resultado_cliente = cursor.fetchone()
-                print(f"Resultado Cliente: {resultado_cliente}")
-                if resultado_cliente:
-                    self.user_data = {
-                        "Cedula": resultado_cliente[0],
-                        "Nombre": resultado_cliente[1],
-                        "Apellido": resultado_cliente[2],
-                        "Telefono": resultado_cliente[3],
-                        "Direccion": resultado_cliente[4]
-                    }
+                    SELECT
+                        c.Cedula,
+                        c.Nombre AS Nombre_Cliente,
+                        l.titulo AS Nombre_Libro,
+                        l.n_registro AS N_Registro,
+                        p.Fecha_Registro,
+                        p.Fecha_Limite,
+                        u.Nombre AS Nombre_Usuario,
+                        cp.ID_CP
+                    FROM 
+                        cliente_prestamo cp
+                    JOIN
+                        prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
+                    JOIN 
+                        cliente c ON cp.ID_Cliente = c.ID_Cliente
+                    JOIN
+                        libro l ON cp.ID_Libro = l.ID_Libro
+                    JOIN 
+                        usuarios u ON cp.ID_Usuario = u.ID_Usuario
+                    WHERE 
+                        YEAR(STR_TO_DATE(p.Fecha_Registro, '%d-%m-%Y')) = YEAR(CURDATE()) AND MONTH(STR_TO_DATE(p.Fecha_Registro, '%d-%m-%Y')) = MONTH(CURDATE()) AND cp.estado_cliente_prestamo = 'activo'
+                ''')
+                resultados = cursor.fetchall()
+                for resultado in resultados:
+                    prestamos_data.append({
+                        "Cedula": resultado[0],
+                        "Nombre_Cliente": resultado[1],
+                        "Nombre_Libro": resultado[2],
+                        "N_Registro": resultado[3],
+                        "Fecha_Registro": resultado[4],
+                        "Fecha_Limite": resultado[5],
+                        "Nombre_Usuario": resultado[6],
+                        "ID_CP": resultado[7]
+                    })
+                mariadb_conexion.close()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+        print(f"Préstamos del Mes Actual: {prestamos_data}")
+        return prestamos_data
 
-                cliente = Cliente(
-                    cedula=self.user_data["Cedula"],
-                    nombre=self.user_data["Nombre"],
-                    apellido=self.user_data["Apellido"],
-                    telefono=self.user_data["Telefono"],
-                    direccion=self.user_data["Direccion"]
-                )
+    
 
+    def obtener_datos(self):
+        if not self.prestamos_data:
+            messagebox.showwarning("Advertencia", "No se encontraron préstamos para el período seleccionado.", parent=self)
+            return None, None, None
+
+        books_data = []
+        prestamos_formateados = []
+
+        try:
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
                 for prestamo in self.prestamos_data:
-                    libro_id = prestamo["ID Libro"]
+                    cliente_id = get_cliente_id_by_cedula(prestamo["Cedula"])
+                    cursor.execute('''
+                        SELECT Cedula, Nombre, Apellido, Telefono, Direccion
+                        FROM cliente
+                        WHERE ID_Cliente = %s
+                    ''', (cliente_id,))
+                    resultado_cliente = cursor.fetchone()
+                    print(f"Resultado Cliente: {resultado_cliente}\n")
+                    if resultado_cliente:
+                        client_data = {
+                            "Cedula": resultado_cliente[0],
+                            "Nombre": resultado_cliente[1],
+                            "Apellido": resultado_cliente[2],
+                            "Telefono": resultado_cliente[3],
+                            "Direccion": resultado_cliente[4]
+                        }
+                    cliente = Cliente(
+                        cedula=client_data["Cedula"],
+                        nombre=client_data["Nombre"],
+                        apellido=client_data["Apellido"],
+                        telefono=client_data["Telefono"],
+                        direccion=client_data["Direccion"]
+                    )
+                    self.client_data[resultado_cliente[0]] = cliente
+
+                    libro_id = get_libro_id_by_registro(prestamo["N_Registro"])
                     book_data = obtener_datos_libro(libro_id)
                     if book_data:
                         libro = Libro(
@@ -510,39 +596,88 @@ class ImprimirPrestamo:
                             año=book_data["año"],
                             editorial=book_data["editorial"]
                         )
-                        self.books_data.append(book_data)
-                        prestamo.update({
-                            "fecha_r": formatear_fecha(prestamo["F.Registro"]),
-                            "fecha_en": formatear_fecha(prestamo["F.Limite"])
+                        # Formatear fechas correctamente
+                        try:
+                            prestamo_fecha_registro = datetime.strptime(prestamo["Fecha_Registro"], '%d-%m-%Y')
+                            fecha_r = prestamo_fecha_registro.strftime('%d-%m-%Y')
+                        except ValueError:
+                            print(f"Error: El formato de la fecha '{prestamo['Fecha_Registro']}' no es válido.\n")
+                            fecha_r = prestamo["Fecha_Registro"]
+                        try:
+                            prestamo_fecha_limite = datetime.strptime(prestamo["Fecha_Limite"], '%d-%m-%Y')
+                            fecha_en = prestamo_fecha_limite.strftime('%d-%m-%Y')
+                        except ValueError:
+                            print(f"Error: El formato de la fecha '{prestamo['Fecha_Limite']}' no es válido.\n")
+                            fecha_en = prestamo["Fecha_Limite"]
+                        prestamos_formateados.append({
+                            "Cedula": prestamo["Cedula"],
+                            "Nombre_Cliente": prestamo["Nombre_Cliente"],
+                            "Nombre_Libro": prestamo["Nombre_Libro"],
+                            "N_Registro": prestamo["N_Registro"],
+                            "fecha_r": fecha_r,
+                            "fecha_en": fecha_en,
+                            "Nombre_Usuario": prestamo["Nombre_Usuario"],
+                            "ID_CP": prestamo["ID_CP"]
                         })
-
-                print("Books Data:", self.books_data)
-                print("Prestamos Data:", self.prestamos_data)
-
-                fecha_actual = datetime.now().strftime("%d_%m_%Y")
-                nombre_corregido = self.user_data.get("Nombre", "").replace(" ", "_")
-                nombre_archivo_base = f"Reporte_de_prestamo_{nombre_corregido}_{fecha_actual}"
-                generar_pdf(cliente, self.books_data, self.prestamos_data, nombre_archivo_base)
-
+                        books_data.append(libro)
+                # Ordenar los préstamos y los libros por fecha
+                prestamos_formateados, books_data = zip(*sorted(zip(prestamos_formateados, books_data), key=lambda x: datetime.strptime(x[0]["fecha_r"], '%d-%m-%Y')))
+                prestamos_formateados = list(prestamos_formateados)
+                books_data = list(books_data)
+                print("Books Data:", books_data)
+                print("Prestamos Formateados:", prestamos_formateados)
+                return self.client_data, books_data, prestamos_formateados
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
-            messagebox.showerror("Error", f"Error durante la conexión")
+            messagebox.showerror("Error", f"Error durante la conexión: {ex}", parent=self)
+            return None, None, None
 
-import tkinter as tk
-from tkinter import ttk
-from datetime import datetime, timedelta
+    def generate_report(self):
+        report_type = self.report_combobox.get()
+        if report_type == "Reporte del Día Actual":
+            self.prestamos_data = self.get_loans_by_day()
+            if not self.prestamos_data:
+                messagebox.showinfo("Información", "No se han realizado préstamos hoy.", parent=self)
+                return
+            client_data, books_data, prestamos_formateados = self.obtener_datos()
+            if client_data and books_data and prestamos_formateados:
+                success = generate_report_by_day(client_data, books_data, prestamos_formateados, self)
+        elif report_type == "Reporte del Mes Actual":
+            self.prestamos_data = self.get_loans_by_month()
+            if not self.prestamos_data:
+                meses = {
+                    1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio",
+                    7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
+                }
+                fecha_actual = datetime.now()
+                mes_actual = meses[fecha_actual.month]
+                messagebox.showinfo("Información", f"No se han realizado préstamos en el mes de {mes_actual}.", parent=self)
+                return
+            client_data, books_data, prestamos_formateados = self.obtener_datos()
+            if client_data and books_data and prestamos_formateados:
+                success = generate_report_by_month(client_data, books_data, prestamos_formateados, self)
+        else:
+            messagebox.showwarning("Advertencia", "Seleccione un tipo de reporte válido.", parent=self)
+            return
+
+        if success:
+            messagebox.showinfo("Éxito", "El reporte ha sido creado de forma exitosa.", parent=self)
+        else:
+            messagebox.showerror("Error", "Guardado cancelado.", parent=self)
+        self.destroy()
+
 
 
 # Asegúrate de que P_Listar está definido/importado correctamente
-class Register_Loans(P_Listar):
+class Register_Loans():
     def __init__(self, parent, loans_validations):
-        super().__init__(parent)  # Llamar al constructor de la clase base
         self.parent = parent
         self.loans_validations = loans_validations
         self.register_loan_window = tk.Toplevel(parent)
-        self.validate_number = self.register(validate_number_input)
+        self.validate_number = self.register_loan_window.register(validate_number_input)
         # Datos y paginación
         self.data = []
+        #self.agarrar_datos()
         self.page_size = 19
         self.current_page = 0
         
@@ -565,7 +700,7 @@ class Register_Loans(P_Listar):
         rectangulo_color.place(x=0, y=0)
         tk.Label(self.register_loan_window, text="Tabla Prestamos", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=505.0, y=8.0, width=450.0, height=35.0)
         tk.Label(self.register_loan_window, text="Cedula del Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=628.0, y=70.0, width=185.0, height=35.0)
-        self.cedula = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat",validate="key", validatecommand=(self.validate_number, "%P"))
+        self.cedula = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat", validate="key", validatecommand=(self.validate_number, "%P"))
         self.cedula.place(x=630.0, y=100.0, width=190.0, height=35.0)
         tk.Label(self.register_loan_window, text="Fecha Registrar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=22.0, y=140.0, width=160.0, height=35.0)
         self.fecha_registrar = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
@@ -638,8 +773,7 @@ class Register_Loans(P_Listar):
         self.page_label = tk.Label(self.left_frame_list, text=f"Página {self.current_page + 1}", bg="#042344", fg="White", font=("Montserrat Regular", 13))
         self.page_label.pack(side=tk.BOTTOM, pady=15)
         # Llama a reading_books después de definir self.page_label
-        self.reading_books()
-        
+        reading_books(self)
         
         self.images['boton_r'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
         self.boton_R = tk.Button(
@@ -657,22 +791,35 @@ class Register_Loans(P_Listar):
         self.boton_R.place_forget()
         self.cedula.bind("<KeyRelease>", lambda event: self.loans_validations.validate_entries(self, event))
         #self.cedula.bind("<Return>", lambda event: self.save_modifications())
+        self.mostrar_mensaje_prestamos_vencidos()
     def reading_books(self):
         try:
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
-                cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares, FROM libro')
-                self.data = cursor.fetchall()  # Almacena los datos en self.data
+                cursor.execute('''
+                    SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares
+                    FROM libro WHERE estado_libro='activo'
+                ''')
+                self.data = cursor.fetchall()
                 mariadb_conexion.close()
-                self.display_page()  # Llama a display_page() para mostrar los datos paginados
+                self.current_page = 0  # Resetear a la primera página
+                self.is_search_active = False  # Asegurar que estamos en modo normal
+                self.display_page()
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
 
+    def on_treeview_select(self, event):
+        # Obtener el elemento seleccionado
+        selected_item = self.book_table_list.selection()[0]
+        # Obtener los valores del elemento seleccionado
+        item_values = self.book_table_list.item(selected_item, 'values')
+        # Asumimos que el ID_Libro está en la primera columna
+        self.ID_Libro = item_values[0]
+    
     def get_data_page(self, offset, limit):
         return self.data[offset:offset + limit]
-
-    def display_page(self):
+    def display_page2(self):
         for row in self.book_table_list.get_children():
             self.book_table_list.delete(row)
         page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
@@ -687,38 +834,53 @@ class Register_Loans(P_Listar):
         self.book_table_list.tag_configure('single', background='#E5E1D7')
         self.update_page_label()
 
+
     def next_page(self):
         if (self.current_page + 1) * self.page_size < len(self.data):
             self.current_page += 1
-            self.display_page()
+            self.display_page2()
 
     def previous_page(self):
         if self.current_page > 0:
             self.current_page -= 1
-            self.display_page()
+            self.display_page2()
 
     def update_page_label(self):
         total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
         self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
-        
-    def save_modifications(self):
-        fecha_registrar = loans_validations.format_date(self.fecha_registrar.get())
-        fecha_limite = loans_validations.format_date(self.fecha_limite.get())
+    
+    def mostrar_mensaje_prestamos_vencidos(self):
+        prestamos_vencidos = obtener_prestamos_vencidos()
+        if prestamos_vencidos:
+            mensaje_vencidos = "Hay préstamos vencidos asociados a los siguientes clientes:\n\n"
+            for prestamo in prestamos_vencidos:
+                id_cliente = prestamo[0]
+                datos_cliente = obtener_datos_cliente(id_cliente)
+                if datos_cliente:
+                    mensaje_vencidos += f"Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}\nCédula: {datos_cliente['Cedula']}\nTeléfono: {datos_cliente['Telefono']}\nPréstamos Vencidos: {prestamo[1]}\n\n"           
+            mensaje_vencidos += "Por favor, contacte a los clientes para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de préstamos para obtener más información sobre los libros prestados."
+            messagebox.showwarning("Préstamos Vencidos", mensaje_vencidos, parent=self.register_loan_window)
 
-        ID_Libro_Prestamo = loans_validations.generate_id_libro_prestamo(self)
+    def save_modifications(self):
+        from users.backend.db_users import obtener_id_usuario_actual
+
+        # Formatear las fechas
+        fecha_registrar = loans_validations.format_date(self.fecha_registrar.get())
         Cedula = self.cedula.get()
         if hasattr(self, 'ID_Libro'):
             ID_Libro = self.ID_Libro
         else:
             messagebox.showerror("Error", "Por favor, selecciona un libro de la lista.", parent=self.register_loan_window)
             return
-        ID_Cliente = loans_validations.get_cliente_id_by_cedula(Cedula)
+
+        # Obtener ID del Cliente
+        ID_Cliente = get_cliente_id_by_cedula(Cedula)
         if ID_Cliente is None:
             messagebox.showerror("Error", "No se pudo obtener la ID del Cliente. Ingrese un N° de Cédula existente", parent=self.register_loan_window)
             return
 
-        # Asignar ID de usuario (esto parece ser un valor fijo, podrías mejorarlo)
-        ID_Usuario = 1 or 2 or 3 or 4 or 5
+        # Obtener ID del Usuario Logueado
+        ID_Usuario = self.parent.id_usuario
         if ID_Usuario is None:
             messagebox.showerror("Error", "No se pudo obtener el ID de usuario.", parent=self.register_loan_window)
             return
@@ -727,14 +889,30 @@ class Register_Loans(P_Listar):
         ID_Prestamo = loans_validations.generate_alphanumeric_id()
         print(f"Nuevo ID_Prestamo generado: {ID_Prestamo}")
 
+        # Generar ID de Libro Préstamo
+        ID_Libro_Prestamo = generate_id_libro_prestamo(self)
+
+        # Verificar si el libro es una novela
+        if es_novela(ID_Libro):
+            fecha_limite = (datetime.strptime(fecha_registrar, '%d-%m-%Y') + timedelta(days=8)).strftime('%d-%m-%Y')
+        else:
+            fecha_limite = (datetime.strptime(fecha_registrar, '%d-%m-%Y') + timedelta(days=3)).strftime('%d-%m-%Y')
+
+        # Crear el préstamo y actualizar las tablas
         if create_loan(ID_Cliente, ID_Prestamo, fecha_registrar, fecha_limite):
             if update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_Usuario):
-                messagebox.showinfo("Éxito", f"""DATOS
-                Registro éxitoso del préstamo.
-                ID Cliente_Prestamo: {ID_Prestamo}
-                ID Libro Préstamo: {ID_Libro_Prestamo}
-                """, parent=self.register_loan_window)
+                messagebox.showinfo("Éxito", f"""Préstamo Registrado con Éxito
+
+    Detalles del Préstamo:
+    - Fecha de Registro: {fecha_registrar}
+    - Fecha Límite: {fecha_limite}
+    - Cédula del Cliente: {Cedula}
+
+    Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha límite.
+    Consulte el apartado de préstamos para obtener más información sobre los libros prestados.
+    """, parent=self.register_loan_window)
                 loans_validations.clear_entries_list_register(self)
+                reading_books(self)
             else:
                 messagebox.showerror("Error", "No se pudo actualizar las tablas. Puede que no haya ejemplares disponibles.", parent=self.register_loan_window)
         else:
@@ -742,10 +920,10 @@ class Register_Loans(P_Listar):
 
 
     def cancelar(self, window):
-            if messagebox.askyesno(
-                    "Advertencia",
-                    "¿Seguro que quieres cerrar esta ventana? Perderás los datos del registro del préstamo.",parent=window):
-                window.destroy()
+        if messagebox.askyesno(
+                "Advertencia",
+                "¿Seguro que quieres cerrar esta ventana? Perderás los datos del registro del préstamo.", parent=window):
+            window.destroy()
 
 import tkinter as tk
 from tkinter import ttk
@@ -867,75 +1045,3 @@ from datetime import datetime, timedelta
 #         else:
 #             messagebox.showinfo("Error", "Por favor, proporciona una cédula válida.", parent=self.modify_loan_window)
 
-# class FilterLoansWindow:
-#     def __init__(self, parent ,prestamo_table):
-#         self.parent = parent
-#         self.prestamo_table = prestamo_table
-#         self.filter_window = tk.Toplevel(parent)
-#         self.setup_window()
-
-#     def setup_window(self):
-#         self.filter_window.title("Filtrar")
-#         self.filter_window.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
-#         self.filter_window.geometry("950x450")
-#         self.filter_window.config(bg="#042344")
-#         self.filter_window.resizable(False, False)
-#         self.filter_window.grab_set()
-#         self.filter_window.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self.filter_window))
-        
-#         rectangulo_color = tk.Label(self.filter_window, bg="#2E59A7", width=200, height=4)
-#         rectangulo_color.place(x=0, y=0)
-#         tk.Label(self.filter_window, text="Tabla de Prestamos", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=250.0, y=20.0, width=450.0, height=35.0)
-#         tk.Label(self.filter_window, text="Ingrese el ID de Prestamo, Cliente y Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=10.0, y=80.0, width=530.0, height=35.0)
-
-#         tk.Label(self.filter_window, text="ID Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=130.0, width=120.0, height=35.0)
-#         self.id_prestamos_entry = tk.Entry(self.filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-#         self.id_prestamos_entry.place(x=240.0, y=170.0, width=190.0, height=35.0)
-
-#         tk.Label(self.filter_window, text="ID Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=460.0, y=130.0, width=185.0, height=35.0)
-#         self.id_cliente_entry = tk.Entry(self.filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-#         self.id_cliente_entry.place(x=500.0, y=170.0, width=190.0, height=35.0)
-
-#         tk.Label(self.filter_window, text="ID Libro Prestamo", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=240.0, y=230.0, width=180.0, height=35.0)
-#         self.id_libro_cliente_entry = tk.Entry(self.filter_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-#         self.id_libro_cliente_entry.place(x=240.0, y=270.0, width=190.0, height=35.0)
-
-#         self.images = {}
-#         self.images['boton_m'] = tk.PhotoImage(file=resource_path("assets_2/boton_filtrar.png"))
-#         self.boton_M = tk.Button(
-#             self.filter_window,
-#             image=self.images['boton_m'],
-#             borderwidth=0,
-#             highlightthickness=0,
-#             command=self.apply_filters,
-#             relief="flat",
-#             bg="#031A33",
-#             activebackground="#031A33",
-#             activeforeground="#FFFFFF"
-#         )
-#         self.boton_M.place(x=530.0, y=350.0, width=130.0, height=40.0)
-
-#         self.images['boton_c'] = tk.PhotoImage(file=resource_path("assets_2/c_button_red1.png"))
-#         self.boton_C = tk.Button(
-#             self.filter_window,
-#             image=self.images['boton_c'],
-#             borderwidth=0,
-#             highlightthickness=0,
-#             command=lambda: self.cancelar(self.filter_window),
-#             relief="flat",
-#             bg="#031A33",
-#             activebackground="#031A33",
-#             activeforeground="#FFFFFF"
-#         )
-#         self.boton_C.place(x=270.0, y=350.0, width=130.0, height=40.0)
-
-    
-
-#     def apply_filters(self):
-#         # Suponiendo que filter_books es una función definida en algún lugar para filtrar los libros.
-#         filter_books(self)
-    
-#     def cancelar(self, window):
-#         if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana?", parent=self.filter_window):
-#             window.destroy()
-#             lists_clients_loans(self)

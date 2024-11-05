@@ -24,7 +24,6 @@ def get_user_by_username(username):
             if conexion.is_connected():
                 conexion.close()
 
-#Esta clase obtiene los valores del usuario, implmentar a futuro en mi perfil
 class Usuario:
     def __init__(self, user_data):
         self.id_usuario = user_data[0]
@@ -45,7 +44,6 @@ class Usuario:
         print(f"Cédula: {self.cedula}")
         print(f"Nombre de Usuario: {self.nombre_usuario}")
 
-
 usuario_actual = None
 
 def iniciar_sesion(username, password):
@@ -60,6 +58,10 @@ def iniciar_sesion(username, password):
         print("Nombre de usuario o contraseña incorrectos")
         return None
 
+def obtener_id_usuario_actual():
+    if usuario_actual:
+        return usuario_actual.id_usuario
+    return None
 
 
 def is_user(user):#Validacion de usuario

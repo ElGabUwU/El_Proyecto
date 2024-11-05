@@ -5,12 +5,8 @@ from db.conexion import establecer_conexion
 import subprocess
 from tkinter import messagebox
 init(autoreset=True)
-# # Conectar a la base de datos
-# def import_sql_file():
-#     try:
-#         subprocess.run(['mysql', '-u', 'root', '-p2525', 'basedatosbiblioteca', '<', 'backend/BD_BIBLIOTECA_V7.sql'], check=True)
-#     except subprocess.CalledProcessError as e:
-#         print("Error al importar el archivo SQL:", e)
+
+
 
 def obtener_datos_libros():
     try:
