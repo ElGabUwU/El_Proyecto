@@ -132,6 +132,22 @@ def validate_fecha_limite(fecha_limite):
         return False, "La fecha límite debe estar dentro del año actual."
     
     return True, ""
+def validar_libro_no_prestado(n_registro):
+    conn = establecer_conexion()
+    if conn:
+        cursor = conn.cursor()
+        query = """
+            SELECT l.ID_Libro
+            FROM libro l
+            JOIN cliente_prestamo cp ON l.ID_Libro = cp.ID_Libro
+            WHERE l.n_registro = %s AND cp.estado_cliente_prestamo = 'activo'
+        """
+        cursor.execute(query, (n_registro,))
+        resultado = cursor.fetchone()
+        conn.close()
+        if resultado:
+            return f"El libro con número de registro {n_registro} ya está prestado."
+    return None
 
 #Función que valida los campos insertado en la ventana de modificar
 def validar_campos(tipo_validacion="registro", cedula=None, fecha_limite=None, client_id=None):

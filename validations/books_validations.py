@@ -113,20 +113,31 @@ def mostrar_opciones(self, categoria_values, asignatura_values):
    
 
 #VALIDACION DE DATOS INGRESADOS
-def validar_cota(cota):
+def validar_cota(cota, sala):
     if not cota:
         return "El campo cota es obligatorio."
     if len(cota) < 3:
         return "La longitud de la cota debe ser al menos de 3 caracteres."
-    if len(cota) == 3 and not cota.isalpha():
-        return "Las cotas de longitud 3 solo deben contener letras."
+    if len(cota) == 3 and not cota.isalpha() and sala != "1I":
+        return "Las cotas de longitud 3 solo deben contener letras, excepto en la sala Infantil."
     if ".." in cota:
         return "La cota no puede contener puntos consecutivos."
     if not re.match(r'^[a-zA-Z0-9.]+$', cota):
         return "La cota solo puede contener letras, números y puntos."
     return None
 
-import re
+
+def validar_cota_unica(cota):
+    conn = establecer_conexion()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT ID_Libro FROM libro WHERE cota = %s", (cota,))
+        resultado = cursor.fetchone()
+        conn.close()
+        if resultado:
+            id_libro_existente = resultado[0]
+            return f"La cota '{cota}' ya está asignada al libro con ID {id_libro_existente}."
+    return None
 
 def validar_titulo(titulo):
     if not titulo:
@@ -185,14 +196,15 @@ def validar_editorial(editorial):
         return "El nombre de la editorial no puede comenzar con un espacio."
     if len(editorial) < 3:
         return "La longitud del nombre de la editorial debe ser al menos de 3 caracteres."
-    if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', editorial):
-        return "El nombre de la editorial solo puede contener letras y espacios."
+    if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.]+$', editorial):
+        return "El nombre de la editorial solo puede contener letras, espacios y puntos."
     if re.search(r'\s{2,}', editorial):
         return "El nombre de la editorial no puede contener más de un espacio consecutivo."
+    if re.search(r'\.{2,}', editorial):
+        return "El nombre de la editorial no puede contener más de un punto consecutivo."
     if editorial[-1] == " ":
         return "El nombre de la editorial no puede terminar en un espacio."
     return None
-
 
 def validar_n_registro(n_registro):
     if not n_registro:
@@ -237,7 +249,7 @@ def validar_nro_registro_unico(n_registro):
         conn.close()        
         if resultado:            
             id_libro_existente = resultado[0]            
-            return f"El libro con ID {id_libro_existente} ya tiene el número de registro AGREAGARRRR {n_registro}."    
+            return f"El libro con ID {id_libro_existente} ya tiene el número de registro {n_registro}."    
     return None
 
 def validar_nro_registro_unico_modificar(n_registro, id_libro_original):
@@ -252,10 +264,9 @@ def validar_nro_registro_unico_modificar(n_registro, id_libro_original):
             return f"El libro con ID {id_libro_existente} ya tiene el número de registro {n_registro}."
     return None
 
-
-def validar_campos(categoria, asignatura, cota, titulo, autor, editorial, n_registro, n_volumenes, edicion, year, id_libro=None):
+def validar_campos(categoria, asignatura, cota, titulo, autor, editorial, n_registro, n_volumenes, edicion, year, sala, id_libro=None):
     errores = []
-    
+
     # Validación de Categoría y Asignatura
     if (categoria == "No se ha seleccionado una categoría" or not categoria) and \
        (asignatura == "No se ha seleccionado una asignatura" or not asignatura):
@@ -264,28 +275,32 @@ def validar_campos(categoria, asignatura, cota, titulo, autor, editorial, n_regi
         errores.append("Debe seleccionar una categoría.")
     elif asignatura == "No se ha seleccionado una asignatura" or not asignatura:
         errores.append("Debe seleccionar una asignatura.")
-    
-    
+
     # Validar Cota
-    error_cota = validar_cota(cota)
+    error_cota = validar_cota(cota, sala)
     if error_cota:
         errores.append(error_cota)
-    
+    else:
+        if sala != "1I":
+            error_cota_unica = validar_cota_unica(cota)
+            if error_cota_unica:
+                errores.append(error_cota_unica)
+
     # Validar Título
     error_titulo = validar_titulo(titulo)
     if error_titulo:
         errores.append(error_titulo)
-    
+
     # Validar Autor
     error_autor = validar_autor(autor)
     if error_autor:
         errores.append(error_autor)
-    
+
     # Validar Editorial
     error_editorial = validar_editorial(editorial)
     if error_editorial:
         errores.append(error_editorial)
-    
+
     # Validar Número de Registro
     error_n_registro = validar_n_registro(n_registro)
     if error_n_registro:
@@ -297,23 +312,22 @@ def validar_campos(categoria, asignatura, cota, titulo, autor, editorial, n_regi
         else:
             print(f"Validar número de registro para creación: {n_registro}")  # Depuración
             error_n_registro_repetido = validar_nro_registro_unico(n_registro)
-        
+
         if error_n_registro_repetido:
             errores.append(error_n_registro_repetido)
-    
+
     # Validar Número de Volúmenes
     error_n_volumenes = validar_n_volumenes(n_volumenes)
     if error_n_volumenes:
         errores.append(error_n_volumenes)
-    
+
     # Validar Edición
     error_edicion = validar_edicion(edicion)
     if error_edicion:
         errores.append(error_edicion)
-    
+
     # Validar Año
     if not validate_year(year):
         errores.append("El año debe ser un número de 4 dígitos entre 1500 y el año actual.")
-    
-    return errores
 
+    return errores

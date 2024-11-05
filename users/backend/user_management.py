@@ -285,8 +285,13 @@ class U_Listar(tk.Frame):
         limited_text = limit_length(current_text, 10)
         self.buscar.delete(0, 'end')
         self.buscar.insert(0, limited_text)
+    
     def boton_buscar(self, event):
-        busqueda = self.buscar.get()
+        busqueda = self.buscar.get().strip()
+        
+        if not busqueda:
+            messagebox.showinfo("Búsqueda Fallida", "No se ingresó ningún término de búsqueda. Por favor, ingrese una cédula para buscar.")
+            return
         
         try:
             mariadb_conexion = establecer_conexion()
@@ -300,26 +305,28 @@ class U_Listar(tk.Frame):
                 """, (busqueda,))
                 resultados = cursor.fetchall()
 
-                # Limpiar la tabla antes de insertar nuevos resultados
-                for item in self.user_table_list.get_children():
-                    self.user_table_list.delete(item)
-
                 if resultados:
+                    # Limpiar la tabla antes de insertar nuevos resultados
+                    self.user_table_list.delete(*self.user_table_list.get_children())
+                    
                     # Insertar los nuevos resultados con la conversión de cargo y rol
                     for fila in resultados:
                         id_usuario, id_cargo, id_rol, nombre, apellido, cedula, nombre_usuario = fila
                         cargo, rol = self.convertir_cargo_rol(id_cargo, id_rol)
                         self.user_table_list.insert("", "end", values=(id_usuario, cargo, rol, nombre, apellido, cedula, nombre_usuario))
 
-                
                     self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
-                    messagebox.showinfo("Búsqueda Exitosa", "Resultados en pantalla.")
+                    messagebox.showinfo("Búsqueda Exitosa de Usuario", f"Se encontró el usuario: {resultados[0][3]} {resultados[0][4]}.")
                 else:
-                    self.refresh_frame()
-                    #self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
-                    messagebox.showinfo("Búsqueda Fallida", "No se encontraron coincidencias.")
+                    self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
+                    messagebox.showinfo("Búsqueda Fallida de Usuario", f"No se encontró ningún usuario con la cédula '{busqueda}'. Por favor, verifique la cédula ingresada.")
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
+        finally:
+            if mariadb_conexion:
+                mariadb_conexion.close()
+
+
 
 
 
