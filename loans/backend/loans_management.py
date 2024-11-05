@@ -897,7 +897,6 @@ class Register_Loans():
             fecha_limite = (datetime.strptime(fecha_registrar, '%d-%m-%Y') + timedelta(days=8)).strftime('%d-%m-%Y')
         else:
             fecha_limite = (datetime.strptime(fecha_registrar, '%d-%m-%Y') + timedelta(days=3)).strftime('%d-%m-%Y')
-
         # Crear el préstamo y actualizar las tablas
         if create_loan(ID_Cliente, ID_Prestamo, fecha_registrar, fecha_limite):
             if update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_Usuario):
