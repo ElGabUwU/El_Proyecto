@@ -17,7 +17,7 @@ from validations import loans_validations
 from util.utilidades import resource_path
 from validations.loans_validations import *
 from loans.backend.db_loans import get_cliente_id_by_cedula,get_libro_id_by_registro
-from loans.backend.db_loans import reading_books,load_active_loans
+from loans.backend.db_loans import reading_books,load_active_loans, es_novela
 from util.ventana import centrar_ventana
 
 def validate_number_input(text):
@@ -47,11 +47,14 @@ class P_Listar(tk.Frame):
         self.id_usuario = self.parent.id_usuario
         self.right_frame = tk.Frame(self)
         self.right_frame.pack(side="right", expand=True, fill="both")
-        
+        self.data = []
+        self.page_size = 19
+        self.current_page = 0
+        self.warned_about_overdue = False
         # Texto para el nombre
 
         self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
-        self.canvas.create_text(1175.0, 170.0, text="Editar", fill="#031A33", font=("Bold", 17))
+        self.canvas.create_text(1175.0, 170.0, text="Renovar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(875.0, 170.0, text="Imprimir", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(975.0, 170.0, text="Refrescar", fill="#031A33", font=("Bold", 17))
@@ -146,8 +149,11 @@ class P_Listar(tk.Frame):
         )
         self.button_d.place(x=1230.0, y=60.0, width=90.0, height=100.0)
         self.setup_treeview()
-        #self.lists_clients_loans()
+        load_active_loans(self)
+
+        
         self.display_page()
+        
         
     def setup_treeview(self):
         self.style = ttk.Style()
@@ -179,7 +185,6 @@ class P_Listar(tk.Frame):
                 self.cliente_prestamo_table.column(col2, width=90, anchor="center")
                 
         self.cliente_prestamo_table.pack(expand=True, fill="both", padx=30, pady=5)
-        self.cliente_prestamo_table.bind("<Double-1>", self.on_loans_double_click)#SELECCION DE TODOS LOS EJEMPLARES CON DOBLE CLICK
         scrollbar_pt = ttk.Scrollbar(self.cliente_prestamo_table, orient="vertical", command=self.cliente_prestamo_table.yview)
         self.cliente_prestamo_table.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
@@ -211,7 +216,7 @@ class P_Listar(tk.Frame):
         self.page_label = tk.Label(self.left_frame2, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33", font=("Montserrat Regular", 13))
         self.page_label.pack(side=tk.BOTTOM, pady=15)
         
-        self.lists_clients_loans()
+        
         
         
 
@@ -223,18 +228,24 @@ class P_Listar(tk.Frame):
         self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
 
     def display_page(self):
-        for row in self.cliente_prestamo_table.get_children():
-            self.cliente_prestamo_table.delete(row)
         page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
         hoy = datetime.now().date()
         for fila in page_data:
-            fecha_limite = datetime.strptime(fila[4], '%d-%m-%Y').strftime('%d-%m-%Y')
-            fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
-            tag = 'vencido' if fecha_limite <= hoy - timedelta(days=3) else 'activo'
-            self.cliente_prestamo_table.insert("", "end", values=fila, tags=(tag,))
-        self.cliente_prestamo_table.tag_configure('vencido', background='red')
-        self.cliente_prestamo_table.tag_configure('activo', background='white')
+            # Verificar si la fila ya existe en la tabla
+            exists = False
+            for row in self.cliente_prestamo_table.get_children():
+                if self.cliente_prestamo_table.item(row, 'values') == fila:
+                    exists = True
+                    break
+            if not exists:
+                # fecha_limite = datetime.strptime(fila[4], '%d-%m-%Y').strftime('%d-%m-%Y')
+                # fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
+                # tag = 'vencido' if fecha_limite <= hoy - timedelta(days=3) else 'activo'
+                self.cliente_prestamo_table.insert("", "end", values=fila)  # , tags=(tag,))
+        # self.cliente_prestamo_table.tag_configure('vencido', background='red')
+        # self.cliente_prestamo_table.tag_configure('activo', background='white')
         self.update_page_label()
+
 
 
     def next_page(self):
@@ -295,18 +306,32 @@ class P_Listar(tk.Frame):
 
 
 
-    # def open_modify_loans_window(self):
-    #     selected_client= self.cliente_prestamo_table.selection()
-    #     if selected_client:
-    #         selected_client = selected_client[0]
-    #         client_values = self.cliente_prestamo_table.item(selected_client, "values")
-    #         #cedula = client_values[0]  # Asumiendo que la cédula es el primer valor en la tupla
-    #         fecha_limite = client_values[4]  # Asumiendo que la fecha límite es el quinto valor en la tupla
-    #         ModifyLoans(self, fecha_limite, loans_validations)
-    #     else:
-    #         messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un cliente para modificar el préstamo.")
+    
+    def update_selected_loan_due_date(self):
+        selected_client = self.cliente_prestamo_table.selection()
+        if selected_client:
+            selected_client = selected_client[0]  # Obtener el primer elemento seleccionado
+            client_values = self.cliente_prestamo_table.item(selected_client, 'values')
+            id_prestamo = client_values[7]  # Asumiendo que ID_Prestamo es el octavo valor en la tupla
+            print(f"Préstamo seleccionado: {client_values}")
 
+            # Mostrar mensaje de confirmación
+            mensaje_confirmacion = f"""¿Está seguro de que desea renovar el préstamo?
+            
+    Detalles del Préstamo:
+    - Título del Libro: {client_values[2]}
+    - Fecha de Registro: {client_values[4]}
+    - Fecha Límite Actual: {client_values[5]}
+    - Nombre del Cliente: {client_values[1]}
+    - Cédula del Cliente: {client_values[0]}"""
 
+            if messagebox.askyesno("Confirmar Renovación", mensaje_confirmacion):
+                if renew_loan_due_date(id_prestamo):
+                    messagebox.showinfo("Éxito", "La fecha límite del préstamo se ha actualizado correctamente.")
+                else:
+                    messagebox.showerror("Error", "No se pudo actualizar la fecha límite del préstamo.")
+        else:
+            messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un cliente para modificar el préstamo.")
 
 
 
@@ -318,126 +343,6 @@ class P_Listar(tk.Frame):
         # Asumimos que el ID_Libro está en la primera columna
         self.ID_Libro = item_values[0]
     
-    def on_loans_double_click_same_day(self, event):
-        try:
-            selected_item = self.cliente_prestamo_table.selection()[0]
-            prestamo_valores = self.cliente_prestamo_table.item(selected_item, 'values')
-            fecha_registro = prestamo_valores[4]  # Asumimos que "Fecha_Registro" está en la posición 4
-
-            # Depuración: Imprimir la fecha obtenida
-            print(f"Fecha de Registro obtenida: {fecha_registro}")
-
-            mariadb_conexion = establecer_conexion()
-            if mariadb_conexion:
-                cursor = mariadb_conexion.cursor()
-                cursor.execute('''
-                    SELECT 
-                        c.Cedula, 
-                        c.Nombre AS Nombre_Cliente, 
-                        l.titulo AS Nombre_Libro, 
-                        l.n_registro AS N_Registro, 
-                        p.Fecha_Registro, 
-                        p.Fecha_Limite, 
-                        u.Nombre AS Nombre_Usuario, 
-                        cp.ID_CP
-                    FROM 
-                        cliente_prestamo cp
-                    JOIN 
-                        prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
-                    JOIN 
-                        cliente c ON cp.ID_Cliente = c.ID_Cliente
-                    JOIN 
-                        libro l ON cp.ID_Libro = l.ID_Libro
-                    JOIN 
-                        usuarios u ON cp.ID_Usuario = u.ID_Usuario
-                    WHERE 
-                        p.Fecha_Registro = %s
-                ''', (fecha_registro,))
-                ejemplares = cursor.fetchall()
-
-                # Depuración: Mostrar cuántos préstamos coincidentes se encontraron
-                print(f"Préstamos encontrados: {len(ejemplares)}")
-                if not ejemplares:
-                    print("No se encontraron registros coincidentes.")
-                    return
-
-                self.cliente_prestamo_table.selection_remove(self.cliente_prestamo_table.selection())
-                for ejemplar in ejemplares:
-                    for row in self.cliente_prestamo_table.get_children():
-                        if self.cliente_prestamo_table.item(row, 'values')[7] == str(ejemplar[7]):  # Asumimos que "ID_CP" está en la posición 7
-                            self.cliente_prestamo_table.selection_add(row)
-                mariadb_conexion.close()
-        except mariadb.Error as ex:
-            print("Error durante la conexión:", ex)
-            messagebox.showerror("Error", f"Error durante la conexión: {ex}")
-        except IndexError:
-            print("No se ha seleccionado ningún préstamo.")
-            messagebox.showerror("Error", "No se ha seleccionado ningún préstamo.")
-
-
-
-    def on_loans_double_click_same_month(self, event):
-        try:
-            selected_item = self.cliente_prestamo_table.selection()[0]
-            prestamo_valores = self.cliente_prestamo_table.item(selected_item, 'values')
-            fecha_registro = prestamo_valores[4]  # Asumimos que "Fecha_Registro" está en la posición 4
-
-            # Depuración: Imprimir la fecha obtenida
-            print(f"Fecha de Registro obtenida: {fecha_registro}")
-
-            # Extraer el año y el mes de la fecha
-            fecha_registro_dt = datetime.strptime(fecha_registro, '%d-%m-%Y')
-            year = fecha_registro_dt.year
-            month = fecha_registro_dt.month
-
-            mariadb_conexion = establecer_conexion()
-            if mariadb_conexion:
-                cursor = mariadb_conexion.cursor()
-                cursor.execute('''
-                    SELECT 
-                        c.Cedula, 
-                        c.Nombre AS Nombre_Cliente, 
-                        l.titulo AS Nombre_Libro, 
-                        l.n_registro AS N_Registro, 
-                        p.Fecha_Registro, 
-                        p.Fecha_Limite, 
-                        u.Nombre AS Nombre_Usuario, 
-                        cp.ID_CP
-                    FROM 
-                        cliente_prestamo cp
-                    JOIN 
-                        prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
-                    JOIN 
-                        cliente c ON cp.ID_Cliente = c.ID_Cliente
-                    JOIN 
-                        libro l ON cp.ID_Libro = l.ID_Libro
-                    JOIN 
-                        usuarios u ON cp.ID_Usuario = u.ID_Usuario
-                    WHERE 
-                        YEAR(STR_TO_DATE(p.Fecha_Registro, '%d-%m-%Y')) = %s AND 
-                        MONTH(STR_TO_DATE(p.Fecha_Registro, '%d-%m-%Y')) = %s AND
-                        cp.estado_cliente_prestamo = 'activo'
-                ''', (year, month))
-                ejemplares = cursor.fetchall()
-
-                # Depuración: Mostrar cuántos préstamos coincidentes se encontraron
-                print(f"Préstamos encontrados: {len(ejemplares)}")
-                if not ejemplares:
-                    print("No se encontraron registros coincidentes.")
-                    return
-
-                self.cliente_prestamo_table.selection_remove(self.cliente_prestamo_table.selection())
-                for ejemplar in ejemplares:
-                    for row in self.cliente_prestamo_table.get_children():
-                        if self.cliente_prestamo_table.item(row, 'values')[7] == str(ejemplar[7]):  # Asumimos que "ID_CP" está en la posición 7
-                            self.cliente_prestamo_table.selection_add(row)
-                mariadb_conexion.close()
-        except mariadb.Error as ex:
-            print("Error durante la conexión:", ex)
-            messagebox.showerror("Error", f"Error durante la conexión: {ex}")
-        except IndexError:
-            print("No se ha seleccionado ningún préstamo.")
-            messagebox.showerror("Error", "No se ha seleccionado ningún préstamo.")
 
 
     def mostrar_mensaje_prestamos_vencidos(self):
@@ -764,13 +669,12 @@ class GenerarReportePDF(tk.Toplevel):
 
 
 # Asegúrate de que P_Listar está definido/importado correctamente
-class Register_Loans(P_Listar):
+class Register_Loans():
     def __init__(self, parent, loans_validations):
-        super().__init__(parent)  # Llamar al constructor de la clase base
         self.parent = parent
         self.loans_validations = loans_validations
         self.register_loan_window = tk.Toplevel(parent)
-        self.validate_number = self.register(validate_number_input)
+        self.validate_number = self.register_loan_window.register(validate_number_input)
         # Datos y paginación
         self.data = []
         #self.agarrar_datos()
@@ -796,7 +700,7 @@ class Register_Loans(P_Listar):
         rectangulo_color.place(x=0, y=0)
         tk.Label(self.register_loan_window, text="Tabla Prestamos", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=505.0, y=8.0, width=450.0, height=35.0)
         tk.Label(self.register_loan_window, text="Cedula del Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=628.0, y=70.0, width=185.0, height=35.0)
-        self.cedula = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat",validate="key", validatecommand=(self.validate_number, "%P"))
+        self.cedula = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat", validate="key", validatecommand=(self.validate_number, "%P"))
         self.cedula.place(x=630.0, y=100.0, width=190.0, height=35.0)
         tk.Label(self.register_loan_window, text="Fecha Registrar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=22.0, y=140.0, width=160.0, height=35.0)
         self.fecha_registrar = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
@@ -871,7 +775,6 @@ class Register_Loans(P_Listar):
         # Llama a reading_books después de definir self.page_label
         reading_books(self)
         
-        
         self.images['boton_r'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
         self.boton_R = tk.Button(
             self.register_loan_window,
@@ -888,10 +791,34 @@ class Register_Loans(P_Listar):
         self.boton_R.place_forget()
         self.cedula.bind("<KeyRelease>", lambda event: self.loans_validations.validate_entries(self, event))
         #self.cedula.bind("<Return>", lambda event: self.save_modifications())
+        self.mostrar_mensaje_prestamos_vencidos()
+    def reading_books(self):
+        try:
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+                cursor.execute('''
+                    SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares
+                    FROM libro WHERE estado_libro='activo'
+                ''')
+                self.data = cursor.fetchall()
+                mariadb_conexion.close()
+                self.current_page = 0  # Resetear a la primera página
+                self.is_search_active = False  # Asegurar que estamos en modo normal
+                self.display_page()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+
+    def on_treeview_select(self, event):
+        # Obtener el elemento seleccionado
+        selected_item = self.book_table_list.selection()[0]
+        # Obtener los valores del elemento seleccionado
+        item_values = self.book_table_list.item(selected_item, 'values')
+        # Asumimos que el ID_Libro está en la primera columna
+        self.ID_Libro = item_values[0]
     
     def get_data_page(self, offset, limit):
         return self.data[offset:offset + limit]
-
     def display_page2(self):
         for row in self.book_table_list.get_children():
             self.book_table_list.delete(row)
@@ -907,6 +834,7 @@ class Register_Loans(P_Listar):
         self.book_table_list.tag_configure('single', background='#E5E1D7')
         self.update_page_label()
 
+
     def next_page(self):
         if (self.current_page + 1) * self.page_size < len(self.data):
             self.current_page += 1
@@ -920,16 +848,24 @@ class Register_Loans(P_Listar):
     def update_page_label(self):
         total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
         self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
-        
+    
+    def mostrar_mensaje_prestamos_vencidos(self):
+        prestamos_vencidos = obtener_prestamos_vencidos()
+        if prestamos_vencidos:
+            mensaje_vencidos = "Hay préstamos vencidos asociados a los siguientes clientes:\n\n"
+            for prestamo in prestamos_vencidos:
+                id_cliente = prestamo[0]
+                datos_cliente = obtener_datos_cliente(id_cliente)
+                if datos_cliente:
+                    mensaje_vencidos += f"Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}\nCédula: {datos_cliente['Cedula']}\nTeléfono: {datos_cliente['Telefono']}\nPréstamos Vencidos: {prestamo[1]}\n\n"           
+            mensaje_vencidos += "Por favor, contacte a los clientes para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de préstamos para obtener más información sobre los libros prestados."
+            messagebox.showwarning("Préstamos Vencidos", mensaje_vencidos, parent=self.register_loan_window)
+
     def save_modifications(self):
         from users.backend.db_users import obtener_id_usuario_actual
 
         # Formatear las fechas
         fecha_registrar = loans_validations.format_date(self.fecha_registrar.get())
-        fecha_limite = loans_validations.format_date(self.fecha_limite.get())
-
-        # Generar ID de Libro Préstamo
-        ID_Libro_Prestamo = generate_id_libro_prestamo(self)
         Cedula = self.cedula.get()
         if hasattr(self, 'ID_Libro'):
             ID_Libro = self.ID_Libro
@@ -953,16 +889,27 @@ class Register_Loans(P_Listar):
         ID_Prestamo = loans_validations.generate_alphanumeric_id()
         print(f"Nuevo ID_Prestamo generado: {ID_Prestamo}")
 
+        # Generar ID de Libro Préstamo
+        ID_Libro_Prestamo = generate_id_libro_prestamo(self)
+
+        # Verificar si el libro es una novela
+        if es_novela(ID_Libro):
+            fecha_limite = (datetime.strptime(fecha_registrar, '%d-%m-%Y') + timedelta(days=8)).strftime('%d-%m-%Y')
+        else:
+            fecha_limite = (datetime.strptime(fecha_registrar, '%d-%m-%Y') + timedelta(days=3)).strftime('%d-%m-%Y')
+
         # Crear el préstamo y actualizar las tablas
         if create_loan(ID_Cliente, ID_Prestamo, fecha_registrar, fecha_limite):
             if update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_Usuario):
                 messagebox.showinfo("Éxito", f"""Préstamo Registrado con Éxito
 
-    Fecha de Registro: {fecha_registrar}
-    Fecha Límite: {fecha_limite}
-    Cédula del Cliente: {Cedula}
+    Detalles del Préstamo:
+    - Fecha de Registro: {fecha_registrar}
+    - Fecha Límite: {fecha_limite}
+    - Cédula del Cliente: {Cedula}
 
     Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha límite.
+    Consulte el apartado de préstamos para obtener más información sobre los libros prestados.
     """, parent=self.register_loan_window)
                 loans_validations.clear_entries_list_register(self)
                 reading_books(self)
@@ -970,7 +917,6 @@ class Register_Loans(P_Listar):
                 messagebox.showerror("Error", "No se pudo actualizar las tablas. Puede que no haya ejemplares disponibles.", parent=self.register_loan_window)
         else:
             messagebox.showerror("Error", "Préstamo no pudo ser creado.", parent=self.register_loan_window)
-
 
 
     def cancelar(self, window):

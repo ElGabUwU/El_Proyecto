@@ -32,7 +32,7 @@ def load_active_loans(self):
             p.Fecha_Registro,
             p.Fecha_Limite,
             u.Nombre AS Nombre_Usuario,
-            cp.ID_CP
+            cp.ID_Prestamo
         FROM 
             cliente_prestamo cp
         JOIN
@@ -64,8 +64,11 @@ def load_active_loans(self):
 
         for fila in resultados1:
             # Ajustar el formato de la fecha para DD-MM-YYYY
-            fecha_limite = datetime.strptime(fila[5], '%d-%m-%Y').strftime('%d-%m-%Y')
-            fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
+            try:
+                fecha_limite = datetime.strptime(fila[5], '%d-%m-%Y').date()
+            except ValueError:
+                fecha_limite = datetime.strptime(fila[5], '%Y-%m-%d').date()
+
             if fecha_limite <= hoy:
                 tag = 'vencido'
                 prestamos_vencidos.append(fila)
@@ -74,11 +77,11 @@ def load_active_loans(self):
             self.cliente_prestamo_table.insert("", "end", values=tuple(fila), tags=(tag,))
 
         # Configurar las etiquetas para los colores
-        self.cliente_prestamo_table.tag_configure('vencido', background='red')
+        self.cliente_prestamo_table.tag_configure('vencido', background='#FF4C4C')
         self.cliente_prestamo_table.tag_configure('activo', background='white')
 
-        # Mostrar mensaje de préstamos vencidos
-        self.mostrar_mensaje_prestamos_vencidos()
+        # Mostrar mensaje de préstamos vencidos después de cargar la interfaz
+        self.after(100, self.mostrar_mensaje_prestamos_vencidos)
 
     except mariadb.Error as ex:
         print(f"Error during query execution: {ex}")
@@ -88,7 +91,6 @@ def load_active_loans(self):
             mariadb_conexion.close()
             print("Connection closed.")
 
-from datetime import datetime
 
 from datetime import datetime
 
@@ -309,143 +311,71 @@ def update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_U
             print("Conexión a la base de datos cerrada.")
 
 #Función para seleccionar el préstamo que se le renovará su tiempo de préstamo
-def update_loan_due_date(id_prestamo):
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            cursor = mariadb_conexion.cursor()
-            try:
-                # Obtener la fecha límite actual del préstamo
-                cursor.execute("SELECT Fecha_Limite FROM prestamo WHERE ID_Prestamo = %s", (id_prestamo,))
-                busqueda = cursor.fetchone()
-                if busqueda is None:
-                    print("No se encontró el préstamo con el ID proporcionado.")
-                    return False
-                else:
-                    fecha_limite_actual = busqueda[0]
-                    # Convertir fecha_limite_actual a un objeto datetime
-                    fecha_limite_actual = datetime.strptime(fecha_limite_actual, '%d-%m-%Y')
-                    # Añadir 3 días a la fecha límite actual
-                    nueva_fecha_limite = fecha_limite_actual + timedelta(days=3)
-                    # Convertir nueva_fecha_limite a cadena de texto en formato 'YYYY-MM-DD'
-                    nueva_fecha_limite = nueva_fecha_limite.strftime('%Y-%m-%d')
-                    # Actualizar la fecha límite del préstamo
-                    cursor.execute('''
-                        UPDATE prestamo
-                        SET Fecha_Limite = %s
-                        WHERE ID_Prestamo = %s
-                    ''', (nueva_fecha_limite, id_prestamo))
-
-                    # Confirmar la transacción
-                    mariadb_conexion.commit()
-                    print("Actualización exitosa.")
-                    return True
-            except mariadb.Error as ex:
-                print(f"Error durante la ejecución de la consulta: {ex}")
+def renew_loan_due_date(id_prestamo):
+    mariadb_conexion = establecer_conexion()
+    if mariadb_conexion:
+        cursor = mariadb_conexion.cursor()
+        try:
+            # Obtener la fecha límite actual del préstamo
+            cursor.execute("SELECT Fecha_Limite FROM prestamo WHERE ID_Prestamo = %s", (id_prestamo,))
+            busqueda = cursor.fetchone()
+            if busqueda is None:
+                print(f"No se encontró el préstamo con el ID proporcionado: {id_prestamo}")
                 return False
-            finally:
-                cursor.close()
-                mariadb_conexion.close()
-        else:
-            print("No se pudo establecer la conexión con la base de datos.")
+            else:
+                fecha_limite_actual = busqueda[0]
+                # Convertir fecha_limite_actual a un objeto datetime
+                fecha_limite_actual = datetime.strptime(fecha_limite_actual, '%d-%m-%Y').date()
+                hoy = datetime.now().date()
+
+                # Verificar si el préstamo ya ha sido renovado hoy
+                if fecha_limite_actual > hoy:
+                    messagebox.showerror("Error", "El préstamo ya ha sido renovado hoy.")
+                    return False
+
+                # Obtener el número de registro del libro asociado al préstamo
+                cursor.execute("SELECT n_registro FROM libro WHERE ID_Libro = (SELECT ID_Libro FROM cliente_prestamo WHERE ID_Prestamo = %s)", (id_prestamo,))
+                busqueda_libro = cursor.fetchone()
+                if busqueda_libro is None:
+                    print("No se pudo obtener el número de registro del libro.")
+                    return False
+                n_registro = busqueda_libro[0]
+
+                # Obtener el ID del libro utilizando el número de registro
+                id_libro = get_libro_id_by_registro(n_registro)
+                if id_libro is None:
+                    print("No se pudo obtener el ID del libro.")
+                    return False
+
+                # Verificar si el libro es una novela
+                if es_novela(id_libro):
+                    nueva_fecha_limite = fecha_limite_actual + timedelta(days=8)
+                else:
+                    nueva_fecha_limite = fecha_limite_actual + timedelta(days=3)
+
+                # Convertir nueva_fecha_limite a cadena de texto en formato 'día-mes-año'
+                nueva_fecha_limite = nueva_fecha_limite.strftime('%d-%m-%Y')
+
+                # Actualizar la fecha límite del préstamo
+                cursor.execute('''
+                    UPDATE prestamo
+                    SET Fecha_Limite = %s
+                    WHERE ID_Prestamo = %s
+                ''', (nueva_fecha_limite, id_prestamo))
+
+                # Confirmar la transacción
+                mariadb_conexion.commit()
+                print("Actualización exitosa.")
+                return True
+        except mariadb.Error as ex:
+            print(f"Error durante la ejecución de la consulta: {ex}")
             return False
-        #NOtA: AGREGAR LIMITADOR A 1 SOLA VEZ PARA ESE LIBRO
-
-
-# def update_client_loans(cedula, fecha_limite):
-#     mariadb_conexion = establecer_conexion()
-#     if mariadb_conexion:
-#         cursor = mariadb_conexion.cursor()
-#         try:
-#             # Obtener el ID_Cliente por cédula
-#             id_cliente = get_cliente_id_by_cedula(cedula)
-#             if id_cliente is None:
-#                 print("No se encontró al cliente con la cédula proporcionada.")
-#                 return False
-
-#             # Obtener el ID_CP por ID_Cliente
-#             id_cp = get_id_cp_by_cliente_id(id_cliente)
-#             if id_cp is None:
-#                 print("No se encontró el ID_CP para el cliente proporcionado.")
-#                 return False
-
-#             # Verificar si el cliente tiene un préstamo activo
-#             cursor.execute("SELECT ID_Prestamo FROM prestamo WHERE ID_CP = %s", (id_cp,))
-#             busqueda = cursor.fetchone()
-#             print(f"Resultado: {busqueda}")
-#             if busqueda is None:
-#                 print("No se encontró al cliente y su préstamo.")
-#                 return False
-#             else:
-#                 id_prestamo = busqueda[0]  # Asegúrate de que estás accediendo al índice correcto
-#                 # Convertir fecha_limite al formato dd-mm-yyyy
-#                 fecha_limite_formateada = fecha_limite.strftime('%Y-%m-%d')
-#                 # Actualizar la fecha límite del préstamo
-#                 cursor.execute('''
-#                     UPDATE prestamo
-#                     SET Fecha_Limite = %s
-#                     WHERE ID_Prestamo = %s
-#                 ''', (fecha_limite_formateada, id_prestamo))
-
-#                 # Confirmar la transacción
-#                 mariadb_conexion.commit()
-#                 print("Actualización exitosa.")
-#                 return True
-#         except mariadb.Error as ex:
-#             print(f"Error durante la ejecución de la consulta: {ex}")
-#             return False
-#         finally:
-#             # Asegúrate de consumir todos los resultados antes de cerrar el cursor
-#             cursor.fetchall()
-#             cursor.close()
-#             mariadb_conexion.close()
-#     else:
-#         print("No se pudo establecer la conexión con la base de datos.")
-#         return False
-
-# def update_client_loans(cedula, fecha_limite):
-#     mariadb_conexion = establecer_conexion()
-#     if mariadb_conexion:
-#         cursor = mariadb_conexion.cursor()
-#         try:
-#             # Obtener el ID_Cliente por cédula
-#             id_cliente = get_cliente_id_by_cedula(cedula)
-#             if id_cliente is None:
-#                 print("No se encontró al cliente con la cédula proporcionada.")
-#                 return False
-
-#             # Verificar si el cliente tiene un préstamo activo
-#             cursor.execute("SELECT ID_Prestamo FROM prestamo WHERE ID_CP = %s", (id_cliente,))
-#             busqueda = cursor.fetchone()
-#             print(f"Resultado: {busqueda}")
-#             if busqueda is None:
-#                 print("No se encontró al cliente y su préstamo.")
-#                 return False
-#             else:
-#                 id_prestamo = busqueda[0]  # Asegúrate de que estás accediendo al índice correcto
-
-#                 # Convertir fecha_limite al formato dd-mm-yyyy
-#                 fecha_limite_formateada = fecha_limite.strftime('%Y-%m-%d')
-
-#                 # Actualizar la fecha límite del préstamo
-#                 cursor.execute('''
-#                     UPDATE prestamo
-#                     SET Fecha_Limite = %s
-#                     WHERE ID_Prestamo = %s
-#                 ''', (fecha_limite_formateada, id_prestamo))
-                
-#                 # Confirmar la transacción
-#                 mariadb_conexion.commit()
-#                 print("Actualización exitosa.")
-#                 return True
-#         except mariadb.Error as ex:
-#             print(f"Error durante la ejecución de la consulta: {ex}")
-#             return False
-#         finally:
-#             cursor.close()
-#             mariadb_conexion.close()
-#     else:
-#         print("No se pudo establecer la conexión con la base de datos.")
-#         return False
+        finally:
+            cursor.close()
+            mariadb_conexion.close()
+    else:
+        print("No se pudo establecer la conexión con la base de datos.")
+        return False
 
 # Eliminar cliente
 def delete_client_loans(self):
@@ -586,16 +516,56 @@ def delete_selected_prestamo(self):
 
 #Trae todos los valores de los libros necesarios para el treeview de registrar prestamo
 def reading_books(self):
-        try:
-            mariadb_conexion = establecer_conexion()
-            if mariadb_conexion:
-                cursor = mariadb_conexion.cursor()
-                cursor.execute('SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes FROM libro')
-                self.data = cursor.fetchall()  # Almacena los datos en self.data
-                mariadb_conexion.close()
-                self.display_page()  # Llama a display_page() para mostrar los datos paginados
-        except mariadb.Error as ex:
-            print("Error durante la conexión:", ex)
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            cursor.execute('''
+                SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes
+                FROM libro WHERE estado_libro='activo'
+            ''')
+            self.data = cursor.fetchall()
+            mariadb_conexion.close()
+            self.current_page = 0  # Resetear a la primera página
+            self.is_search_active = False  # Asegurar que estamos en modo normal
+            self.display_page2()  # Llama a display_page2() para mostrar los datos paginados
+    except mariadb.Error as ex:
+        print("Error durante la conexión:", ex)
+
+def es_novela(id_libro):
+    try:
+        mariadb_conexion = establecer_conexion()
+        if not mariadb_conexion:
+            print("Failed to establish connection.")
+            return False
+
+        cursor = mariadb_conexion.cursor()
+
+        query = '''
+        SELECT 
+            ID_Asignatura
+        FROM 
+            libro 
+        WHERE 
+            ID_Libro = %s
+        '''
+
+        cursor.execute(query, (id_libro,))
+        resultado = cursor.fetchone()
+
+        if resultado and 'Novela' in resultado[0]:
+            return True
+        else:
+            return False
+
+    except mariadb.Error as ex:
+        print(f"Error durante la ejecución de la consulta: {ex}")
+        return False
+    finally:
+        if mariadb_conexion is not None:
+            cursor.close()
+            mariadb_conexion.close()
+            print("Connection closed.")
 
 
 #Funciones de obtencion de datos para el reporte de prestamo

@@ -3,7 +3,7 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
-from Books.backend.db_books import *
+from books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
@@ -48,7 +48,7 @@ class L_Listar(tk.Frame):
         }
         # Añadir un Combobox para seleccionar el campo de búsqueda
         
-        
+
         stylebotn = ttk.Style()
         stylebotn.configure("Rounded.TEntry", 
                             fieldbackground="#031A33", 
@@ -207,6 +207,7 @@ class L_Listar(tk.Frame):
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
         self.book_table_list.bind("<Double-1>", self.on_book_double_click)
+
         self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguiente.png"))
         self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/atras.png"))
         
