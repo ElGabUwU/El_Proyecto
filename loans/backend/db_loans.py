@@ -80,8 +80,7 @@ def load_active_loans(self):
         self.cliente_prestamo_table.tag_configure('vencido', background='#FF4C4C')
         self.cliente_prestamo_table.tag_configure('activo', background='white')
 
-        # Mostrar mensaje de préstamos vencidos después de cargar la interfaz
-        self.after(100, self.mostrar_mensaje_prestamos_vencidos)
+        
 
     except mariadb.Error as ex:
         print(f"Error during query execution: {ex}")
@@ -183,6 +182,18 @@ def obtener_prestamos_vencidos():
             mariadb_conexion.close()
             print("Connection closed.")
 
+
+def mostrar_mensaje_prestamos_vencidos():
+    prestamos_vencidos = obtener_prestamos_vencidos()
+    if prestamos_vencidos:
+        mensaje_vencidos = "Hay préstamos vencidos asociados a los siguientes clientes:\n\n"
+        for prestamo in prestamos_vencidos:
+            id_cliente = prestamo[0]
+            datos_cliente = obtener_datos_cliente(id_cliente)
+            if datos_cliente:
+                mensaje_vencidos += f"Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}\nCédula: {datos_cliente['Cedula']}\nTeléfono: {datos_cliente['Telefono']}\nPréstamos Vencidos: {prestamo[1]}\n\n"           
+        mensaje_vencidos += "Por favor, contacte a los clientes para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de préstamos para obtener más información sobre los libros prestados."
+        messagebox.showwarning("Préstamos Vencidos", mensaje_vencidos)
 
 
 # Función para crear un préstamo para cada cliente
@@ -523,23 +534,7 @@ def delete_selected_prestamo(self):
             mariadb_conexion.close()
 
 
-#Trae todos los valores de los libros necesarios para el treeview de registrar prestamo
-def reading_books(self):
-    try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            cursor = mariadb_conexion.cursor()
-            cursor.execute('''
-                SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes
-                FROM libro WHERE estado_libro='activo'
-            ''')
-            self.data = cursor.fetchall()
-            mariadb_conexion.close()
-            self.current_page = 0  # Resetear a la primera página
-            self.is_search_active = False  # Asegurar que estamos en modo normal
-            self.display_page2()  # Llama a display_page2() para mostrar los datos paginados
-    except mariadb.Error as ex:
-        print("Error durante la conexión:", ex)
+
 
 def es_novela(id_libro):
     try:
