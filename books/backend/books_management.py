@@ -30,7 +30,10 @@ class L_Listar(tk.Frame):
         self.canvas.pack(side="right", fill="both", expand=True)
         self.images = {}
         self.book_data = {}  # Inicializar como un diccionario
-        
+        self.search_data = []  # Almacenar resultados de búsqueda
+        self.search_page_size = 19
+        self.search_current_page = 0
+        self.is_search_active = False
         stylebox = ttk.Style()
         stylebox.theme_use('clam')
         stylebox.configure("TCombobox",
@@ -241,45 +244,6 @@ class L_Listar(tk.Frame):
         # Etiqueta para mostrar la página actual
         self.page_label = tk.Label(self.left_frame_list, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33",font=("Montserrat Regular", 13))
         self.page_label.pack(side=tk.BOTTOM, pady=15)
-    def get_data_page(self, offset, limit):
-        return self.data[offset:offset + limit]
-
-    def display_page(self):
-        for row in self.book_table_list.get_children():
-            self.book_table_list.delete(row)
-        page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
-        for fila in page_data:
-            n_ejemplares = fila[12]
-            tag = 'multiple' if n_ejemplares > 1 else 'single'
-            self.book_table_list.insert("", "end", values=fila, tags=(tag,))
-        self.book_table_list.tag_configure('multiple', background='lightblue')
-        self.book_table_list.tag_configure('single', background='#E5E1D7')
-        self.update_page_label()
-
-    def next_page(self):
-        if self.is_search_active:
-            self.next_search_page()
-        else:
-            if (self.current_page + 1) * self.page_size < len(self.data):
-                self.current_page += 1
-                self.display_page()
-
-    def previous_page(self):
-        if self.is_search_active:
-            self.previous_search_page()
-        else:
-            if self.current_page > 0:
-                self.current_page -= 1
-                self.display_page()
-
-
-    def update_page_label(self, is_search=False):
-        if is_search:
-            self.page_label.config(text=f"Página {self.search_current_page + 1}")
-        else:
-            total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
-            self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
-
 
 
     def verificar_eliminar(self):
@@ -302,6 +266,8 @@ class L_Listar(tk.Frame):
          else:
              messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un libro para modificarlo.")
     
+
+        
     def boton_buscar(self, event):
         busqueda = self.buscar.get().strip()
         campo_seleccionado = self.campo_busqueda.get()  # Obtener el campo seleccionado
@@ -324,18 +290,17 @@ class L_Listar(tk.Frame):
                     WHERE LOWER({campo_real}) LIKE %s
                 """
                 cursor.execute(query, (f'%{busqueda_normalizada}%',))
-                resultados = cursor.fetchall()
+                self.search_data = cursor.fetchall()
+                mariadb_conexion.close()
+                self.search_current_page = 0  # Resetear la página a la primera página
+                self.is_search_active = True
 
-                # Limpiar la tabla antes de insertar nuevos resultados
-                self.book_table_list.delete(*self.book_table_list.get_children())
-
-                if resultados:
-                    # Insertar los nuevos resultados
-                    for fila in resultados:
-                        self.book_table_list.insert("", "end", values=tuple(fila))
-
+                if self.search_data:
+                    # Limpiar la tabla antes de insertar nuevos resultados
+                    self.book_table_list.delete(*self.book_table_list.get_children())
+                    self.display_search_page()
                     self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
-                    messagebox.showinfo("Búsqueda Exitosa de Libro", f"Se encontraron {len(resultados)} resultados para '{busqueda}' en el campo '{campo_seleccionado}'.")
+                    messagebox.showinfo("Búsqueda Exitosa de Libro", f"Se encontraron {len(self.search_data)} resultados para '{busqueda}' en el campo '{campo_seleccionado}'.")
                 else:
                     self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
                     messagebox.showinfo("Búsqueda Fallida de Libro", f"No se encontraron resultados para '{busqueda}' en el campo '{campo_seleccionado}'.")
@@ -346,22 +311,28 @@ class L_Listar(tk.Frame):
                 mariadb_conexion.close()
 
 
-
-
-
     def get_search_data_page(self, offset, limit):
         return self.search_data[offset:offset + limit]
 
     def display_search_page(self):
+        # Limpiar la tabla antes de insertar nuevos resultados
         for row in self.book_table_list.get_children():
             self.book_table_list.delete(row)
+        
+        # Obtener los datos de la página actual de los resultados de búsqueda
         page_data = self.get_search_data_page(self.search_current_page * self.search_page_size, self.search_page_size)
+        
+        # Insertar los nuevos resultados
         for fila in page_data:
             n_ejemplares = fila[12]
             tag = 'multiple' if n_ejemplares > 1 else 'single'
             self.book_table_list.insert("", "end", values=fila, tags=(tag,))
+        
+        # Configurar las etiquetas para los colores
         self.book_table_list.tag_configure('multiple', background='lightblue')
         self.book_table_list.tag_configure('single', background='#E5E1D7')
+        
+        # Actualizar la etiqueta de la página
         self.update_page_label(is_search=True)
 
     def next_search_page(self):
@@ -374,43 +345,73 @@ class L_Listar(tk.Frame):
             self.search_current_page -= 1
             self.display_search_page()
 
+    def get_data_page(self, offset, limit):
+        return self.data[offset:offset + limit]
 
-
-
-
-   
-
-    # def boton_buscar(self, event):
-    #     busqueda= self.buscar.get()
-    #     try:
-    #          mariadb_conexion = establecer_conexion()
-    #          if mariadb_conexion:#.is_connected():
-    #                     cursor = mariadb_conexion.cursor()
-    #                     cursor.execute("""SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota,
-    #                                     n_registro, titulo, autor, editorial, año, edicion FROM libro WHERE 
-    #                                     ID_Libro=%s OR ID_Sala=%s OR ID_Categoria=%s OR 
-    #                                     ID_Asignatura=%s OR Cota=%s OR n_registro=%s OR 
-    #                                     titulo=%s OR autor=%s OR editorial=%s OR 
-    #                                     año=%s OR edicion=%s""", 
-    #                        (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
-    #                     resultados = cursor.fetchall() 
-
-    #                     self.book_table_list.delete(*self.book_table_list.get_children())
-    #                     for fila in resultados:
-    #                         self.book_table_list.insert("", "end", values=tuple(fila))
-    #                         if busqueda in fila:
-    #                             self.book_table_list.item(self.book_table_list.get_children()[-1], tags='match')
-    #                         else:
-    #                             self.book_table_list.item(self.book_table_list.get_children()[-1], tags='nomatch')
-    #                     self.book_table_list.tag_configure('match', background='green')
-    #                     self.book_table_list.tag_configure('nomatch', background='gray')
-    #                     if resultados:
-    #                         messagebox.showinfo("Busqueda Éxitosa", "Resultados en pantalla.")
-    #                     else:
-    #                         messagebox.showinfo("Busqueda Fallida", "No se encontraron resultados.")
-    #     except mariadb.Error as ex:
-    #             print("Error durante la conexión:", ex)
+    def display_page(self):
+        # Limpiar la tabla antes de insertar nuevos resultados
+        for row in self.book_table_list.get_children():
+            self.book_table_list.delete(row)
         
+        # Obtener los datos de la página actual
+        page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
+        
+        # Insertar los nuevos resultados
+        for fila in page_data:
+            n_ejemplares = fila[12]
+            tag = 'multiple' if n_ejemplares > 1 else 'single'
+            self.book_table_list.insert("", "end", values=fila, tags=(tag,))
+        
+        # Configurar las etiquetas para los colores
+        self.book_table_list.tag_configure('multiple', background='lightblue')
+        self.book_table_list.tag_configure('single', background='#E5E1D7')
+        
+        # Actualizar la etiqueta de la página
+        self.update_page_label()
+
+    def next_page(self):
+        if self.is_search_active:
+            self.next_search_page()
+        else:
+            if (self.current_page + 1) * self.page_size < len(self.data):
+                self.current_page += 1
+                self.display_page()
+
+    def previous_page(self):
+        if self.is_search_active:
+            self.previous_search_page()
+        else:
+            if self.current_page > 0:
+                self.current_page -= 1
+                self.display_page()
+
+    def update_page_label(self, is_search=False):
+        if is_search:
+            total_pages = (len(self.search_data) + self.search_page_size - 1) // self.search_page_size  # Calcular el total de páginas de búsqueda
+            self.page_label.config(text=f"Página {self.search_current_page + 1} de {total_pages}")
+        else:
+            total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
+            self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
+
+    def load_data(self):
+        try:
+            mariadb_conexion = establecer_conexion()
+            if mariadb_conexion:
+                cursor = mariadb_conexion.cursor()
+                cursor.execute('''
+                    SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares
+                    FROM libro
+                ''')
+                self.data = cursor.fetchall()
+                mariadb_conexion.close()
+                self.current_page = 0  # Resetear a la primera página
+                self.is_search_active = False  # Asegurar que estamos en modo normal
+                self.display_page()
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+        except subprocess.CalledProcessError as e:
+            print("Error al importar el archivo SQL:", e)
+
     def on_book_double_click(self, event):
         try:
             selected_item = self.book_table_list.selection()[0]
