@@ -187,7 +187,7 @@ class L_Listar(tk.Frame):
         self.search_current_page = 0
         self.is_search_active = False
 
-
+        obtener_e_imprimir_asignaturas_infantil()
 
     def setup_treeview(self):
         style = ttk.Style()
@@ -578,33 +578,170 @@ class L_Registrar(tk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
        # validate_number = self.register(validat e_number_input)
         self.images = {}
+        # Salas
         self.salas_types = ["1I", "2E", "3G"]
-        self.categoria_types_general=["Ciencias de la Computación, Información y Obras Generales", "Filosofía y Psicología", "Religión-Teología", "Ciencias Sociales","Lenguas",
-        "Ciencias Básicas","Tecnología y Ciencias Aplicadas","Artes y recreación","Literatura","Historia y Geografía"]
-        self.asignature_type_general= ["Almanaques Mundiales","Computacion","Enciclopedia","Enciclopedia y Diccionarios","Filosofía","Filosofía-Diccionarios",
-        "Informática","Metodología de la Investigación","Periodismo","Psicología","Psicología-Diccioanrios","Religión",
-        "Educación Familiar y Ciudadana","Sociología","Medios de Comunicación","Mujer y Familia","Estadística Social",
-        "Ciencias Políticas", "Economía Venezolana","Geografía Económica","Microeconomía","Macroeconomía","Derecho",
-        "Derecho Constitucional","Derecho Laboral","Derecho Penal","Límites y Fronteras","Administración Pública","Premilitar",                                  "Servicios Sociales", "Filosofía de la Educación","Educación","Educación Rural","Pedagogía","Técnicas de Estudio",
-        "Orientación", "Educación Preescolar","Educación Superior","Medios de Transporte","Currículo","Educación Básica",                                  "Publicaciones Oficiales-Folklore","Lenguaje","Linguística-Diccionarios","Lengua y Comunicación","Castellano y Literatura",
-        "Inglés","Castellano","Química-Física-Diccionarios","Botánica-Zoología-Diccionarios","Matemática","Ciencia",
-        "Estudios de la Naturaleza", "Álgebra","Matemática Financiera","Cálculo","Geometría","Astronomía","Física","Electricidad",
-        "Electrónica", "Química","Fisioquímica","Química Orgánica","Ciencias de la Tierra","Biología","Medicina-Diccionarios",
-        "Agricultura-Diccionarios","Biología Celular","Zoología","Ecología","Bioquímica","Enfermería","Anatomía Humana",
-        "Contaminación Ambiental","Seguridad Industrial","Naturismo","Drogar","Enfermedades Varias","Pediatría","Ingeniería","Reciclaje",
-        "Agricultura","Fertilizantes","Cultivos","Fruticultura","Ganadería","Comercio","Contabilidad","Administración",
-        "Administración de Emperesa","Avicultura","Nutrición","Ganadería","Zootecnia","Administración de Personal","Mercadotecnia",
-        "Historial del Arte","Dibujo","Arte y Recreación-Diccionarios","Artística","Artes Plásticas y Escultura","Pintura","Música",
-        "Educación Física","Deportes","Literatura-Diccioanrios","Literatura","Novelas","Novelas Venezolanas","Poesías","Historia Universal",
-        "Geografía General","Geografía de Venezuela","Historia","Historia de América","Historia Europea","Historia-Diccionarios"]
-        self.categoria_types_state=["Estadal-B"]
-        self.asignature_types_state= ["Bibliografia-Estadal","Historia Local-Rubio-Junin","Publicaciones Periódicas"]
-        self.categoria_types_children=["Infantil-X"]
-        self.asignature_types_children= ["Matemáticas","Castellano y Literatura","Ciencias Naturales","Petróleo","Agricultura","Cuentos Venezolanos",
-        "Fábulas","Novelas Históricas","Sección de los más pequeños","Cuentos de Animales","Novelas de Aventuras",
-        "Cuentos de Hadas y Fantasía","Cuentos Realistas","Poesías y Canciones Venezolanas","Cuentos de Aventuras",
-        "Teatro","Teatro Venezolano","Fábulas Venezolanas","Mitos y Leyendas Venezolanas"]
-        
+
+        # Categorías Generales
+        self.categoria_types_general = {
+            "Artes y recreación": [
+                "Arte y Recreación-Diccionarios",
+                "Artística",
+                "Artes Plásticas y Escultura",
+                "Dibujo",
+                "Historial del Arte",
+                "Música",
+                "Pintura"
+            ],
+            "Ciencias Básicas": [
+                "Álgebra",
+                "Astronomía",
+                "Biología",
+                "Biología Celular",
+                "Botánica-Zoología-Diccionarios",
+                "Cálculo",
+                "Ciencia",
+                "Ciencias de la Tierra",
+                "Ecología",
+                "Estudios de la Naturaleza",
+                "Fisioquímica",
+                "Física",
+                "Geometría",
+                "Matemática",
+                "Matemática Financiera",
+                "Química",
+                "Química-Física-Diccionarios",
+                "Química Orgánica",
+                "Zoología"
+            ],
+            "Ciencias de la Computación, Información y Obras Generales": [
+                "Almanaques Mundiales",
+                "Computacion",
+                "Enciclopedia",
+                "Enciclopedia y Diccionarios",
+                "Informática",
+                "Metodología de la Investigación",
+                "Periodismo"
+            ],
+            "Ciencias Sociales": [
+                "Ciencias Políticas",
+                "Derecho",
+                "Derecho Constitucional",
+                "Derecho Laboral",
+                "Derecho Penal",
+                "Economía Venezolana",
+                "Estadística Social",
+                "Geografía Económica",
+                "Límites y Fronteras",
+                "Microeconomía",
+                "Macroeconomía",
+                "Sociología"
+            ],
+            "Filosofía y Psicología": [
+                "Filosofía",
+                "Filosofía de la Educación",
+                "Filosofía-Diccionarios",
+                "Psicología",
+                "Psicología-Diccioanrios"
+            ],
+            "Historia y Geografía": [
+                "Geografía General",
+                "Geografía de Venezuela",
+                "Historia",
+                "Historia de América",
+                "Historia Europea",
+                "Historia Universal",
+                "Historia-Diccionarios"
+            ],
+            "Lenguas": [
+                "Castellano",
+                "Castellano y Literatura",
+                "Inglés",
+                "Lengua y Comunicación",
+                "Lenguaje",
+                "Linguística-Diccionarios"
+            ],
+            "Literatura": [
+                "Literatura",
+                "Literatura-Diccioanrios",
+                "Novelas",
+                "Novelas Venezolanas",
+                "Poesías"
+            ],
+            "Religión-Teología": [
+                "Religión"
+            ],
+            "Tecnología y Ciencias Aplicadas": [
+                "Administración",
+                "Administración de Emperesa",
+                "Administración de Personal",
+                "Administración Pública",
+                "Agricultura",
+                "Agricultura-Diccionarios",
+                "Anatomía Humana",
+                "Avicultura",
+                "Bioquímica",
+                "Comercio",
+                "Contabilidad",
+                "Contaminación Ambiental",
+                "Cultivos",
+                "Drogar",
+                "Electricidad",
+                "Electrónica",
+                "Enfermedades Varias",
+                "Enfermería",
+                "Fertilizantes",
+                "Ganadería",
+                "Ingeniería",
+                "Medicina-Diccionarios",
+                "Medios de Comunicación",
+                "Medios de Transporte",
+                "Mujer y Familia",
+                "Naturismo",
+                "Nutrición",
+                "Premilitar",
+                "Reciclaje",
+                "Seguridad Industrial",
+                "Servicios Sociales",
+                "Técnicas de Estudio",
+                "Zootecnia"
+            ]
+        }
+
+        # Categorías Estatales
+        self.categoria_types_state = {
+            "Estadal-B": [
+                "Bibliografia-Estadal",
+                "Historia Local-Rubio-Junin",
+                "Publicaciones Periódicas"
+            ]
+        }
+
+        # Categorías Infantiles
+        self.categoria_types_children = {
+            "Infantil-X": [
+                "Agricultura",
+                "Castellano y Literatura",
+                "Ciencias Naturales",
+                "Cuentos de Animales",
+                "Cuentos de Aventuras",
+                "Cuentos de Hadas y Fantasía",
+                "Cuentos Realistas",
+                "Cuentos Venezolanos",
+                "Fábulas",
+                "Fábulas Venezolanas",
+                "Matemáticas",
+                "Mitos y Leyendas Venezolanas",
+                "Novelas de Aventuras",
+                "Novelas Históricas",
+                "Petróleo",
+                "Poesías y Canciones Venezolanas",
+                "Sección de los más pequeños",
+                "Teatro",
+                "Teatro Venezolano"
+            ]
+        }
+
+
         # Cargar y almacenar las imágenes
         self.images['boton_R'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
 
@@ -683,7 +820,7 @@ class L_Registrar(tk.Toplevel):
                             bordercolor="#041022",
                             arrowcolor="#ffffff",
                             padding="9")
-
+        # Primera fila
         # Combobox para Sala
         self.combobox1 = ttk.Combobox(self, values=self.salas_types, state="readonly", width=37, font=("Montserrat Medium", 10))
         self.combobox1.place(x=61.0, y=181.5)
@@ -693,15 +830,17 @@ class L_Registrar(tk.Toplevel):
         # Combobox para Categoría
         self.categoria_cb = ttk.Combobox(self, state="readonly", width=37, font=("Montserrat Medium", 10))
         self.categoria_cb.place(x=378.0, y=181.5)
-        self.categoria_cb.set("No se ha seleccionado una categoría")
+        self.categoria_cb.set("Infantil-X")
+        self.categoria_cb.bind("<<ComboboxSelected>>", self.actualizar_asignaturas)
+
         # Combobox para Asignatura
         self.asignatura_cb = ttk.Combobox(self, state="readonly", width=37, font=("Montserrat Medium", 10))
         self.asignatura_cb.place(x=695.0, y=181.5)
         self.asignatura_cb.set("No se ha seleccionado una asignatura")
-        
+
 
         # Crear y colocar los widgets
-        # Primera fila
+        # Segunda fila
         self.cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
         self.cota.place(x=61.0, y=282.0, width=297.0, height=37.5)
         self.cota.bind("<Return>", self.focus_next_widget)
@@ -723,7 +862,7 @@ class L_Registrar(tk.Toplevel):
         self.volumen_m.bind("<Return>", self.focus_next_widget)
         self.volumen_m.bind("<KeyPress>",self.on_key_press)
 
-        # Segunda fila
+        # Tercera fila
         self.titulo_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
         self.titulo_m.place(x=61.0, y=382.0, width=297.0, height=37.5)
         self.titulo_m.bind("<Return>", self.focus_next_widget)
@@ -850,24 +989,46 @@ class L_Registrar(tk.Toplevel):
         self.actualizar_opciones(self.categoria_cb, categoria_values)
         self.actualizar_opciones(self.asignatura_cb, asignatura_values)
 
+    def actualizar_asignaturas(self, event):
+        categoria_seleccionada = self.categoria_cb.get()
+        sala_seleccionada = self.combobox1.get()
+
+        if sala_seleccionada == "1I":
+            asignaturas = self.categoria_types_children.get(categoria_seleccionada, [])
+        elif sala_seleccionada == "2E":
+            asignaturas = self.categoria_types_state.get(categoria_seleccionada, [])
+        elif sala_seleccionada == "3G":
+            asignaturas = self.categoria_types_general.get(categoria_seleccionada, [])
+        else:
+            asignaturas = []
+
+        self.asignatura_cb.set("No se ha seleccionado una asignatura")
+        self.actualizar_opciones(self.asignatura_cb, asignaturas)
+
     def validacion_sala(self, event):
         sala_seleccionada = self.combobox1.get()
 
         # Establecer los valores por defecto
         if sala_seleccionada == "1I":
-            self.categoria_cb.set("No se ha seleccionado una categoría")
+            self.categoria_cb.set("Infantil-X")
             self.asignatura_cb.set("No se ha seleccionado una asignatura")
-            self.mostrar_opciones(self.categoria_types_children, self.asignature_types_children)
+            self.mostrar_opciones(["Infantil-X"], self.categoria_types_children["Infantil-X"])
         elif sala_seleccionada == "2E":
-            self.categoria_cb.set("No se ha seleccionado una categoría")
+            self.categoria_cb.set("Estadal-B")
             self.asignatura_cb.set("No se ha seleccionado una asignatura")
-            self.mostrar_opciones(self.categoria_types_state, self.asignature_types_state)
+            self.mostrar_opciones(["Estadal-B"], self.categoria_types_state["Estadal-B"])
         elif sala_seleccionada == "3G":
             self.categoria_cb.set("No se ha seleccionado una categoría")
             self.asignatura_cb.set("No se ha seleccionado una asignatura")
-            self.mostrar_opciones(self.categoria_types_general, self.asignature_type_general)
+            self.mostrar_opciones(list(self.categoria_types_general.keys()), [])
         else:
             messagebox.showwarning("Validación", "Por favor, seleccione una opción válida.")
+
+
+
+
+
+
 
     
         #-------------------------------------------------------------------------------
@@ -944,48 +1105,171 @@ class L_Modificar(tk.Toplevel):
         self.title("Modificar")
         self.book_data = book_data
         self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
-        
+        self.images = {}
         self.grab_set()
         
-        """self.geometry("1366x768")
-        longitudes = obtener_longitudes_min_max()
-        if longitudes:
-            for campo, valores in longitudes.items():
-                print(f"{campo.capitalize()}: Longitud mínima = {valores['min']}, Longitud máxima = {valores['max']}")"""
-        #validate_volumenes = self.register(self.validar_numero_volumenes_edicion)
-        #validate_volumenes = self.register(self.validar_numero_volumenes_edicion)
-        
-        self.images = {}
-        
-        
+        # Salas
         self.salas_types = ["1I", "2E", "3G"]
-        self.categoria_types_general=["Ciencias de la Computación, Información y Obras Generales", "Filosofía y Psicología", "Religión-Teología", "Ciencias Sociales","Lenguas",
-        "Ciencias Básicas","Tecnología y Ciencias Aplicadas","Artes y recreación","Literatura","Historia y Geografía"]
-        self.asignature_type_general= ["Almanaques Mundiales","Computacion","Enciclopedia","Enciclopedia y Diccionarios","Filosofía","Filosofía-Diccionarios",
-        "Informática","Metodología de la Investigación","Periodismo","Psicología","Psicología-Diccioanrios","Religión",
-        "Educación Familiar y Ciudadana","Sociología","Medios de Comunicación","Mujer y Familia","Estadística Social",
-        "Ciencias Políticas", "Economía Venezolana","Geografía Económica","Microeconomía","Macroeconomía","Derecho",
-        "Derecho Constitucional","Derecho Laboral","Derecho Penal","Límites y Fronteras","Administración Pública","Premilitar",                                  "Servicios Sociales", "Filosofía de la Educación","Educación","Educación Rural","Pedagogía","Técnicas de Estudio",
-        "Orientación", "Educación Preescolar","Educación Superior","Medios de Transporte","Currículo","Educación Básica",                                  "Publicaciones Oficiales-Folklore","Lenguaje","Linguística-Diccionarios","Lengua y Comunicación","Castellano y Literatura",
-        "Inglés","Castellano","Química-Física-Diccionarios","Botánica-Zoología-Diccionarios","Matemática","Ciencia",
-        "Estudios de la Naturaleza", "Álgebra","Matemática Financiera","Cálculo","Geometría","Astronomía","Física","Electricidad",
-        "Electrónica", "Química","Fisioquímica","Química Orgánica","Ciencias de la Tierra","Biología","Medicina-Diccionarios",
-        "Agricultura-Diccionarios","Biología Celular","Zoología","Ecología","Bioquímica","Enfermería","Anatomía Humana",
-        "Contaminación Ambiental","Seguridad Industrial","Naturismo","Drogar","Enfermedades Varias","Pediatría","Ingeniería","Reciclaje",
-        "Agricultura","Fertilizantes","Cultivos","Fruticultura","Ganadería","Comercio","Contabilidad","Administración",
-        "Administración de Emperesa","Avicultura","Nutrición","Ganadería","Zootecnia","Administración de Personal","Mercadotecnia",
-        "Historial del Arte","Dibujo","Arte y Recreación-Diccionarios","Artística","Artes Plásticas y Escultura","Pintura","Música",
-        "Educación Física","Deportes","Literatura-Diccioanrios","Literatura","Novelas","Novelas Venezolanas","Poesías","Historia Universal",
-        "Geografía General","Geografía de Venezuela","Historia","Historia de América","Historia Europea","Historia-Diccionarios"]
-        self.categoria_types_state=["Estadal-B"]
-        self.asignature_types_state= ["Bibliografia-Estadal","Historia Local-Rubio-Junin","Publicaciones Periódicas"]
-        self.categoria_types_children=["Infantil-X"]
-        self.asignature_types_children= ["Matemáticas","Castellano y Literatura","Ciencias Naturales","Petróleo","Agricultura","Cuentos Venezolanos",
-        "Fábulas","Novelas Históricas","Sección de los más pequeños","Cuentos de Animales","Novelas de Aventuras",
-        "Cuentos de Hadas y Fantasía","Cuentos Realistas","Poesías y Canciones Venezolanas","Cuentos de Aventuras",
-        "Teatro","Teatro Venezolano","Fábulas Venezolanas","Mitos y Leyendas Venezolanas"]
 
+        # Categorías Generales
+        self.categoria_types_general = {
+            "Artes y recreación": [
+                "Arte y Recreación-Diccionarios",
+                "Artística",
+                "Artes Plásticas y Escultura",
+                "Dibujo",
+                "Historial del Arte",
+                "Música",
+                "Pintura"
+            ],
+            "Ciencias Básicas": [
+                "Álgebra",
+                "Astronomía",
+                "Biología",
+                "Biología Celular",
+                "Botánica-Zoología-Diccionarios",
+                "Cálculo",
+                "Ciencia",
+                "Ciencias de la Tierra",
+                "Ecología",
+                "Estudios de la Naturaleza",
+                "Fisioquímica",
+                "Física",
+                "Geometría",
+                "Matemática",
+                "Matemática Financiera",
+                "Química",
+                "Química-Física-Diccionarios",
+                "Química Orgánica",
+                "Zoología"
+            ],
+            "Ciencias de la Computación, Información y Obras Generales": [
+                "Almanaques Mundiales",
+                "Computacion",
+                "Enciclopedia",
+                "Enciclopedia y Diccionarios",
+                "Informática",
+                "Metodología de la Investigación",
+                "Periodismo"
+            ],
+            "Ciencias Sociales": [
+                "Ciencias Políticas",
+                "Derecho",
+                "Derecho Constitucional",
+                "Derecho Laboral",
+                "Derecho Penal",
+                "Economía Venezolana",
+                "Estadística Social",
+                "Geografía Económica",
+                "Límites y Fronteras",
+                "Microeconomía",
+                "Macroeconomía",
+                "Sociología"
+            ],
+            "Filosofía y Psicología": [
+                "Filosofía",
+                "Filosofía de la Educación",
+                "Filosofía-Diccionarios",
+                "Psicología",
+                "Psicología-Diccioanrios"
+            ],
+            "Historia y Geografía": [
+                "Geografía General",
+                "Geografía de Venezuela",
+                "Historia",
+                "Historia de América",
+                "Historia Europea",
+                "Historia Universal",
+                "Historia-Diccionarios"
+            ],
+            "Lenguas": [
+                "Castellano",
+                "Castellano y Literatura",
+                "Inglés",
+                "Lengua y Comunicación",
+                "Lenguaje",
+                "Linguística-Diccionarios"
+            ],
+            "Literatura": [
+                "Literatura",
+                "Literatura-Diccioanrios",
+                "Novelas",
+                "Novelas Venezolanas",
+                "Poesías"
+            ],
+            "Religión-Teología": [
+                "Religión"
+            ],
+            "Tecnología y Ciencias Aplicadas": [
+                "Administración",
+                "Administración de Emperesa",
+                "Administración de Personal",
+                "Administración Pública",
+                "Agricultura",
+                "Agricultura-Diccionarios",
+                "Anatomía Humana",
+                "Avicultura",
+                "Bioquímica",
+                "Comercio",
+                "Contabilidad",
+                "Contaminación Ambiental",
+                "Cultivos",
+                "Drogar",
+                "Electricidad",
+                "Electrónica",
+                "Enfermedades Varias",
+                "Enfermería",
+                "Fertilizantes",
+                "Ganadería",
+                "Ingeniería",
+                "Medicina-Diccionarios",
+                "Medios de Comunicación",
+                "Medios de Transporte",
+                "Mujer y Familia",
+                "Naturismo",
+                "Nutrición",
+                "Premilitar",
+                "Reciclaje",
+                "Seguridad Industrial",
+                "Servicios Sociales",
+                "Técnicas de Estudio",
+                "Zootecnia"
+            ]
+        }
 
+        # Categorías Estatales
+        self.categoria_types_state = {
+            "Estadal-B": [
+                "Bibliografia-Estadal",
+                "Historia Local-Rubio-Junin",
+                "Publicaciones Periódicas"
+            ]
+        }
+
+        # Categorías Infantiles
+        self.categoria_types_children = {
+            "Infantil-X": [
+                "Agricultura",
+                "Castellano y Literatura",
+                "Ciencias Naturales",
+                "Cuentos de Animales",
+                "Cuentos de Aventuras",
+                "Cuentos de Hadas y Fantasía",
+                "Cuentos Realistas",
+                "Cuentos Venezolanos",
+                "Fábulas",
+                "Fábulas Venezolanas",
+                "Matemáticas",
+                "Mitos y Leyendas Venezolanas",
+                "Novelas de Aventuras",
+                "Novelas Históricas",
+                "Petróleo",
+                "Poesías y Canciones Venezolanas",
+                "Sección de los más pequeños",
+                "Teatro",
+                "Teatro Venezolano"
+            ]
+        }
 
         # Convertir book_data en un diccionario manteniendo los índices originales
         self.book_data = {
@@ -1025,7 +1309,7 @@ class L_Modificar(tk.Toplevel):
         
       
         # Validar y actualizar comboboxes basados en los datos iniciales
-        self.validacion_sala(None)
+        #self.validacion_sala(None)
 
     
     def inicializar_titulos(self):
@@ -1066,25 +1350,26 @@ class L_Modificar(tk.Toplevel):
                             bordercolor="#041022",
                             arrowcolor="#ffffff",
                             padding="9")
-
+        # Primera fila
         # Combobox para Sala
         self.combobox1 = ttk.Combobox(self, values=self.salas_types, state="readonly", width=37, font=("Montserrat Medium", 10))
         self.combobox1.place(x=61.0, y=181.5)
         self.combobox1.bind("<<ComboboxSelected>>", self.validacion_sala)
-        
-        
+
         # Combobox para Categoría
-        self.categoria_cb = ttk.Combobox(self, values=self.categoria_types_general, state="readonly", width=37, font=("Montserrat Medium", 10))
+        self.categoria_cb = ttk.Combobox(self, state="readonly", width=37, font=("Montserrat Medium", 10))
         self.categoria_cb.place(x=378.0, y=181.5)
-        self.categoria_cb.bind("<<ComboboxSelected>>", self.check_changes)
+        self.categoria_cb.bind("<<ComboboxSelected>>", self.actualizar_asignaturas)
 
         # Combobox para Asignatura
-        self.asignatura_cb = ttk.Combobox(self, values=self.asignature_type_general, state="readonly", width=37, font=("Montserrat Medium", 10))
+        self.asignatura_cb = ttk.Combobox(self, state="readonly", width=37, font=("Montserrat Medium", 10))
         self.asignatura_cb.place(x=695.0, y=181.5)
-        self.asignatura_cb.bind("<<ComboboxSelected>>", self.check_changes)
+        self.asignatura_cb.bind("<<ComboboxSelected>>", self.check_changes)  # Llamar a check_changes para detectar cambios
+
+
 
         # Crear y colocar los widgets
-        # Primera fila
+        # Segunda fila
         self.cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
         self.cota.place(x=61.0, y=282.0, width=297.0, height=37.5)
         self.cota.bind("<Return>", self.focus_next_widget)
@@ -1109,7 +1394,7 @@ class L_Modificar(tk.Toplevel):
         self.volumen_m.bind("<KeyPress>",self.on_key_press)
         self.volumen_m.bind("<KeyRelease>", self.check_changes)
 
-        # Segunda fila
+        # Tercera fila
         self.titulo_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
         self.titulo_m.place(x=61.0, y=382.0, width=297.0, height=37.5)
         self.titulo_m.bind("<Return>", self.focus_next_widget)
@@ -1139,7 +1424,9 @@ class L_Modificar(tk.Toplevel):
     def insert_values_book(self):
         self.clear_entries_modify()
         self.combobox1.set(self.book_data["ID_Sala"])
+        self.validacion_sala()  # Actualizar las opciones de categoría y asignatura según la sala seleccionada
         self.categoria_cb.set(self.book_data["ID_Categoria"])
+        self.actualizar_asignaturas()  # Actualizar las opciones de asignatura según la categoría seleccionada
         self.asignatura_cb.set(self.book_data["ID_Asignatura"])
         self.cota.insert(0, self.book_data["Cota"])
         self.registro_m.insert(0, self.book_data["n_registro"])
@@ -1150,6 +1437,7 @@ class L_Modificar(tk.Toplevel):
         self.editorial_m.insert(0, self.book_data["Editorial"])
         self.ano_m.insert(0, self.book_data["Año"])
         self.check_changes()
+
     def on_key_press(self, event):
         widget = event.widget
         current_text = widget.get()
@@ -1241,82 +1529,100 @@ class L_Modificar(tk.Toplevel):
         widget.icursor(cursor_position)
         event.widget.after(1,formatted_text)
 
-
-    def mostrar_opciones(self, categoria_values, asignatura_values):
-
-        self.categoria_cb['values'] = categoria_values
-        self.asignatura_cb['values'] = asignatura_values
-        self.check_changes()
-        
     def actualizar_opciones(self, combobox, values):
         combobox['values'] = values
-        combobox.set('')
-        self.check_changes()
 
-    def validacion_sala(self, event):
-        stylebox = ttk.Style()
-        stylebox.theme_use('clam')
-        stylebox.configure("TCombobox",
-                            fieldbackground="#2E59A7",  # Fondo del campo de entrada
-                            background="#2E59A7",  # Fondo del desplegable
-                            bordercolor="#041022",  # Color del borde
-                            arrowcolor="#ffffff",  # Color de la flecha
-                            padding="9",
-                            )  # padding para agrandar la altura del select
+    def mostrar_opciones(self, categoria_values, asignatura_values):
+        self.actualizar_opciones(self.categoria_cb, categoria_values)
+        self.actualizar_opciones(self.asignatura_cb, asignatura_values)
+
+    def actualizar_asignaturas(self, event=None):
+        categoria_seleccionada = self.categoria_cb.get()
         sala_seleccionada = self.combobox1.get()
-        
-        if sala_seleccionada == self.book_data["ID_Sala"]:
-            self.categoria_cb.set(self.book_data["ID_Categoria"])
-            self.asignatura_cb.set(self.book_data["ID_Asignatura"])
-        else:
-            self.categoria_cb.set("No se ha seleccionado una categoría")
-            self.asignatura_cb.set("No se ha seleccionado una asignatura")
 
         if sala_seleccionada == "1I":
-            self.mostrar_opciones(self.categoria_types_children, self.asignature_types_children)
-            
+            asignaturas = self.categoria_types_children.get(categoria_seleccionada, [])
         elif sala_seleccionada == "2E":
-            self.mostrar_opciones(self.categoria_types_state, self.asignature_types_state)
-            
+            asignaturas = self.categoria_types_state.get(categoria_seleccionada, [])
         elif sala_seleccionada == "3G":
-            self.mostrar_opciones(self.categoria_types_general, self.asignature_type_general)
-        
-        self.check_changes()
-        
-    def check_changes(self, *args):
-     try:
-        current_values = {
-            "ID_Sala": self.combobox1.get().strip(),
-            "ID_Categoria": self.categoria_cb.get().strip(),
-            "ID_Asignatura": self.asignatura_cb.get().strip(),
-            "Cota": self.cota.get().strip(),
-            "n_registro": self.registro_m.get().strip(),
-            "Titulo": self.titulo_m.get(),
-            "Autor": self.autor_m.get(),
-            "Editorial": self.editorial_m.get(),
-            "Año": self.ano_m.get().strip(),
-            "Edicion": self.edicion_m.get().strip(),
-            "Volumen": self.volumen_m.get().strip(),
-        }
-
-
-        # Comparar valores clave por clave
-        differences = []
-        for key in current_values:
-            if current_values[key] != self.original_values[key]:
-                differences.append(f"Diferencia en {key}: {current_values[key]} (actual) != {self.original_values[key]} (original)")
-
-        if differences:
-            for diff in differences:
-                print(diff)
-            self.mostrar_boton_modificar()
-            print("Se detectaron cambios. Botón 'Modificar' mostrado.")
+            asignaturas = self.categoria_types_general.get(categoria_seleccionada, [])
         else:
-            self.ocultar_boton_modificar()
-            self.mostrar_boton_modificar_inactivo()
-            print("No se detectaron cambios. Botón 'Modificar' inactivo mostrado.")
-     except Exception as e:
-        print(f"Error en check_changes: {e}")
+            asignaturas = []
+
+        if categoria_seleccionada != self.book_data["ID_Categoria"]:
+            self.asignatura_cb.set("No se ha seleccionado una asignatura")
+        else:
+            self.asignatura_cb.set(self.book_data["ID_Asignatura"])
+
+        self.actualizar_opciones(self.asignatura_cb, asignaturas)
+        self.check_changes()  # Llamar a check_changes para detectar cambios
+
+    def validacion_sala(self, event=None):
+        sala_seleccionada = self.combobox1.get()
+
+        # Establecer los valores por defecto
+        if sala_seleccionada == "1I":
+            if sala_seleccionada == self.book_data["ID_Sala"]:
+                self.categoria_cb.set(self.book_data["ID_Categoria"])
+                self.asignatura_cb.set(self.book_data["ID_Asignatura"])
+            else:
+                self.categoria_cb.set("Infantil-X")
+                self.asignatura_cb.set("No se ha seleccionado una asignatura")
+            self.mostrar_opciones(["Infantil-X"], self.categoria_types_children["Infantil-X"])
+        elif sala_seleccionada == "2E":
+            if sala_seleccionada == self.book_data["ID_Sala"]:
+                self.categoria_cb.set(self.book_data["ID_Categoria"])
+                self.asignatura_cb.set(self.book_data["ID_Asignatura"])
+            else:
+                self.categoria_cb.set("Estadal-B")
+                self.asignatura_cb.set("No se ha seleccionado una asignatura")
+            self.mostrar_opciones(["Estadal-B"], self.categoria_types_state["Estadal-B"])
+        elif sala_seleccionada == "3G":
+            if sala_seleccionada == self.book_data["ID_Sala"]:
+                self.categoria_cb.set(self.book_data["ID_Categoria"])
+                self.asignatura_cb.set(self.book_data["ID_Asignatura"])
+            else:
+                self.categoria_cb.set("No se ha seleccionado una categoría")
+                self.asignatura_cb.set("No se ha seleccionado una asignatura")
+            self.mostrar_opciones(list(self.categoria_types_general.keys()), [])
+        else:
+            messagebox.showwarning("Validación", "Por favor, seleccione una opción válida.")
+        self.check_changes()  # Llamar a check_changes para detectar cambios
+
+    def check_changes(self, *args):
+        try:
+            current_values = {
+                "ID_Sala": self.combobox1.get().strip(),
+                "ID_Categoria": self.categoria_cb.get().strip(),
+                "ID_Asignatura": self.asignatura_cb.get().strip(),
+                "Cota": self.cota.get().strip(),
+                "n_registro": self.registro_m.get().strip(),
+                "Titulo": self.titulo_m.get(),
+                "Autor": self.autor_m.get(),
+                "Editorial": self.editorial_m.get(),
+                "Año": self.ano_m.get().strip(),
+                "Edicion": self.edicion_m.get().strip(),
+                "Volumen": self.volumen_m.get().strip(),
+            }
+
+            # Comparar valores clave por clave
+            differences = []
+            for key in current_values:
+                if current_values[key] != self.original_values[key]:
+                    differences.append(f"Diferencia en {key}: {current_values[key]} (actual) != {self.original_values[key]} (original)")
+
+            if differences:
+                for diff in differences:
+                    print(diff)
+                self.mostrar_boton_modificar()
+                print("Se detectaron cambios. Botón 'Modificar' mostrado.")
+            else:
+                self.ocultar_boton_modificar()
+                self.mostrar_boton_modificar_inactivo()
+                print("No se detectaron cambios. Botón 'Modificar' inactivo mostrado.")
+        except Exception as e:
+            print(f"Error en check_changes: {e}")
+
 
     def focus_next_widget(self, event):
         event.widget.tk_focusNext().focus()

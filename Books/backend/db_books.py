@@ -7,6 +7,39 @@ from tkinter import messagebox
 init(autoreset=True)
 
 
+def obtener_e_imprimir_asignaturas_infantil():
+    try:
+        conn = establecer_conexion()
+        if conn:
+            cursor = conn.cursor()
+            query = """
+                SELECT ID_Asignatura, Cota
+                FROM libro
+                WHERE ID_Sala = '1I' AND (LENGTH(Cota) = 3 AND Cota REGEXP '^[a-zA-Z]+$')
+            """
+            cursor.execute(query)
+            resultados = cursor.fetchall()
+            conn.close()
+            
+            if resultados:
+                print("Asignaturas en la sala infantil con cotas repetidas o solo de letras:")
+                asignaturas = {}
+                for asignatura, cota in resultados:
+                    if asignatura not in asignaturas:
+                        asignaturas[asignatura] = []
+                    asignaturas[asignatura].append(cota)
+                
+                for asignatura, cotas in asignaturas.items():
+                    longitudes = [len(cota) for cota in cotas]
+                    longitud_min = min(longitudes)
+                    longitud_max = max(longitudes)
+                    print(f"Asignatura: {asignatura}, Longitud mínima de cota: {longitud_min}, Longitud máxima de cota: {longitud_max}")
+            else:
+                print("No se encontraron asignaturas con las condiciones especificadas.")
+    except mariadb.Error as e:
+        print(f"Error durante la consulta: {e}")
+
+
 
 def obtener_datos_libros():
     try:

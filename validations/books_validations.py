@@ -113,19 +113,38 @@ def mostrar_opciones(self, categoria_values, asignatura_values):
    
 
 #VALIDACION DE DATOS INGRESADOS
-def validar_cota(cota, sala):
+# Diccionario de asignaturas permitidas por sala
+asignaturas_permitidas_por_sala = {
+    "1I": [
+        "Cuentos de Aventuras",
+        "Poesías y Canciones Venezolanas",
+        "Cuentos Realistas",
+        "Cuentos de Hadas y Fantasía",
+        "Novelas de Aventuras",
+        "Cuentos de Animales",
+        "Sección de los más pequeños",
+        "Novelas Históricas",
+        "Fábulas",
+        "Cuentos Venezolanos"
+    ]
+}
+
+def validar_cota(cota, sala, asignatura):
     if not cota:
         return "El campo cota es obligatorio."
     if len(cota) < 3:
         return "La longitud de la cota debe ser al menos de 3 caracteres."
-    if len(cota) == 3 and not cota.isalpha() and sala != "1I":
-        return "Las cotas de longitud 3 solo deben contener letras, excepto en la sala Infantil."
+    if len(cota) == 3 and not cota.isalpha() and sala in asignaturas_permitidas_por_sala:
+        return f"Las cotas de longitud 3 solo deben contener letras en la sala {sala}."
+    if len(cota) > 3 and not cota.isalpha() and sala in asignaturas_permitidas_por_sala and asignatura in asignaturas_permitidas_por_sala[sala]:
+        return f"Las cotas de más de 3 caracteres solo deben contener letras en la asignatura '{asignatura}' en la sala {sala}."
+    if len(cota) == 3 and asignatura not in asignaturas_permitidas_por_sala.get(sala, []):
+        return f"En la sala {sala}, las cotas de longitud 3 solo están permitidas en las asignaturas: {', '.join(asignaturas_permitidas_por_sala[sala])}."
     if ".." in cota:
         return "La cota no puede contener puntos consecutivos."
     if not re.match(r'^[a-zA-Z0-9.]+$', cota):
         return "La cota solo puede contener letras, números y puntos."
     return None
-
 
 def validar_cota_unica(cota):
     conn = establecer_conexion()
@@ -277,11 +296,11 @@ def validar_campos(categoria, asignatura, cota, titulo, autor, editorial, n_regi
         errores.append("Debe seleccionar una asignatura.")
 
     # Validar Cota
-    error_cota = validar_cota(cota, sala)
+    error_cota = validar_cota(cota, sala, asignatura)
     if error_cota:
         errores.append(error_cota)
     else:
-        if sala != "1I":
+        if sala != "1I" or asignatura not in asignaturas_permitidas:
             error_cota_unica = validar_cota_unica(cota)
             if error_cota_unica:
                 errores.append(error_cota_unica)

@@ -79,15 +79,6 @@ class Menu(tk.Frame):
 
         self.images["logo_salir"] = ImageTk.PhotoImage(nueva_imagen)
         
-        """def mostrar_nombre_usuario(self):
-            global U_nombre  # Declarar que usaremos la variable global
-            if U_nombre:
-                print(f"Nombre de Usuario: {U_nombre}")
-            else:
-                print("No hay nombre de usuario disponible")
-        mostrar_nombre_usuario(self)"""
-        
-        # Crear el botón que abrirá el menú desplegable
         
         
         self.L_menu_button = tk.Button(self, text="Libros",image=self.images["icono_libros"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:{self.frame_header.update_header_text("Libros"),mostrar_frame(app.books_frame)}, anchor="w", padx=10)
