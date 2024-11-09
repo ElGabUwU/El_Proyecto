@@ -20,7 +20,7 @@ from loans.backend.db_loans import get_cliente_id_by_cedula,get_libro_id_by_regi
 from loans.backend.db_loans import load_active_loans, es_novela
 from util.ventana import centrar_ventana
 from validations.clients_validations import limit_length
-from books.backend.db_books import get_book_data,search_books
+from Books.backend.db_books import get_book_data,search_books
 def validate_number_input(text):
         if text == "":
             return True
