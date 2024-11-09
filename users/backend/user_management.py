@@ -281,10 +281,25 @@ class U_Listar(tk.Frame):
 
 
     def key_on_press_search(self, event):
-        current_text = self.buscar.get()
+        # Obtener el widget que disparó el evento
+        widget = event.widget
+        current_text = widget.get()
+
+        # Permitir teclas de control como Backspace, Delete, Left, Right
+        if event.keysym in ('BackSpace', 'Delete', 'Left', 'Right'):
+            return
+
+        # Verificar si el texto actual ya ha alcanzado el límite
+        if len(current_text) >= 10:
+            return "break"
+
+        # Limitar la longitud del texto
         limited_text = limit_length(current_text, 10)
-        self.buscar.delete(0, 'end')
-        self.buscar.insert(0, limited_text)
+
+        # Actualizar el widget solo si el texto ha cambiado
+        if current_text != limited_text:
+            widget.delete(0, 'end')
+            widget.insert(0, limited_text)
     
     def boton_buscar(self, event):
         busqueda = self.buscar.get().strip()

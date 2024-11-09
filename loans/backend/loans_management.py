@@ -1,6 +1,8 @@
+import os
 import tkinter as tk
 from pathlib import Path
 from tkinter import ttk, messagebox
+from tkinter.filedialog import asksaveasfilename
 from tkinter import font
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from loans.backend.db_loans import *
@@ -11,8 +13,8 @@ import random
 import string
 from backend.loans_filters import *
 from db.conexion import establecer_conexion
-from util.Reporte_PDF import generate_report_by_day,generate_report_by_month
-from loans.backend.models import Cliente, Libro
+from util.Reporte_PDF import generate_report_by_day,generate_report_by_month, verificar_y_guardar_pdf
+from loans.backend.models import Cliente, Libro, Encargado
 from validations import loans_validations
 from util.utilidades import resource_path
 from validations.loans_validations import *
@@ -25,7 +27,7 @@ def validate_number_input(text):
         if text == "":
             return True
         try:
-            int(text)
+            float(text)
             return True
         except ValueError:
             return False
@@ -176,12 +178,12 @@ class P_Listar(tk.Frame):
                             foreground="#000000", 
                             borderwidth=0)
 
-        columns2 = ("Cedula", "Cliente", "Nombre del Libro", "N° Registro", "F.Registro", "F.Limite", "Encargado")
+        columns2 = ("Cedula", "Cliente", "Nombre del Libro", "N° Registro", "F.Registro", "F.Limite", "Encargado", "ID_Prestamo", "ID_Usuario")
         self.cliente_prestamo_table = ttk.Treeview(self.left_frame2, columns=columns2, show='headings', style="Rounded.Treeview", selectmode="browse")
-        
+
         for col2 in columns2:
             self.cliente_prestamo_table.heading(col2, text=col2)
-            if col2 == "ID_Prestamo":
+            if col2 in ["ID_Prestamo", "ID_Usuario"]:
                 self.cliente_prestamo_table.column(col2, width=0, stretch=False)  # Ocultar la columna
             else:
                 self.cliente_prestamo_table.column(col2, width=90, anchor="center")
@@ -276,10 +278,25 @@ class P_Listar(tk.Frame):
             Register_Loans(self, loans_validations)#loans_validations#client_values
 
     def key_on_press_search(self, event):
-        current_text = self.buscar.get()
+        # Obtener el widget que disparó el evento
+        widget = event.widget
+        current_text = widget.get()
+
+        # Permitir teclas de control como Backspace, Delete, Left, Right
+        if event.keysym in ('BackSpace', 'Delete', 'Left', 'Right'):
+            return
+
+        # Verificar si el texto actual ya ha alcanzado el límite
+        if len(current_text) >= 10:
+            return "break"
+
+        # Limitar la longitud del texto
         limited_text = limit_length(current_text, 10)
-        self.buscar.delete(0, 'end')
-        self.buscar.insert(0, limited_text)
+
+        # Actualizar el widget solo si el texto ha cambiado
+        if current_text != limited_text:
+            widget.delete(0, 'end')
+            widget.insert(0, limited_text)
 
     def boton_buscar(self, event=None):  
         busqueda = self.buscar.get().strip()
@@ -379,6 +396,8 @@ class P_Listar(tk.Frame):
             selected_client = selected_client[0]  # Obtener el primer elemento seleccionado
             client_values = self.cliente_prestamo_table.item(selected_client, 'values')
             id_prestamo = client_values[7]  # Asumiendo que ID_Prestamo es el octavo valor en la tupla
+            print(id_prestamo)
+            print(selected_client)
             print(f"Préstamo seleccionado: {client_values}")
 
             # Obtener el ID del cliente usando la cédula
@@ -436,6 +455,7 @@ class GenerarReportePDF(tk.Toplevel):
         super().__init__(parent, *args, **kwargs)
         self.parent = parent
         self.client_data = {}
+        self.user_data = []
         self.books_data = []
         self.prestamos_data = []
         self.create_report_window()
@@ -524,7 +544,8 @@ class GenerarReportePDF(tk.Toplevel):
                         p.Fecha_Registro,
                         p.Fecha_Limite,
                         u.Nombre AS Nombre_Usuario,
-                        cp.ID_CP
+                        cp.ID_Prestamo,
+                        u.ID_Usuario
                     FROM 
                         cliente_prestamo cp
                     JOIN
@@ -548,14 +569,14 @@ class GenerarReportePDF(tk.Toplevel):
                         "Fecha_Registro": resultado[4],
                         "Fecha_Limite": resultado[5],
                         "Nombre_Usuario": resultado[6],
-                        "ID_CP": resultado[7]
+                        "ID_Prestamo": resultado[7],
+                        "ID_Usuario": resultado[8]
                     })
                 mariadb_conexion.close()
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
         print(f"Préstamos del Día Actual: {prestamos_data}")
         return prestamos_data
-
 
     def get_loans_by_month(self):
         prestamos_data = []
@@ -572,7 +593,8 @@ class GenerarReportePDF(tk.Toplevel):
                         p.Fecha_Registro,
                         p.Fecha_Limite,
                         u.Nombre AS Nombre_Usuario,
-                        cp.ID_CP
+                        cp.ID_Prestamo,
+                        u.ID_Usuario
                     FROM 
                         cliente_prestamo cp
                     JOIN
@@ -596,15 +618,14 @@ class GenerarReportePDF(tk.Toplevel):
                         "Fecha_Registro": resultado[4],
                         "Fecha_Limite": resultado[5],
                         "Nombre_Usuario": resultado[6],
-                        "ID_CP": resultado[7]
+                        "ID_Prestamo": resultado[7],
+                        "ID_Usuario": resultado[8]
                     })
                 mariadb_conexion.close()
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
         print(f"Préstamos del Mes Actual: {prestamos_data}")
         return prestamos_data
-
-    
 
     def obtener_datos(self):
         if not self.prestamos_data:
@@ -647,6 +668,9 @@ class GenerarReportePDF(tk.Toplevel):
                     libro_id = get_libro_id_by_registro(prestamo["N_Registro"])
                     book_data = obtener_datos_libro(libro_id)
                     if book_data:
+                        # Obtener la cantidad de ejemplares prestados por el cliente actual
+                        ejemplares_prestados_por_cliente = next((cantidad for cedula, cantidad in book_data["ejemplares_prestados_por_cliente"] if cedula == cliente.cedula), 0)
+                        
                         libro = Libro(
                             cota=book_data["Cota"],
                             categoria=book_data["ID_Categoria"],
@@ -655,8 +679,10 @@ class GenerarReportePDF(tk.Toplevel):
                             numero_registro=book_data["n_registro"],
                             autor=book_data["autor"],
                             titulo=book_data["titulo"],
-                            num_volumenes=book_data["n_volumenes"],
-                            num_ejemplares=book_data["n_ejemplares"],
+                            num_volumen=book_data["n_volumenes"],
+                            total_ejemplares=book_data["total_ejemplares"],
+                            ejemplares_disponibles=book_data["ejemplares_disponibles"],
+                            ejemplares_prestados=ejemplares_prestados_por_cliente,
                             edicion=book_data["edicion"],
                             año=book_data["año"],
                             editorial=book_data["editorial"]
@@ -674,6 +700,20 @@ class GenerarReportePDF(tk.Toplevel):
                         except ValueError:
                             print(f"Error: El formato de la fecha '{prestamo['Fecha_Limite']}' no es válido.\n")
                             fecha_en = prestamo["Fecha_Limite"]
+
+                        # Obtener datos del usuario y crear instancia de Encargado
+                        usuario_id = prestamo["ID_Usuario"]
+                        datos_usuario = obtener_datos_usuario(usuario_id)
+                        if datos_usuario:
+                            encargado = Encargado(
+                                nombre=datos_usuario["Nombre"],
+                                apellido=datos_usuario["Apellido"],
+                                cargo=datos_usuario["Cargo"],
+                                cedula=datos_usuario["Cedula"]
+                            )
+                            self.user_data.append(encargado)
+                            print(f"Encargado: {encargado.nombre} {encargado.apellido}, Cargo: {encargado.cargo}, Cédula: {encargado.cedula}")
+
                         prestamos_formateados.append({
                             "Cedula": prestamo["Cedula"],
                             "Nombre_Cliente": prestamo["Nombre_Cliente"],
@@ -682,7 +722,7 @@ class GenerarReportePDF(tk.Toplevel):
                             "fecha_r": fecha_r,
                             "fecha_en": fecha_en,
                             "Nombre_Usuario": prestamo["Nombre_Usuario"],
-                            "ID_CP": prestamo["ID_CP"]
+                            "ID_Prestamo": prestamo["ID_Prestamo"]  # Asegúrate de que esta clave exista en el diccionario
                         })
                         books_data.append(libro)
                 # Ordenar los préstamos y los libros por fecha
@@ -696,7 +736,7 @@ class GenerarReportePDF(tk.Toplevel):
             print("Error durante la conexión:", ex)
             messagebox.showerror("Error", f"Error durante la conexión: {ex}", parent=self)
             return None, None, None
-
+    
     def generate_report(self):
         report_type = self.report_combobox.get()
         if report_type == "Reporte del Día Actual":
@@ -706,7 +746,7 @@ class GenerarReportePDF(tk.Toplevel):
                 return
             client_data, books_data, prestamos_formateados = self.obtener_datos()
             if client_data and books_data and prestamos_formateados:
-                success = generate_report_by_day(client_data, books_data, prestamos_formateados, self)
+                success = generate_report_by_day(client_data, books_data, prestamos_formateados, self.user_data, self)
         elif report_type == "Reporte del Mes Actual":
             self.prestamos_data = self.get_loans_by_month()
             if not self.prestamos_data:
@@ -720,7 +760,7 @@ class GenerarReportePDF(tk.Toplevel):
                 return
             client_data, books_data, prestamos_formateados = self.obtener_datos()
             if client_data and books_data and prestamos_formateados:
-                success = generate_report_by_month(client_data, books_data, prestamos_formateados, self)
+                success = generate_report_by_month(client_data, books_data, prestamos_formateados, self.user_data, self)
         else:
             messagebox.showwarning("Advertencia", "Seleccione un tipo de reporte válido.", parent=self)
             return
@@ -728,9 +768,7 @@ class GenerarReportePDF(tk.Toplevel):
         if success:
             messagebox.showinfo("Éxito", "El reporte ha sido creado de forma exitosa.", parent=self)
         else:
-            messagebox.showerror("Error", "Guardado cancelado.", parent=self)
-        self.destroy()
-
+            messagebox.showerror("Error", "Guardado cancelado. Asegúrese de que el archivo no esté abierto.", parent=self)
 
 
 # Asegúrate de que P_Listar está definido/importado correctamente
@@ -753,7 +791,7 @@ class Register_Loans():
         self.load_books()
         # Llamada a la función para mostrar la página actual
         self.display_page(self.data, self.current_page, self.page_size)
-        self.mostrar_mensaje_prestamos_vencidos()
+
 
         
     def setup_window(self):
@@ -790,9 +828,13 @@ class Register_Loans():
         self.fecha_registrar.config(state='readonly')
         self.fecha_limite.config(state='readonly')
 
-        # Configurar el Treeview
-        tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N° Registro", "Titulo", "Autor", "Editorial", "Año", "Edición", "N° Ejemplares", "N° Volúmenes")
+        # Definir las columnas
+        tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N° Registro", "Titulo", "Autor", "Editorial", "Año", "Edición", "N° Volúmenes", "N° Ejemplares")
+        
+        # Crear el Treeview
         self.book_table_list = ttk.Treeview(self.left_frame_list, columns=tree, show='headings', style="Rounded.Treeview")
+        
+        # Configurar las columnas específicas
         self.book_table_list.column("ID", width=40, anchor="center")
         self.book_table_list.column("Sala", width=40, anchor="center")
         self.book_table_list.column("Cota", width=30, anchor="center")
@@ -802,15 +844,21 @@ class Register_Loans():
         self.book_table_list.column("Edición", width=30, anchor="center")
         self.book_table_list.column("N° Ejemplares", width=70, anchor="center")
         self.book_table_list.column("N° Volúmenes", width=70, anchor="center")
+        
+        # Configurar las demás columnas
         for col in tree:
             if col not in ("ID", "Sala", "Cota", "N° Registro", "Titulo", "Año", "N° Ejemplares", "N° Volúmenes"):
                 self.book_table_list.column(col, width=95, anchor="center")
             self.book_table_list.heading(col, text=col)
+        
+        # Empaquetar el Treeview
         self.book_table_list.pack(expand=True, fill="both", padx=30, pady=5)
         
+        # Añadir la barra de desplazamiento
         scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
+
         self.book_table_list.bind('<<TreeviewSelect>>', self.on_treeview_select)
         self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguie-inver.png"))
         self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/anteri-inver.png"))
@@ -865,13 +913,27 @@ class Register_Loans():
         self.cedula.bind("<KeyRelease>", lambda event: self.loans_validations.validate_entries(self, event))
         self.cedula.bind("<KeyPress>",self.key_on_press_search)
         #self.cedula.bind("<Return>", lambda event: self.save_modifications())
-        
 
     def key_on_press_search(self, event):
-        current_text = self.cedula.get()
+        # Obtener el widget que disparó el evento
+        widget = event.widget
+        current_text = widget.get()
+
+        # Permitir teclas de control como Backspace, Delete, Left, Right
+        if event.keysym in ('BackSpace', 'Delete', 'Left', 'Right'):
+            return
+
+        # Verificar si el texto actual ya ha alcanzado el límite
+        if len(current_text) >= 10:
+            return "break"
+
+        # Limitar la longitud del texto
         limited_text = limit_length(current_text, 10)
-        self.cedula.delete(0, 'end')
-        self.cedula.insert(0, limited_text)
+
+        # Actualizar el widget solo si el texto ha cambiado
+        if current_text != limited_text:
+            widget.delete(0, 'end')
+            widget.insert(0, limited_text)
 
     def on_treeview_select(self, event):
         # Obtener el elemento seleccionado
@@ -932,7 +994,6 @@ class Register_Loans():
         # Actualizar la etiqueta de la página
         self.update_page_label(len(data), current_page, page_size, is_search)
 
-
     def load_books(self):
         try:
             self.data = get_book_data()
@@ -941,8 +1002,6 @@ class Register_Loans():
             self.display_page(self.data, self.current_page, self.page_size)
         except Exception as ex:
             print("Error al cargar los libros:", ex)
-
-
 
     def next_page(self):
         if self.is_search_active:
@@ -964,22 +1023,11 @@ class Register_Loans():
                 self.current_page -= 1
                 self.display_page(self.data, self.current_page, self.page_size)
 
-
     def update_page_label(self, total_data, current_page, page_size, is_search=False):
         total_pages = (total_data + page_size - 1) // page_size  # Calcular el total de páginas
+        if total_pages == 0:
+            total_pages = 1  # Asegurarse de que siempre haya al menos una página
         self.page_label.config(text=f"Página {current_page + 1} de {total_pages}")
-
-    def mostrar_mensaje_prestamos_vencidos(self):
-        prestamos_vencidos = obtener_prestamos_vencidos()
-        if prestamos_vencidos:
-            mensaje_vencidos = "Hay préstamos vencidos asociados a los siguientes clientes:\n\n"
-            for prestamo in prestamos_vencidos:
-                id_cliente = prestamo[0]
-                datos_cliente = obtener_datos_cliente(id_cliente)
-                if datos_cliente:
-                    mensaje_vencidos += f"Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}\nCédula: {datos_cliente['Cedula']}\nTeléfono: {datos_cliente['Telefono']}\nPréstamos Vencidos: {prestamo[1]}\n\n"           
-            mensaje_vencidos += "Por favor, contacte a los clientes para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de préstamos para obtener más información sobre los libros prestados."
-            messagebox.showwarning("Préstamos Vencidos", mensaje_vencidos, parent=self.register_loan_window)
 
     def save_modifications(self):
         from users.backend.db_users import obtener_id_usuario_actual
@@ -1013,6 +1061,12 @@ class Register_Loans():
             messagebox.showerror("Error", "No se pudo obtener la ID del Cliente. Ingrese un N° de Cédula existente", parent=self.register_loan_window)
             return
 
+        # Obtener información del cliente
+        datos_cliente = obtener_datos_cliente(ID_Cliente)
+        if not datos_cliente:
+            messagebox.showerror("Error", "No se pudo obtener la información del cliente.", parent=self.register_loan_window)
+            return
+
         # Obtener ID del Usuario Logueado
         ID_Usuario = self.parent.id_usuario
         if ID_Usuario is None:
@@ -1032,29 +1086,47 @@ class Register_Loans():
         else:
             fecha_limite = (datetime.strptime(fecha_registrar, '%d-%m-%Y') + timedelta(days=3)).strftime('%d-%m-%Y')
 
+        # Confirmación antes de registrar el préstamo
+        confirmacion = messagebox.askyesno("Confirmación de Préstamo", f"""¿Desea registrar el préstamo con los siguientes detalles?
+
+    Detalles del Préstamo:
+    - Título del Libro: {datos_libro['titulo']}
+    - Fecha de Registro: {fecha_registrar}
+    - Fecha Límite: {fecha_limite}
+    - Nombre del Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}
+    - Cédula del Cliente: {Cedula}
+    - Teléfono del Cliente: {datos_cliente['Telefono']}
+    - Número de Registro del Libro: {n_registro}
+
+    Por favor, confirme que todos los detalles son correctos antes de proceder.
+    """, parent=self.register_loan_window)
+
+        if not confirmacion:
+            return
+
         # Crear el préstamo y actualizar las tablas
         if create_loan(ID_Cliente, ID_Prestamo, fecha_registrar, fecha_limite):
             if update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_Usuario):
-                messagebox.showinfo("Éxito", f"""Préstamo Registrado con Éxito
+                messagebox.showinfo("Préstamo Registrado con Éxito", f"""El préstamo ha sido registrado con éxito.
 
     Detalles del Préstamo:
+    - Título del Libro: {datos_libro['titulo']}
     - Fecha de Registro: {fecha_registrar}
     - Fecha Límite: {fecha_limite}
+    - Nombre del Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}
     - Cédula del Cliente: {Cedula}
+    - Teléfono del Cliente: {datos_cliente['Telefono']}
+    - Número de Registro del Libro: {n_registro}
 
     Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha límite.
-    Consulte el apartado de préstamos para obtener más información sobre los libros prestados.
+    Para más información sobre los libros prestados, consulte el apartado de préstamos.
     """, parent=self.register_loan_window)
-                loans_validations.clear_entries_list_register(self)
-                reading_books(self)
+                #loans_validations.clear_entries_list_register(self)
+                self.load_books()
             else:
                 messagebox.showerror("Error", "No se pudo actualizar las tablas. Puede que no haya ejemplares disponibles.", parent=self.register_loan_window)
         else:
             messagebox.showerror("Error", "Préstamo no pudo ser creado.", parent=self.register_loan_window)
-
-
-
-
 
     def cancelar(self, window):
         if messagebox.askyesno(
