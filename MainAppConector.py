@@ -79,18 +79,9 @@ class Menu(tk.Frame):
 
         self.images["logo_salir"] = ImageTk.PhotoImage(nueva_imagen)
         
-        """def mostrar_nombre_usuario(self):
-            global U_nombre  # Declarar que usaremos la variable global
-            if U_nombre:
-                print(f"Nombre de Usuario: {U_nombre}")
-            else:
-                print("No hay nombre de usuario disponible")
-        mostrar_nombre_usuario(self)"""
-        
-        # Crear el botón que abrirá el menú desplegable
         
         
-        self.L_menu_button = tk.Button(self, text="Libros",image=self.images["icono_libros"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:{self.frame_header.update_header_text("Libros"),mostrar_frame(app.L_frame_listar)}, anchor="w", padx=10)
+        self.L_menu_button = tk.Button(self, text="Libros",image=self.images["icono_libros"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:{self.frame_header.update_header_text("Libros"),mostrar_frame(app.books_frame)}, anchor="w", padx=10)
         self.L_menu_button.place(x=0.0, y=0, width=213.0, height=58.0)
         self.L_menu_button.bind("<Enter>", lambda event: self.on_enter(self.L_menu_button))
         self.L_menu_button.bind("<Leave>", lambda event: self.on_leave(self.L_menu_button))
@@ -100,7 +91,7 @@ class Menu(tk.Frame):
         self.Salir.bind("<Enter>", lambda event: self.on_enter(self.Salir))
         self.Salir.bind("<Leave>", lambda event: self.on_leave(self.Salir))
         
-        self.U_menu_button = tk.Button(self, text="Usuarios",image=self.images["icono_usuarios"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:{self.frame_header.update_header_text("Usuarios"), mostrar_frame(app.U_frame_listar)}, anchor="w", padx=10)
+        self.U_menu_button = tk.Button(self, text="Usuarios",image=self.images["icono_usuarios"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat", command=lambda:{self.frame_header.update_header_text("Usuarios"), mostrar_frame(app.users_frame)}, anchor="w", padx=10)
         self.U_menu_button.bind("<Enter>", lambda event: self.on_enter(self.U_menu_button))
         self.U_menu_button.bind("<Leave>", lambda event: self.on_leave(self.U_menu_button))
         
@@ -108,7 +99,7 @@ class Menu(tk.Frame):
         self.P_menu_button.bind("<Enter>", lambda event: self.on_enter(self.P_menu_button))
         self.P_menu_button.bind("<Leave>", lambda event: self.on_leave(self.P_menu_button))
         
-        self.perfil_button = tk.Button(self, text="Mi Perfil",image=self.images["icono_perfil"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat",anchor="w", padx=10, command=lambda:{mostrar_frame(app.frame_perfil), self.frame_header.update_header_text("Mi Perfil")})
+        self.perfil_button = tk.Button(self, text="Mi Perfil",image=self.images["icono_perfil"],compound="left", bg="#041022", fg="#a6a6a6", font=("Inter", 21), relief="flat",anchor="w", padx=10, command=lambda:{mostrar_frame(app.profile_frame), self.frame_header.update_header_text("Mi Perfil")})
         self.perfil_button.bind("<Enter>", lambda event: self.on_enter(self.perfil_button))
         self.perfil_button.bind("<Leave>", lambda event: self.on_leave(self.perfil_button))
         
@@ -137,11 +128,11 @@ class Menu(tk.Frame):
         self.P_dropdown_menu = tk.Menu(self, tearoff=0, bg="#041022", fg="#a6a6a6", font=("Inter", 20),activebackground="#2E59A7", activeforeground="white")
         self.P_dropdown_menu.add_command(
             label="Clientes",
-            command=lambda: {self.frame_header.update_header_text("Prestamos-Clientes"), mostrar_frame(app.P_frame_registrar)}
+            command=lambda: {self.frame_header.update_header_text("Prestamos-Clientes"), mostrar_frame(app.clients_frame)}
         )
         self.P_dropdown_menu.add_command(
             label="Libros",
-            command=lambda: {self.frame_header.update_header_text("Prestamos-Libros"), mostrar_frame(app.P_frame_listar)}
+            command=lambda: {self.frame_header.update_header_text("Prestamos-Libros"), mostrar_frame(app.loans_frame)}
         )
         
         
@@ -287,8 +278,7 @@ class Perfil(tk.Frame):
         self.parent.apellido
         self.parent.cedula"""
 
-
-
+import threading
 class Starter(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -304,14 +294,17 @@ class Starter(tk.Tk):
         self.agarrar_datos()
         print("funciono?")
         print(self.U_nombre)
-        self.L_frame_listar = L_Listar(self)
-        self.U_frame_listar = U_Listar(self)
-        self.P_frame_listar = P_Listar(self)
-        self.P_frame_registrar = C_Listar(self)#CLIENTES
-        self.frame_perfil = Perfil(self)
-
-        self.frame_bienvenida = Bienvenida(self)
-        self.frame_bienvenida.place(x=0, y=0)
+        
+        # Instanciar los frames con nombres descriptivos
+        self.books_frame = L_Listar(self)
+        self.users_frame = U_Listar(self)
+        self.loans_frame = P_Listar(self)
+        self.clients_frame = C_Listar(self)  # CLIENTES
+        self.profile_frame = Perfil(self)
+        self.welcome_frame = Bienvenida(self)
+        
+        # Colocar el frame de bienvenida primero
+        self.welcome_frame.place(x=0, y=0)
 
         self.frame_header = Header(self)
         self.frame_header.place(x=0, y=0, width=1366, height=54)
@@ -319,22 +312,8 @@ class Starter(tk.Tk):
         self.frame_menu = Menu(self, lambda frame: self.mostrar_frame(frame), self.frame_header)
         self.frame_menu.place(x=0, y=53, width=215, height=714)
         
-        #if usuario_actual:
-        
-        #self.id_usuario = usuario_actual.id_usuario if usuario_actual else None
-        #print(self.id_usuario)
-            
-        """id_cargo=usuario_actual.id_cargo
-        id_rol=usuario_actual.id_rol
-        nombre=usuario_actual.nombre
-        apellido=usuario_actual.apellido
-        cedula=usuario_actual.cedula
-        nombre_usuario=usuario_actual.nombre_usuario
-        print("dato recivido")
-        print(id_usuario)
-    else:
-        print("error")"""
-        
+        # Mostrar mensaje de préstamos vencidos después de cargar la interfaz
+        self.after(100, mostrar_mensaje_prestamos_vencidos)
         
     def agarrar_datos(self):
         from users.backend.db_users import Usuario, usuario_actual
@@ -359,25 +338,19 @@ class Starter(tk.Tk):
             print(self.U_nombre)
         else:
             print("No hay usuario logueado")
-
     
-        
-    
-    
-        
     def mostrar_frame(self, frame):
         frames = [
-            self.frame_bienvenida, self.L_frame_listar, 
-            self.U_frame_listar,
-            self.P_frame_listar, 
-            self.P_frame_registrar, self.frame_perfil
+            self.welcome_frame, self.books_frame, 
+            self.users_frame, self.loans_frame, 
+            self.clients_frame, self.profile_frame
         ]
         
         for f in frames:
-            f.place_forget()# De esta forma se ocultan todos los frames antes de mostrar el frame deseado
+            f.place_forget()  # De esta forma se ocultan todos los frames antes de mostrar el frame deseado
         
-        frame.place(x=0, y=0)# Hace que el frame sea visible
-        #De esta forma se deja siempre visible tanto el header como el menu
+        frame.place(x=0, y=0)  # Hace que el frame sea visible
+        # De esta forma se deja siempre visible tanto el header como el menu
         self.frame_menu.lift()
         self.frame_header.lift()
 
@@ -385,14 +358,9 @@ class Starter(tk.Tk):
         self.mainloop()
 
 def start_starter():
-    global app# De esta forma permite que se pueda acceder a la instancia Starter
+    global app  # De esta forma permite que se pueda acceder a la instancia Starter
     app = Starter()
     app.mainloop()
 
-
-
 if __name__ == "__main__":
     start_starter()
-
-
-#hola

@@ -20,11 +20,12 @@ from loans.backend.db_loans import get_cliente_id_by_cedula,get_libro_id_by_regi
 from loans.backend.db_loans import load_active_loans, es_novela
 from util.ventana import centrar_ventana
 from validations.clients_validations import limit_length
+from books.backend.db_books import get_book_data,search_books
 def validate_number_input(text):
         if text == "":
             return True
         try:
-            float(text)
+            int(text)
             return True
         except ValueError:
             return False
@@ -54,7 +55,7 @@ class P_Listar(tk.Frame):
         self.validate_number = self.register(validate_number_input)
         # Texto para el nombre
 
-        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar", fill="#031A33", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar por Cédula", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1175.0, 170.0, text="Renovar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#031A33", font=("Bold", 17))
         self.canvas.create_text(1075.0, 170.0, text="Agregar", fill="#031A33", font=("Bold", 17))
@@ -109,7 +110,7 @@ class P_Listar(tk.Frame):
             image=self.images['boton_refrescar'],
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: load_active_loans(self),
+            command=lambda: self.refresh_loans_data(),
             relief="flat",
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
@@ -219,7 +220,9 @@ class P_Listar(tk.Frame):
         
         
         
-        
+    def refresh_loans_data(self):
+        load_active_loans(self)
+        mostrar_mensaje_prestamos_vencidos()
 
 
     def get_data_page(self, offset, limit):
@@ -290,7 +293,7 @@ class P_Listar(tk.Frame):
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
                 query = """
-                    SELECT c.Cedula, c.Nombre AS Nombre_Cliente, l.titulo AS Nombre_Libro, l.n_registro AS N_Registro, p.Fecha_Registro, p.Fecha_Limite, u.Nombre AS Nombre_Usuario, cp.ID_Prestamo
+                    SELECT c.Cedula, c.Nombre AS Nombre_Cliente, l.titulo AS Nombre_Libro, l.n_registro AS N_Registro, p.Fecha_Registro, p.Fecha_Limite, u.Nombre AS Nombre_Usuario, cp.ID_Prestamo, c.ID_Cliente
                     FROM cliente_prestamo cp 
                     JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente 
                     JOIN libro l ON cp.ID_Libro = l.ID_Libro
@@ -331,20 +334,35 @@ class P_Listar(tk.Frame):
 
                     self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
                     total_prestamos = len(resultados_prestamo)
-                    if prestamos_vencidos > 0:
-                        messagebox.showinfo("Búsqueda Exitosa de Préstamos", f"""
-                        Búsqueda exitosa de préstamos:
-                        - Total de Préstamos: {total_prestamos}
-                        - Préstamos Vencidos: {prestamos_vencidos}
+                    
+                    # Obtener los datos del cliente
+                    cliente_id = resultados_prestamo[0][8]
+                    datos_cliente = obtener_datos_cliente(cliente_id)
+                    
+                    if datos_cliente:
+                        nombre_cliente = datos_cliente["Nombre"]
+                        apellido_cliente = datos_cliente["Apellido"]
+                        mensaje_exito = f"""Préstamos del cliente: {nombre_cliente} {apellido_cliente}\n- Total de Préstamos: {total_prestamos}\n- Préstamos Vencidos: {prestamos_vencidos}"""
 
-                        Por favor, contacte al cliente para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de clientes para obtener más información sobre los datos del cliente.
-                        """)
+                        if prestamos_vencidos > 0:
+                            mensaje_exito += """
+
+    Por favor, contacte al cliente para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de clientes para obtener más información sobre los datos del cliente.
+    """
+
+                        messagebox.showinfo("Búsqueda Exitosa de Préstamos", mensaje_exito)
                     else:
-                        messagebox.showinfo("Búsqueda Exitosa de Préstamos", f"""
+                        mensaje_exito = f"""
                         Búsqueda exitosa de préstamos:
                         - Total de Préstamos: {total_prestamos}
                         - Préstamos Vencidos: {prestamos_vencidos}
-                        """)
+                        """
+                        if prestamos_vencidos > 0:
+                            mensaje_exito += """
+
+    Por favor, contacte al cliente para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de clientes para obtener más información sobre los datos del cliente.
+    """
+                        messagebox.showinfo("Búsqueda Exitosa de Préstamos", mensaje_exito)
                 else:
                     self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
                     messagebox.showinfo("Búsqueda Fallida de Préstamos", f"No se encontraron préstamos asociados a la cédula '{busqueda}'. Por favor, verifique la cédula ingresada.")
@@ -355,11 +373,6 @@ class P_Listar(tk.Frame):
                 mariadb_conexion.close()
 
 
-
-
-
-
-    
     def update_selected_loan_due_date(self):
         selected_client = self.cliente_prestamo_table.selection()
         if selected_client:
@@ -368,21 +381,36 @@ class P_Listar(tk.Frame):
             id_prestamo = client_values[7]  # Asumiendo que ID_Prestamo es el octavo valor en la tupla
             print(f"Préstamo seleccionado: {client_values}")
 
-            # Mostrar mensaje de confirmación
-            mensaje_confirmacion = f"""¿Está seguro de que desea renovar el préstamo?
+            # Obtener el ID del cliente usando la cédula
+            cedula_cliente = client_values[0]
+            cliente_id = get_cliente_id_by_cedula(cedula_cliente)
             
+            if cliente_id:
+                # Obtener los datos del cliente usando el ID
+                datos_cliente = obtener_datos_cliente(cliente_id)
+                if datos_cliente:
+                    nombre_cliente = datos_cliente["Nombre"]
+                    apellido_cliente = datos_cliente["Apellido"]
+
+                    # Mostrar mensaje de confirmación
+                    mensaje_confirmacion = f"""¿Está seguro de que desea renovar el préstamo?
+                    
     Detalles del Préstamo:
     - Título del Libro: {client_values[2]}
     - Fecha de Registro: {client_values[4]}
     - Fecha Límite Actual: {client_values[5]}
-    - Nombre del Cliente: {client_values[1]}
-    - Cédula del Cliente: {client_values[0]}"""
+    - Nombre del Cliente: {nombre_cliente} {apellido_cliente}
+    - Cédula del Cliente: {cedula_cliente}"""
 
-            if messagebox.askyesno("Confirmar Renovación", mensaje_confirmacion):
-                if renew_loan_due_date(id_prestamo):
-                    messagebox.showinfo("Éxito", "La fecha límite del préstamo se ha actualizado correctamente.")
+                    if messagebox.askyesno("Confirmar Renovación", mensaje_confirmacion):
+                        if renew_loan_due_date(id_prestamo):
+                            messagebox.showinfo("Éxito", "La fecha límite del préstamo se ha actualizado correctamente.")
+                        else:
+                            messagebox.showerror("Error", "No se pudo actualizar la fecha límite del préstamo.")
                 else:
-                    messagebox.showerror("Error", "No se pudo actualizar la fecha límite del préstamo.")
+                    messagebox.showerror("Error", "No se pudo obtener los datos del cliente.")
+            else:
+                messagebox.showerror("Error", "No se pudo obtener el ID del cliente.")
         else:
             messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un cliente para modificar el préstamo.")
 
@@ -396,22 +424,6 @@ class P_Listar(tk.Frame):
         # Asumimos que el ID_Libro está en la primera columna
         self.ID_Libro = item_values[0]
     
-
-
-    def mostrar_mensaje_prestamos_vencidos(self):
-        prestamos_vencidos = obtener_prestamos_vencidos()
-        if prestamos_vencidos:
-            mensaje_vencidos = "Hay préstamos vencidos asociados a los siguientes clientes:\n\n"
-            for prestamo in prestamos_vencidos:
-                id_cliente = prestamo[0]
-                datos_cliente = obtener_datos_cliente(id_cliente)
-                if datos_cliente:
-                    mensaje_vencidos += f"Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}\nCédula: {datos_cliente['Cedula']}\nTeléfono: {datos_cliente['Telefono']}\nPréstamos Vencidos: {prestamo[1]}\n\n"           
-            mensaje_vencidos += "Por favor, contacte a los clientes para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de préstamos para obtener más información sobre los libros prestados."
-            messagebox.showwarning("Préstamos Vencidos", mensaje_vencidos)
-
-
-
 
 
     def show_report_window(self):
@@ -736,10 +748,18 @@ class Register_Loans():
         self.data = []
         #self.agarrar_datos()
         self.page_size = 19
+   
         self.current_page = 0
         
         self.setup_window()
 
+        # Llamada a la función para cargar los libros
+        self.load_books()
+        # Llamada a la función para mostrar la página actual
+        self.display_page(self.data, self.current_page, self.page_size)
+        self.mostrar_mensaje_prestamos_vencidos()
+
+        
     def setup_window(self):
         self.register_loan_window.title("Registrar Préstamo")
         self.register_loan_window.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
@@ -830,8 +850,7 @@ class Register_Loans():
         self.page_label = tk.Label(self.left_frame_list, text=f"Página {self.current_page + 1}", bg="#042344", fg="White", font=("Montserrat Regular", 13))
         self.page_label.pack(side=tk.BOTTOM, pady=15)
         # Llama a reading_books después de definir self.page_label
-        self.reading_books()
-
+      
         
         self.images['boton_r'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
         self.boton_R = tk.Button(
@@ -850,28 +869,13 @@ class Register_Loans():
         self.cedula.bind("<KeyRelease>", lambda event: self.loans_validations.validate_entries(self, event))
         self.cedula.bind("<KeyPress>",self.key_on_press_search)
         #self.cedula.bind("<Return>", lambda event: self.save_modifications())
-        self.mostrar_mensaje_prestamos_vencidos()
+        
+
     def key_on_press_search(self, event):
         current_text = self.cedula.get()
         limited_text = limit_length(current_text, 10)
         self.cedula.delete(0, 'end')
         self.cedula.insert(0, limited_text)
-    def reading_books(self):
-        try:
-            mariadb_conexion = establecer_conexion()
-            if mariadb_conexion:
-                cursor = mariadb_conexion.cursor()
-                cursor.execute('''
-                    SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares
-                    FROM libro WHERE estado_libro='activo'
-                ''')
-                self.data = cursor.fetchall()
-                mariadb_conexion.close()
-                self.current_page = 0  # Resetear a la primera página
-                self.is_search_active = False  # Asegurar que estamos en modo normal
-                self.display_page2()
-        except mariadb.Error as ex:
-            print("Error durante la conexión:", ex)
 
     def on_treeview_select(self, event):
         # Obtener el elemento seleccionado
@@ -881,38 +885,94 @@ class Register_Loans():
         # Asumimos que el ID_Libro está en la primera columna
         self.ID_Libro = item_values[0]
     
-    def get_data_page(self, offset, limit):
-        return self.data[offset:offset + limit]
-    def display_page2(self):
+    def boton_buscar(self, event):
+        busqueda = self.buscar.get().strip()
+        campo_seleccionado = self.campo_busqueda.get()  # Obtener el campo seleccionado
+        campo_real = self.filter_options[campo_seleccionado]  # Traducir al nombre real de la columna
+        
+        if not busqueda:
+            messagebox.showinfo("Búsqueda Fallida de Libro", f"No se ingresó ningún término de búsqueda. Por favor, ingrese un término para buscar en el campo '{campo_seleccionado}'.")
+            return
+        
+        # Convertir la búsqueda a minúsculas y eliminar tildes
+        busqueda_normalizada = unidecode.unidecode(busqueda).lower()
+        
+        try:
+            self.search_data = search_books(campo_real, busqueda_normalizada)
+            self.search_current_page = 0  # Resetear la página a la primera página
+            self.is_search_active = True
+
+            if self.search_data:
+                # Limpiar la tabla antes de insertar nuevos resultados
+                self.book_table_list.delete(*self.book_table_list.get_children())
+                self.display_page(self.search_data, self.search_current_page, self.search_page_size, is_search=True)
+                self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
+                messagebox.showinfo("Búsqueda Exitosa de Libro", f"Se encontraron {len(self.search_data)} resultados para '{busqueda}' en el campo '{campo_seleccionado}'.")
+            else:
+                self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
+                messagebox.showinfo("Búsqueda Fallida de Libro", f"No se encontraron resultados para '{busqueda}' en el campo '{campo_seleccionado}'.")
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
+
+    def display_page(self, data, current_page, page_size, is_search=False):
+        # Limpiar la tabla antes de insertar nuevos resultados
         for row in self.book_table_list.get_children():
             self.book_table_list.delete(row)
-        page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
-        for fila in page_data:
-            n_ejemplares = fila[11]
+        
+        # Obtener los datos de la página actual
+        offset = current_page * page_size
+        page_data = data[offset:offset + page_size]
+        
+        # Insertar los nuevos resultados
+        for row in page_data:
+            n_ejemplares = row[12]
             tag = 'multiple' if n_ejemplares > 1 else 'single'
-            parent = self.book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
-            if n_ejemplares > 1:
-                for i in range(1, n_ejemplares + 1):
-                    self.book_table_list.insert(parent, "end", text=f"Ejemplar {i}", values=tuple(fila), tags=('single',))
+            self.book_table_list.insert("", "end", values=row, tags=(tag,))
+        
+        # Configurar las etiquetas para los colores
         self.book_table_list.tag_configure('multiple', background='lightblue')
         self.book_table_list.tag_configure('single', background='#E5E1D7')
-        self.update_page_label()
+        
+        # Actualizar la etiqueta de la página
+        self.update_page_label(len(data), current_page, page_size, is_search)
+
+
+    def load_books(self):
+        try:
+            self.data = get_book_data()
+            self.current_page = 0  # Resetear a la primera página
+            self.is_search_active = False  # Asegurar que estamos en modo normal
+            self.display_page(self.data, self.current_page, self.page_size)
+        except Exception as ex:
+            print("Error al cargar los libros:", ex)
+
 
 
     def next_page(self):
-        if (self.current_page + 1) * self.page_size < len(self.data):
-            self.current_page += 1
-            self.display_page2()
+        if self.is_search_active:
+            if (self.search_current_page + 1) * self.search_page_size < len(self.search_data):
+                self.search_current_page += 1
+                self.display_page(self.search_data, self.search_current_page, self.search_page_size, is_search=True)
+        else:
+            if (self.current_page + 1) * self.page_size < len(self.data):
+                self.current_page += 1
+                self.display_page(self.data, self.current_page, self.page_size)
 
     def previous_page(self):
-        if self.current_page > 0:
-            self.current_page -= 1
-            self.display_page2()
+        if self.is_search_active:
+            if self.search_current_page > 0:
+                self.search_current_page -= 1
+                self.display_page(self.search_data, self.search_current_page, self.search_page_size, is_search=True)
+        else:
+            if self.current_page > 0:
+                self.current_page -= 1
+                self.display_page(self.data, self.current_page, self.page_size)
 
-    def update_page_label(self):
-        total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
-        self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
-    
+
+    def update_page_label(self, total_data, current_page, page_size, is_search=False):
+        total_pages = (total_data + page_size - 1) // page_size  # Calcular el total de páginas
+        self.page_label.config(text=f"Página {current_page + 1} de {total_pages}")
+
     def mostrar_mensaje_prestamos_vencidos(self):
         prestamos_vencidos = obtener_prestamos_vencidos()
         if prestamos_vencidos:
@@ -946,7 +1006,7 @@ class Register_Loans():
         n_registro = datos_libro["n_registro"]
 
         # Validar si el libro ya está prestado
-        error_libro_prestado = validar_libro_no_prestado(n_registro)
+        error_libro_prestado = validar_libro_no_prestado(n_registro, Cedula)
         if error_libro_prestado:
             messagebox.showerror("Error de Préstamo", error_libro_prestado, parent=self.register_loan_window)
             return
@@ -1011,6 +1071,7 @@ class Register_Loans():
                 messagebox.showerror("Error", "No se pudo actualizar las tablas. Puede que no haya ejemplares disponibles.", parent=self.register_loan_window)
         else:
             messagebox.showerror("Error", "Préstamo no pudo ser creado.", parent=self.register_loan_window)
+
 
 
 

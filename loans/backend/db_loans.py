@@ -81,8 +81,7 @@ def load_active_loans(self):
         self.cliente_prestamo_table.tag_configure('vencido', background='#FF4C4C')
         self.cliente_prestamo_table.tag_configure('activo', background='white')
 
-        # Mostrar mensaje de préstamos vencidos después de cargar la interfaz
-        self.after(100, self.mostrar_mensaje_prestamos_vencidos)
+        
 
     except mariadb.Error as ex:
         print(f"Error during query execution: {ex}")
@@ -184,6 +183,18 @@ def obtener_prestamos_vencidos():
             mariadb_conexion.close()
             print("Connection closed.")
 
+
+def mostrar_mensaje_prestamos_vencidos():
+    prestamos_vencidos = obtener_prestamos_vencidos()
+    if prestamos_vencidos:
+        mensaje_vencidos = "Hay préstamos vencidos asociados a los siguientes clientes:\n\n"
+        for prestamo in prestamos_vencidos:
+            id_cliente = prestamo[0]
+            datos_cliente = obtener_datos_cliente(id_cliente)
+            if datos_cliente:
+                mensaje_vencidos += f"Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}\nCédula: {datos_cliente['Cedula']}\nTeléfono: {datos_cliente['Telefono']}\nPréstamos Vencidos: {prestamo[1]}\n\n"           
+        mensaje_vencidos += "Por favor, contacte a los clientes para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de préstamos para obtener más información sobre los libros prestados."
+        messagebox.showwarning("Préstamos Vencidos", mensaje_vencidos)
 
 
 # Función para crear un préstamo para cada cliente
@@ -522,6 +533,8 @@ def delete_selected_prestamo(self):
     finally:
         if mariadb_conexion:
             mariadb_conexion.close()
+
+
 
 
 def es_novela(id_libro):

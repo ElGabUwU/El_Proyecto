@@ -7,6 +7,39 @@ from tkinter import messagebox
 init(autoreset=True)
 
 
+def obtener_e_imprimir_asignaturas_infantil():
+    try:
+        conn = establecer_conexion()
+        if conn:
+            cursor = conn.cursor()
+            query = """
+                SELECT ID_Asignatura, Cota
+                FROM libro
+                WHERE ID_Sala = '1I' AND (LENGTH(Cota) = 3 AND Cota REGEXP '^[a-zA-Z]+$')
+            """
+            cursor.execute(query)
+            resultados = cursor.fetchall()
+            conn.close()
+            
+            if resultados:
+                print("Asignaturas en la sala infantil con cotas repetidas o solo de letras:")
+                asignaturas = {}
+                for asignatura, cota in resultados:
+                    if asignatura not in asignaturas:
+                        asignaturas[asignatura] = []
+                    asignaturas[asignatura].append(cota)
+                
+                for asignatura, cotas in asignaturas.items():
+                    longitudes = [len(cota) for cota in cotas]
+                    longitud_min = min(longitudes)
+                    longitud_max = max(longitudes)
+                    print(f"Asignatura: {asignatura}, Longitud mínima de cota: {longitud_min}, Longitud máxima de cota: {longitud_max}")
+            else:
+                print("No se encontraron asignaturas con las condiciones especificadas.")
+    except mariadb.Error as e:
+        print(f"Error durante la consulta: {e}")
+
+
 
 def obtener_datos_libros():
     try:
@@ -23,42 +56,45 @@ def obtener_datos_libros():
         print(f"Error durante la conexión: {ex}")
         return []
 
-
-# Leer todos los libros
-def read_books(book_name):
+#FUNCIONES QUE SE USAN PARA LISTAR TODOS LOS LIBROS 
+def get_book_data(book_status='activo'):
     try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:#.is_connected():
-            cursor=mariadb_conexion.cursor()
-            cursor.execute('''
-                SELECT * FROM libro''')
-            resultados=cursor.fetchall()
-            print("\t\t\t\t\t===================LEYENDA========================")
-            print("\n")
-            print(f"\t\t\t\t\t\t ||{Fore.BLUE}IDLibro{Fore.LIGHTWHITE_EX}--{Fore.BLUE}Cota{Fore.LIGHTWHITE_EX}--{Fore.BLUE}IDPrestamo{Fore.LIGHTWHITE_EX}||")
-            print("\n")
-            print(f"\t\t\t\t\t    ||{Fore.GREEN}IDCategoria{Fore.LIGHTWHITE_EX}--{Fore.GREEN}IDSala{Fore.LIGHTWHITE_EX}--{Fore.GREEN}IDAsignatura{Fore.LIGHTWHITE_EX}||")
-            print("\n")
-            print(f"\t\t\t\t\t\t||{Fore.RED}N°Registro{Fore.LIGHTWHITE_EX}--{Fore.RED}Autor{Fore.LIGHTWHITE_EX}--{Fore.RED}Titulo{Fore.LIGHTWHITE_EX}||")
-            print("\n")
-            print(f"\t\t\t\t\t   ||{Fore.YELLOW}Asignatura{Fore.LIGHTWHITE_EX}--{Fore.YELLOW}N°Volumenes{Fore.LIGHTWHITE_EX}--{Fore.YELLOW}N°Ejemplares{Fore.LIGHTWHITE_EX}||")
-            print("\n")
-            print(f"\t\t\t\t\t\t  ||{Fore.CYAN}Edición{Fore.LIGHTWHITE_EX}--{Fore.CYAN}Año{Fore.LIGHTWHITE_EX}--{Fore.CYAN}Editorial{Fore.LIGHTWHITE_EX}||")
-            print("\t\t\t\t\t===================================================")
-            for fila in resultados:
-                print(f"""
-    ||===================================================================================||
-    |||{Fore.BLUE}{fila[0]}--{fila[1]}--{fila[2]}{Fore.LIGHTWHITE_EX}
-    |||{Fore.GREEN}{fila[3]}--{fila[4]}--{fila[5]}{Fore.LIGHTWHITE_EX}
-    |||{Fore.RED}{fila[6]}--{fila[7]}--{fila[8]}{Fore.LIGHTWHITE_EX}
-    |||{Fore.YELLOW}{fila[9]}-{fila[10]}--{fila[11]}{Fore.LIGHTWHITE_EX}
-    |||{Fore.CYAN}{fila[12]}-{fila[13]}-
-    ||===================================================================================||
-                    """)
-            mariadb_conexion.close()
-            return resultados
+        mariadb_connection = establecer_conexion()
+        if mariadb_connection:
+            cursor = mariadb_connection.cursor()
+            query = """
+                SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares
+                FROM libro
+                WHERE estado_libro=%s
+            """
+            cursor.execute(query, (book_status,))
+            data = cursor.fetchall()
+            mariadb_connection.close()
+            return data
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
+    return []
+
+
+
+def search_books(field, term):
+    try:
+        mariadb_connection = establecer_conexion()
+        if mariadb_connection:
+            cursor = mariadb_connection.cursor()
+            query = f"""
+                SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares 
+                FROM libro 
+                WHERE LOWER({field}) LIKE %s
+            """
+            cursor.execute(query, (f'%{term}%',))
+            data = cursor.fetchall()
+            mariadb_connection.close()
+            return data
+    except mariadb.Error as ex:
+        print("Error durante la conexión:", ex)
+    return []
+
 
 # Actualizar un libro
 def check_asignatura_exists(cursor, ID_Asignatura):
