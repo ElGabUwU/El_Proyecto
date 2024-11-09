@@ -17,7 +17,7 @@ from validations import loans_validations
 from util.utilidades import resource_path
 from validations.loans_validations import *
 from loans.backend.db_loans import get_cliente_id_by_cedula,get_libro_id_by_registro
-from loans.backend.db_loans import reading_books,load_active_loans, es_novela
+from loans.backend.db_loans import load_active_loans, es_novela
 from util.ventana import centrar_ventana
 from validations.clients_validations import limit_length
 def validate_number_input(text):
@@ -175,12 +175,12 @@ class P_Listar(tk.Frame):
                             foreground="#000000", 
                             borderwidth=0)
 
-        columns2 = ("Cedula", "Cliente", "Nombre del Libro", "N° Registro", "F.Registro", "F.Limite", "Encargado")
+        columns2 = ("Cedula", "Cliente", "Nombre del Libro", "N° Registro", "F.Registro", "F.Limite", "Encargado", "ID_Prestamo", "ID_Usuario")
         self.cliente_prestamo_table = ttk.Treeview(self.left_frame2, columns=columns2, show='headings', style="Rounded.Treeview", selectmode="browse")
-        
+
         for col2 in columns2:
             self.cliente_prestamo_table.heading(col2, text=col2)
-            if col2 == "ID_Prestamo":
+            if col2 in ["ID_Prestamo", "ID_Usuario"]:
                 self.cliente_prestamo_table.column(col2, width=0, stretch=False)  # Ocultar la columna
             else:
                 self.cliente_prestamo_table.column(col2, width=90, anchor="center")
@@ -512,7 +512,8 @@ class GenerarReportePDF(tk.Toplevel):
                         p.Fecha_Registro,
                         p.Fecha_Limite,
                         u.Nombre AS Nombre_Usuario,
-                        cp.ID_CP
+                        cp.ID_CP,
+                        u.ID_Usuario
                     FROM 
                         cliente_prestamo cp
                     JOIN
@@ -536,7 +537,8 @@ class GenerarReportePDF(tk.Toplevel):
                         "Fecha_Registro": resultado[4],
                         "Fecha_Limite": resultado[5],
                         "Nombre_Usuario": resultado[6],
-                        "ID_CP": resultado[7]
+                        "ID_CP": resultado[7],
+                        "ID_Usuario": resultado[8]
                     })
                 mariadb_conexion.close()
         except mariadb.Error as ex:
@@ -560,7 +562,8 @@ class GenerarReportePDF(tk.Toplevel):
                         p.Fecha_Registro,
                         p.Fecha_Limite,
                         u.Nombre AS Nombre_Usuario,
-                        cp.ID_CP
+                        cp.ID_CP,
+                        u.ID_Usuario
                     FROM 
                         cliente_prestamo cp
                     JOIN
@@ -584,7 +587,8 @@ class GenerarReportePDF(tk.Toplevel):
                         "Fecha_Registro": resultado[4],
                         "Fecha_Limite": resultado[5],
                         "Nombre_Usuario": resultado[6],
-                        "ID_CP": resultado[7]
+                        "ID_CP": resultado[7],
+                        "ID_Usuario": resultado[8]
                     })
                 mariadb_conexion.close()
         except mariadb.Error as ex:
@@ -826,7 +830,8 @@ class Register_Loans():
         self.page_label = tk.Label(self.left_frame_list, text=f"Página {self.current_page + 1}", bg="#042344", fg="White", font=("Montserrat Regular", 13))
         self.page_label.pack(side=tk.BOTTOM, pady=15)
         # Llama a reading_books después de definir self.page_label
-        reading_books(self)
+        self.reading_books()
+
         
         self.images['boton_r'] = tk.PhotoImage(file=resource_path("assets_2/R_button_light_blue.png"))
         self.boton_R = tk.Button(
@@ -864,7 +869,7 @@ class Register_Loans():
                 mariadb_conexion.close()
                 self.current_page = 0  # Resetear a la primera página
                 self.is_search_active = False  # Asegurar que estamos en modo normal
-                self.display_page()
+                self.display_page2()
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
 
@@ -970,6 +975,23 @@ class Register_Loans():
             fecha_limite = (datetime.strptime(fecha_registrar, '%d-%m-%Y') + timedelta(days=8)).strftime('%d-%m-%Y')
         else:
             fecha_limite = (datetime.strptime(fecha_registrar, '%d-%m-%Y') + timedelta(days=3)).strftime('%d-%m-%Y')
+
+        # Validar los campos
+        errores = validar_campos_loans(
+            Cedula,
+            ID_Libro,
+            None  # No hay ID de libro para registro
+        )
+        
+        print(f"Errores: {errores}")  # Agregar esta línea para depuración
+
+        if errores:        
+            messagebox.showerror("Error al registrar", "Por favor, corrija los siguientes errores:\n\n" + "\n".join(f"- {msg}" for msg in errores),parent=self)
+            return
+
+        # Depuración de los valores que se van a pasar a create_books
+        print(f"Valores para registro: Cedula={Cedula}, ID_Libro={ID_Libro}, N° Registro={n_registro}")
+
         # Crear el préstamo y actualizar las tablas
         if create_loan(ID_Cliente, ID_Prestamo, fecha_registrar, fecha_limite):
             if update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_Usuario):

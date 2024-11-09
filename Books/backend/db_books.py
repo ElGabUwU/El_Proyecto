@@ -92,6 +92,7 @@ def obtener_longitudes_min_max():
     except mariadb.Error as ex:
         print(f"Error durante la consulta: {ex}")
         return None
+    
 def create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año):
     print("Valores recibidos para insertar el libro:")
     print("ID_Sala:", ID_Sala)
@@ -113,31 +114,36 @@ def create_books(ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion
             
             # Verificar si ya existen registros con la misma sala, categoría, asignatura, autor, editorial, título y año
             cursor.execute('''
-                SELECT n_ejemplares
+                SELECT ID_Libro, n_ejemplares, estado_libro
                 FROM libro
                 WHERE ID_Sala = %s AND ID_Categoria = %s AND ID_Asignatura = %s AND autor = %s AND editorial = %s AND titulo = %s AND año = %s
             ''', (ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año))
             resultado = cursor.fetchall()
 
-            # Incrementar el número de ejemplares si existen registros coincidentes
-            if resultado:
-                n_ejemplares_actual = max([row[0] for row in resultado])
-                n_ejemplares_nuevo = n_ejemplares_actual + 1
-                
+            libro_eliminado = None
+            n_ejemplares_actual = 0
+
+            for row in resultado:
+                if row[2] == 'eliminado':
+                    libro_eliminado = row[0]
+                else:
+                    n_ejemplares_actual = max(n_ejemplares_actual, row[1])
+
+            if libro_eliminado:
+                # Reactivar el libro eliminado
                 cursor.execute('''
                     UPDATE libro
-                    SET n_ejemplares = %s
-                    WHERE ID_Sala = %s AND ID_Categoria = %s AND ID_Asignatura = %s AND autor = %s AND editorial = %s AND titulo = %s AND año = %s
-                ''', (n_ejemplares_nuevo, ID_Sala, ID_Categoria, ID_Asignatura, autor, editorial, titulo, año))
-                
+                    SET estado_libro = 'activo', n_ejemplares = n_ejemplares + 1
+                    WHERE ID_Libro = %s
+                ''', (libro_eliminado,))
             else:
-                n_ejemplares_nuevo = 1
-            
-            # Insertar el nuevo libro con el número de ejemplares incrementado
-            cursor.execute('''
-                INSERT INTO libro (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ''', (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares_nuevo))
+                n_ejemplares_nuevo = n_ejemplares_actual + 1
+                
+                # Insertar el nuevo libro con el número de ejemplares incrementado
+                cursor.execute('''
+                    INSERT INTO libro (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares, estado_libro)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'activo')
+                ''', (ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares_nuevo))
             
             mariadb_conexion.commit()
             mariadb_conexion.close()

@@ -3,7 +3,7 @@ from pathlib import Path
 from tkinter import ttk, messagebox
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 from tkinter import font
-from books.backend.db_books import *
+from Books.backend.db_books import *
 from validations.books_validations import *
 from PIL import Image,ImageTk
 import random
@@ -575,6 +575,8 @@ class L_Listar(tk.Frame):
 
         self.book_table_list.tag_configure('match', background='green')
         self.book_table_list.tag_configure('nomatch', background='gray')
+
+
     def reading_books(self):
         try:
             mariadb_conexion = establecer_conexion()
@@ -595,39 +597,39 @@ class L_Listar(tk.Frame):
             print("Error al importar el archivo SQL:", e)
 
             
-            #CARGAR LIBROS FUNCION ANTIGUA!
-    """def reading_books(self, book_table_list):
-        try:
-            mariadb_conexion = establecer_conexion()
-            if mariadb_conexion:
-                cursor = mariadb_conexion.cursor()
-                cursor.execute('''
-                    SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares
-                    FROM libro WHERE estado_libro='activo'
-                ''')
-                resultados = cursor.fetchall()
+    #         #CARGAR LIBROS FUNCION ANTIGUA!
+    # """def reading_books(self, book_table_list):
+    #     try:
+    #         mariadb_conexion = establecer_conexion()
+    #         if mariadb_conexion:
+    #             cursor = mariadb_conexion.cursor()
+    #             cursor.execute('''
+    #                 SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_volumenes, n_ejemplares
+    #                 FROM libro WHERE estado_libro='activo'
+    #             ''')
+    #             resultados = cursor.fetchall()
                 
-                # Limpiar la tabla antes de insertar nuevos datos
-                for row in book_table_list.get_children():
-                    book_table_list.delete(row)
+    #             # Limpiar la tabla antes de insertar nuevos datos
+    #             for row in book_table_list.get_children():
+    #                 book_table_list.delete(row)
                 
-                # Configurar las etiquetas para los colores
-                book_table_list.tag_configure('multiple', background='lightblue')
-                book_table_list.tag_configure('single', background='#E5E1D7')
+    #             # Configurar las etiquetas para los colores
+    #             book_table_list.tag_configure('multiple', background='lightblue')
+    #             book_table_list.tag_configure('single', background='#E5E1D7')
                 
-                # Insertar los datos en el Treeview
-                for fila in resultados:
-                    book_id = fila[0]
-                    n_ejemplares = fila[12]
-                    tag = 'multiple' if n_ejemplares > 1 else 'single'
-                    book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
+    #             # Insertar los datos en el Treeview
+    #             for fila in resultados:
+    #                 book_id = fila[0]
+    #                 n_ejemplares = fila[12]
+    #                 tag = 'multiple' if n_ejemplares > 1 else 'single'
+    #                 book_table_list.insert("", "end", values=tuple(fila), tags=(tag,))
                     
                 
-                mariadb_conexion.close()
-        except mariadb.Error as ex:
-            print("Error durante la conexión:", ex)
-        except subprocess.CalledProcessError as e:
-            print("Error al importar el archivo SQL:", e)"""
+    #             mariadb_conexion.close()
+    #     except mariadb.Error as ex:
+    #         print("Error durante la conexión:", ex)
+    #     except subprocess.CalledProcessError as e:
+    #         print("Error al importar el archivo SQL:", e)"""
    
 
     def cancelar(self, window):
@@ -1541,7 +1543,6 @@ class L_Modificar(tk.Toplevel):
     def cancelar(self, window):
         if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana? Todos los cambios no guardados en el libro se perderán.", parent=self):
             window.destroy()
-
 
 
     def clear_entries_modify(self):

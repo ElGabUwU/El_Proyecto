@@ -12,20 +12,20 @@ def insert_new_loan(cursor, ID_Prestamo, fecha_registrar, fecha_limite):
     except mariadb.Error as e:
         print(f"1)Error en insert_new_loan (t. prestamo): {e}")
 
-def associate_loan_with_client(cursor, ID_Cliente, ID_Prestamo):
-    query = """
-    INSERT INTO cliente_prestamo (ID_Cliente, ID_Prestamo)
-    VALUES (%s, %s)
-    """
-    cursor.execute(query, (ID_Cliente, ID_Prestamo))
-    print(f"2)associate_loan_with_client ejecutado (t. cliente prestamo): {ID_Cliente}, {ID_Prestamo}")
+# def associate_loan_with_client(cursor, ID_Cliente, ID_Prestamo):
+#     query = """
+#     INSERT INTO cliente_prestamo (ID_Cliente, ID_Prestamo)
+#     VALUES (%s, %s)
+#     """
+#     cursor.execute(query, (ID_Cliente, ID_Prestamo))
+#     print(f"2)associate_loan_with_client ejecutado (t. cliente prestamo): {ID_Cliente}, {ID_Prestamo}")
 
-def get_new_id_cp(cursor, ID_Cliente, ID_Prestamo):
-    query = "SELECT ID_CP FROM cliente_prestamo WHERE ID_Cliente = %s AND ID_Prestamo = %s"
-    cursor.execute(query, (ID_Cliente, ID_Prestamo))
-    result = cursor.fetchone()
-    print(f"3) get_new_id_cp: {result}")
-    return result
+# def get_new_id_cp(cursor, ID_Cliente, ID_Prestamo):
+#     query = "SELECT ID_CP FROM cliente_prestamo WHERE ID_Cliente = %s AND ID_Prestamo = %s"
+#     cursor.execute(query, (ID_Cliente, ID_Prestamo))
+#     result = cursor.fetchone()
+#     print(f"3) get_new_id_cp: {result}")
+#     return result
 
 
 

@@ -92,6 +92,28 @@ def validate_cedula(cedula):
         return False, "La cédula debe tener entre 7 y 10 caracteres."
     return True, ""
 
+#Función que verifica el estado del libro, si está 'activo' o 'eliminado'
+def libro_active_or_delete(libro_id):
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            # Verificar si el ID_Libro existe en la tabla libro y su estado
+            cursor.execute("SELECT estado_libro FROM libro WHERE ID_Libro = %s", (libro_id,))
+            result = cursor.fetchone()
+            if result:
+                estado_libro = result[0]
+                return estado_libro == 'activo'
+            return False
+    except mariadb.Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return False
+    finally:
+        if mariadb_conexion:
+            cursor.close()
+            mariadb_conexion.close()
+
+
 # Función que valida si la cédula ha sido registrada o no dentro del sistema
 def is_cedula_registered(cedula):
     mariadb_conexion = establecer_conexion()
@@ -132,6 +154,8 @@ def validate_fecha_limite(fecha_limite):
         return False, "La fecha límite debe estar dentro del año actual."
     
     return True, ""
+
+#Función que verifica si el libro está en prestamo o no
 def validar_libro_no_prestado(n_registro):
     conn = establecer_conexion()
     if conn:
@@ -148,9 +172,67 @@ def validar_libro_no_prestado(n_registro):
         if resultado:
             return f"El libro con número de registro {n_registro} ya está prestado."
     return None
+#ojo sentencia abajo
+# def validar_libro_no_prestado(n_registro, cedula_cliente_actual):
+#     conn = establecer_conexion()
+#     if conn:
+#         cursor = conn.cursor()
+#         query = """
+#             SELECT l.ID_Libro, c.Nombre, c.Apellido, p.Fecha_Registro, p.Fecha_Limite, c.Cedula, l.titulo
+#             FROM libro l
+#             JOIN cliente_prestamo cp ON l.ID_Libro = cp.ID_Libro
+#             JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente
+#             JOIN prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
+#             WHERE l.n_registro = %s AND cp.estado_cliente_prestamo = 'activo'
+#         """
+#         cursor.execute(query, (n_registro,))
+#         resultado = cursor.fetchone()
+#         conn.close()
+#         if resultado:
+#             id_libro, nombre_cliente, apellido_cliente, fecha_registro, fecha_limite, cedula_cliente, titulo_libro = resultado
+#             hoy = datetime.now().date()
+#             try:
+#                 fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
+#             except ValueError:
+#                 fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%d').date()
 
+#             estado_prestamo = 'vencido' if fecha_limite <= hoy else 'activo'
+#             fecha_limite_formateada = fecha_limite.strftime('%d-%m-%Y')
+
+#             if cedula_cliente == cedula_cliente_actual:
+#                 if estado_prestamo == 'activo':
+#                     return f"""El libro con número de registro {n_registro} está registrado a este cliente.
+
+# Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha límite.
+# Consulte el apartado de préstamos para obtener más información sobre los libros prestados.
+# """
+#                 else:
+#                     return f"""El libro con número de registro {n_registro} está registrado a este cliente.
+
+# Por favor, contacte al cliente para renovar el préstamo vencido o devolver el libro. Consulte el apartado de clientes para obtener más información sobre los datos del cliente.
+# """
+#             else:
+#                 mensaje_error = f"""El libro con número de registro {n_registro} ya está prestado.
+
+# Detalles del Préstamo:
+# - Título del Libro: {titulo_libro}
+# - Fecha de Registro: {fecha_registro}
+# - Fecha Límite: {fecha_limite_formateada}
+# - Nombre del Cliente: {nombre_cliente} {apellido_cliente}
+# - Cédula del Cliente: {cedula_cliente}
+# - Estado del Préstamo: {estado_prestamo.capitalize()}
+
+# """
+#                 if estado_prestamo == 'vencido':
+#                     mensaje_error += """
+# Por favor, contacte al cliente para renovar el préstamo vencido o devolver el libro. Consulte el apartado de clientes para obtener más información sobre los datos del cliente.
+# """
+#                 else:
+#                     mensaje_error += "El préstamo está registrado a este cliente."
+#                 return mensaje_error
+#     return None
 #Función que valida los campos insertado en la ventana de modificar
-def validar_campos(tipo_validacion="registro", cedula=None, fecha_limite=None, client_id=None):
+def validar_campos_loans(tipo_validacion="registro", cedula=None, libro_id=None, n_registro=None):
     error_messages = []
 
     def add_error(is_valid, message):
@@ -158,7 +240,7 @@ def validar_campos(tipo_validacion="registro", cedula=None, fecha_limite=None, c
             error_messages.append(message)
 
     try:
-        if tipo_validacion == "modificar":
+        if tipo_validacion == "registro":
             is_valid, message = validate_cedula(cedula)
             add_error(is_valid, message)
             
@@ -166,9 +248,11 @@ def validar_campos(tipo_validacion="registro", cedula=None, fecha_limite=None, c
                 cedula_ok, message = is_cedula_registered(cedula)
                 add_error(cedula_ok, message)
             
-            # Validar fecha límite
-            is_valid, message = validate_fecha_limite(fecha_limite)
-            add_error(is_valid, message)
+            # Validar si el libro está activo
+            if not libro_active_or_delete(libro_id):
+                add_error(False, "El libro seleccionado está marcado como eliminado y no puede ser prestado.")
+            
+                
 
     except Exception as e:
         error_messages.append(f"Error inesperado: {str(e)}")

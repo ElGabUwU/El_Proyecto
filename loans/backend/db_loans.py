@@ -32,7 +32,8 @@ def load_active_loans(self):
             p.Fecha_Registro,
             p.Fecha_Limite,
             u.Nombre AS Nombre_Usuario,
-            cp.ID_Prestamo
+            cp.ID_Prestamo,
+            u.ID_Usuario
         FROM 
             cliente_prestamo cp
         JOIN
@@ -198,17 +199,17 @@ def create_loan(ID_Cliente, ID_Prestamo, fecha_registrar, fecha_limite):
             print(f"Nuevo préstamo insertado: {ID_Prestamo}, {fecha_registrar}, {fecha_limite}")
             mariadb_conexion.commit()
 
-            # Asociar el préstamo con el cliente
-            associate_loan_with_client(cursor, ID_Cliente, ID_Prestamo)
-            print(f"Préstamo asociado con el cliente: {ID_Cliente}, {ID_Prestamo}")
-            mariadb_conexion.commit()
+            # # Asociar el préstamo con el cliente
+            # associate_loan_with_client(cursor, ID_Cliente, ID_Prestamo)
+            # print(f"Préstamo asociado con el cliente: {ID_Cliente}, {ID_Prestamo}")
+            # mariadb_conexion.commit()
 
-            get_new_id_cp(cursor, ID_Cliente, ID_Prestamo)
-            print(f"ID_CP que se obtuve de: {ID_Cliente}, {ID_Prestamo}")
-            mariadb_conexion.commit()
-            """
-            OJO get new id cp
-            """
+            # get_new_id_cp(cursor, ID_Cliente, ID_Prestamo)
+            # print(f"ID_CP que se obtuve de: {ID_Cliente}, {ID_Prestamo}")
+            # mariadb_conexion.commit()
+            # """
+            # OJO get new id cp
+            # """
             cursor.close()
             mariadb_conexion.close()
             print("Conexión a la base de datos cerrada.")
@@ -522,24 +523,6 @@ def delete_selected_prestamo(self):
         if mariadb_conexion:
             mariadb_conexion.close()
 
-
-#Trae todos los valores de los libros necesarios para el treeview de registrar prestamo
-def reading_books(self):
-    try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            cursor = mariadb_conexion.cursor()
-            cursor.execute('''
-                SELECT ID_Libro, ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, titulo, autor, editorial, año, edicion, n_ejemplares, n_volumenes
-                FROM libro WHERE estado_libro='activo'
-            ''')
-            self.data = cursor.fetchall()
-            mariadb_conexion.close()
-            self.current_page = 0  # Resetear a la primera página
-            self.is_search_active = False  # Asegurar que estamos en modo normal
-            self.display_page2()  # Llama a display_page2() para mostrar los datos paginados
-    except mariadb.Error as ex:
-        print("Error durante la conexión:", ex)
 
 def es_novela(id_libro):
     try:
