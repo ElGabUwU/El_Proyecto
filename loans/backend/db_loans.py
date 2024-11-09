@@ -183,18 +183,29 @@ def obtener_prestamos_vencidos():
             mariadb_conexion.close()
             print("Connection closed.")
 
-
 def mostrar_mensaje_prestamos_vencidos():
     prestamos_vencidos = obtener_prestamos_vencidos()
     if prestamos_vencidos:
         mensaje_vencidos = "Hay préstamos vencidos asociados a los siguientes clientes:\n\n"
-        for prestamo in prestamos_vencidos:
+        detalles_vencidos = ""
+        for i, prestamo in enumerate(prestamos_vencidos):
             id_cliente = prestamo[0]
             datos_cliente = obtener_datos_cliente(id_cliente)
             if datos_cliente:
-                mensaje_vencidos += f"Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}\nCédula: {datos_cliente['Cedula']}\nTeléfono: {datos_cliente['Telefono']}\nPréstamos Vencidos: {prestamo[1]}\n\n"           
+                if i < 2:
+                    mensaje_vencidos += f"Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}\nCédula: {datos_cliente['Cedula']}\nTeléfono: {datos_cliente['Telefono']}\nPréstamos Vencidos: {prestamo[1]}\n\n"
+                detalles_vencidos += f"Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}\nCédula: {datos_cliente['Cedula']}\nTeléfono: {datos_cliente['Telefono']}\nPréstamos Vencidos: {prestamo[1]}\n\n"
+        
         mensaje_vencidos += "Por favor, contacte a los clientes para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de préstamos para obtener más información sobre los libros prestados."
-        messagebox.showwarning("Préstamos Vencidos", mensaje_vencidos)
+        detalles_vencidos += "Por favor, contacte a los clientes para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de préstamos para obtener más información sobre los libros prestados."
+        
+        # Mostrar mensaje inicial con opción de ver más
+        if len(prestamos_vencidos) > 2:
+            if messagebox.askyesno("Préstamos Vencidos", f"{mensaje_vencidos}\n\n¿Desea ver más detalles?"):
+                messagebox.showwarning("Detalles de Préstamos Vencidos", f"Hay préstamos vencidos asociados a los siguientes clientes:\n\n{detalles_vencidos}")
+        else:
+            messagebox.showwarning("Préstamos Vencidos", mensaje_vencidos)
+
 
 
 # Función para crear un préstamo para cada cliente
@@ -343,7 +354,7 @@ def renew_loan_due_date(id_prestamo):
 
                 # Verificar si el préstamo ya ha sido renovado hoy
                 if fecha_limite_actual > hoy:
-                    messagebox.showerror("Error", "El préstamo ya ha sido renovado hoy.")
+                    print("El préstamo ya ha sido renovado hoy.")
                     return False
 
                 # Obtener el número de registro del libro asociado al préstamo
@@ -389,6 +400,7 @@ def renew_loan_due_date(id_prestamo):
     else:
         print("No se pudo establecer la conexión con la base de datos.")
         return False
+
 
 # Eliminar cliente
 def delete_client_loans(self):
@@ -484,8 +496,11 @@ def delete_selected_prestamo(self):
             cliente_prestamo_table_deleted = False
             for item in selected_items:
                 item_values = self.cliente_prestamo_table.item(item, 'values')
-                item_id = item_values[7]
+                item_id = item_values[7]  # ID_Prestamo está en la posición 7
                 nro_registro = item_values[3]  # Asegúrate de que este índice coincida con el número de registro en tu Treeview
+
+                # Depuración: Verificar el ID_Prestamo
+                print(f"ID_Prestamo seleccionado: {item_id}")
 
                 # Obtener los datos del libro por número de registro
                 cursor.execute("SELECT autor, editorial, titulo FROM libro WHERE n_registro = %s", (nro_registro,))
@@ -496,18 +511,18 @@ def delete_selected_prestamo(self):
                 autor, editorial, titulo = libro_data
 
                 # Verificar si el préstamo ya está marcado como eliminado
-                cursor.execute('SELECT estado_cliente_prestamo FROM cliente_prestamo WHERE ID_CP = %s', (item_id,))
+                cursor.execute('SELECT estado_cliente_prestamo FROM cliente_prestamo WHERE ID_Prestamo = %s', (item_id,))
                 estado_prestamo = cursor.fetchone()
                 if estado_prestamo and estado_prestamo[0] == "eliminado":
-                    print(f"El préstamo con ID_CP={item_id} ya está marcado como eliminado.")
+                    print(f"El préstamo con ID_Prestamo={item_id} ya está marcado como eliminado.")
                     continue
 
                 # Marcar el registro como eliminado en lugar de eliminarlo
-                cursor.execute('UPDATE cliente_prestamo SET estado_cliente_prestamo = "eliminado" WHERE ID_CP = %s', (item_id,))
+                cursor.execute('UPDATE cliente_prestamo SET estado_cliente_prestamo = "eliminado" WHERE ID_Prestamo = %s', (item_id,))
                 
                 # Verificar si la actualización fue exitosa
                 if cursor.rowcount == 0:
-                    print(f"No se encontró el préstamo con ID_CP={item_id} o ya estaba eliminado.")
+                    print(f"No se encontró el préstamo con ID_Prestamo={item_id} o ya estaba eliminado.")
                     continue
 
                 # Sumar 1 a la cantidad de ejemplares disponibles basándose en autor, editorial y título
@@ -533,9 +548,6 @@ def delete_selected_prestamo(self):
     finally:
         if mariadb_conexion:
             mariadb_conexion.close()
-
-
-
 
 def es_novela(id_libro):
     try:
@@ -625,41 +637,127 @@ def get_libro_id_by_registro(n_registro):
             mariadb_conexion.close()
             print("Connection closed.")
 
+def ajustar_texto(texto, tipo):
+    if tipo == "categoria":
+        longitud_maxima = 53
+    elif tipo == "titulo":
+        longitud_maxima = 57
+    else:
+        return texto  # Si el tipo no es ni "categoria" ni "titulo", no se ajusta el texto
+
+    if len(texto) > longitud_maxima:
+        texto_ajustado = texto[:longitud_maxima-3] + "..."
+        print(f"Original: {texto} (Longitud: {len(texto)})")
+        print(f"Ajustado: {texto_ajustado} (Longitud: {len(texto_ajustado)})")
+        return texto_ajustado
+    print(f"Texto sin ajustar: {texto} (Longitud: {len(texto)})")
+    return texto
+
 
 #OBTENCION DE DATOS PARA REPORTE DE PDF
+# OBTENCION DE DATOS PARA REPORTE DE PDF
 def obtener_datos_libro(libro_id):
     try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            cursor = mariadb_conexion.cursor()
-            cursor.execute('''
+        conn = establecer_conexion()
+        if conn:
+            cursor = conn.cursor()
+            query = '''
                 SELECT ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares
                 FROM libro
                 WHERE ID_Libro = %s
-            ''', (libro_id,))
+            '''
+            cursor.execute(query, (libro_id,))
             resultado_libro = cursor.fetchone()
             if resultado_libro:
+                autor = resultado_libro[8]
+                titulo = resultado_libro[7]
+                editorial = resultado_libro[9]
+                
+                total_ejemplares = obtener_total_ejemplares(autor, titulo, editorial)
+                ejemplares_prestados_por_cliente = obtener_ejemplares_prestados_por_cliente(autor, titulo, editorial)
+                ejemplares_disponibles = obtener_ejemplares_disponibles(autor, titulo, editorial)
+                
                 book_data = {
                     "ID_Sala": resultado_libro[0],
-                    "ID_Categoria": resultado_libro[1],
+                    "ID_Categoria": ajustar_texto(resultado_libro[1], "categoria"),
                     "ID_Asignatura": resultado_libro[2],
                     "Cota": resultado_libro[3],
                     "n_registro": resultado_libro[4],
                     "edicion": resultado_libro[5],
                     "n_volumenes": resultado_libro[6],
-                    "titulo": resultado_libro[7],
+                    "titulo": ajustar_texto(resultado_libro[7], "titulo"),
                     "autor": resultado_libro[8],
                     "editorial": resultado_libro[9],
                     "año": resultado_libro[10],
-                    "n_ejemplares": resultado_libro[11]
+                    "n_ejemplares": resultado_libro[11],
+                    "total_ejemplares": total_ejemplares,
+                    "ejemplares_prestados_por_cliente": ejemplares_prestados_por_cliente,
+                    "ejemplares_disponibles": ejemplares_disponibles
                 }
                 print("Book Data:", book_data)
                 return book_data
             else:
                 print("No se encontró información del libro.")
-            mariadb_conexion.close()
+            conn.close()
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
+    return None
+
+# Función para obtener la cantidad total de ejemplares de un libro específico
+def obtener_total_ejemplares(autor, titulo, editorial):
+    try:
+        conn = establecer_conexion()
+        if conn:
+            cursor = conn.cursor()
+            query = '''
+                SELECT COUNT(*)
+                FROM libro
+                WHERE autor = %s AND titulo = %s AND editorial = %s
+            '''
+            cursor.execute(query, (autor, titulo, editorial))
+            total_ejemplares = cursor.fetchone()[0]
+            conn.close()
+            print(f"Total ejemplares para {titulo} de {autor}: {total_ejemplares}")
+            return total_ejemplares
+    except mariadb.Error as ex:
+        print("Error durante la conexión:", ex)
+    return None
+
+def obtener_ejemplares_prestados_por_cliente(autor, titulo, editorial):
+    try:
+        conn = establecer_conexion()
+        if conn:
+            cursor = conn.cursor()
+            query = '''
+                SELECT c.Cedula, COUNT(*)
+                FROM cliente_prestamo cp
+                JOIN libro l ON cp.ID_Libro = l.ID_Libro
+                JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente
+                WHERE l.autor = %s AND l.titulo = %s AND l.editorial = %s AND cp.estado_cliente_prestamo = 'activo'
+                GROUP BY c.Cedula
+            '''
+            cursor.execute(query, (autor, titulo, editorial))
+            ejemplares_prestados_por_cliente = cursor.fetchall()
+            conn.close()
+            if ejemplares_prestados_por_cliente:
+                # Extraer solo la cantidad de ejemplares prestados
+                ejemplares_prestados = [cantidad for _, cantidad in ejemplares_prestados_por_cliente]
+                print(f"Ejemplares prestados por cliente para {titulo} de {autor}: {ejemplares_prestados}")
+                return ejemplares_prestados_por_cliente
+            else:
+                print("No se encontraron ejemplares prestados por cliente.")
+                return []
+    except mariadb.Error as ex:
+        print("Error durante la conexión:", ex)
+    return []
+
+def obtener_ejemplares_disponibles(autor, titulo, editorial):
+    total_ejemplares = obtener_total_ejemplares(autor, titulo, editorial)
+    ejemplares_prestados = sum([cantidad for _, cantidad in obtener_ejemplares_prestados_por_cliente(autor, titulo, editorial)])
+    if total_ejemplares is not None and ejemplares_prestados is not None:
+        ejemplares_disponibles = total_ejemplares - ejemplares_prestados
+        print(f"Ejemplares disponibles para {titulo} de {autor}: {ejemplares_disponibles}")
+        return ejemplares_disponibles
     return None
 
 def obtener_datos_cliente(cliente_id):
@@ -686,6 +784,38 @@ def obtener_datos_cliente(cliente_id):
                 return user_data
             else:
                 print("No se encontró información del cliente.")
+            mariadb_conexion.close()
+    except mariadb.Error as ex:
+        print("Error durante la conexión:", ex)
+    return None
+
+def obtener_datos_usuario(usuario_id):
+    try:
+        mariadb_conexion = establecer_conexion()
+        if mariadb_conexion:
+            cursor = mariadb_conexion.cursor()
+            cursor.execute('''
+                SELECT Cedula, Nombre, Apellido, ID_Cargo
+                FROM usuarios
+                WHERE ID_Usuario = %s
+            ''', (usuario_id,))
+            resultado_usuario = cursor.fetchone()
+            print(f"Resultado Usuario: {resultado_usuario}")  # Depuración
+            if resultado_usuario:
+                cargos = {
+                    1: "Encargado de Servicio",
+                    2: "Asistente Bibliotecario"
+                }
+                user_data = {
+                    "Cedula": resultado_usuario[0],
+                    "Nombre": resultado_usuario[1],
+                    "Apellido": resultado_usuario[2],
+                    "Cargo": cargos.get(resultado_usuario[3], "Desconocido")
+                }
+                print("User Data:", user_data)  # Depuración
+                return user_data
+            else:
+                print("No se encontró información del usuario.")
             mariadb_conexion.close()
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)

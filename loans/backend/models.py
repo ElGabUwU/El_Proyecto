@@ -16,17 +16,19 @@ class Encargado:
         self.cedula = cedula
 
 class Libro:
-    def __init__(self, cota, categoria, sala, asignatura, numero_registro, autor, titulo, num_volumenes, num_ejemplares, edicion, año, editorial):
+    def __init__(self, cota, categoria, sala, asignatura, numero_registro, autor, titulo, num_volumen, total_ejemplares, ejemplares_disponibles, ejemplares_prestados, edicion, año, editorial):
         self.cota = cota
         self.categoria = categoria
         self.sala = sala
         self.asignatura = asignatura
-        self.numero_registro = numero_registro
         self.autor = autor
         self.titulo = titulo
-        self.num_volumenes = num_volumenes
-        self.num_ejemplares = num_ejemplares
+        self.numero_registro = numero_registro
+        self.num_volumenes = num_volumen 
         self.edicion = edicion
+        self.total_ejemplares = total_ejemplares
+        self.ejemplares_prestados = ejemplares_prestados
+        self.ejemplares_disponibles = ejemplares_disponibles
         self.año = año
         self.editorial = editorial
 

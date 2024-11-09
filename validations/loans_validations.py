@@ -158,7 +158,7 @@ def validar_libro_no_prestado(n_registro, cedula_cliente_actual):
     if conn:
         cursor = conn.cursor()
         query = """
-            SELECT l.ID_Libro, c.Nombre, c.Apellido, p.Fecha_Registro, p.Fecha_Limite, c.Cedula, l.titulo
+            SELECT l.ID_Libro, c.Nombre, c.Apellido, p.Fecha_Registro, p.Fecha_Limite, c.Cedula, l.titulo, c.Telefono
             FROM libro l
             JOIN cliente_prestamo cp ON l.ID_Libro = cp.ID_Libro
             JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente
@@ -169,7 +169,7 @@ def validar_libro_no_prestado(n_registro, cedula_cliente_actual):
         resultado = cursor.fetchone()
         conn.close()
         if resultado:
-            id_libro, nombre_cliente, apellido_cliente, fecha_registro, fecha_limite, cedula_cliente, titulo_libro = resultado
+            id_libro, nombre_cliente, apellido_cliente, fecha_registro, fecha_limite, cedula_cliente, titulo_libro, telefono_cliente = resultado
             hoy = datetime.now().date()
             try:
                 fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
@@ -187,6 +187,7 @@ Detalles del Préstamo:
 - Fecha Límite: {fecha_limite_formateada}
 - Nombre del Cliente: {nombre_cliente} {apellido_cliente}
 - Cédula del Cliente: {cedula_cliente}
+- Teléfono del Cliente: {telefono_cliente}
 - Estado del Préstamo: {estado_prestamo.capitalize()}
 """
 
@@ -205,7 +206,7 @@ Detalles del Préstamo:
 """
                 if estado_prestamo == 'activo':
                     mensaje += """
-Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha límite.Consulte el apartado de préstamos para obtener más información sobre los libros prestados.
+Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha límite. Consulte el apartado de préstamos para obtener más información sobre los libros prestados.
 """
                 elif estado_prestamo == 'vencido':
                     mensaje += """
@@ -221,7 +222,7 @@ Por favor, contacte al cliente para renovar el préstamo vencido o devolver el l
 """
                 else:
                     mensaje += """
-Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha límite.Consulte el apartado de préstamos para obtener más información sobre los libros prestados.
+Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha límite. Consulte el apartado de préstamos para obtener más información sobre los libros prestados.
 """
 
             # Depuración
@@ -252,6 +253,7 @@ Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha lím
 #                 fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
 #             except ValueError:
 #                 fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%d').date()
+
 
 
 
