@@ -241,10 +241,25 @@ class C_Listar(tk.Frame):
 
  
     def key_on_press_search(self, event):
-        current_text = self.buscar.get()
+        # Obtener el widget que disparó el evento
+        widget = event.widget
+        current_text = widget.get()
+
+        # Permitir teclas de control como Backspace, Delete, Left, Right
+        if event.keysym in ('BackSpace', 'Delete', 'Left', 'Right'):
+            return
+
+        # Verificar si el texto actual ya ha alcanzado el límite
+        if len(current_text) >= 10:
+            return "break"
+
+        # Limitar la longitud del texto
         limited_text = limit_length(current_text, 10)
-        self.buscar.delete(0, 'end')
-        self.buscar.insert(0, limited_text)
+
+        # Actualizar el widget solo si el texto ha cambiado
+        if current_text != limited_text:
+            widget.delete(0, 'end')
+            widget.insert(0, limited_text)
 
     def boton_buscar(self, event):
         busqueda = self.buscar.get().strip()
@@ -440,16 +455,15 @@ class C_Modify(tk.Toplevel):
                 return
             if not allow_permitted_characters(event.char):
                 return "break"
-
+            
             cursor_position = widget.index(tk.INSERT)
             new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
             new_text = limit_length(new_text, 100)
-            formatted_text = new_text
+            formatted_text = validar_y_formatear_direccion(new_text)
             widget.delete(0, tk.END)
             widget.insert(0, formatted_text)
             widget.icursor(cursor_position + 1)
             return "break"
-
 
     def check_changes(self, *args):
         try:
@@ -764,15 +778,16 @@ class C_Register(tk.Toplevel):
                 return
             if not allow_permitted_characters(event.char):
                 return "break"
-
+            
             cursor_position = widget.index(tk.INSERT)
             new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
             new_text = limit_length(new_text, 100)
-            formatted_text = new_text
+            formatted_text = validar_y_formatear_direccion(new_text)
             widget.delete(0, tk.END)
             widget.insert(0, formatted_text)
             widget.icursor(cursor_position + 1)
             return "break"
+
 
     def register_client(self):
         nombre = self.input_nombre.get()

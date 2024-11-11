@@ -309,56 +309,56 @@ class P_Listar(tk.Frame):
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
-                query = """
-                    SELECT c.Cedula, c.Nombre AS Nombre_Cliente, l.titulo AS Nombre_Libro, l.n_registro AS N_Registro, p.Fecha_Registro, p.Fecha_Limite, u.Nombre AS Nombre_Usuario, cp.ID_Prestamo, c.ID_Cliente
-                    FROM cliente_prestamo cp 
-                    JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente 
-                    JOIN libro l ON cp.ID_Libro = l.ID_Libro
-                    JOIN prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
-                    JOIN usuarios u ON cp.ID_Usuario = u.ID_Usuario 
-                    WHERE (c.Cedula=%s OR c.Nombre=%s OR l.titulo=%s OR p.Fecha_Registro=%s OR p.Fecha_Limite=%s OR u.Nombre=%s)
-                    AND cp.estado_cliente_prestamo = 'activo'
-                """
-                cursor.execute(query, (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
-                resultados_prestamo = cursor.fetchall()
+                # Verificar si el cliente existe en la tabla de clientes
+                cursor.execute("SELECT ID_Cliente, Nombre, Apellido FROM cliente WHERE Cedula = %s AND estado_cliente != 'eliminado'", (busqueda,))
+                cliente = cursor.fetchone()
 
-                if resultados_prestamo:
-                    # Limpiar la tabla antes de insertar nuevos resultados
-                    self.cliente_prestamo_table.delete(*self.cliente_prestamo_table.get_children())
-                    
-                    hoy = datetime.now().date()
+                if cliente:
+                    cliente_id, nombre_cliente, apellido_cliente = cliente
+                    # Realizar la búsqueda de préstamos asociados a la cédula
+                    query = """
+                        SELECT c.Cedula, c.Nombre AS Nombre_Cliente, l.titulo AS Nombre_Libro, l.n_registro AS N_Registro, p.Fecha_Registro, p.Fecha_Limite, u.Nombre AS Nombre_Usuario, cp.ID_Prestamo, c.ID_Cliente
+                        FROM cliente_prestamo cp 
+                        JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente 
+                        JOIN libro l ON cp.ID_Libro = l.ID_Libro
+                        JOIN prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
+                        JOIN usuarios u ON cp.ID_Usuario = u.ID_Usuario 
+                        WHERE (c.Cedula=%s OR c.Nombre=%s OR l.titulo=%s OR p.Fecha_Registro=%s OR p.Fecha_Limite=%s OR u.Nombre=%s)
+                        AND cp.estado_cliente_prestamo = 'activo'
+                    """
+                    cursor.execute(query, (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+                    resultados_prestamo = cursor.fetchall()
 
-                    prestamos_vencidos = 0
+                    if resultados_prestamo:
+                        # Limpiar la tabla antes de insertar nuevos resultados
+                        self.cliente_prestamo_table.delete(*self.cliente_prestamo_table.get_children())
+                        
+                        hoy = datetime.now().date()
 
-                    # Insertar los nuevos resultados
-                    for fila in resultados_prestamo:
-                        # Ajustar el formato de la fecha para DD-MM-YYYY
-                        try:
-                            fecha_limite = datetime.strptime(fila[5], '%d-%m-%Y').date()
-                        except ValueError:
-                            fecha_limite = datetime.strptime(fila[5], '%Y-%m-%d').date()
+                        prestamos_vencidos = 0
 
-                        if fecha_limite <= hoy:
-                            tag = 'vencido'
-                            prestamos_vencidos += 1
-                        else:
-                            tag = 'activo'
-                        self.cliente_prestamo_table.insert("", "end", values=tuple(fila), tags=(tag,))
+                        # Insertar los nuevos resultados
+                        for fila in resultados_prestamo:
+                            # Ajustar el formato de la fecha para DD-MM-YYYY
+                            try:
+                                fecha_limite = datetime.strptime(fila[5], '%d-%m-%Y').date()
+                            except ValueError:
+                                fecha_limite = datetime.strptime(fila[5], '%Y-%m-%d').date()
 
-                    # Configurar las etiquetas para los colores
-                    self.cliente_prestamo_table.tag_configure('vencido', background='#FF4C4C')
-                    self.cliente_prestamo_table.tag_configure('activo', background='white')
+                            if fecha_limite <= hoy:
+                                tag = 'vencido'
+                                prestamos_vencidos += 1
+                            else:
+                                tag = 'activo'
+                            self.cliente_prestamo_table.insert("", "end", values=tuple(fila), tags=(tag,))
 
-                    self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
-                    total_prestamos = len(resultados_prestamo)
-                    
-                    # Obtener los datos del cliente
-                    cliente_id = resultados_prestamo[0][8]
-                    datos_cliente = obtener_datos_cliente(cliente_id)
-                    
-                    if datos_cliente:
-                        nombre_cliente = datos_cliente["Nombre"]
-                        apellido_cliente = datos_cliente["Apellido"]
+                        # Configurar las etiquetas para los colores
+                        self.cliente_prestamo_table.tag_configure('vencido', background='#FF4C4C')
+                        self.cliente_prestamo_table.tag_configure('activo', background='white')
+
+                        self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
+                        total_prestamos = len(resultados_prestamo)
+                        
                         mensaje_exito = f"""Préstamos del cliente: {nombre_cliente} {apellido_cliente}\n- Total de Préstamos: {total_prestamos}\n- Préstamos Vencidos: {prestamos_vencidos}"""
 
                         if prestamos_vencidos > 0:
@@ -369,26 +369,16 @@ class P_Listar(tk.Frame):
 
                         messagebox.showinfo("Búsqueda Exitosa de Préstamos", mensaje_exito)
                     else:
-                        mensaje_exito = f"""
-                        Búsqueda exitosa de préstamos:
-                        - Total de Préstamos: {total_prestamos}
-                        - Préstamos Vencidos: {prestamos_vencidos}
-                        """
-                        if prestamos_vencidos > 0:
-                            mensaje_exito += """
-
-    Por favor, contacte al cliente para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de clientes para obtener más información sobre los datos del cliente.
-    """
-                        messagebox.showinfo("Búsqueda Exitosa de Préstamos", mensaje_exito)
+                        self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
+                        messagebox.showinfo("Búsqueda Fallida de Préstamos", f"No se encontraron préstamos asociados a la cédula '{busqueda}' del cliente {nombre_cliente} {apellido_cliente}.")
                 else:
                     self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
-                    messagebox.showinfo("Búsqueda Fallida de Préstamos", f"No se encontraron préstamos asociados a la cédula '{busqueda}'. Por favor, verifique la cédula ingresada.")
+                    messagebox.showinfo("Búsqueda Fallida de Préstamos", f"No se encontró ningún cliente con la cédula '{busqueda}'. Por favor, verifique la cédula ingresada o registre al cliente en la sección de clientes.")
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
         finally:
             if mariadb_conexion:
                 mariadb_conexion.close()
-
 
     def update_selected_loan_due_date(self):
         selected_client = self.cliente_prestamo_table.selection()
@@ -768,7 +758,7 @@ class GenerarReportePDF(tk.Toplevel):
         if success:
             messagebox.showinfo("Éxito", "El reporte ha sido creado de forma exitosa.", parent=self)
         else:
-            messagebox.showerror("Error", "Guardado cancelado. Asegúrese de que el archivo no esté abierto.", parent=self)
+            messagebox.showerror("Error", "Guardado cancelado.", parent=self)
 
 
 # Asegúrate de que P_Listar está definido/importado correctamente

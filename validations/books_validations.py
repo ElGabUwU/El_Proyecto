@@ -25,7 +25,8 @@ def validate_and_format_title(titulo):
     # Evitar signos de puntuación entre letras
     filtered_text = re.sub(r'([a-zA-Z])([.,;:!?¡¿-]+)([a-zA-Z])', r'\1 \3', filtered_text)
 
-    return filtered_text
+    formatted_text = format_title(filtered_text)
+    return formatted_text
 
 # Validaciones para Cota
 def limitar_longitud_cota(texto, max_length=14):
@@ -42,16 +43,21 @@ def allow_only_letters_numbers_dots(char):
     return ''
 
 # Validaciones para Autor y Editorial
+def format_autor_editorial(texto):
+    if texto:
+        return texto[0].upper() + texto[1:]
+    return texto
 def validar_y_formatear_texto(texto):
-    allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ áéíóúÁÉÍÓÚñÑ"
+    allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ áéíóúÁÉÍÓÚñÑ.,&()/-'\"äëïöü"
     
     # Filtrar caracteres no permitidos
     filtered_text = ''.join([char for char in texto if char in allowed_chars])
     
     # Formatear el texto para capitalizar solo la primera letra de cada palabra
-    formatted_text = filtered_text.title()
+    formatted_text = format_autor_editorial(filtered_text)
     
     return formatted_text
+
 
 def longitud_autor(texto, max_length=53):
     if len(texto) >= max_length:
@@ -158,6 +164,18 @@ def validar_cota_unica(cota):
             return f"La cota '{cota}' ya está asignada al libro con ID {id_libro_existente}."
     return None
 
+def validar_cota_unica_modificar(cota, id_libro_original):
+    conn = establecer_conexion()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT ID_Libro FROM libro WHERE cota = %s AND ID_Libro != %s", (cota, id_libro_original))
+        resultado = cursor.fetchone()
+        conn.close()
+        if resultado:
+            id_libro_existente = resultado[0]
+            return f"La cota '{cota}' ya está asignada al libro con ID {id_libro_existente}."
+    return None
+
 def validar_titulo(titulo):
     if not titulo:
         return "El campo título es obligatorio."
@@ -200,14 +218,27 @@ def validar_autor(autor):
         return "El nombre del autor no puede comenzar con un espacio."
     if len(autor) < 3:
         return "La longitud del nombre del autor debe ser al menos de 3 caracteres."
-    if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', autor):
-        return "El nombre del autor solo puede contener letras y espacios."
+    if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,&()/-\'"äëïöü]+$', autor):
+        return "El nombre del autor solo puede contener letras, espacios y los caracteres ., & ( ) / - ' \" ä ë ï ö ü."
     if re.search(r'\s{2,}', autor):
         return "El nombre del autor no puede contener más de un espacio consecutivo."
+    if re.search(r'\.{2,}', autor):
+        return "El nombre del autor no puede contener más de un punto consecutivo."
+    if re.search(r'&{2,}', autor):
+        return "El nombre del autor no puede contener más de un ampersand consecutivo."
+    if re.search(r'\({2,}', autor) or re.search(r'\){2,}', autor):
+        return "El nombre del autor no puede contener más de un paréntesis consecutivo."
+    if re.search(r'/{2,}', autor):
+        return "El nombre del autor no puede contener más de una barra consecutiva."
+    if re.search(r'-{2,}', autor):
+        return "El nombre del autor no puede contener más de un guion consecutivo."
+    if re.search(r'\'{2,}', autor):
+        return "El nombre del autor no puede contener más de un apóstrofo consecutivo."
+    if re.search(r'\"{2,}', autor):
+        return "El nombre del autor no puede contener más de una comilla consecutiva."
     if autor[-1] == " ":
         return "El nombre del autor no puede terminar en un espacio."
     return None
-
 def validar_editorial(editorial):
     if not editorial:
         return "El campo editorial es obligatorio."
@@ -215,12 +246,24 @@ def validar_editorial(editorial):
         return "El nombre de la editorial no puede comenzar con un espacio."
     if len(editorial) < 3:
         return "La longitud del nombre de la editorial debe ser al menos de 3 caracteres."
-    if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.]+$', editorial):
-        return "El nombre de la editorial solo puede contener letras, espacios y puntos."
+    if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,&()/-\'"äëïöü]+$', editorial):
+        return "El nombre de la editorial solo puede contener letras, espacios y los caracteres ., & ( ) / - ' \" ä ë ï ö ü."
     if re.search(r'\s{2,}', editorial):
         return "El nombre de la editorial no puede contener más de un espacio consecutivo."
     if re.search(r'\.{2,}', editorial):
         return "El nombre de la editorial no puede contener más de un punto consecutivo."
+    if re.search(r'&{2,}', editorial):
+        return "El nombre de la editorial no puede contener más de un ampersand consecutivo."
+    if re.search(r'\({2,}', editorial) or re.search(r'\){2,}', editorial):
+        return "El nombre de la editorial no puede contener más de un paréntesis consecutivo."
+    if re.search(r'/{2,}', editorial):
+        return "El nombre de la editorial no puede contener más de una barra consecutiva."
+    if re.search(r'-{2,}', editorial):
+        return "El nombre de la editorial no puede contener más de un guion consecutivo."
+    if re.search(r'\'{2,}', editorial):
+        return "El nombre de la editorial no puede contener más de un apóstrofo consecutivo."
+    if re.search(r'\"{2,}', editorial):
+        return "El nombre de la editorial no puede contener más de una comilla consecutiva."
     if editorial[-1] == " ":
         return "El nombre de la editorial no puede terminar en un espacio."
     return None
@@ -300,8 +343,14 @@ def validar_campos(categoria, asignatura, cota, titulo, autor, editorial, n_regi
     if error_cota:
         errores.append(error_cota)
     else:
-        if sala != "1I" or asignatura not in asignaturas_permitidas:
-            error_cota_unica = validar_cota_unica(cota)
+        if sala != "1I" or asignatura not in asignaturas_permitidas_por_sala:
+            if id_libro:
+                print(f"Validar cota para modificación con ID libro: {id_libro}")  # Depuración
+                error_cota_unica = validar_cota_unica_modificar(cota, id_libro)
+            else:
+                print(f"Validar cota para creación: {cota}")  # Depuración
+                error_cota_unica = validar_cota_unica(cota)
+
             if error_cota_unica:
                 errores.append(error_cota_unica)
 

@@ -693,7 +693,7 @@ def obtener_datos_libro(libro_id):
                     "ejemplares_prestados_por_cliente": ejemplares_prestados_por_cliente,
                     "ejemplares_disponibles": ejemplares_disponibles
                 }
-                print("Book Data:", book_data)
+                #print("Book Data:", book_data)
                 return book_data
             else:
                 print("No se encontró información del libro.")
@@ -779,7 +779,7 @@ def obtener_datos_cliente(cliente_id):
                     "Telefono": resultado_cliente[3],
                     "Direccion": resultado_cliente[4]
                 }
-                print("User Data:", user_data)  # Depuración
+                #print("User Data:", user_data)  # Depuración
                 return user_data
             else:
                 print("No se encontró información del cliente.")
@@ -799,7 +799,7 @@ def obtener_datos_usuario(usuario_id):
                 WHERE ID_Usuario = %s
             ''', (usuario_id,))
             resultado_usuario = cursor.fetchone()
-            print(f"Resultado Usuario: {resultado_usuario}")  # Depuración
+            #print(f"Resultado Usuario: {resultado_usuario}")  # Depuración
             if resultado_usuario:
                 cargos = {
                     1: "Encargado de Servicio",
