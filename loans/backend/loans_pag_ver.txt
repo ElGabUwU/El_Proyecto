@@ -264,18 +264,45 @@ class P_Listar(tk.Frame):
 
 
     def next_page(self):
-        if (self.search_current_page + 1) * self.search_page_size < len(self.search_data):
+        if not self.is_search_active and (self.search_current_page + 1) * self.search_page_size < len(self.search_data):
             self.search_current_page += 1
             self.display_page()
-            self.cliente_prestamo_table.yview_moveto(0)
+        elif self.is_search_active:
+            self.next_search_page()
 
     def previous_page(self):
-        if self.search_current_page > 0:
+        if not self.is_search_active and self.search_current_page > 0:
             self.search_current_page -= 1
             self.display_page()
-            self.cliente_prestamo_table.yview_moveto(0)
+        elif self.is_search_active:
+            self.previous_search_page()
 
 
+    def display_search_page(self):
+        for row in self.cliente_prestamo_table.get_children():
+            self.cliente_prestamo_table.delete(row)
+        
+        page_data = self.get_data_page(self.search_current_page * self.search_page_size, self.search_page_size)
+        hoy = datetime.now().date()
+        for fila in page_data:
+            fecha_limite = datetime.strptime(fila[5], '%d-%m-%Y').date()
+            tag = 'vencido' if fecha_limite <= hoy - timedelta(days=3) else 'activo'
+            self.cliente_prestamo_table.insert("", "end", values=fila, tags=(tag,))
+        self.cliente_prestamo_table.tag_configure('vencido', background='#FF4C4C')
+        self.cliente_prestamo_table.tag_configure('activo', background='white')
+        self.update_search_page_label()
+    def update_search_page_label(self):
+        total_pages = (len(self.search_data) + self.search_page_size - 1) // self.search_page_size
+        self.page_label.config(text=f"Página {self.search_current_page + 1} de {total_pages}")
+    def next_search_page(self):
+        if (self.search_current_page + 1) * self.search_page_size < len(self.search_data):
+            self.search_current_page += 1
+            self.display_search_page()
+
+    def previous_search_page(self):
+        if self.search_current_page > 0:
+            self.search_current_page -= 1
+            self.display_search_page()
         
         
     def verificar_eliminar(self):
@@ -342,8 +369,12 @@ class P_Listar(tk.Frame):
 
                     if resultados_prestamo:
                         # Limpiar la tabla antes de insertar nuevos resultados
-                        self.cliente_prestamo_table.delete(*self.cliente_prestamo_table.get_children())
+                        self.cliente_prestamo_table.delete(*self.cliente_prestamo_table.get_children()) #cuidao con esto
                         
+                        self.search_data = resultados_prestamo # Almacenar los resultados de búsqueda 
+                        self.search_current_page = 0 # Resetear a la primera página de búsqueda 
+                        self.is_search_active = True # Activar la bandera de búsqueda 
+                        self.display_search_page() # Mostrar la primera página de resultados de búsqueda
                         hoy = datetime.now().date()
 
                         prestamos_vencidos = 0
@@ -390,6 +421,9 @@ class P_Listar(tk.Frame):
         finally:
             if mariadb_conexion:
                 mariadb_conexion.close()
+
+    
+    
 
     def update_selected_loan_due_date(self):
         selected_client = self.cliente_prestamo_table.selection()
@@ -454,14 +488,12 @@ class P_Listar(tk.Frame):
 class GenerarReportePDF(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        self.withdraw()
         self.parent = parent
         self.client_data = {}
         self.user_data = []
         self.books_data = []
         self.prestamos_data = []
         self.create_report_window()
-        self.after(500,self.deiconify)
     def cancelar(self, window):
         window.destroy()
     def create_report_window(self):
@@ -780,7 +812,6 @@ class Register_Loans():
         self.parent = parent
         self.loans_validations = loans_validations
         self.register_loan_window = tk.Toplevel(parent)
-        self.register_loan_window.withdraw()
         self.validate_number = self.register_loan_window.register(validate_number_input)
         # Datos y paginación
         self.data = []
@@ -802,8 +833,7 @@ class Register_Loans():
         self.load_books()
         # Llamada a la función para mostrar la página actual
         self.display_page(self.data, self.current_page, self.page_size)
-        self.register_loan_window.deiconify()
-        
+
 
         
     def setup_window(self):
@@ -813,7 +843,6 @@ class Register_Loans():
         self.register_loan_window.config(bg="#042344")
         self.register_loan_window.resizable(False, False)
         self.register_loan_window.grab_set()
-        centrar_ventana(self.register_loan_window, 1355, 600)
         self.register_loan_window.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self.register_loan_window))
         self.images = {}
         self.is_search_active = False          
@@ -990,7 +1019,6 @@ class Register_Loans():
                 messagebox.showinfo("Búsqueda Fallida de Libro", f"No se encontraron resultados para '{busqueda}' en el campo '{campo_seleccionado}'.",parent=self.register_loan_window)
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
-        self.book_table_list.yview_moveto(0)    
     def key_on_press_search(self, event):
         # Obtener el widget que disparó el evento
         widget = event.widget
@@ -1085,24 +1113,20 @@ class Register_Loans():
             if (self.search_current_page + 1) * self.page_size < len(self.search_data):
                 self.search_current_page += 1
                 self.display_page(self.search_data, self.search_current_page, self.page_size, is_search=True)
-                self.book_table_list.yview_moveto(0)
         else:
             if (self.current_page + 1) * self.page_size < len(self.data):
                 self.current_page += 1
                 self.display_page(self.data, self.current_page, self.page_size)
-                self.book_table_list.yview_moveto(0)
 
     def previous_page(self):
         if self.is_search_active:
             if self.search_current_page > 0:
                 self.search_current_page -= 1
                 self.display_page(self.search_data, self.search_current_page, self.page_size, is_search=True)
-                self.book_table_list.yview_moveto(0)
         else:
             if self.current_page > 0:
                 self.current_page -= 1
                 self.display_page(self.data, self.current_page, self.page_size)
-                self.book_table_list.yview_moveto(0)
 
     def update_page_label(self, total_data, current_page, page_size, is_search=False):
         total_pages = (total_data + page_size - 1) // page_size  # Calcular el total de páginas

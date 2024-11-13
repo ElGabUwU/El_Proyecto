@@ -206,11 +206,13 @@ class C_Listar(tk.Frame):
         if (self.current_page + 1) * self.page_size < len(self.data):
             self.current_page += 1
             self.display_page()
+            self.clients_table_list_loans.yview_moveto(0)  
 
     def previous_page(self):
         if self.current_page > 0:
             self.current_page -= 1
             self.display_page()
+            self.clients_table_list_loans.yview_moveto(0)  
 
     def update_page_label(self):
         total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
@@ -305,6 +307,7 @@ class C_Listar(tk.Frame):
 class C_Modify(tk.Toplevel):
     def __init__(self, parent, client_data, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
+        self.withdraw()
         self.parent = parent
         self.title("Modificar")
         self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
@@ -334,6 +337,7 @@ class C_Modify(tk.Toplevel):
         self.crear_boton_restaurar()
         self.crear_boton_cancelar()
         self.insert_values_client()
+        self.deiconify()
         
 
 
@@ -649,6 +653,7 @@ class C_Modify(tk.Toplevel):
 class C_Register(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
+        self.withdraw()
         self.parent = parent
         self.title("Registro")
         self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
@@ -665,6 +670,7 @@ class C_Register(tk.Toplevel):
         self.create_widgets()
         self.crear_boton_register()
         self.crear_boton_cancelar()
+        self.deiconify()
        
         
 

@@ -49,19 +49,20 @@ def load_active_loans(self):
 
         cursor.execute(query1)
         resultados1 = cursor.fetchall()
-
+        self.search_data = resultados1  # Almacenar los datos en self.search_data
+        mariadb_conexion.close()
+        self.search_current_page = 0  # Resetear a la primera página
+        self.is_search_active = False
+        self.display_page()
+        
         # Debugging: Print the results
         print("Query executed successfully. Results:")
         for resultado in resultados1:
             print(resultado)
 
-        for row in self.cliente_prestamo_table.get_children():
-            self.cliente_prestamo_table.delete(row)
-
+        # Verificar y establecer etiquetas para los colores de las filas
         hoy = datetime.now().date()
-
         prestamos_vencidos = []
-
         for fila in resultados1:
             # Ajustar el formato de la fecha para DD-MM-YYYY
             try:
@@ -74,14 +75,11 @@ def load_active_loans(self):
                 prestamos_vencidos.append(fila)
             else:
                 tag = 'activo'
-            self.cliente_prestamo_table.insert("", "end", values=tuple(fila), tags=(tag,))
 
-        # Configurar las etiquetas para los colores
+        # Configurar las etiquetas para los colores (no se inserta nada aquí)
         self.cliente_prestamo_table.tag_configure('vencido', background='#FF4C4C')
         self.cliente_prestamo_table.tag_configure('activo', background='white')
-
         
-
     except mariadb.Error as ex:
         print(f"Error during query execution: {ex}")
     finally:
@@ -89,6 +87,8 @@ def load_active_loans(self):
             cursor.close()
             mariadb_conexion.close()
             print("Connection closed.")
+
+
 
 
 from datetime import datetime

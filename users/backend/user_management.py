@@ -244,11 +244,13 @@ class U_Listar(tk.Frame):
         if (self.current_page + 1) * self.page_size < len(self.data):
             self.current_page += 1
             self.display_page()
+            self.user_table_list.yview_moveto(0)  
 
     def previous_page(self):
         if self.current_page > 0:
             self.current_page -= 1
             self.display_page()
+            self.user_table_list.yview_moveto(0)  
 
     def update_page_label(self):
         
@@ -355,6 +357,7 @@ class U_Listar(tk.Frame):
 class U_Registrar(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__()
+        self.withdraw()
         self.parent = parent
         self.canvas = tk.Canvas(self, bg="#031A33", width=863, height=530)
         self.canvas.pack(side="left", fill="both", expand=False)
@@ -462,6 +465,7 @@ class U_Registrar(tk.Toplevel):
         self.inicializador_titulos()
         # self.register_user()
         # self.validacion_sala(None)
+        self.after(500,self.deiconify)
     def cancelar(self, window):
         if messagebox.askyesno("Advertencia", "¿Seguro que quieres cerrar esta ventana? Los datos del nuevo usuario no se guardarán.", parent=self):
             window.destroy()
@@ -600,6 +604,7 @@ class U_Registrar(tk.Toplevel):
 class U_Modificar(tk.Toplevel):
     def __init__(self, parent, user_data, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
+        self.withdraw()
         self.parent = parent
         self.validate_number = self.register(validate_number_input)
         self.images = {}
@@ -639,6 +644,7 @@ class U_Modificar(tk.Toplevel):
         self.crear_boton_restaurar()
         self.crear_boton_cancelar()
         self.insert_values_user()
+        self.after(500,self.deiconify)
     def create_widgets(self):
         rectangulo_color = tk.Label(self, bg="#2E59A7", width=200, height=4)
         rectangulo_color.place(x=0, y=0)

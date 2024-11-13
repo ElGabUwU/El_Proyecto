@@ -26,7 +26,7 @@ def clear_entries_list(self):
 def validate_entries(instance, event=None):
         # Comprobar si todos los campos están llenos
         if (instance.cedula.get()):
-            instance.boton_R.place(x=35.0, y=495.0, width=130.0, height=40.0)  # Mostrar el botón
+            instance.boton_R.place(x=35.0, y=340.0, width=130.0, height=40.0)  # Mostrar el botón
         else:
             instance.boton_R.place_forget()  # Ocultar el botón si algún campo está vacío
 
