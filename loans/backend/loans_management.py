@@ -11,6 +11,7 @@ from tkcalendar import Calendar
 from datetime import datetime, timedelta
 import random
 import string
+import unidecode
 from backend.loans_filters import *
 from db.conexion import establecer_conexion
 from util.Reporte_PDF import generate_report_by_day,generate_report_by_month, verificar_y_guardar_pdf
@@ -50,10 +51,21 @@ class P_Listar(tk.Frame):
         self.id_usuario = self.parent.id_usuario
         self.right_frame = tk.Frame(self)
         self.right_frame.pack(side="right", expand=True, fill="both")
-        self.data = []
-        self.page_size = 19
-        self.current_page = 0
-        self.warned_about_overdue = False
+        self.book_data = {}  # Inicializar como un diccionario
+        self.search_data = []  # Almacenar resultados de búsqueda
+        self.search_page_size = 19
+        self.search_current_page = 0
+        self.is_search_active = False
+        stylebox = ttk.Style()
+        stylebox.theme_use('clam')
+        stylebox.configure("TCombobox",
+                            fieldbackground="#2E59A7",
+                            background="#2E59A7",
+                            bordercolor="#041022",
+                            arrowcolor="#ffffff",
+                            padding="9")
+
+        
         self.validate_number = self.register(validate_number_input)
         # Texto para el nombre
 
@@ -152,6 +164,7 @@ class P_Listar(tk.Frame):
             activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
         )
         self.button_d.place(x=1230.0, y=60.0, width=90.0, height=100.0)
+        
         self.setup_treeview()
         load_active_loans(self)
 
@@ -217,7 +230,7 @@ class P_Listar(tk.Frame):
             activeforeground="#006ac2",   # Color del texto cuando el botón está activo
             command=self.next_page)
         next_button.pack(side=tk.RIGHT, padx=25, pady=0)
-        self.page_label = tk.Label(self.left_frame2, text=f"Página {self.current_page + 1}", bg="#FAFAFA", fg="#031A33", font=("Montserrat Regular", 13))
+        self.page_label = tk.Label(self.left_frame2, text=f"Página {self.search_current_page + 1}", bg="#FAFAFA", fg="#031A33", font=("Montserrat Regular", 13))
         self.page_label.pack(side=tk.BOTTOM, pady=15)
         
         
@@ -228,40 +241,36 @@ class P_Listar(tk.Frame):
 
 
     def get_data_page(self, offset, limit):
-        return self.data[offset:offset + limit]
+        return self.search_data[offset:offset + limit]
     def update_page_label(self):
-        total_pages = (len(self.data) + self.page_size - 1) // self.page_size  # Calcular el total de páginas
-        self.page_label.config(text=f"Página {self.current_page + 1} de {total_pages}")
+        total_pages = (len(self.search_data) + self.search_page_size - 1) // self.search_page_size  # Calcular el total de páginas
+        self.page_label.config(text=f"Página {self.search_current_page + 1} de {total_pages}")
 
     def display_page(self):
-        page_data = self.get_data_page(self.current_page * self.page_size, self.page_size)
+        for row in self.cliente_prestamo_table.get_children():
+            self.cliente_prestamo_table.delete(row)
+        
+        page_data = self.get_data_page(self.search_current_page * self.search_page_size, self.search_page_size)
         hoy = datetime.now().date()
         for fila in page_data:
-            # Verificar si la fila ya existe en la tabla
-            exists = False
-            for row in self.cliente_prestamo_table.get_children():
-                if self.cliente_prestamo_table.item(row, 'values') == fila:
-                    exists = True
-                    break
-            if not exists:
-                # fecha_limite = datetime.strptime(fila[4], '%d-%m-%Y').strftime('%d-%m-%Y')
-                # fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
-                # tag = 'vencido' if fecha_limite <= hoy - timedelta(days=3) else 'activo'
-                self.cliente_prestamo_table.insert("", "end", values=fila)  # , tags=(tag,))
-        # self.cliente_prestamo_table.tag_configure('vencido', background='red')
-        # self.cliente_prestamo_table.tag_configure('activo', background='white')
+            fecha_limite = datetime.strptime(fila[5], '%d-%m-%Y').date()
+            tag = 'vencido' if fecha_limite <= hoy - timedelta(days=3) else 'activo'
+            self.cliente_prestamo_table.insert("", "end", values=fila, tags=(tag,))
+        self.cliente_prestamo_table.tag_configure('vencido', background='#FF4C4C')
+        self.cliente_prestamo_table.tag_configure('activo', background='white')
         self.update_page_label()
 
 
 
+
     def next_page(self):
-        if (self.current_page + 1) * self.page_size < len(self.data):
-            self.current_page += 1
+        if (self.search_current_page + 1) * self.search_page_size < len(self.search_data):
+            self.search_current_page += 1
             self.display_page()
 
     def previous_page(self):
-        if self.current_page > 0:
-            self.current_page -= 1
+        if self.search_current_page > 0:
+            self.search_current_page -= 1
             self.display_page()
 
 
@@ -302,63 +311,63 @@ class P_Listar(tk.Frame):
         busqueda = self.buscar.get().strip()
         
         if not busqueda:
-            messagebox.showinfo("Búsqueda Fallida de Préstamos", "No se ingresó ningún término de búsqueda. Por favor, ingrese una cédula para buscar.")
+            messagebox.showinfo("Búsqueda Fallida de Préstamos", "No se ingresó ningún término de búsqueda. Por favor, ingrese una cédula para buscar.",parent=self)
             return
         
         try:
             mariadb_conexion = establecer_conexion()
             if mariadb_conexion:
                 cursor = mariadb_conexion.cursor()
-                query = """
-                    SELECT c.Cedula, c.Nombre AS Nombre_Cliente, l.titulo AS Nombre_Libro, l.n_registro AS N_Registro, p.Fecha_Registro, p.Fecha_Limite, u.Nombre AS Nombre_Usuario, cp.ID_Prestamo, c.ID_Cliente
-                    FROM cliente_prestamo cp 
-                    JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente 
-                    JOIN libro l ON cp.ID_Libro = l.ID_Libro
-                    JOIN prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
-                    JOIN usuarios u ON cp.ID_Usuario = u.ID_Usuario 
-                    WHERE (c.Cedula=%s OR c.Nombre=%s OR l.titulo=%s OR p.Fecha_Registro=%s OR p.Fecha_Limite=%s OR u.Nombre=%s)
-                    AND cp.estado_cliente_prestamo = 'activo'
-                """
-                cursor.execute(query, (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
-                resultados_prestamo = cursor.fetchall()
+                # Verificar si el cliente existe en la tabla de clientes
+                cursor.execute("SELECT ID_Cliente, Nombre, Apellido FROM cliente WHERE Cedula = %s AND estado_cliente != 'eliminado'", (busqueda,))
+                cliente = cursor.fetchone()
 
-                if resultados_prestamo:
-                    # Limpiar la tabla antes de insertar nuevos resultados
-                    self.cliente_prestamo_table.delete(*self.cliente_prestamo_table.get_children())
-                    
-                    hoy = datetime.now().date()
+                if cliente:
+                    cliente_id, nombre_cliente, apellido_cliente = cliente
+                    # Realizar la búsqueda de préstamos asociados a la cédula
+                    query = """
+                        SELECT c.Cedula, c.Nombre AS Nombre_Cliente, l.titulo AS Nombre_Libro, l.n_registro AS N_Registro, p.Fecha_Registro, p.Fecha_Limite, u.Nombre AS Nombre_Usuario, cp.ID_Prestamo, c.ID_Cliente
+                        FROM cliente_prestamo cp 
+                        JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente 
+                        JOIN libro l ON cp.ID_Libro = l.ID_Libro
+                        JOIN prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
+                        JOIN usuarios u ON cp.ID_Usuario = u.ID_Usuario 
+                        WHERE (c.Cedula=%s OR c.Nombre=%s OR l.titulo=%s OR p.Fecha_Registro=%s OR p.Fecha_Limite=%s OR u.Nombre=%s)
+                        AND cp.estado_cliente_prestamo = 'activo'
+                    """
+                    cursor.execute(query, (busqueda, busqueda, busqueda, busqueda, busqueda, busqueda))
+                    resultados_prestamo = cursor.fetchall()
 
-                    prestamos_vencidos = 0
+                    if resultados_prestamo:
+                        # Limpiar la tabla antes de insertar nuevos resultados
+                        self.cliente_prestamo_table.delete(*self.cliente_prestamo_table.get_children())
+                        
+                        hoy = datetime.now().date()
 
-                    # Insertar los nuevos resultados
-                    for fila in resultados_prestamo:
-                        # Ajustar el formato de la fecha para DD-MM-YYYY
-                        try:
-                            fecha_limite = datetime.strptime(fila[5], '%d-%m-%Y').date()
-                        except ValueError:
-                            fecha_limite = datetime.strptime(fila[5], '%Y-%m-%d').date()
+                        prestamos_vencidos = 0
 
-                        if fecha_limite <= hoy:
-                            tag = 'vencido'
-                            prestamos_vencidos += 1
-                        else:
-                            tag = 'activo'
-                        self.cliente_prestamo_table.insert("", "end", values=tuple(fila), tags=(tag,))
+                        # Insertar los nuevos resultados
+                        for fila in resultados_prestamo:
+                            # Ajustar el formato de la fecha para DD-MM-YYYY
+                            try:
+                                fecha_limite = datetime.strptime(fila[5], '%d-%m-%Y').date()
+                            except ValueError:
+                                fecha_limite = datetime.strptime(fila[5], '%Y-%m-%d').date()
 
-                    # Configurar las etiquetas para los colores
-                    self.cliente_prestamo_table.tag_configure('vencido', background='#FF4C4C')
-                    self.cliente_prestamo_table.tag_configure('activo', background='white')
+                            if fecha_limite <= hoy:
+                                tag = 'vencido'
+                                prestamos_vencidos += 1
+                            else:
+                                tag = 'activo'
+                            self.cliente_prestamo_table.insert("", "end", values=tuple(fila), tags=(tag,))
 
-                    self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
-                    total_prestamos = len(resultados_prestamo)
-                    
-                    # Obtener los datos del cliente
-                    cliente_id = resultados_prestamo[0][8]
-                    datos_cliente = obtener_datos_cliente(cliente_id)
-                    
-                    if datos_cliente:
-                        nombre_cliente = datos_cliente["Nombre"]
-                        apellido_cliente = datos_cliente["Apellido"]
+                        # Configurar las etiquetas para los colores
+                        self.cliente_prestamo_table.tag_configure('vencido', background='#FF4C4C')
+                        self.cliente_prestamo_table.tag_configure('activo', background='white')
+
+                        self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
+                        total_prestamos = len(resultados_prestamo)
+                        
                         mensaje_exito = f"""Préstamos del cliente: {nombre_cliente} {apellido_cliente}\n- Total de Préstamos: {total_prestamos}\n- Préstamos Vencidos: {prestamos_vencidos}"""
 
                         if prestamos_vencidos > 0:
@@ -369,26 +378,16 @@ class P_Listar(tk.Frame):
 
                         messagebox.showinfo("Búsqueda Exitosa de Préstamos", mensaje_exito)
                     else:
-                        mensaje_exito = f"""
-                        Búsqueda exitosa de préstamos:
-                        - Total de Préstamos: {total_prestamos}
-                        - Préstamos Vencidos: {prestamos_vencidos}
-                        """
-                        if prestamos_vencidos > 0:
-                            mensaje_exito += """
-
-    Por favor, contacte al cliente para renovar los préstamos vencidos o devolver los libros. Consulte el apartado de clientes para obtener más información sobre los datos del cliente.
-    """
-                        messagebox.showinfo("Búsqueda Exitosa de Préstamos", mensaje_exito)
+                        self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
+                        messagebox.showinfo("Búsqueda Fallida de Préstamos", f"No se encontraron préstamos asociados a la cédula '{busqueda}' del cliente {nombre_cliente} {apellido_cliente}.")
                 else:
                     self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
-                    messagebox.showinfo("Búsqueda Fallida de Préstamos", f"No se encontraron préstamos asociados a la cédula '{busqueda}'. Por favor, verifique la cédula ingresada.")
+                    messagebox.showinfo("Búsqueda Fallida de Préstamos", f"No se encontró ningún cliente con la cédula '{busqueda}'. Por favor, verifique la cédula ingresada o registre al cliente en la sección de clientes.")
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
         finally:
             if mariadb_conexion:
                 mariadb_conexion.close()
-
 
     def update_selected_loan_due_date(self):
         selected_client = self.cliente_prestamo_table.selection()
@@ -768,7 +767,7 @@ class GenerarReportePDF(tk.Toplevel):
         if success:
             messagebox.showinfo("Éxito", "El reporte ha sido creado de forma exitosa.", parent=self)
         else:
-            messagebox.showerror("Error", "Guardado cancelado. Asegúrese de que el archivo no esté abierto.", parent=self)
+            messagebox.showerror("Error", "Guardado cancelado.", parent=self)
 
 
 # Asegúrate de que P_Listar está definido/importado correctamente
@@ -784,7 +783,14 @@ class Register_Loans():
         self.page_size = 19
    
         self.current_page = 0
-        
+        self.filter_options = {
+            "Cota": "Cota",
+            "N.registro": "n_registro",
+            "Título": "titulo",
+            "Autor": "autor",
+            "Categoría": "ID_Categoria",
+            "Asignatura": "ID_Asignatura"
+        }
         self.setup_window()
 
         # Llamada a la función para cargar los libros
@@ -802,31 +808,43 @@ class Register_Loans():
         self.register_loan_window.resizable(False, False)
         self.register_loan_window.grab_set()
         self.register_loan_window.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self.register_loan_window))
-        self.images = {}          
+        self.images = {}
+        self.is_search_active = False          
         # Crear el marco izquierdo para el menú de navegación
         self.left_frame_list = tk.Frame(self.register_loan_window, bg="#042344")
         self.left_frame_list.place(x=170, y=160, height=430, width=1200)
-        
+        bold_font = font.Font(family="Bold", size=15, weight="bold")
+        self.label_libros = tk.Label(self.register_loan_window, text="Tabla Libros", bg="#042344", fg="#d0d0d0", font=bold_font)
+        self.label_libros.place(x=653.0, y=144.0, width=237.0, height=15.0)
         rectangulo_color = tk.Label(self.register_loan_window, bg="#2E59A7", width=200, height=3)
         rectangulo_color.place(x=0, y=0)
-        tk.Label(self.register_loan_window, text="Tabla Prestamos", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=505.0, y=8.0, width=450.0, height=35.0)
-        tk.Label(self.register_loan_window, text="Cedula del Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=628.0, y=70.0, width=185.0, height=35.0)
+        tk.Label(self.register_loan_window, text="Registrar Prestamo", fg="#ffffff", bg="#2E59A7", font=("Montserrat Medium", 28)).place(x=518.0, y=5.0,height=40.0)
+        tk.Label(self.register_loan_window, text="Cedula de Cliente", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=8.0, y=156.0, width=185.0, height=35.0)
         self.cedula = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat", validate="key", validatecommand=(self.validate_number, "%P"))
-        self.cedula.place(x=630.0, y=100.0, width=190.0, height=35.0)
-        tk.Label(self.register_loan_window, text="Fecha Registrar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=22.0, y=140.0, width=160.0, height=35.0)
-        self.fecha_registrar = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.fecha_registrar.place(x=20.0, y=170.0, width=170.0, height=35.0)
-        tk.Label(self.register_loan_window, text="Fecha Limite", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=7.0, y=240.0, width=160.0, height=35.0)
-        self.fecha_limite = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
-        self.fecha_limite.place(x=20.0, y=270.0, width=170.0, height=35.0)
+        self.cedula.place(x=11.0, y=192.0, width=180.0, height=35.0)
+        tk.Label(self.register_loan_window, text="Fecha Registrar:", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=8.0, y=245.0)
+        #tk.Label(self.register_loan_window, text="Fecha Registrar:", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=15.0, y=156.0)
+        #PARA BUSCAR!!:
+        tk.Label(self.register_loan_window, text="Buscar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=453.0, y=54.0)
+        tk.Label(self.register_loan_window, text="Filtrado de Busqueda", fg="#a6a6a6", bg="#042344", font=("Bold", 12)).place(x=742.0, y=60.0)
+        
+        #self.cedula = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat", validate="key", validatecommand=(self.validate_number, "%P"))
+        #self.cedula.place(x=630.0, y=100.0, width=190.0, height=35.0)
+        
+        #, width=160.0, height=35.0)
+        #self.fecha_registrar = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", relief="flat")
+        #self.fecha_registrar.place(x=20.0, y=170.0, width=170.0, height=35.0)
+        
+        
+        
 
         # Establecer las fechas automáticamente
         fecha_actual = datetime.now().strftime("%d/%m/%Y")
         fecha_limite = (datetime.now() + timedelta(days=3)).strftime("%d/%m/%Y")
-        self.fecha_registrar.insert(0, fecha_actual)
-        self.fecha_limite.insert(0, fecha_limite)
-        self.fecha_registrar.config(state='readonly')
-        self.fecha_limite.config(state='readonly')
+        #self.fecha_registrar.insert(0, fecha_actual)
+        
+        #self.fecha_registrar.config(state='readonly')
+        tk.Label(self.register_loan_window, text=fecha_actual, fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=8.0, y=275.0)
 
         # Definir las columnas
         tree = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N° Registro", "Titulo", "Autor", "Editorial", "Año", "Edición", "N° Volúmenes", "N° Ejemplares")
@@ -912,8 +930,59 @@ class Register_Loans():
         self.boton_R.place_forget()
         self.cedula.bind("<KeyRelease>", lambda event: self.loans_validations.validate_entries(self, event))
         self.cedula.bind("<KeyPress>",self.key_on_press_search)
+        
         #self.cedula.bind("<Return>", lambda event: self.save_modifications())
+        self.buscar = tk.Entry(self.register_loan_window, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
+        self.buscar.place(x=455.0, y=82.0, width=267.0, height=48.0)
+        self.buscar.bind("<Return>", self.boton_buscar_2)
+        
+        self.campo_busqueda = ttk.Combobox(self.register_loan_window, values=list(self.filter_options.keys()), state="readonly", width=13, font=("Montserrat Medium", 13))
+        self.campo_busqueda.place(x=745.0, y=82,height=48)
+        self.campo_busqueda.set("Cota")
+        self.images['boton_refrescar'] = tk.PhotoImage(file=resource_path("assets_2/16_refrescar.png"))
+        tk.Label(self.register_loan_window, text="Refrescar", fg="#a6a6a6", bg="#042344", font=("Bold", 17)).place(x=915.0, y=54.0)    
+            # Cargar y almacenar la imagen del botón
+        self.button_e = tk.Button(
+                self.register_loan_window,
+                image=self.images['boton_refrescar'],
+                borderwidth=0,
+                highlightthickness=0,
+                command=lambda: self.load_books(),
+                relief="flat",
+                bg="#031A33",
+                activebackground="#031A33",  # Mismo color que el fondo del botón
+                
+            )
+        self.button_e.place(x=935.0, y=85.0, width=65.0, height=40.0) #self.button_e.place(x=935.0, y=85.0, width=65.0, height=40.0)
+        
+    def boton_buscar_2(self, event):
+        busqueda = self.buscar.get().strip()
+        campo_seleccionado = self.campo_busqueda.get()  # Obtener el campo seleccionado
+        campo_real = self.filter_options[campo_seleccionado]  # Traducir al nombre real de la columna
+        
+        if not busqueda:
+            messagebox.showinfo("Búsqueda Fallida de Libro", f"No se ingresó ningún término de búsqueda. Por favor, ingrese un término para buscar en el campo '{campo_seleccionado}'.",parent=self.register_loan_window)
+            return
+        
+        # Convertir la búsqueda a minúsculas y eliminar tildes
+        busqueda_normalizada = unidecode.unidecode(busqueda).lower()
+        
+        try:
+            self.search_data = search_books(campo_real, busqueda_normalizada)
+            self.search_current_page = 0  # Resetear la página a la primera página
+            self.is_search_active = True
 
+            if self.search_data:
+                # Limpiar la tabla antes de insertar nuevos resultados
+                self.book_table_list.delete(*self.book_table_list.get_children())
+                self.display_page(self.search_data, self.search_current_page, self.page_size, is_search=True)
+                self.buscar.delete(0, 'end')  # Limpiar el Entry después de una búsqueda exitosa
+                messagebox.showinfo("Búsqueda Exitosa de Libro", f"Se encontraron {len(self.search_data)} resultados para '{busqueda}' en el campo '{campo_seleccionado}'.",parent=self.register_loan_window)
+            else:
+                self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
+                messagebox.showinfo("Búsqueda Fallida de Libro", f"No se encontraron resultados para '{busqueda}' en el campo '{campo_seleccionado}'.",parent=self.register_loan_window)
+        except mariadb.Error as ex:
+            print("Error durante la conexión:", ex)
     def key_on_press_search(self, event):
         # Obtener el widget que disparó el evento
         widget = event.widget
@@ -943,7 +1012,7 @@ class Register_Loans():
         # Asumimos que el ID_Libro está en la primera columna
         self.ID_Libro = item_values[0]
     
-    def boton_buscar(self, event):
+    """def boton_buscar(self, event):
         busqueda = self.buscar.get().strip()
         campo_seleccionado = self.campo_busqueda.get()  # Obtener el campo seleccionado
         campo_real = self.filter_options[campo_seleccionado]  # Traducir al nombre real de la columna
@@ -970,7 +1039,7 @@ class Register_Loans():
                 self.buscar.delete(0, 'end')  # Limpiar el Entry si no se encontraron coincidencias
                 messagebox.showinfo("Búsqueda Fallida de Libro", f"No se encontraron resultados para '{busqueda}' en el campo '{campo_seleccionado}'.")
         except mariadb.Error as ex:
-            print("Error durante la conexión:", ex)
+            print("Error durante la conexión:", ex)"""
 
     def display_page(self, data, current_page, page_size, is_search=False):
         # Limpiar la tabla antes de insertar nuevos resultados
@@ -1005,9 +1074,9 @@ class Register_Loans():
 
     def next_page(self):
         if self.is_search_active:
-            if (self.search_current_page + 1) * self.search_page_size < len(self.search_data):
+            if (self.search_current_page + 1) * self.page_size < len(self.search_data):
                 self.search_current_page += 1
-                self.display_page(self.search_data, self.search_current_page, self.search_page_size, is_search=True)
+                self.display_page(self.search_data, self.search_current_page, self.page_size, is_search=True)
         else:
             if (self.current_page + 1) * self.page_size < len(self.data):
                 self.current_page += 1
@@ -1017,7 +1086,7 @@ class Register_Loans():
         if self.is_search_active:
             if self.search_current_page > 0:
                 self.search_current_page -= 1
-                self.display_page(self.search_data, self.search_current_page, self.search_page_size, is_search=True)
+                self.display_page(self.search_data, self.search_current_page, self.page_size, is_search=True)
         else:
             if self.current_page > 0:
                 self.current_page -= 1
@@ -1033,7 +1102,7 @@ class Register_Loans():
         from users.backend.db_users import obtener_id_usuario_actual
 
         # Formatear las fechas
-        fecha_registrar = loans_validations.format_date(self.fecha_registrar.get())
+        fecha_registrar = loans_validations.format_date(datetime.now().strftime("%d/%m/%Y"))
         Cedula = self.cedula.get()
         if hasattr(self, 'ID_Libro'):
             ID_Libro = self.ID_Libro

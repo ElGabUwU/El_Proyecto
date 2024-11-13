@@ -26,7 +26,7 @@ def clear_entries_list(self):
 def validate_entries(instance, event=None):
         # Comprobar si todos los campos están llenos
         if (instance.cedula.get()):
-            instance.boton_R.place(x=35.0, y=495.0, width=130.0, height=40.0)  # Mostrar el botón
+            instance.boton_R.place(x=35.0, y=340.0, width=130.0, height=40.0)  # Mostrar el botón
         else:
             instance.boton_R.place_forget()  # Ocultar el botón si algún campo está vacío
 
@@ -91,28 +91,6 @@ def validate_cedula(cedula):
     if len(cedula) < 7 or len(cedula) > 10:
         return False, "La cédula debe tener entre 7 y 10 caracteres."
     return True, ""
-
-#Función que verifica el estado del libro, si está 'activo' o 'eliminado'
-def libro_active_or_delete(libro_id):
-    try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            cursor = mariadb_conexion.cursor()
-            # Verificar si el ID_Libro existe en la tabla libro y su estado
-            cursor.execute("SELECT estado_libro FROM libro WHERE ID_Libro = %s", (libro_id,))
-            result = cursor.fetchone()
-            if result:
-                estado_libro = result[0]
-                return estado_libro == 'activo'
-            return False
-    except mariadb.Error as e:
-        print(f"Error al conectar a la base de datos: {e}")
-        return False
-    finally:
-        if mariadb_conexion:
-            cursor.close()
-            mariadb_conexion.close()
-
 
 # Función que valida si la cédula ha sido registrada o no dentro del sistema
 def is_cedula_registered(cedula):
@@ -230,35 +208,12 @@ Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha lím
 
             return mensaje
     return None
-#ojo sentencia abajo
-# def validar_libro_no_prestado(n_registro, cedula_cliente_actual):
-#     conn = establecer_conexion()
-#     if conn:
-#         cursor = conn.cursor()
-#         query = """
-#             SELECT l.ID_Libro, c.Nombre, c.Apellido, p.Fecha_Registro, p.Fecha_Limite, c.Cedula, l.titulo
-#             FROM libro l
-#             JOIN cliente_prestamo cp ON l.ID_Libro = cp.ID_Libro
-#             JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente
-#             JOIN prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
-#             WHERE l.n_registro = %s AND cp.estado_cliente_prestamo = 'activo'
-#         """
-#         cursor.execute(query, (n_registro,))
-#         resultado = cursor.fetchone()
-#         conn.close()
-#         if resultado:
-#             id_libro, nombre_cliente, apellido_cliente, fecha_registro, fecha_limite, cedula_cliente, titulo_libro = resultado
-#             hoy = datetime.now().date()
-#             try:
-#                 fecha_limite = datetime.strptime(fecha_limite, '%d-%m-%Y').date()
-#             except ValueError:
-#                 fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%d').date()
 
 
 
 
 #Función que valida los campos insertado en la ventana de modificar
-def validar_campos_loans(tipo_validacion="registro", cedula=None, libro_id=None, n_registro=None):
+def validar_campos(tipo_validacion="registro", cedula=None, fecha_limite=None, client_id=None):
     error_messages = []
 
     def add_error(is_valid, message):
@@ -266,7 +221,7 @@ def validar_campos_loans(tipo_validacion="registro", cedula=None, libro_id=None,
             error_messages.append(message)
 
     try:
-        if tipo_validacion == "registro":
+        if tipo_validacion == "modificar":
             is_valid, message = validate_cedula(cedula)
             add_error(is_valid, message)
             
@@ -274,11 +229,9 @@ def validar_campos_loans(tipo_validacion="registro", cedula=None, libro_id=None,
                 cedula_ok, message = is_cedula_registered(cedula)
                 add_error(cedula_ok, message)
             
-            # Validar si el libro está activo
-            if not libro_active_or_delete(libro_id):
-                add_error(False, "El libro seleccionado está marcado como eliminado y no puede ser prestado.")
-            
-                
+            # Validar fecha límite
+            is_valid, message = validate_fecha_limite(fecha_limite)
+            add_error(is_valid, message)
 
     except Exception as e:
         error_messages.append(f"Error inesperado: {str(e)}")

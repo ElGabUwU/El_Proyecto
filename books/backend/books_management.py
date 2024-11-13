@@ -205,19 +205,26 @@ class L_Listar(tk.Frame):
                         background="#2E59A7",
                         foreground="#000000",
                         borderwidth=0)
-        columns = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición", "N° Volúmenes", "N° Ejemplares")
+        columns = ("ID", "Sala", "Categoria", "Asignatura", "Cota", "N. Registro", "Título", "Autor", "Editorial", "Año", "Edición", "N° Volúmenes", "N° Ejemplares", "ID_Ejemplar")
         self.book_table_list = ttk.Treeview(self.left_frame_list, columns=columns, show='headings', style="Rounded.Treeview", selectmode="browse")
+
+        # Configurar columnas visibles
         self.book_table_list.column("ID", width=50, anchor="center")
         self.book_table_list.column("Sala", width=50, anchor="center")
         for col in columns:
-            if col not in ("ID", "Sala"):
+            if col not in ("ID", "Sala", "ID_Ejemplar"):  # Excluir ID_Ejemplar
                 self.book_table_list.column(col, width=85, anchor="center")
             self.book_table_list.heading(col, text=col)
+
         self.book_table_list.pack(expand=True, fill="both", padx=30, pady=5)
         scrollbar_pt = ttk.Scrollbar(self.book_table_list, orient="vertical", command=self.book_table_list.yview)
         self.book_table_list.configure(yscrollcommand=scrollbar_pt.set)
         scrollbar_pt.pack(side="right", fill="y")
         self.book_table_list.bind("<Double-1>", self.on_book_double_click)
+
+        # Ocultar la columna ID_Ejemplar
+        self.book_table_list.column("ID_Ejemplar", width=0, stretch=False)
+        self.book_table_list.heading("ID_Ejemplar", text="")
 
         self.images['boton_siguiente'] = tk.PhotoImage(file=resource_path("assets_2/siguiente.png"))
         self.images['boton_anterior'] = tk.PhotoImage(file=resource_path("assets_2/atras.png"))
@@ -359,7 +366,6 @@ class L_Listar(tk.Frame):
         self.page_label.config(text=f"Página {current_page + 1} de {total_pages}")
 
 
-
     def on_book_double_click(self, event):
         try:
             selected_item = self.book_table_list.selection()[0]
@@ -375,9 +381,11 @@ class L_Listar(tk.Frame):
                 "Titulo": libro_valores[6],
                 "Autor": libro_valores[7],
                 "Editorial": libro_valores[8],
-                "Edicion": libro_valores[9],
-                "n_volumenes": libro_valores[10],
-                "n_ejemplares": libro_valores[11]  # Asegúrate de que coincida con tu índice
+                "Año": libro_valores[9],
+                "Edicion": libro_valores[10],
+                "n_volumenes": libro_valores[11],
+                "n_ejemplares": libro_valores[12],
+                "ID_Ejemplar": libro_valores[13]  # Asegúrate de que coincida con tu índice
             }
 
             mariadb_conexion = establecer_conexion()
@@ -385,10 +393,28 @@ class L_Listar(tk.Frame):
                 cursor = mariadb_conexion.cursor()
 
                 cursor.execute('''
-                    SELECT ID_Libro
-                    FROM libro
-                    WHERE autor = %s AND editorial = %s AND titulo = %s
-                ''', (self.book_data["Autor"], self.book_data["Editorial"], self.book_data["Titulo"]))
+                    SELECT 
+                    e.ID_Libro, 
+                    e.ID_Sala, 
+                    e.ID_Categoria, 
+                    e.ID_Asignatura, 
+                    e.Cota, 
+                    e.n_registro, 
+                    ln.titulo, 
+                    ln.autor, 
+                    ln.editorial, 
+                    e.año, 
+                    e.edicion, 
+                    e.n_volumenes, 
+                    e.ID_Ejemplar
+                    FROM 
+                        ejemplares e
+                    JOIN 
+                        libro_new ln ON e.ID_Libro = ln.ID_Libro
+                    WHERE 
+                        ln.autor = %s AND ln.editorial = %s AND ln.titulo = %s
+                        AND e.estado_ejemplar = %s AND ln.estado_new_libro = %s
+                ''', (self.book_data["Autor"], self.book_data["Editorial"], self.book_data["Titulo"], 'activo', 'activo'))
 
                 ejemplares = cursor.fetchall()
 
