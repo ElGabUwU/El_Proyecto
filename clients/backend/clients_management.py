@@ -18,6 +18,7 @@ from clients.backend.db_clients import *
 from validations.clients_validations import capitalize_first_letter, limit_length, get_cliente_id_by_cedula
 from validations.clients_validations import *
 from util.utilidades import resource_path
+from util.ventana import centrar_ventana
 def validate_number_input(text):
         if text == "":
             return True
