@@ -13,7 +13,7 @@ from clients.backend.clients_management import *
 import tkinter as tk
 import os
 from util.utilidades import resource_path
-
+from util.ventana import centrar_ventana
 
 class Bienvenida(tk.Frame):
     def __init__(self, parent):
@@ -282,7 +282,8 @@ import threading
 class Starter(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.geometry("1366x768")
+        self.geometry("1366x705")
+        #centrar_ventana(self, 1366, 705)
         self.title("Arcanum Library")
         # Usar ruta relativa para el icono
         icon_path = resource_path('assets_2/logo_biblioteca.ico')
