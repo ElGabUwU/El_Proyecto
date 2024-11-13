@@ -40,9 +40,23 @@ def allow_permitted_characters(char):
     # Check if the character is permitted
     return re.match(r'[a-zA-Z0-9\s,.\-#]', char)
 
-
 def capitalize_first_letter(text):
     return text.title()
+def format_direccion(texto):
+    if texto:
+        return texto.title()
+    return texto
+
+def validar_y_formatear_direccion(texto):
+    allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ áéíóúÁÉÍÓÚñÑ.,&()/-'\"äëïöü"
+    
+    # Filtrar caracteres no permitidos
+    filtered_text = ''.join([char for char in texto if char in allowed_chars])
+    
+    # Formatear el texto para capitalizar solo la primera letra de cada palabra
+    formatted_text = format_direccion(filtered_text)
+    
+    return formatted_text
 
 # VALIDACION DE DATOS CAMPOS INGRESADOS DE FORMA INCORRECTA
 def validate_name(name):

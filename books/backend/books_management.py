@@ -10,6 +10,7 @@ import random
 import unidecode
 from db.conexion import establecer_conexion
 from util.utilidades import resource_path
+from util.ventana import centrar_ventana
 def validate_number_input(text):
         if text == "":
             return True
@@ -25,6 +26,7 @@ class L_Listar(tk.Frame):
     
     def __init__(self, parent):
         super().__init__(parent)
+        
         self.parent = parent
         self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
         self.canvas.pack(side="right", fill="both", expand=True)
@@ -186,8 +188,7 @@ class L_Listar(tk.Frame):
         self.search_page_size = 19
         self.search_current_page = 0
         self.is_search_active = False
-
-        obtener_e_imprimir_asignaturas_infantil()
+        
 
     def setup_treeview(self):
         style = ttk.Style()
@@ -305,6 +306,7 @@ class L_Listar(tk.Frame):
                 messagebox.showinfo("Búsqueda Fallida de Libro", f"No se encontraron resultados para '{busqueda}' en el campo '{campo_seleccionado}'.")
         except mariadb.Error as ex:
             print("Error durante la conexión:", ex)
+        self.book_table_list.yview_moveto(0)    
 
     def display_page(self, data, current_page, page_size, is_search=False):
         # Limpiar la tabla antes de insertar nuevos resultados
@@ -349,6 +351,7 @@ class L_Listar(tk.Frame):
             if (self.current_page + 1) * self.page_size < len(self.data):
                 self.current_page += 1
                 self.display_page(self.data, self.current_page, self.page_size)
+        self.book_table_list.yview_moveto(0)        
 
     def previous_page(self):
         if self.is_search_active:
@@ -595,12 +598,15 @@ from validations.books_validations import *
 class L_Registrar(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent)
+        self.withdraw()
         self.parent = parent
         self.grab_set()
         self.canvas = tk.Canvas(self, bg="#031A33", width=1356, height=530)
         self.canvas.pack(side="left", fill="both", expand=False)
         self.resizable(False, False)
         self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
+        self.geometry("1355x600")
+        centrar_ventana(self, 1355, 600)
         self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
        # validate_number = self.register(validat e_number_input)
         self.images = {}
@@ -806,6 +812,7 @@ class L_Registrar(tk.Toplevel):
         self.inicializar_titulos()
         self.inicializar_campos_y_widgets()
         self.validacion_sala(None)
+        self.after(500,self.deiconify)
     #def are_u_sure(self):
     
     def cancelar(self, window):
@@ -919,24 +926,18 @@ class L_Registrar(tk.Toplevel):
                 return
             if not allow_only_letters_numbers_dots(event.char):
                 return "break"
-            
             # Guardar la posición del cursor antes de añadir el nuevo carácter
             cursor_position = widget.index(tk.INSERT)
-            
             # Añadir el nuevo carácter al texto actual en la posición del cursor
             new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
-            
             # Limitar la longitud y convertir a mayúsculas antes de actualizar el widget
             new_text = limitar_longitud_cota(new_text)
             formatted_text = convert_to_uppercase(new_text)
-
             # Actualizar el campo de entrada
             widget.delete(0, tk.END)
             widget.insert(0, formatted_text)
-            
             # Restaurar la posición del cursor
             widget.icursor(cursor_position + 1)
-
             return "break"
         elif widget == self.registro_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
@@ -950,24 +951,46 @@ class L_Registrar(tk.Toplevel):
                 return
             if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,;:!?¿¡-":
                 return "break"
-            current_text = longitud_titulo(current_text)
-            current_text = format_title(current_text)
-            formatted_text = validate_and_format_title(current_text)
+            
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = longitud_titulo(new_text)
+            formatted_text = validate_and_format_title(new_text)
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+
         elif widget == self.autor_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
-            if not event.char.isalpha() and event.char != " ":
+            if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,&()/-'\"äëïöü":
                 return "break"
-            current_text = longitud_autor(current_text)
-            formatted_text = validar_y_formatear_texto(current_text)
             
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = longitud_autor(new_text)
+            formatted_text = validar_y_formatear_texto(new_text)
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+
         elif widget == self.editorial_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
-            if not event.char.isalpha() and event.char != " ":
+            if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,&()/-'\"äëïöü":
                 return "break"
-            current_text = longitud_editorial(current_text)
-            formatted_text = validar_y_formatear_texto(current_text)
+            
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = longitud_editorial(new_text)
+            formatted_text = validar_y_formatear_texto(new_text)
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+
         elif widget == self.ano_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
@@ -1128,6 +1151,7 @@ class L_Registrar(tk.Toplevel):
 class L_Modificar(tk.Toplevel):      
     def __init__(self,book_data, *args, **kwargs):
         super().__init__( *args, **kwargs)
+        self.withdraw()
         self.title("Modificar")
         self.book_data = book_data
         self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
@@ -1316,7 +1340,8 @@ class L_Modificar(tk.Toplevel):
         
         self.original_values = self.book_data.copy()  # Copia el diccionario
 
-
+        self.geometry("1355x600")
+        centrar_ventana(self, 1356, 530)
         self.canvas = tk.Canvas(self, bg="#031A33", width=1356, height=530)
         self.canvas.pack(side="left", fill="both", expand=False)
         self.resizable(False, False)
@@ -1330,7 +1355,7 @@ class L_Modificar(tk.Toplevel):
         self.crear_boton_restaurar()
         self.crear_boton_cancelar()
         self.insert_values_book()
-
+        self.after(500,self.deiconify)
         
         
       
@@ -1473,24 +1498,18 @@ class L_Modificar(tk.Toplevel):
                 return
             if not allow_only_letters_numbers_dots(event.char):
                 return "break"
-            
             # Guardar la posición del cursor antes de añadir el nuevo carácter
             cursor_position = widget.index(tk.INSERT)
-            
             # Añadir el nuevo carácter al texto actual en la posición del cursor
             new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
-            
             # Limitar la longitud y convertir a mayúsculas antes de actualizar el widget
             new_text = limitar_longitud_cota(new_text)
             formatted_text = convert_to_uppercase(new_text)
-
             # Actualizar el campo de entrada
             widget.delete(0, tk.END)
             widget.insert(0, formatted_text)
-            
             # Restaurar la posición del cursor
             widget.icursor(cursor_position + 1)
-
             return "break"
         elif widget == self.registro_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
@@ -1504,24 +1523,46 @@ class L_Modificar(tk.Toplevel):
                 return
             if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,;:!?¿¡-":
                 return "break"
-            current_text = longitud_titulo(current_text)
-            current_text = format_title(current_text)
-            formatted_text = validate_and_format_title(current_text)
+            
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = longitud_titulo(new_text)
+            formatted_text = validate_and_format_title(new_text)
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+
         elif widget == self.autor_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
-            if not event.char.isalpha() and event.char != " ":
+            if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,&()/-'\"äëïöü":
                 return "break"
-            current_text = longitud_autor(current_text)
-            formatted_text = validar_y_formatear_texto(current_text)
             
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = longitud_autor(new_text)
+            formatted_text = validar_y_formatear_texto(new_text)
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+
         elif widget == self.editorial_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
-            if not event.char.isalpha() and event.char != " ":
+            if not event.char.isalpha() and event.char not in " áéíóúÁÉÍÓÚñÑ.,&()/-'\"äëïöü":
                 return "break"
-            current_text = longitud_editorial(current_text)
-            formatted_text = validar_y_formatear_texto(current_text)
+            
+            cursor_position = widget.index(tk.INSERT)
+            new_text = current_text[:cursor_position] + event.char + current_text[cursor_position:]
+            new_text = longitud_editorial(new_text)
+            formatted_text = validar_y_formatear_texto(new_text)
+            widget.delete(0, tk.END)
+            widget.insert(0, formatted_text)
+            widget.icursor(cursor_position + 1)
+            return "break"
+
         elif widget == self.ano_m:
             if event.keysym in ('BackSpace', 'Delete', "Left", "Right"):
                 return
