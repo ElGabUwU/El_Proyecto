@@ -542,8 +542,8 @@ class GenerarReportePDF(tk.Toplevel):
                     SELECT
                         c.Cedula,
                         c.Nombre AS Nombre_Cliente,
-                        l.titulo AS Nombre_Libro,
-                        l.n_registro AS N_Registro,
+                        ln.titulo AS Nombre_Libro,
+                        e.n_registro AS N_Registro,
                         p.Fecha_Registro,
                         p.Fecha_Limite,
                         u.Nombre AS Nombre_Usuario,
@@ -556,7 +556,9 @@ class GenerarReportePDF(tk.Toplevel):
                     JOIN 
                         cliente c ON cp.ID_Cliente = c.ID_Cliente
                     JOIN
-                        libro l ON cp.ID_Libro = l.ID_Libro
+                        ejemplares e ON cp.ID_Libro = e.ID_Libro
+                    JOIN
+                        libro_new ln ON e.ID_Libro = ln.ID_Libro
                     JOIN 
                         usuarios u ON cp.ID_Usuario = u.ID_Usuario
                     WHERE 
@@ -581,6 +583,7 @@ class GenerarReportePDF(tk.Toplevel):
         print(f"Préstamos del Día Actual: {prestamos_data}")
         return prestamos_data
 
+
     def get_loans_by_month(self):
         prestamos_data = []
         try:
@@ -591,8 +594,8 @@ class GenerarReportePDF(tk.Toplevel):
                     SELECT
                         c.Cedula,
                         c.Nombre AS Nombre_Cliente,
-                        l.titulo AS Nombre_Libro,
-                        l.n_registro AS N_Registro,
+                        ln.titulo AS Nombre_Libro,
+                        e.n_registro AS N_Registro,
                         p.Fecha_Registro,
                         p.Fecha_Limite,
                         u.Nombre AS Nombre_Usuario,
@@ -605,7 +608,9 @@ class GenerarReportePDF(tk.Toplevel):
                     JOIN 
                         cliente c ON cp.ID_Cliente = c.ID_Cliente
                     JOIN
-                        libro l ON cp.ID_Libro = l.ID_Libro
+                        ejemplares e ON cp.ID_Libro = e.ID_Libro
+                    JOIN
+                        libro_new ln ON e.ID_Libro = ln.ID_Libro
                     JOIN 
                         usuarios u ON cp.ID_Usuario = u.ID_Usuario
                     WHERE 
@@ -629,6 +634,7 @@ class GenerarReportePDF(tk.Toplevel):
             print("Error durante la conexión:", ex)
         print(f"Préstamos del Mes Actual: {prestamos_data}")
         return prestamos_data
+
 
     def obtener_datos(self):
         if not self.prestamos_data:
@@ -739,6 +745,7 @@ class GenerarReportePDF(tk.Toplevel):
             print("Error durante la conexión:", ex)
             messagebox.showerror("Error", f"Error durante la conexión: {ex}", parent=self)
             return None, None, None
+
     
     def generate_report(self):
         report_type = self.report_combobox.get()
@@ -1110,6 +1117,7 @@ class Register_Loans():
             total_pages = 1  # Asegurarse de que siempre haya al menos una página
         self.page_label.config(text=f"Página {current_page + 1} de {total_pages}")
 
+    
     def save_modifications(self):
         from users.backend.db_users import obtener_id_usuario_actual
 
@@ -1186,9 +1194,8 @@ class Register_Loans():
             return
 
         # Crear el préstamo y actualizar las tablas
-        if create_loan(ID_Cliente, ID_Prestamo, fecha_registrar, fecha_limite):
-            if update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_Usuario):
-                messagebox.showinfo("Préstamo Registrado con Éxito", f"""El préstamo ha sido registrado con éxito.
+        if update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_Usuario, fecha_registrar, fecha_limite):
+            messagebox.showinfo("Préstamo Registrado con Éxito", f"""El préstamo ha sido registrado con éxito.
 
     Detalles del Préstamo:
     - Título del Libro: {datos_libro['titulo']}
@@ -1202,12 +1209,114 @@ class Register_Loans():
     Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha límite.
     Para más información sobre los libros prestados, consulte el apartado de préstamos.
     """, parent=self.register_loan_window)
-                #loans_validations.clear_entries_list_register(self)
-                self.load_books()
-            else:
-                messagebox.showerror("Error", "No se pudo actualizar las tablas. Puede que no haya ejemplares disponibles.", parent=self.register_loan_window)
+            self.load_books()
         else:
-            messagebox.showerror("Error", "Préstamo no pudo ser creado.", parent=self.register_loan_window)
+            messagebox.showerror("Error", "No se pudo actualizar las tablas. Puede que no haya ejemplares disponibles.", parent=self.register_loan_window)
+            messagebox.showerror("Error", "No se pudo realizar el préstamo.", parent=self.register_loan_window)
+    # else:
+    #     messagebox.showerror("Error", "No se pudo realizar el préstamo.", parent=self.register_loan_window)
+
+
+
+
+    # def save_modifications(self):
+    #     from users.backend.db_users import obtener_id_usuario_actual
+
+    #     # Formatear las fechas
+    #     fecha_registrar = loans_validations.format_date(datetime.now().strftime("%d/%m/%Y"))
+    #     Cedula = self.cedula.get()
+    #     if hasattr(self, 'ID_Libro'):
+    #         ID_Libro = self.ID_Libro
+    #     else:
+    #         messagebox.showerror("Error", "Por favor, selecciona un libro de la lista.", parent=self.register_loan_window)
+    #         return
+
+    #     # Obtener la información del libro
+    #     datos_libro = obtener_datos_libro(ID_Libro)
+    #     if not datos_libro:
+    #         messagebox.showerror("Error", "No se pudo obtener la información del libro.", parent=self.register_loan_window)
+    #         return
+
+    #     n_registro = datos_libro["n_registro"]
+
+    #     # Validar si el libro ya está prestado
+    #     error_libro_prestado = validar_libro_no_prestado(n_registro, Cedula)
+    #     if error_libro_prestado:
+    #         messagebox.showerror("Error de Préstamo", error_libro_prestado, parent=self.register_loan_window)
+    #         return
+
+    #     # Obtener ID del Cliente
+    #     ID_Cliente = get_cliente_id_by_cedula(Cedula)
+    #     if ID_Cliente is None:
+    #         messagebox.showerror("Error", "No se pudo obtener la ID del Cliente. Ingrese un N° de Cédula existente", parent=self.register_loan_window)
+    #         return
+
+    #     # Obtener información del cliente
+    #     datos_cliente = obtener_datos_cliente(ID_Cliente)
+    #     if not datos_cliente:
+    #         messagebox.showerror("Error", "No se pudo obtener la información del cliente.", parent=self.register_loan_window)
+    #         return
+
+    #     # Obtener ID del Usuario Logueado
+    #     ID_Usuario = self.parent.id_usuario
+    #     if ID_Usuario is None:
+    #         messagebox.showerror("Error", "No se pudo obtener el ID de usuario.", parent=self.register_loan_window)
+    #         return
+
+    #     # Generar un nuevo ID_Prestamo
+    #     ID_Prestamo = loans_validations.generate_alphanumeric_id()
+    #     print(f"Nuevo ID_Prestamo generado: {ID_Prestamo}")
+
+    #     # Generar ID de Libro Préstamo
+    #     ID_Libro_Prestamo = generate_id_libro_prestamo(self)
+
+    #     # Verificar si el libro es una novela
+    #     if es_novela(ID_Libro):
+    #         fecha_limite = (datetime.strptime(fecha_registrar, '%d-%m-%Y') + timedelta(days=8)).strftime('%d-%m-%Y')
+    #     else:
+    #         fecha_limite = (datetime.strptime(fecha_registrar, '%d-%m-%Y') + timedelta(days=3)).strftime('%d-%m-%Y')
+
+    #     # Confirmación antes de registrar el préstamo
+    #     confirmacion = messagebox.askyesno("Confirmación de Préstamo", f"""¿Desea registrar el préstamo con los siguientes detalles?
+
+    # Detalles del Préstamo:
+    # - Título del Libro: {datos_libro['titulo']}
+    # - Fecha de Registro: {fecha_registrar}
+    # - Fecha Límite: {fecha_limite}
+    # - Nombre del Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}
+    # - Cédula del Cliente: {Cedula}
+    # - Teléfono del Cliente: {datos_cliente['Telefono']}
+    # - Número de Registro del Libro: {n_registro}
+
+    # Por favor, confirme que todos los detalles son correctos antes de proceder.
+    # """, parent=self.register_loan_window)
+
+    #     if not confirmacion:
+    #         return
+
+    #     # Crear el préstamo y actualizar las tablas
+    #     if create_loan(ID_Cliente, ID_Prestamo, fecha_registrar, fecha_limite):
+    #         if update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_Usuario):
+    #             messagebox.showinfo("Préstamo Registrado con Éxito", f"""El préstamo ha sido registrado con éxito.
+
+    # Detalles del Préstamo:
+    # - Título del Libro: {datos_libro['titulo']}
+    # - Fecha de Registro: {fecha_registrar}
+    # - Fecha Límite: {fecha_limite}
+    # - Nombre del Cliente: {datos_cliente['Nombre']} {datos_cliente['Apellido']}
+    # - Cédula del Cliente: {Cedula}
+    # - Teléfono del Cliente: {datos_cliente['Telefono']}
+    # - Número de Registro del Libro: {n_registro}
+
+    # Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha límite.
+    # Para más información sobre los libros prestados, consulte el apartado de préstamos.
+    # """, parent=self.register_loan_window)
+    #             #loans_validations.clear_entries_list_register(self)
+    #             self.load_books()
+    #         else:
+    #             messagebox.showerror("Error", "No se pudo actualizar las tablas. Puede que no haya ejemplares disponibles.", parent=self.register_loan_window)
+    #     else:
+    #         messagebox.showerror("Error", "Préstamo no pudo ser creado.", parent=self.register_loan_window)
 
     def cancelar(self, window):
         if messagebox.askyesno(

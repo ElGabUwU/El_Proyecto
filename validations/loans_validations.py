@@ -136,12 +136,13 @@ def validar_libro_no_prestado(n_registro, cedula_cliente_actual):
     if conn:
         cursor = conn.cursor()
         query = """
-            SELECT l.ID_Libro, c.Nombre, c.Apellido, p.Fecha_Registro, p.Fecha_Limite, c.Cedula, l.titulo, c.Telefono
-            FROM libro l
-            JOIN cliente_prestamo cp ON l.ID_Libro = cp.ID_Libro
+            SELECT e.ID_Libro, c.Nombre, c.Apellido, p.Fecha_Registro, p.Fecha_Limite, c.Cedula, ln.titulo, c.Telefono
+            FROM ejemplares e
+            JOIN cliente_prestamo cp ON e.ID_Libro = cp.ID_Libro
             JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente
             JOIN prestamo p ON cp.ID_Prestamo = p.ID_Prestamo
-            WHERE l.n_registro = %s AND cp.estado_cliente_prestamo = 'activo'
+            JOIN libro_new ln ON e.ID_Libro = ln.ID_Libro
+            WHERE e.n_registro = %s AND cp.estado_cliente_prestamo = 'activo'
         """
         cursor.execute(query, (n_registro,))
         resultado = cursor.fetchone()
@@ -208,6 +209,7 @@ Por favor, asegúrese de que el cliente devuelva el libro antes de la fecha lím
 
             return mensaje
     return None
+
 
 
 

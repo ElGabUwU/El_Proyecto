@@ -207,45 +207,9 @@ def mostrar_mensaje_prestamos_vencidos():
 
 
 
-# Función para crear un préstamo para cada cliente
-def create_loan(ID_Cliente, ID_Prestamo, fecha_registrar, fecha_limite):
-    try:
-        mariadb_conexion = establecer_conexion()
-        if mariadb_conexion:
-            cursor = mariadb_conexion.cursor(buffered=True)
-            print("Conexión a la base de datos establecida.")
-
-            # Insertar un nuevo préstamo
-            insert_new_loan(cursor, ID_Prestamo, fecha_registrar, fecha_limite)
-            print(f"Nuevo préstamo insertado: {ID_Prestamo}, {fecha_registrar}, {fecha_limite}")
-            mariadb_conexion.commit()
-
-            # Asociar el préstamo con el cliente
-            associate_loan_with_client(cursor, ID_Cliente, ID_Prestamo)
-            print(f"Préstamo asociado con el cliente: {ID_Cliente}, {ID_Prestamo}")
-            mariadb_conexion.commit()
-
-            get_new_id_cp(cursor, ID_Cliente, ID_Prestamo)
-            print(f"ID_CP que se obtuve de: {ID_Cliente}, {ID_Prestamo}")
-            mariadb_conexion.commit()
-            """
-            OJO get new id cp
-            """
-            cursor.close()
-            mariadb_conexion.close()
-            print("Conexión a la base de datos cerrada.")
-            return True
-    except mariadb.Error as e:
-        print(f"Error al conectar a la base de datos: {e}")
-        return False
-    finally:
-        if mariadb_conexion and mariadb_conexion.is_connected():
-            cursor.close()
-            mariadb_conexion.close()
-            print("Conexión a la base de datos cerrada en finally.")
-
 #Función para actualizar/insertar datos en las columnas de tabla cliente_prestamos e igualmente en las tablas cliente y libro
-def update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_Usuario):
+
+def update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_Usuario, fecha_registrar, fecha_limite):
     try:
         # Establecer conexión a la base de datos
         mariadb_conexion = establecer_conexion()
@@ -254,21 +218,21 @@ def update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_U
             print("Conexión a la base de datos establecida.")
 
             # Iniciar transacción
-            iniciar_transaccion(mariadb_conexion)
+            mariadb_conexion.start_transaction()
 
             # Obtener los datos del libro
-            cursor.execute("SELECT autor, editorial, titulo FROM libro WHERE ID_Libro = %s", (ID_Libro,))
+            cursor.execute("SELECT autor, editorial, titulo FROM libro_new WHERE ID_Libro = %s", (ID_Libro,))
             libro_data = cursor.fetchone()
             autor = libro_data[0]
             editorial = libro_data[1]
             titulo = libro_data[2]
 
-            # Verificar la cantidad de ejemplares disponibles basándose en autor, editorial y título
+            # Verificar la cantidad de ejemplares disponibles basándose en ID_Libro
             cursor.execute("""
-                SELECT n_ejemplares 
-                FROM libro 
-                WHERE autor = %s AND editorial = %s AND titulo = %s
-            """, (autor, editorial, titulo))
+                SELECT SUM(n_ejemplares) 
+                FROM ejemplares 
+                WHERE ID_Libro = %s
+            """, (ID_Libro,))
             ejemplares_disponibles = cursor.fetchone()[0]
             print(f"Ejemplares disponibles para el libro {titulo} de {autor}: {ejemplares_disponibles}")
 
@@ -279,21 +243,41 @@ def update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_U
 
             # Restar 1 a la cantidad de ejemplares
             cursor.execute("""
-                UPDATE libro 
+                UPDATE ejemplares 
                 SET n_ejemplares = n_ejemplares - 1 
-                WHERE autor = %s AND editorial = %s AND titulo = %s
-            """, (autor, editorial, titulo))
+                WHERE ID_Libro = %s
+            """, (ID_Libro,))
             print(f"Ejemplar prestado. Nuevos ejemplares disponibles: {ejemplares_disponibles - 1}")
 
-            # Verificar e insertar en libros_prestamo
-            verificar_e_insertar_libro_prestamo(cursor, ID_Libro_Prestamo, ID_Prestamo, ID_Libro)
-
-            # Insertar en cliente_prestamo
+            # Insertar un nuevo préstamo
             cursor.execute("""
-                INSERT INTO cliente_prestamo (ID_Cliente, ID_Prestamo, ID_Usuario, ID_Libro, ID_Libro_Prestamo)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (ID_Cliente, ID_Prestamo, ID_Usuario, ID_Libro, ID_Libro_Prestamo))
-            print(f"Registro insertado en cliente_prestamo: ID_Cliente={ID_Cliente}, ID_Prestamo={ID_Prestamo}, ID_Usuario={ID_Usuario}, ID_Libro={ID_Libro}, ID_Libro_Prestamo={ID_Libro_Prestamo}")
+                INSERT INTO prestamo (ID_Prestamo, fecha_registro, fecha_limite)
+                VALUES (%s, %s, %s)
+            """, (ID_Prestamo, fecha_registrar, fecha_limite))
+            print(f"Nuevo préstamo insertado: {ID_Prestamo}, {fecha_registrar}, {fecha_limite}")
+
+            # Verificar e insertar en libros_prestamo
+            cursor.execute("""
+                INSERT INTO libros_prestamo (ID_Libro_Prestamo, ID_Prestamo, ID_Libro)
+                VALUES (%s, %s, %s)
+                ON DUPLICATE KEY UPDATE ID_Prestamo = VALUES(ID_Prestamo), ID_Libro = VALUES(ID_Libro)
+            """, (ID_Libro_Prestamo, ID_Prestamo, ID_Libro))
+            print(f"Registro insertado/verificado en libros_prestamo: ID_Libro_Prestamo={ID_Libro_Prestamo}, ID_Prestamo={ID_Prestamo}, ID_Libro={ID_Libro}")
+
+            # Verificar si ya existe una entrada en cliente_prestamo
+            cursor.execute("""
+                SELECT COUNT(*) FROM cliente_prestamo WHERE ID_Cliente = %s AND ID_Prestamo = %s
+            """, (ID_Cliente, ID_Prestamo))
+            count = cursor.fetchone()[0]
+            if count > 0:
+                print(f"El préstamo ya está asociado con el cliente: {ID_Cliente}, {ID_Prestamo}")
+            else:
+                # Insertar en cliente_prestamo
+                cursor.execute("""
+                    INSERT INTO cliente_prestamo (ID_Cliente, ID_Prestamo, ID_Usuario, ID_Libro, ID_Libro_Prestamo)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (ID_Cliente, ID_Prestamo, ID_Usuario, ID_Libro, ID_Libro_Prestamo))
+                print(f"Registro insertado en cliente_prestamo: ID_Cliente={ID_Cliente}, ID_Prestamo={ID_Prestamo}, ID_Usuario={ID_Usuario}, ID_Libro={ID_Libro}, ID_Libro_Prestamo={ID_Libro_Prestamo}")
 
             # Obtener el ID_CP generado
             cursor.execute("SELECT LAST_INSERT_ID()")
@@ -332,6 +316,101 @@ def update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_U
             cursor.close()
             mariadb_conexion.close()
             print("Conexión a la base de datos cerrada.")
+
+
+# def update_all_tables(ID_Cliente, ID_Libro, ID_Libro_Prestamo, ID_Prestamo, ID_Usuario):
+#     try:
+#         # Establecer conexión a la base de datos
+#         mariadb_conexion = establecer_conexion()
+#         if mariadb_conexion:
+#             cursor = mariadb_conexion.cursor(buffered=True)
+#             print("Conexión a la base de datos establecida.")
+
+#             # Iniciar transacción
+#             mariadb_conexion.start_transaction()
+
+#             # Obtener los datos del libro
+#             cursor.execute("SELECT autor, editorial, titulo FROM libro_new WHERE ID_Libro = %s", (ID_Libro,))
+#             libro_data = cursor.fetchone()
+#             autor = libro_data[0]
+#             editorial = libro_data[1]
+#             titulo = libro_data[2]
+
+#             # Verificar la cantidad de ejemplares disponibles basándose en ID_Libro
+#             cursor.execute("""
+#                 SELECT SUM(n_ejemplares) 
+#                 FROM ejemplares 
+#                 WHERE ID_Libro = %s
+#             """, (ID_Libro,))
+#             ejemplares_disponibles = cursor.fetchone()[0]
+#             print(f"Ejemplares disponibles para el libro {titulo} de {autor}: {ejemplares_disponibles}")
+
+#             if ejemplares_disponibles <= 1:
+#                 print("No hay ejemplares disponibles para prestar.")
+#                 messagebox.showerror("Error", "No hay ejemplares disponibles para prestar.")
+#                 return False
+
+#             # Restar 1 a la cantidad de ejemplares
+#             cursor.execute("""
+#                 UPDATE ejemplares 
+#                 SET n_ejemplares = n_ejemplares - 1 
+#                 WHERE ID_Libro = %s
+#             """, (ID_Libro,))
+#             print(f"Ejemplar prestado. Nuevos ejemplares disponibles: {ejemplares_disponibles - 1}")
+
+#             # Verificar e insertar en libros_prestamo
+#             cursor.execute("""
+#                 INSERT INTO libros_prestamo (ID_Libro_Prestamo, ID_Prestamo, ID_Libro)
+#                 VALUES (%s, %s, %s)
+#                 ON DUPLICATE KEY UPDATE ID_Prestamo = VALUES(ID_Prestamo), ID_Libro = VALUES(ID_Libro)
+#             """, (ID_Libro_Prestamo, ID_Prestamo, ID_Libro))
+#             print(f"Registro insertado/verificado en libros_prestamo: ID_Libro_Prestamo={ID_Libro_Prestamo}, ID_Prestamo={ID_Prestamo}, ID_Libro={ID_Libro}")
+
+#             # Insertar en cliente_prestamo
+#             cursor.execute("""
+#                 INSERT INTO cliente_prestamo (ID_Cliente, ID_Prestamo, ID_Usuario, ID_Libro, ID_Libro_Prestamo)
+#                 VALUES (%s, %s, %s, %s, %s)
+#             """, (ID_Cliente, ID_Prestamo, ID_Usuario, ID_Libro, ID_Libro_Prestamo))
+#             print(f"Registro insertado en cliente_prestamo: ID_Cliente={ID_Cliente}, ID_Prestamo={ID_Prestamo}, ID_Usuario={ID_Usuario}, ID_Libro={ID_Libro}, ID_Libro_Prestamo={ID_Libro_Prestamo}")
+
+#             # Obtener el ID_CP generado
+#             cursor.execute("SELECT LAST_INSERT_ID()")
+#             ID_CP = cursor.fetchone()[0]
+#             print(f"ID_CP obtenido: {ID_CP}")
+
+#             # Actualizar la tabla cliente con el ID_CP
+#             cursor.execute("""
+#                 UPDATE cliente
+#                 SET ID_CP = %s
+#                 WHERE ID_Cliente = %s
+#             """, (ID_CP, ID_Cliente))
+#             print(f"Tabla cliente actualizada con ID_CP={ID_CP} para ID_Cliente={ID_Cliente}")
+
+#             # Actualizar la tabla prestamo con el ID_CP
+#             cursor.execute("""
+#                 UPDATE prestamo
+#                 SET ID_CP = %s
+#                 WHERE ID_Prestamo = %s
+#             """, (ID_CP, ID_Prestamo))
+#             print(f"Tabla prestamo actualizada con ID_CP={ID_CP} para ID_Prestamo={ID_Prestamo}")
+
+#             # Confirmar transacción
+#             mariadb_conexion.commit()
+#             print("Transacción confirmada.")
+
+#             return True
+#     except mariadb.Error as e:
+#         print(f"Error al conectar a la base de datos: {e}")
+#         if mariadb_conexion:
+#             mariadb_conexion.rollback()
+#             print("Transacción revertida.")
+#         return False
+#     finally:
+#         if mariadb_conexion:
+#             cursor.close()
+#             mariadb_conexion.close()
+#             print("Conexión a la base de datos cerrada.")
+
 
 #Función para seleccionar el préstamo que se le renovará su tiempo de préstamo
 def renew_loan_due_date(id_prestamo):
@@ -502,7 +581,7 @@ def delete_selected_prestamo(self):
                 print(f"ID_Prestamo seleccionado: {item_id}")
 
                 # Obtener los datos del libro por número de registro
-                cursor.execute("SELECT autor, editorial, titulo FROM libro WHERE n_registro = %s", (nro_registro,))
+                cursor.execute("SELECT ln.autor, ln.editorial, ln.titulo FROM libro_new ln JOIN ejemplares e ON ln.ID_Libro = e.ID_Libro WHERE e.n_registro = %s", (nro_registro,))
                 libro_data = cursor.fetchone()
                 if not libro_data:
                     print(f"No se encontró el libro con número de registro {nro_registro}.")
@@ -524,11 +603,11 @@ def delete_selected_prestamo(self):
                     print(f"No se encontró el préstamo con ID_Prestamo={item_id} o ya estaba eliminado.")
                     continue
 
-                # Sumar 1 a la cantidad de ejemplares disponibles basándose en autor, editorial y título
+                # Sumar 1 a la cantidad de ejemplares disponibles basándose en ID_Libro
                 cursor.execute("""
-                    UPDATE libro 
+                    UPDATE ejemplares 
                     SET n_ejemplares = n_ejemplares + 1 
-                    WHERE autor = %s AND editorial = %s AND titulo = %s
+                    WHERE ID_Libro = (SELECT ID_Libro FROM libro_new WHERE autor = %s AND editorial = %s AND titulo = %s)
                 """, (autor, editorial, titulo))
                 print(f"Ejemplar devuelto. Autor={autor}, Editorial={editorial}, Título={titulo}")
 
@@ -548,6 +627,7 @@ def delete_selected_prestamo(self):
         if mariadb_conexion:
             cursor.close()
             mariadb_conexion.close()
+
 
 # def delete_selected_prestamo(self):
 #     selected_items = self.cliente_prestamo_table.selection()
@@ -681,6 +761,7 @@ def get_cliente_id_by_cedula(cedula):
             cursor.close()
             mariadb_conexion.close()
             print("Connection closed.")
+            
 def get_libro_id_by_registro(n_registro):
     try:
         mariadb_conexion = establecer_conexion()
@@ -689,9 +770,10 @@ def get_libro_id_by_registro(n_registro):
             return None
         cursor = mariadb_conexion.cursor()
         query = """
-            SELECT ID_Libro 
-            FROM libro 
-            WHERE n_registro = %s
+            SELECT e.ID_Libro 
+            FROM ejemplares e
+            JOIN libro_new ln ON e.ID_Libro = ln.ID_Libro
+            WHERE e.n_registro = %s
         """
         cursor.execute(query, (n_registro,))
         result = cursor.fetchone()
@@ -733,9 +815,11 @@ def obtener_datos_libro(libro_id):
         if conn:
             cursor = conn.cursor()
             query = '''
-                SELECT ID_Sala, ID_Categoria, ID_Asignatura, Cota, n_registro, edicion, n_volumenes, titulo, autor, editorial, año, n_ejemplares
-                FROM libro
-                WHERE ID_Libro = %s
+                SELECT e.ID_Sala, e.ID_Categoria, e.ID_Asignatura, e.Cota, e.n_registro, e.edicion, e.n_volumenes, ln.titulo, ln.autor, ln.editorial, e.año, SUM(e.n_ejemplares) as total_ejemplares
+                FROM ejemplares e
+                JOIN libro_new ln ON e.ID_Libro = ln.ID_Libro
+                WHERE e.ID_Libro = %s
+                GROUP BY e.ID_Sala, e.ID_Categoria, e.ID_Asignatura, e.Cota, e.n_registro, e.edicion, e.n_volumenes, ln.titulo, ln.autor, ln.editorial, e.año
             '''
             cursor.execute(query, (libro_id,))
             resultado_libro = cursor.fetchone()
@@ -774,6 +858,7 @@ def obtener_datos_libro(libro_id):
         print("Error durante la conexión:", ex)
     return None
 
+
 # Función para obtener la cantidad total de ejemplares de un libro específico
 def obtener_total_ejemplares(autor, titulo, editorial):
     try:
@@ -781,9 +866,10 @@ def obtener_total_ejemplares(autor, titulo, editorial):
         if conn:
             cursor = conn.cursor()
             query = '''
-                SELECT COUNT(*)
-                FROM libro
-                WHERE autor = %s AND titulo = %s AND editorial = %s
+                SELECT SUM(n_ejemplares)
+                FROM ejemplares e
+                JOIN libro_new ln ON e.ID_Libro = ln.ID_Libro
+                WHERE ln.autor = %s AND ln.titulo = %s AND ln.editorial = %s
             '''
             cursor.execute(query, (autor, titulo, editorial))
             total_ejemplares = cursor.fetchone()[0]
@@ -794,6 +880,7 @@ def obtener_total_ejemplares(autor, titulo, editorial):
         print("Error durante la conexión:", ex)
     return None
 
+
 def obtener_ejemplares_prestados_por_cliente(autor, titulo, editorial):
     try:
         conn = establecer_conexion()
@@ -802,9 +889,10 @@ def obtener_ejemplares_prestados_por_cliente(autor, titulo, editorial):
             query = '''
                 SELECT c.Cedula, COUNT(*)
                 FROM cliente_prestamo cp
-                JOIN libro l ON cp.ID_Libro = l.ID_Libro
+                JOIN ejemplares e ON cp.ID_Libro = e.ID_Libro
                 JOIN cliente c ON cp.ID_Cliente = c.ID_Cliente
-                WHERE l.autor = %s AND l.titulo = %s AND l.editorial = %s AND cp.estado_cliente_prestamo = 'activo'
+                JOIN libro_new ln ON e.ID_Libro = ln.ID_Libro
+                WHERE ln.autor = %s AND ln.titulo = %s AND ln.editorial = %s AND cp.estado_cliente_prestamo = 'activo'
                 GROUP BY c.Cedula
             '''
             cursor.execute(query, (autor, titulo, editorial))
@@ -821,6 +909,7 @@ def obtener_ejemplares_prestados_por_cliente(autor, titulo, editorial):
     except mariadb.Error as ex:
         print("Error durante la conexión:", ex)
     return []
+
 
 def obtener_ejemplares_disponibles(autor, titulo, editorial):
     total_ejemplares = obtener_total_ejemplares(autor, titulo, editorial)
