@@ -11,6 +11,7 @@ from db.conexion import establecer_conexion
 from validations.user_validations import *
 from users.backend.db_users import *
 from util.utilidades import resource_path
+from util.ventana import centrar_ventana
 def validate_number_input(text):
         if text == "":
             return True
@@ -361,6 +362,8 @@ class U_Registrar(tk.Toplevel):
         self.parent = parent
         self.canvas = tk.Canvas(self, bg="#031A33", width=863, height=530)
         self.canvas.pack(side="left", fill="both", expand=False)
+        self.geometry("863x530")
+        centrar_ventana(self, 863, 530)
         self.validate_number = self.register(validate_number_input)
         self.images = {}
         self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
@@ -610,6 +613,7 @@ class U_Modificar(tk.Toplevel):
         self.images = {}
         self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
         self.geometry("863x530") 
+        centrar_ventana(self, 863, 530)
         self.config(bg="#042344")
         self.resizable(False, False)
         self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))

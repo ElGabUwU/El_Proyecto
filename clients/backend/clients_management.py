@@ -18,6 +18,7 @@ from clients.backend.db_clients import *
 from validations.clients_validations import capitalize_first_letter, limit_length, get_cliente_id_by_cedula
 from validations.clients_validations import *
 from util.utilidades import resource_path
+from util.ventana import centrar_ventana
 def validate_number_input(text):
         if text == "":
             return True
@@ -312,6 +313,7 @@ class C_Modify(tk.Toplevel):
         self.title("Modificar")
         self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
         self.geometry("950x400")
+        centrar_ventana(self, 950, 400)
         self.config(bg="#042344")
         self.resizable(False, False)
         self.validate_number = self.register(validate_number_input)
@@ -658,6 +660,8 @@ class C_Register(tk.Toplevel):
         self.title("Registro")
         self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
         self.geometry("950x380")
+        
+        centrar_ventana(self, 950, 380)
         self.config(bg="#042344")
         self.resizable(False, False)
         self.validate_number = self.register(validate_number_input)
