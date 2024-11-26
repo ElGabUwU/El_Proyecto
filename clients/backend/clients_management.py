@@ -41,24 +41,24 @@ class C_Listar(tk.Frame):
         
 
 
-        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1080.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1132.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1230.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1035.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(935.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
 
         self.right_frame_list_loans = tk.Frame(self.canvas, bg="#FAFAFA")
         self.right_frame_list_loans.pack(expand=True, side="right", fill="both") #padx=212, pady=150, ipady=80
-        self.right_frame_list_loans.place(x=215,y=218, height=470, width=1135)
+        self.right_frame_list_loans.place(x=197,y=218, height=470, width=1100)
 
         bold_font = font.Font(family="Bold", size=15, weight="bold")
         self.label_clientes = tk.Label(self.canvas, text="Tabla Clientes", bg="#FAFAFA", fg="black", font=bold_font)
-        self.label_clientes.place(x=665.0, y=180.0, width=225.0, height=35.0)
+        self.label_clientes.place(x=635.0, y=180.0, width=225.0, height=35.0)
 
-        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar por Cédula", fill="black", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(225.0, 82.0, anchor="nw", text="Buscar por Cédula", fill="black", font=("Bold", 17))
 
         
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2, validate="key", validatecommand=(self.validate_number, "%P"))
-        self.buscar.place(x=245.0, y=112.0, width=267.0, height=48.0)
+        self.buscar.place(x=225.0, y=112.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
         self.buscar.bind("<KeyPress>", self.key_on_press_search)
 
@@ -77,7 +77,7 @@ class C_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=935.0, y=60.0, width=90.0, height=100.0)
+        self.button_e.place(x=870.0, y=60.0, width=130.0, height=100.0)
 
         
 
@@ -95,7 +95,7 @@ class C_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=1035.0, y=60.0, width=90.0, height=100.0)
+        self.button_e.place(x=970.0, y=60.0, width=130.0, height=100.0)
 
         self.images['boton_Eliminar'] = tk.PhotoImage(file=resource_path("assets_2/7_eliminar.png"))
                     # Cargar y almacenar la imagen del botón
@@ -110,7 +110,7 @@ class C_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_dl.place(x=1235.0, y=60.0, width=90.0, height=100.0)
+        self.button_dl.place(x=1170.0, y=60.0, width=130.0, height=100.0)
 
         self.images['boton_modificar'] = tk.PhotoImage(file=resource_path("assets_2/6_editar.png"))
             # Cargar y almacenar la imagen del botón
@@ -125,7 +125,7 @@ class C_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_dl.place(x=1135.0, y=60.0, width=90.0, height=100.0)
+        self.button_dl.place(x=1070.0, y=60.0, width=130.0, height=100.0)
         
         self.data = []
         self.page_size = 19

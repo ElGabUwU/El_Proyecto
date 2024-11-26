@@ -27,7 +27,7 @@ class U_Listar(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent=parent
-        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1280, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         self.validate_number = self.register(validate_number_input)
         self.images = {}
@@ -48,22 +48,22 @@ class U_Listar(tk.Frame):
 
         self.user_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
         self.user_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
-        self.user_frame_list.place(x=215,y=218, height=470, width=1135)
+        self.user_frame_list.place(x=197,y=218, height=470, width=1100)
         # Títulos para los Treeviews
         bold_font = font.Font(family="Bold", size=15, weight="bold")
         self.label_prestamos = tk.Label(self.canvas, text="Tabla Usuarios", bg="#FAFAFA", fg="#031A33", font=bold_font)
-        self.label_prestamos.place(x=665.0, y=180.0, width=225.0, height=35.0)
+        self.label_prestamos.place(x=635.0, y=180.0, width=225.0, height=35.0)
 
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar por Cédula", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1080.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
+        self.label_nombre = self.canvas.create_text(225.0, 82.0, anchor="nw", text="Buscar por Cédula", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1132.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1230.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1035.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(935.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
         # Configurar el Entry con validación
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2, validate="key", validatecommand=(self.validate_number, "%P"))
         self.buscar.insert(0, "Ingrese cédula")
-        self.buscar.place(x=245.0, y=112.0, width=267.0, height=48.0)
+        self.buscar.place(x=225.0, y=112.0, width=267.0, height=48.0)
         self.buscar.bind("<Return>", self.boton_buscar)
         self.buscar.bind("<KeyPress>",self.key_on_press_search)
     
@@ -85,7 +85,7 @@ class U_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=915.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=870.0, y=60.0, width=130.0, height=100.0)
 
                     # Cargar y almacenar las imágenes
         self.images['boton_agregar'] = tk.PhotoImage(file=resource_path("assets_2/5_agregar.png"))
@@ -102,7 +102,7 @@ class U_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=1015.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=970.0, y=60.0, width=130.0, height=100.0)
 
             # Cargar y almacenar las imágenes
         self.images['boton_eliminar'] = tk.PhotoImage(file=resource_path("assets_2/7_eliminar.png"))
@@ -118,8 +118,8 @@ class U_Listar(tk.Frame):
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo 
-            )
-        self.button_e.place(x=1215.0, y=60.0, width=130.0, height=100.0)
+            ) #1129
+        self.button_e.place(x=1170.0, y=60.0, width=130.0, height=100.0)
 
         self.images['boton_modificar'] = tk.PhotoImage(file=resource_path("assets_2/6_editar.png"))
                     # Cargar y almacenar la imagen del botón
@@ -133,8 +133,8 @@ class U_Listar(tk.Frame):
             bg="#FAFAFA",
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo  
-            )
-        self.button_m.place(x=1115.0, y=60.0, width=130.0, height=100.0)
+            )#41
+        self.button_m.place(x=1070.0, y=60.0, width=130.0, height=100.0)
         """
         prev_button = tk.Button(self.user_frame_list, text="< Anterior", borderwidth=0, highlightthickness=0, relief="flat", font=("Montserrat Regular", 15), bg="#FAFAFA", fg="#006ac2", activebackground="#FAFAFA", activeforeground="#006ac2", command=self.previous_page)
         prev_button.pack(side=tk.LEFT, padx=10, pady=10)

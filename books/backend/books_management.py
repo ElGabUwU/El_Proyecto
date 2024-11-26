@@ -28,7 +28,7 @@ class L_Listar(tk.Frame):
         super().__init__(parent)
         
         self.parent = parent
-        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1280, height=768)
         self.canvas.pack(side="right", fill="both", expand=True)
         self.images = {}
         self.book_data = {}  # Inicializar como un diccionario
@@ -71,35 +71,35 @@ class L_Listar(tk.Frame):
 
         self.left_frame_list = tk.Frame(self.canvas, bg="#FAFAFA")
         self.left_frame_list.pack(expand=True, side="left", fill="both") #padx=212, pady=150, ipady=80
-        self.left_frame_list.place(x=215,y=218, height=470, width=1135)
+        self.left_frame_list.place(x=197,y=218, height=470, width=1100)
 
 
         """"self.cota = tk.Entry(self, bd=0, bg="WHITE", fg="#031A33", highlightthickness=2, highlightbackground="#ffffff", highlightcolor="#ffffff", relief="solid" , borderwidth=0.5)
         self.cota.place(x=263.0, y=282.0, width=237.0, height=37.5)"""
         
         self.buscar = tk.Entry(self, bg="#FFFFFF", fg="#000000", highlightbackground="black", highlightcolor="black", highlightthickness=2)
-        self.buscar.place(x=245.0, y=112.0, width=267.0, height=48.0)
+        self.buscar.place(x=225.0, y=112.0, width=267.0, height=48.0)
         
 
 
         self.campo_busqueda = ttk.Combobox(self, values=list(self.filter_options.keys()), state="readonly", width=13, font=("Montserrat Medium", 13))
-        self.campo_busqueda.place(x=535.0, y=112,height=48)
+        self.campo_busqueda.place(x=515.0, y=112,height=48)
         self.campo_busqueda.set("Cota")  # Valor por defecto
         
 
 
         # Crear textos en el canvas
-        self.canvas.create_text(535.0, 89.0, anchor="nw", text="Filtrado de Busqueda", fill="#040F21", font=("Bold", 12))
-        self.label_nombre = self.canvas.create_text(245.0, 82.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1177.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1275.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(980.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
-        self.canvas.create_text(1080.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(515.0, 89.0, anchor="nw", text="Filtrado de Busqueda", fill="#040F21", font=("Bold", 12))
+        self.label_nombre = self.canvas.create_text(225.0, 82.0, anchor="nw", text="Buscar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1132.0, 170.0, text="Editar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1230.0, 170.0, text="Eliminar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(1035.0, 170.0, text="Agregar", fill="#040F21", font=("Bold", 17))
+        self.canvas.create_text(935.0, 170.0, text="Refrescar", fill="#040F21", font=("Bold", 17))
 
         # Títulos para los Treeviews
         bold_font = font.Font(family="Bold", size=15, weight="bold")
         self.label_prestamos = tk.Label(self.canvas, text="Tabla Libros", bg="#FAFAFA", fg="#031A33", font=bold_font)
-        self.label_prestamos.place(x=665.0, y=180.0, width=225.0, height=35.0)
+        self.label_prestamos.place(x=635.0, y=180.0, width=225.0, height=35.0)
 
         # Para llamar a read_books cuando se presiona Enter
         self.buscar.bind("<Return>", self.boton_buscar)
@@ -113,13 +113,13 @@ class L_Listar(tk.Frame):
                 image=self.images['boton_agregar'],
                 borderwidth=0,
                 highlightthickness=0,
-                command=lambda: self.open_registrar_window(),
+                command=lambda: self.open_registrar_window(), 
                 relief="flat",
                 bg="#FAFAFA",
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=1015.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=970.0, y=60.0, width=130.0, height=100.0)
         
                     #Boton Cargar Libros
             # Cargar y almacenar las imágenes
@@ -137,7 +137,7 @@ class L_Listar(tk.Frame):
                 activebackground="#FAFAFA",  # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_e.place(x=915.0, y=60.0, width=130.0, height=100.0)
+        self.button_e.place(x=870.0, y=60.0, width=130.0, height=100.0)
         
         
 
@@ -154,7 +154,7 @@ class L_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_dl.place(x=1215.0, y=60.0, width=130.0, height=100.0)
+        self.button_dl.place(x=1170.0, y=60.0, width=130.0, height=100.0)
 
         self.images['boton_modificar'] = tk.PhotoImage(file=resource_path("assets_2/6_editar.png"))
             # Cargar y almacenar la imagen del botón
@@ -169,7 +169,7 @@ class L_Listar(tk.Frame):
             activebackground="#FAFAFA",  # Mismo color que el fondo del botón
             activeforeground="#FFFFFF"   # Color del texto cuando el botón está activo
             )
-        self.button_dl.place(x=1115.0, y=60.0, width=130.0, height=100.0)
+        self.button_dl.place(x=1070.0, y=60.0, width=130.0, height=100.0)
 
         # Datos y paginación
         self.data = []
@@ -278,6 +278,8 @@ class L_Listar(tk.Frame):
          else:
              messagebox.showwarning("Advertencia", "No hay ningún elemento seleccionado. Debe seleccionar un libro para modificarlo.")
     
+    
+
     def boton_buscar(self, event):
         busqueda = self.buscar.get().strip()
         campo_seleccionado = self.campo_busqueda.get()  # Obtener el campo seleccionado
@@ -601,12 +603,12 @@ class L_Registrar(tk.Toplevel):
         self.withdraw()
         self.parent = parent
         self.grab_set()
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1356, height=530)
+        self.canvas = tk.Canvas(self, bg="#031A33", width=1280, height=530)
         self.canvas.pack(side="left", fill="both", expand=False)
         self.resizable(False, False)
         self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
-        self.geometry("1355x600")
-        centrar_ventana(self, 1355, 600)
+        self.geometry("1280x600")
+        centrar_ventana(self, 1280, 600)
         self.protocol("WM_DELETE_WINDOW", lambda: self.cancelar(self))
        # validate_number = self.register(validat e_number_input)
         self.images = {}
@@ -791,7 +793,7 @@ class L_Registrar(tk.Toplevel):
                 bg="#031A33",
                 activebackground="#031A33", # Mismo color que el fondo del botón
                 activeforeground="#FFFFFF"  # Color del texto cuando el botón está activo
-            ).place(x=61.0, y=465.0, width=130.0, height=40.0)
+            ).place(x=16.0, y=465.0, width=130.0, height=40.0)
         
         self.images['boton_c'] = tk.PhotoImage(file=resource_path("assets_2/c_button_red1.png"))
         self.boton_C = tk.Button(
@@ -805,7 +807,7 @@ class L_Registrar(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_C.place(x=250.0, y=465.0, width=130.0, height=40.0)
+        self.boton_C.place(x=205.0, y=465.0, width=130.0, height=40.0)
           
             
         
@@ -821,27 +823,27 @@ class L_Registrar(tk.Toplevel):
 
     def inicializar_titulos(self):
         
-        self.canvas.create_rectangle(0, 0, 1356, 74, fill="#2E59A7")
+        self.canvas.create_rectangle(0, 0, 1280, 74, fill="#2E59A7")
         # Títulos de los inputs
-        self.canvas.create_text(535.0, 21.0, anchor="nw", text="Registro de Libros", fill="#ffffff", font=("Montserrat Medium", 28))
-        self.canvas.create_text(61.0, 106.0, anchor="nw", text="Ingrese la información del libro a registrar", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(485.0, 21.0, anchor="nw", text="Registro de Libros", fill="#ffffff", font=("Montserrat Medium", 28))
+        self.canvas.create_text(16.0, 106.0, anchor="nw", text="Ingrese la información del libro a registrar", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 1
-        self.canvas.create_text(61.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(378.0, 152.0, anchor="nw", text="Categoría", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(695.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(16.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(333.0, 152.0, anchor="nw", text="Categoría", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(650.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 2
-        self.canvas.create_text(61.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(378.0, 252.0, anchor="nw", text="Número de registro", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(695.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1016.0, 252.0, anchor="nw", text="N° volumen", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(16.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(333.0, 252.0, anchor="nw", text="Número de registro", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(650.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(971.0, 252.0, anchor="nw", text="N° volumen", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 3
-        self.canvas.create_text(61.0, 352.0, anchor="nw", text="Título", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(378.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(695.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1016.0, 352.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(16.0, 352.0, anchor="nw", text="Título", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(333.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(650.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(971.0, 352.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
     def inicializar_campos_y_widgets(self):
         validate_number = self.register(validate_number_input)
         # Configuración del estilo de los Combobox
@@ -856,64 +858,64 @@ class L_Registrar(tk.Toplevel):
         # Primera fila
         # Combobox para Sala
         self.combobox1 = ttk.Combobox(self, values=self.salas_types, state="readonly", width=37, font=("Montserrat Medium", 10))
-        self.combobox1.place(x=61.0, y=181.5)
+        self.combobox1.place(x=16.0, y=181.5)
         self.combobox1.set("1I")  # Establece el valor inicial a "1I"
         self.combobox1.bind("<<ComboboxSelected>>", self.validacion_sala)
 
         # Combobox para Categoría
         self.categoria_cb = ttk.Combobox(self, state="readonly", width=37, font=("Montserrat Medium", 10))
-        self.categoria_cb.place(x=378.0, y=181.5)
+        self.categoria_cb.place(x=333.0, y=181.5)
         self.categoria_cb.set("Infantil-X")
         self.categoria_cb.bind("<<ComboboxSelected>>", self.actualizar_asignaturas)
 
         # Combobox para Asignatura
         self.asignatura_cb = ttk.Combobox(self, state="readonly", width=37, font=("Montserrat Medium", 10))
-        self.asignatura_cb.place(x=695.0, y=181.5)
+        self.asignatura_cb.place(x=650.0, y=181.5)
         self.asignatura_cb.set("No se ha seleccionado una asignatura")
 
 
         # Crear y colocar los widgets
         # Segunda fila
         self.cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
-        self.cota.place(x=61.0, y=282.0, width=297.0, height=37.5)
+        self.cota.place(x=16.0, y=282.0, width=297.0, height=37.5)
         self.cota.bind("<Return>", self.focus_next_widget)
         self.cota.bind("<KeyPress>",self.on_key_press)
         
 
         self.registro_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.registro_m.place(x=378.0, y=282.0, width=297.0, height=38.0)
+        self.registro_m.place(x=333.0, y=282.0, width=297.0, height=38.0)
         self.registro_m.bind("<Return>", self.focus_next_widget)
         self.registro_m.bind("<KeyPress>",self.on_key_press)
 
         self.edicion_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.edicion_m.place(x=695.0, y=282.0, width=297.0, height=37.5)
+        self.edicion_m.place(x=650.0, y=282.0, width=297.0, height=37.5)
         self.edicion_m.bind("<Return>", self.focus_next_widget)
         self.edicion_m.bind("<KeyPress>",self.on_key_press)
 
         self.volumen_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.volumen_m.place(x=1016.0, y=282.0, width=297.0, height=37.5)
+        self.volumen_m.place(x=971.0, y=282.0, width=297.0, height=37.5)
         self.volumen_m.bind("<Return>", self.focus_next_widget)
         self.volumen_m.bind("<KeyPress>",self.on_key_press)
 
         # Tercera fila
         self.titulo_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
-        self.titulo_m.place(x=61.0, y=382.0, width=297.0, height=37.5)
+        self.titulo_m.place(x=16.0, y=382.0, width=297.0, height=37.5)
         self.titulo_m.bind("<Return>", self.focus_next_widget)
         self.titulo_m.bind("<KeyPress>", self.on_key_press)  # Formatear al perder el foco
 
         self.autor_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key")
-        self.autor_m.place(x=378.0, y=382.0, width=297.0, height=37.5)
+        self.autor_m.place(x=333.0, y=382.0, width=297.0, height=37.5)
         self.autor_m.bind("<Return>", self.focus_next_widget)
         self.autor_m.bind("<KeyPress>", self.on_key_press)
         
 
         self.editorial_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key")
-        self.editorial_m.place(x=695.0, y=382.0, width=297.0, height=37.5)
+        self.editorial_m.place(x=650.0, y=382.0, width=297.0, height=37.5)
         self.editorial_m.bind("<Return>", self.focus_next_widget)
         self.editorial_m.bind("<KeyPress>", self.on_key_press)
 
         self.ano_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.ano_m.place(x=1016.0, y=382.0, width=297.0, height=37.5)
+        self.ano_m.place(x=971.0, y=382.0, width=297.0, height=37.5)
         self.ano_m.bind("<Return>",lambda event : self.register_book())
         self.ano_m.bind("<KeyPress>",self.on_key_press)
     
@@ -1341,8 +1343,8 @@ class L_Modificar(tk.Toplevel):
         self.original_values = self.book_data.copy()  # Copia el diccionario
 
         self.geometry("1355x600")
-        centrar_ventana(self, 1356, 530)
-        self.canvas = tk.Canvas(self, bg="#031A33", width=1356, height=530)
+        centrar_ventana(self, 1280, 530)
+        self.canvas = tk.Canvas(self, bg="#031A33", width=1280, height=530)
         self.canvas.pack(side="left", fill="both", expand=False)
         self.resizable(False, False)
         self.iconbitmap(resource_path('assets_2/logo_biblioteca.ico'))
@@ -1364,28 +1366,28 @@ class L_Modificar(tk.Toplevel):
 
     
     def inicializar_titulos(self):
-        self.canvas.create_rectangle(0, 0, 1356, 74, fill="#2E59A7")
+        self.canvas.create_rectangle(0, 0, 1280, 74, fill="#2E59A7")
         
-        self.canvas.create_text(535.0, 21.0, anchor="nw", text="Modificacion de Libros", fill="#ffffff", font=("Montserrat Medium", 28))
+        self.canvas.create_text(485.0, 21.0, anchor="nw", text="Modificacion de Libros", fill="#ffffff", font=("Montserrat Medium", 28))
         # Títulos de los inputs
-        self.canvas.create_text(61.0, 106.0, anchor="nw", text=f"Modificación del libro con el ID:{self.book_data['ID']}", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(16.0, 106.0, anchor="nw", text=f"Modificación del libro con el ID:{self.book_data['ID']}", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 1
-        self.canvas.create_text(61.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(378.0, 152.0, anchor="nw", text="Categoría", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(695.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(16.0, 152.0, anchor="nw", text="Sala", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(333.0, 152.0, anchor="nw", text="Categoría", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(650.0, 152.0, anchor="nw", text="Asignatura", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 2
-        self.canvas.create_text(61.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(378.0, 252.0, anchor="nw", text="Número de registro", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(695.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1016.0, 252.0, anchor="nw", text="N° volumen", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(16.0, 252.0, anchor="nw", text="Cota", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(333.0, 252.0, anchor="nw", text="Número de registro", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(650.0, 252.0, anchor="nw", text="Edición", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(971.0, 252.0, anchor="nw", text="N° volumen", fill="#a6a6a6", font=("Bold", 17))
         
         # Fila 3
-        self.canvas.create_text(61.0, 352.0, anchor="nw", text="Título", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(378.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(695.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
-        self.canvas.create_text(1016.0, 352.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(16.0, 352.0, anchor="nw", text="Título", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(333.0, 352.0, anchor="nw", text="Autor", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(650.0, 352.0, anchor="nw", text="Editorial", fill="#a6a6a6", font=("Bold", 17))
+        self.canvas.create_text(971.0, 352.0, anchor="nw", text="Año", fill="#a6a6a6", font=("Bold", 17))
 
         
     
@@ -1404,17 +1406,17 @@ class L_Modificar(tk.Toplevel):
         # Primera fila
         # Combobox para Sala
         self.combobox1 = ttk.Combobox(self, values=self.salas_types, state="readonly", width=37, font=("Montserrat Medium", 10))
-        self.combobox1.place(x=61.0, y=181.5)
+        self.combobox1.place(x=16.0, y=181.5)
         self.combobox1.bind("<<ComboboxSelected>>", self.validacion_sala)
 
         # Combobox para Categoría
         self.categoria_cb = ttk.Combobox(self, state="readonly", width=37, font=("Montserrat Medium", 10))
-        self.categoria_cb.place(x=378.0, y=181.5)
+        self.categoria_cb.place(x=333.0, y=181.5)
         self.categoria_cb.bind("<<ComboboxSelected>>", self.actualizar_asignaturas)
 
         # Combobox para Asignatura
         self.asignatura_cb = ttk.Combobox(self, state="readonly", width=37, font=("Montserrat Medium", 10))
-        self.asignatura_cb.place(x=695.0, y=181.5)
+        self.asignatura_cb.place(x=650.0, y=181.5)
         self.asignatura_cb.bind("<<ComboboxSelected>>", self.check_changes)  # Llamar a check_changes para detectar cambios
 
 
@@ -1422,32 +1424,32 @@ class L_Modificar(tk.Toplevel):
         # Crear y colocar los widgets
         # Segunda fila
         self.cota = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
-        self.cota.place(x=61.0, y=282.0, width=297.0, height=37.5)
+        self.cota.place(x=16.0, y=282.0, width=297.0, height=37.5)
         self.cota.bind("<Return>", self.focus_next_widget)
         self.cota.bind("<KeyPress>",self.on_key_press)
         self.cota.bind("<KeyRelease>", self.check_changes)
 
         self.registro_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.registro_m.place(x=378.0, y=282.0, width=297.0, height=38.0)
+        self.registro_m.place(x=333.0, y=282.0, width=297.0, height=38.0)
         self.registro_m.bind("<Return>", self.focus_next_widget)
         self.registro_m.bind("<KeyPress>",self.on_key_press)
         self.registro_m.bind("<KeyRelease>", self.check_changes)
 
         self.edicion_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.edicion_m.place(x=695.0, y=282.0, width=297.0, height=37.5)
+        self.edicion_m.place(x=650.0, y=282.0, width=297.0, height=37.5)
         self.edicion_m.bind("<Return>", self.focus_next_widget)
         self.edicion_m.bind("<KeyPress>",self.on_key_press)
         self.edicion_m.bind("<KeyRelease>", self.check_changes)
 
         self.volumen_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.volumen_m.place(x=1016.0, y=282.0, width=297.0, height=37.5)
+        self.volumen_m.place(x=971.0, y=282.0, width=297.0, height=37.5)
         self.volumen_m.bind("<Return>", self.focus_next_widget)
         self.volumen_m.bind("<KeyPress>",self.on_key_press)
         self.volumen_m.bind("<KeyRelease>", self.check_changes)
 
         # Tercera fila
         self.titulo_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid")
-        self.titulo_m.place(x=61.0, y=382.0, width=297.0, height=37.5)
+        self.titulo_m.place(x=16.0, y=382.0, width=297.0, height=37.5)
         self.titulo_m.bind("<Return>", self.focus_next_widget)
         self.titulo_m.bind("<KeyPress>", self.on_key_press)  
         self.titulo_m.bind("<KeyRelease>", self.check_changes)
@@ -1455,19 +1457,19 @@ class L_Modificar(tk.Toplevel):
 
 
         self.autor_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key")
-        self.autor_m.place(x=378.0, y=382.0, width=297.0, height=37.5)
+        self.autor_m.place(x=333.0, y=382.0, width=297.0, height=37.5)
         self.autor_m.bind("<Return>", self.focus_next_widget)
         self.autor_m.bind("<KeyPress>", self.on_key_press)
         self.autor_m.bind("<KeyRelease>", self.check_changes)
 
         self.editorial_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key")
-        self.editorial_m.place(x=695.0, y=382.0, width=297.0, height=37.5)
+        self.editorial_m.place(x=650.0, y=382.0, width=297.0, height=37.5)
         self.editorial_m.bind("<Return>", self.focus_next_widget)
         self.editorial_m.bind("<KeyPress>", self.on_key_press)
         self.editorial_m.bind("<KeyRelease>", self.check_changes)
 
         self.ano_m = tk.Entry(self, bd=0, bg="#FFFFFF", fg="#000000", highlightthickness=2, highlightbackground="grey", highlightcolor="grey", borderwidth=0.5, relief="solid", validate="key", validatecommand=(validate_number, "%P"))
-        self.ano_m.place(x=1016.0, y=382.0, width=297.0, height=37.5)
+        self.ano_m.place(x=971.0, y=382.0, width=297.0, height=37.5)
         self.ano_m.bind("<Return>", self.focus_next_widget)
         self.ano_m.bind("<KeyPress>",self.on_key_press)
         self.ano_m.bind("<KeyRelease>", self.check_changes)
@@ -1767,7 +1769,7 @@ class L_Modificar(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_modificar_inactivo.place(x=61.0, y=465.0, width=130.0, height=40.0)
+        self.boton_modificar_inactivo.place(x=16.0, y=465.0, width=130.0, height=40.0)
         self.boton_modificar_inactivo.place_forget()
         print("Botón 'Modificar' inactivo creado y oculto inicialmente.")
 
@@ -1785,17 +1787,17 @@ class L_Modificar(tk.Toplevel):
             activebackground="#031A33",
             activeforeground="#FFFFFF"
         )
-        self.boton_modificar.place(x=61.0, y=465.0, width=130.0, height=40.0)
+        self.boton_modificar.place(x=16.0, y=465.0, width=130.0, height=40.0)
         self.boton_modificar.place_forget()
         print("Botón 'Modificar' creado y oculto inicialmente.")
 
     def mostrar_boton_modificar(self):
-        self.boton_modificar.place(x=61.0, y=465.0, width=130.0, height=40.0)
+        self.boton_modificar.place(x=16.0, y=465.0, width=130.0, height=40.0)
         self.boton_modificar_inactivo.place_forget()
         print("Botón 'Modificar' mostrado.")
 
     def mostrar_boton_modificar_inactivo(self):
-        self.boton_modificar_inactivo.place(x=61.0, y=465.0, width=130.0, height=40.0)
+        self.boton_modificar_inactivo.place(x=16.0, y=465.0, width=130.0, height=40.0)
         self.boton_modificar.place_forget()
         print("Botón 'Modificar' inactivo mostrado.")
 
@@ -1819,7 +1821,7 @@ class L_Modificar(tk.Toplevel):
                 activebackground="#031A33",
                 activeforeground="#FFFFFF"
             )
-            self.boton_R.place(x=220.0, y=465.0, width=130.0, height=40.0)
+            self.boton_R.place(x=175.0, y=465.0, width=130.0, height=40.0)
         except Exception as e:
             print(f"Error al cargar la imagen del botón 'Restaurar': {e}")
 
@@ -1837,7 +1839,7 @@ class L_Modificar(tk.Toplevel):
                 activebackground="#031A33",
                 activeforeground="#FFFFFF"
             )
-            self.boton_C.place(x=380.0, y=465.0, width=130.0, height=40.0)
+            self.boton_C.place(x=335.0, y=465.0, width=130.0, height=40.0)
         except Exception as e:
             print(f"Error al cargar la imagen del botón 'Cancelar': {e}")
 

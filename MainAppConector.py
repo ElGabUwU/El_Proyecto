@@ -18,7 +18,7 @@ from util.ventana import centrar_ventana
 class Bienvenida(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1280, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         self.images = {}
         self.canvas.create_text(
@@ -186,7 +186,7 @@ class Header(tk.Frame):
         self.canvas = tk.Canvas(self, bg="#2E59A7")
         self.canvas.pack(side="left", fill="both", expand= False)
         
-        self.canvas.place(x=0.0, y=0.0, width=1366.0, height=60.0)
+        self.canvas.place(x=0.0, y=0.0, width=1280.0, height=60.0)
         self.images["logo_header"] = tk.PhotoImage(file=resource_path("assets_2/logo_header.png"))
         self.canvas.create_image(185.0, 26.0, image=self.images["logo_header"])
         
@@ -228,7 +228,7 @@ class Header(tk.Frame):
 class Perfil(tk.Frame):        
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1366, height=768)
+        self.canvas = tk.Canvas(self, bg="#FAFAFA", width=1280, height=768)
         self.canvas.pack(side="left", fill="both", expand=False)
         #validate_number = self.register(validate_number_input)
         self.parent = parent
@@ -282,9 +282,10 @@ import threading
 class Starter(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.geometry("1366x705")
+        self.geometry("1280x705")#("1366x705")
         #centrar_ventana(self, 1366, 705)
         self.title("Arcanum Library")
+        self.resizable(False, False)
         # Usar ruta relativa para el icono
         icon_path = resource_path('assets_2/logo_biblioteca.ico')
         if os.path.exists(icon_path):
@@ -308,7 +309,7 @@ class Starter(tk.Tk):
         self.welcome_frame.place(x=0, y=0)
 
         self.frame_header = Header(self)
-        self.frame_header.place(x=0, y=0, width=1366, height=54)
+        self.frame_header.place(x=0, y=0, width=1280, height=54)
 
         self.frame_menu = Menu(self, lambda frame: self.mostrar_frame(frame), self.frame_header)
         self.frame_menu.place(x=0, y=53, width=215, height=714)
